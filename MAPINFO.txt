@@ -1,0 +1,4 @@
+Gameinfo
+{
+	StatusBarClass = "JGP_FlexibleHUD"
+}
