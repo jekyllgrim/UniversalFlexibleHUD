@@ -105,16 +105,34 @@ class JGP_FlexibleHUD : BaseStatusBar
 	void DrawHealthArmor(vector2 pos = (0,0), int flags = DI_SCREEN_LEFT_BOTTOM, double barwidth = 72, bool drawMug = true, double scale = 1.0)
 	{
 		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
+		bool hasArmor = (barm && barm.amount > 0);
 		int bkgOfs = 14;
-		if (barm && barm.amount > 0)
+		if (hasArmor)
 			bkgOfs *= 2;
+		vector2 fillpos = (pos.x, pos.y - bkgOfs);
+		vector2 fillSize = (barwidth + 24, bkgOfs);
 		Fill(GetBaseplateColor(),
-			pos.x,
-			pos.y - bkgOfs,
-			barwidth + 24,
-			bkgOfs,
+			fillpos.x,
+			fillpos.y,
+			fillSize.x,
+			fillSize.y,
 			flags
 		);
+		if (CVar.GetCvar('jgphud_drawface', CPlayer))
+		{
+			fillpos.x += fillSize.x + 1;
+			fillSize.x = hasArmor ? bkgOfs : bkgOfs * 2;
+			fillSize.y = fillSize.x;
+			fillpos.y = pos.y - fillSize.x;
+			Fill(GetBaseplateColor(),
+				fillpos.x,
+				fillpos.y,
+				fillSize.x,
+				fillSize.y,
+				flags
+			);
+			DrawTexture(GetMugShot(5), (fillpos.x + fillSize.x * 0.5, fillpos.y + fillSize.y * 0.5), flags|DI_ITEM_CENTER, box:fillSize - (2,2));
+		}
 		int barFlags = flags|DI_ITEM_LEFT_BOTTOM;
 		pos += (18, -10);
 
@@ -149,7 +167,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 		
 		// Draw armor bar:
 		pos += (0, -14);
-		if (barm && barm.amount > 0)
+		if (hasArmor)
 		{
 			int armAmount = barm.amount;
 			int armMaxAmount = barm.maxamount;

@@ -1,3 +1,4 @@
 user string jgphud_mainfont = "BigUpper";
 user string jgphud_smallfont = "Confont";
 user string jgphud_numberfont = "IndexFont";
+user bool jgphud_drawface = true;
