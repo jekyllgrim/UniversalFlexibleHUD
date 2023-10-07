@@ -131,32 +131,65 @@ class JGP_FlexibleHUD : BaseStatusBar
 		DrawString(smallHUDFont, ""..rightText, pos + (barwidth + 1, 0), flags|DI_TEXT_ALIGN_LEFT, scale: (scale, scale));
 	}
 
-	int, int, int GetArmorColor(double savePercent)
+	int, int, int, int GetArmorColor(double savePercent)
 	{
-		int cRed, cGreen, cBlue;
+		int cRed, cGreen, cBlue, cFntCol;
 		if (savePercent <= 1.0)
 			savePercent *= 100;
 		if (savePercent >= 50)
 		{
 			cBlue = 255;
+			cFntCol = Font.CR_Blue;
 			if (savePercent >= 80)
 			{
 				cGreen = 255;
+				cFntCol = Font.CR_Cyan;
 			}
 		}
 		else 
 		{
+			cFntCol = Font.CR_Brown;
 			cRed = 72;
 			if (savePercent >= 33)
 			{
 				cGreen = 160;
+				cFntCol = Font.CR_Green;
 			}
 		}
-		return cRed, cGreen,  cBlue;
+		return cRed, cGreen, cBlue, cFntCol;
+	}
+
+	int GetPercentageFontColor(int amount, int maxamount)
+	{
+		if (amount >= maxamount * 0.75)
+			return Font.CR_Green;
+		if (amount >= maxamount * 0.5)
+			return Font.CR_Yellow;
+		if (amount >= maxamount * 0.25)
+			return Font.CR_Orange;
+		return Font.CR_Red;
+	}
+
+	int, int, int GetPercentageColor(double amount)
+	{
+		if (amount > 1)
+			return 0, 255, 255;	
+		if (amount >= 0.75)
+			return 0, 255, 0;	
+		if (amount >= 0.5)
+			return 255, 255, 0;
+		if (amount >= 0.25)
+			return 255, 128, 0;
+		return 255, 0, 0;
 	}
 
 	void DrawHealthArmor(vector2 pos = (0,0), int flags = DI_SCREEN_LEFT_BOTTOM, double width = 72)
 	{
+		bool drawbars = CVar.GetCvar('jgphud_drawMainbars', Cplayer).GetBool();
+		if (!drawbars)
+		{
+			width *= 0.32;
+		}
 		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
 		bool hasArmor = (barm && barm.amount > 0);
 		int bkgOfs = 14;
@@ -189,13 +222,6 @@ class JGP_FlexibleHUD : BaseStatusBar
 		int barFlags = flags|DI_ITEM_LEFT_BOTTOM;
 		pos += (18, -10);
 
-		// Draw health bar:
-		int health = CPlayer.mo.health;
-		int maxhealth = CPlayer.mo.GetMaxHealth(true);
-		int cRed = LinearMap(health, 0, maxhealth, 160, 0, true);
-		int cGreen = LinearMap(health, 0, maxhealth, 0, 160, true);
-		int cBlue = LinearMap(health, maxhealth, maxhealth * 2, 0, 160, true);
-		DrawFlatColorBar(pos, health, maxhealth, color(255, cRed, cGreen, cBlue), "", valueColor: Font.CR_White, barwidth:width, flags:barFlags);
 		// Draw health cross shape:
 		vector2 crossPos = pos - (4, 0);
 		double crossLength = 8;
@@ -219,47 +245,46 @@ class JGP_FlexibleHUD : BaseStatusBar
 			crossWidth, 
 			flags);
 		
+		// Draw health bar:
+		int health = CPlayer.mo.health;
+		int maxhealth = CPlayer.mo.GetMaxHealth(true);
+		int cRed, cGreen, cBlue, cFntCol;
+		if (drawbars)
+		{
+			cRed = LinearMap(health, 0, maxhealth, 160, 0, true);
+			cGreen = LinearMap(health, 0, maxhealth, 0, 160, true);
+			cBlue = LinearMap(health, maxhealth, maxhealth * 2, 0, 160, true);
+			DrawFlatColorBar(pos, health, maxhealth, color(255, cRed, cGreen, cBlue), "", valueColor: Font.CR_White, barwidth:width, flags:barFlags);
+		}
+		else
+		{
+			DrawString(smallHUDFont, String.Format("%3d", health), pos, translation:GetPercentageFontColor(health,maxhealth));
+		}
+		
 		// Draw armor bar:
 		pos += (0, -14);
 		if (hasArmor)
 		{
 			int armAmount = barm.amount;
 			int armMaxAmount = barm.maxamount;
-			[cRed, cGreen, cBlue] = GetArmorColor(barm.savePercent);
 			TextureID armTex = barm.icon;
 			string ap = "AP";
+			[cRed, cGreen, cBlue, cFntCol] = GetArmorColor(barm.savePercent);
 			if (armTex.isValid())
 			{
 				ap = "";
 				DrawTexture(barm.icon, pos + (-8, 8 * 0.5), flags|DI_ITEM_CENTER, box:(14,14));
 			}
-			//String.Format("[%d\%]", savePercent)
-			DrawFlatColorBar(pos, armAmount, armMaxamount, color(255, cRed, cGreen, cBlue), ap, valueColor: Font.CR_White,barwidth:width, segments: barm.maxamount / 10, flags:barFlags);
+			if (drawbars)
+			{
+				//String.Format("[%d\%]", savePercent)
+				DrawFlatColorBar(pos, armAmount, armMaxamount, color(255, cRed, cGreen, cBlue), ap, valueColor: Font.CR_White,barwidth:width, segments: barm.maxamount / 10, flags:barFlags);
+			}
+			else
+			{
+				DrawString(smallHUDFont, String.Format("%3d", armAmount), pos, translation:cFntCol);
+			}
 		}
-	}
-
-	int GetAmmoColor(Ammo am)
-	{
-		int amount = am.amount;
-		int maxamount = am.maxamount;
-		if (amount >= maxamount * 0.75)
-			return Font.CR_Green;
-		if (amount >= maxamount * 0.5)
-			return Font.CR_Yellow;
-		if (amount >= maxamount * 0.25)
-			return Font.CR_Orange;
-		return Font.CR_Red;
-	}
-
-	int, int, int GetPercentageColor(double amount)
-	{
-		if (amount >= 0.75)
-			return 0, 255, 0;	
-		if (amount >= 0.5)
-			return 255, 255, 0;
-		if (amount >= 0.25)
-			return 255, 128, 0;
-		return 255, 0, 0;
 	}
 
 	vector2 DrawWeaponBlock(vector2 pos = (0,0), int flags = DI_SCREEN_RIGHT_BOTTOM)
@@ -323,7 +348,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 		{
 			Ammo am = am1 ? am1 : am2;
 			DrawInventoryIcon(am, ammo1pos, flags|DI_ITEM_CENTER, boxSize: ammoIconBox);
-			DrawString(smallHUDFont, ""..am.amount, ammoTextPos, flags|DI_TEXT_ALIGN_CENTER, translation: GetAmmoColor(am));
+			DrawString(smallHUDFont, ""..am.amount, ammoTextPos, flags|DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am.amount, am.maxamount));
 			if (drawAmmobar)
 			{
 				DrawFlatColorBar(ammoBarPos, am.amount, am.maxamount, color(255, 192, 128, 40), barwidth: size.x - indent*2, barheight: ammoBarHeight, segments: am.maxamount / 10, flags: flags);				
@@ -335,9 +360,9 @@ class JGP_FlexibleHUD : BaseStatusBar
 			ammo1pos.x = pos.x + (-size.x * 0.25);
 			ammo2pos.x = pos.x + (-size.x * 0.75);
 			DrawInventoryIcon(am1, ammo1pos, flags|DI_ITEM_CENTER, boxSize: ammoIconBox);
-			DrawString(smallHUDFont, ""..am1amt, (ammo1pos.x, ammoTextPos.y), flags|DI_TEXT_ALIGN_CENTER, translation: GetAmmoColor(am1));
+			DrawString(smallHUDFont, ""..am1amt, (ammo1pos.x, ammoTextPos.y), flags|DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am1.amount, am1.maxamount));
 			DrawInventoryIcon(am2, ammo2pos, flags|DI_ITEM_CENTER, boxSize: ammoIconBox);
-			DrawString(smallHUDFont, ""..am2amt, (ammo2pos.x, ammoTextPos.y), flags|DI_TEXT_ALIGN_CENTER, translation: GetAmmoColor(am2));
+			DrawString(smallHUDFont, ""..am2amt, (ammo2pos.x, ammoTextPos.y), flags|DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am2.amount, am2.maxamount));
 			if (drawAmmobar)
 			{
 				DrawFlatColorBar(ammoBarPos, am1.amount, am1.maxamount, color(255, 192, 128, 40), barwidth: size.x * 0.5 - indent*4, barheight: ammoBarHeight, segments: am1.maxamount / 20, flags: flags);
@@ -366,8 +391,8 @@ class JGP_FlexibleHUD : BaseStatusBar
 				if (!icon || !icon.IsValid())
 					continue;
 				DrawTexture(icon, pos, flags, box:(iconSize, iconSize));
-				DrawString(hfnt, String.Format("%3d/%3d", am.amount, am.maxamount), pos + (iconsize * 0.5 + 1, -fy * 0.5),flags, translation: GetAmmoColor(am), scale:(fntScale,fntScale));
-				pos.y -= (iconsize + 1);
+				DrawString(hfnt, String.Format("%3d/%3d", am.amount, am.maxamount), pos + (iconsize * 0.5 + 1, -fy * 0.5),flags, translation: GetPercentageFontColor(am.amount, am.maxamount), scale:(fntScale,fntScale));
+				pos.y -= max(fy, iconsize) + 1;
 			}
 		}
 	}
