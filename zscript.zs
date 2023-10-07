@@ -52,9 +52,16 @@ class JGP_FlexibleHUD : BaseStatusBar
 			return;
 		
 		BeginHUD();
+		DrawHitMarkers();
 		DrawHealthArmor((1,-1));
 		DrawWeaponBlock((-1, -1));
-		DrawAllAmmo((-32, -56), DI_SCREEN_RIGHT_BOTTOM);
+		DrawAllAmmo((-34, -54), DI_SCREEN_RIGHT_BOTTOM);
+	}
+
+	override void Tick()
+	{
+		super.Tick();
+		UpdateHitMarkers();
 	}
 
 	void DrawFlatColorBar(vector2 pos, double curValue, double maxValue, color barColor, string leftText = "", string rightText = "", int valueColor = -1, double barwidth = 64, double barheight = 8, double indent = 0.6, color backColor = color(255, 0, 0, 0), double sparsity = 1, uint segments = 0, int flags = 0, double scale = 1.0)
@@ -295,6 +302,117 @@ class JGP_FlexibleHUD : BaseStatusBar
 				DrawString(hfnt, String.Format("%3d/%3d", am.amount, am.maxamount), pos + (iconsize * 0.5 + 1, -fy * 0.5),flags, translation: GetAmmoColor(am), scale:(fntScale,fntScale));
 				pos.y -= (iconsize + 1);
 			}
+		}
+	}
+
+	Shape2D hitMarker;
+	Shape2DTransform hitMarkerTransf;
+	array <JGP_HitMarkerData> hmData;
+	Actor prevAttacker;
+
+	void CreateHitIndicator()
+	{
+		if (!hitMarker)
+		{
+			hitMarker = new("Shape2D");
+			hitMarker.Pushvertex((-0.25,-1.0));
+			hitMarker.Pushvertex((0.25,-1.0));
+			hitMarker.Pushvertex((-0.25,-1.0) * 0.8);
+			hitMarker.Pushvertex((0.25,-1.0) * 0.8);
+			hitMarker.PushCoord((0,0));
+			hitMarker.PushCoord((0,0));
+			hitMarker.PushCoord((0,0));
+			hitMarker.PushCoord((0,0));
+			hitMarker.PushTriangle(0, 1, 2);
+			hitMarker.PushTriangle(1, 2, 3);
+		}
+	}
+
+	void UpdateAttacker(double angle)
+	{
+		let hmd = JGP_HitMarkerData.Create(angle);
+		if (hmd)
+		{
+			hmData.Push(hmd);
+		}
+	}
+
+	void DrawHitMarkers(double size = 80)
+	{
+		CreateHitIndicator();
+
+		for (int i = hmData.Size() - 1; i >= 0; i--)
+		{
+			let hmd = JGP_HitMarkerData(hmData[i]);
+			if (!hmd)
+				continue;
+			
+			vector2 hudscale = GetHudScale();
+			
+			hitMarkerTransf = new("Shape2DTransform");
+			hitMarkerTransf.Scale((size, size) * hudscale.x);
+			hitMarkerTransf.Rotate(hmd.angle);
+			hitMarkerTransf.Translate((Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5));
+			hitMarker.SetTransform(hitMarkerTransf);
+			Screen.DrawShapeFill(color(0, 0, 255), hmd.alpha, hitMarker);
+		}
+	}
+
+	void UpdateHitMarkers()
+	{
+		for (int i = hmData.Size() - 1; i >= 0; i--)
+		{
+			let hmd = JGP_HitMarkerData(hmData[i]);
+			if (!hmd)
+				continue;
+
+			hmd.alpha -= 0.025;
+			if (hmd.alpha <= 0)
+			{
+				hmData.Delete(i);
+			}
+		}
+	}
+}
+
+class JGP_HitMarkerData ui
+{
+	double angle;
+	double alpha;
+
+	static JGP_HitMarkerData Create(double angle)
+	{
+		let hmd = JGP_HitMarkerData(New("JGP_HitMarkerData"));
+		if (hmd)
+		{
+			hmd.angle = angle;
+			hmd.alpha = Cvar.GetCvar("jgphud_HitMarkersAlpha", players[consoleplayer]).GetFloat();
+		}
+		return hmd;
+	}
+}
+
+class JGP_HitMarkerHandler : StaticEventHandler
+{
+	ui JGP_FlexibleHUD hud;
+
+	override void WorldThingDamaged(worldEvent e)
+	{
+		let pmo = PlayerPawn(e.thing);
+		if (!pmo) return;
+		let attacker = pmo.player.attacker;
+		if (!attacker) return;
+		
+		EventHandler.SendInterfaceEvent(pmo.PlayerNumber(), "PlayerWasAttacked", Actor.DeltaAngle(pmo.AngleTo(attacker), pmo.angle));
+	}
+
+	override void InterfaceProcess(consoleEvent e)
+	{
+		if (!e.isManual && e.name == "PlayerWasAttacked")
+		{
+			if (!hud)
+				hud = JGP_FlexibleHUD(StatusBar);
+			hud.UpdateAttacker(e.args[0]);
 		}
 	}
 }

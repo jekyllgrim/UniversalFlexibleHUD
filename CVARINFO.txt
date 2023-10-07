@@ -1,4 +1,6 @@
-user string jgphud_mainfont = "BigUpper";
-user string jgphud_smallfont = "Confont";
-user string jgphud_numberfont = "IndexFont";
-user bool jgphud_drawface = true;
+user nosave string jgphud_mainfont = "BigUpper";
+user nosave string jgphud_smallfont = "Confont";
+user nosave string jgphud_numberfont = "IndexFont";
+user nosave bool jgphud_drawface = true;
+user nosave bool jgphud_drawHitmarkers = true;
+user nosave float jgphud_HitMarkersAlpha = 0.5;

@@ -1,4 +1,5 @@
 Gameinfo
 {
 	StatusBarClass = "JGP_FlexibleHUD"
+	AddEventHandlers = "JGP_HitMarkerHandler"
 }
