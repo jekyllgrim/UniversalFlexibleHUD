@@ -44,6 +44,13 @@ class JGP_FlexibleHUD : BaseStatusBar
 		numHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
 	}
 
+	override void Tick()
+	{
+		super.Tick();
+		UpdateHitMarkers();
+		UpdateReticleHitMarker();
+	}
+
 	override void Draw(int state, double ticFrac)
 	{
 		super.Draw(state, ticFrac);
@@ -53,15 +60,15 @@ class JGP_FlexibleHUD : BaseStatusBar
 		
 		BeginHUD();
 		DrawHitMarkers();
+		DrawReticleHitMarker();
 		DrawHealthArmor((1,-1));
-		DrawWeaponBlock((-1, -1));
-		DrawAllAmmo((-34, -54), DI_SCREEN_RIGHT_BOTTOM);
+		vector2 v = DrawWeaponBlock((-1, -1));
+		DrawAllAmmo((-34, -(v.y + 2)), DI_SCREEN_RIGHT_BOTTOM);
 	}
 
-	override void Tick()
+	color GetBaseplateColor()
 	{
-		super.Tick();
-		UpdateHitMarkers();
+		return color(140,113,66,80);
 	}
 
 	void DrawFlatColorBar(vector2 pos, double curValue, double maxValue, color barColor, string leftText = "", string rightText = "", int valueColor = -1, double barwidth = 64, double barheight = 8, double indent = 0.6, color backColor = color(255, 0, 0, 0), double sparsity = 1, uint segments = 0, int flags = 0, double scale = 1.0)
@@ -81,12 +88,32 @@ class JGP_FlexibleHUD : BaseStatusBar
 		vector2 innerBarPos = (barpos.x + indent, barpos.y + indent);
 		if (sparsity > 0 && segments > 0)
 		{
+			sparsity = Clamp(sparsity, 0, innerBarWidth / (segments * 4));
+			// If sparsity is too small, we'll alternate
+			// segment color every other segment instead:
+			bool sparsityTooSmall = sparsity <= 0.5;
+			bool altColor = true;
+			int r,g,b;			
+			if (sparsityTooSmall)
+			{
+				sparsity = 0;
+				r = barcolor.r * 0.75;
+				g = barcolor.g * 0.75;
+				b = barcolor.b * 0.75;
+			}
 			double singleSegWidth = (innerBarWidth - (segments - 1) * sparsity) / segments;
 			vector2 segPos = innerBarPos;
 			while (segPos.x < curInnerBarWidth + innerBarPos.x)
 			{
+				color col = barcolor;
+				if (sparsityTooSmall)
+				{
+					if (altColor)
+						col = color(255, r,g,b);
+					altColor = !altColor;
+				}				
 				double segW = min(singleSegWidth, curInnerBarWidth - segPos.x + innerBarPos.x);
-				Fill(barcolor, segPos.x, segPos.y, segW, innerBarHeight, flags);
+				Fill(col, segPos.x, segPos.y, segW, innerBarHeight, flags);
 				segPos.x += singleSegWidth + sparsity;
 			}
 		}
@@ -104,12 +131,31 @@ class JGP_FlexibleHUD : BaseStatusBar
 		DrawString(smallHUDFont, ""..rightText, pos + (barwidth + 1, 0), flags|DI_TEXT_ALIGN_LEFT, scale: (scale, scale));
 	}
 
-	color GetBaseplateColor()
+	int, int, int GetArmorColor(double savePercent)
 	{
-		return color(140,113,66,80);
+		int cRed, cGreen, cBlue;
+		if (savePercent <= 1.0)
+			savePercent *= 100;
+		if (savePercent >= 50)
+		{
+			cBlue = 255;
+			if (savePercent >= 80)
+			{
+				cGreen = 255;
+			}
+		}
+		else 
+		{
+			cRed = 72;
+			if (savePercent >= 33)
+			{
+				cGreen = 160;
+			}
+		}
+		return cRed, cGreen,  cBlue;
 	}
 
-	void DrawHealthArmor(vector2 pos = (0,0), int flags = DI_SCREEN_LEFT_BOTTOM, double barwidth = 72, bool drawMug = true, double scale = 1.0)
+	void DrawHealthArmor(vector2 pos = (0,0), int flags = DI_SCREEN_LEFT_BOTTOM, double width = 72)
 	{
 		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
 		bool hasArmor = (barm && barm.amount > 0);
@@ -117,7 +163,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 		if (hasArmor)
 			bkgOfs *= 2;
 		vector2 fillpos = (pos.x, pos.y - bkgOfs);
-		vector2 fillSize = (barwidth + 24, bkgOfs);
+		vector2 fillSize = (width + 24, bkgOfs);
 		Fill(GetBaseplateColor(),
 			fillpos.x,
 			fillpos.y,
@@ -149,7 +195,8 @@ class JGP_FlexibleHUD : BaseStatusBar
 		int cRed = LinearMap(health, 0, maxhealth, 160, 0, true);
 		int cGreen = LinearMap(health, 0, maxhealth, 0, 160, true);
 		int cBlue = LinearMap(health, maxhealth, maxhealth * 2, 0, 160, true);
-		DrawFlatColorBar(pos, health, maxhealth, color(255, cRed, cGreen, cBlue), "", valueColor: Font.CR_White, barwidth:barwidth, flags:barFlags);
+		DrawFlatColorBar(pos, health, maxhealth, color(255, cRed, cGreen, cBlue), "", valueColor: Font.CR_White, barwidth:width, flags:barFlags);
+		// Draw health cross shape:
 		vector2 crossPos = pos - (4, 0);
 		double crossLength = 8;
 		double crossWidth = 2;
@@ -178,26 +225,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 		{
 			int armAmount = barm.amount;
 			int armMaxAmount = barm.maxamount;
-			int savePercent = barm.savePercent * 100;
-			cRed = 0;
-			cGreen = 0;
-			cBlue = 0;
-			if (savePercent >= 50)
-			{
-				cBlue = 255;
-				if (savePercent >= 80)
-				{
-					cGreen = 255;
-				}
-			}
-			else 
-			{
-				cRed = 72;
-				if (savePercent >= 33)
-				{
-					cGreen = 160;
-				}
-			}
+			[cRed, cGreen, cBlue] = GetArmorColor(barm.savePercent);
 			TextureID armTex = barm.icon;
 			string ap = "AP";
 			if (armTex.isValid())
@@ -206,7 +234,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 				DrawTexture(barm.icon, pos + (-8, 8 * 0.5), flags|DI_ITEM_CENTER, box:(14,14));
 			}
 			//String.Format("[%d\%]", savePercent)
-			DrawFlatColorBar(pos, armAmount, armMaxamount, color(255, cRed, cGreen, cBlue), ap, valueColor: Font.CR_White,barwidth:barwidth, segments: barm.maxamount / 10, flags:barFlags);
+			DrawFlatColorBar(pos, armAmount, armMaxamount, color(255, cRed, cGreen, cBlue), ap, valueColor: Font.CR_White,barwidth:width, segments: barm.maxamount / 10, flags:barFlags);
 		}
 	}
 
@@ -223,62 +251,101 @@ class JGP_FlexibleHUD : BaseStatusBar
 		return Font.CR_Red;
 	}
 
-	void DrawWeaponBlock(vector2 pos = (0,0), int flags = DI_SCREEN_RIGHT_BOTTOM)
+	int, int, int GetPercentageColor(double amount)
+	{
+		if (amount >= 0.75)
+			return 0, 255, 0;	
+		if (amount >= 0.5)
+			return 255, 255, 0;
+		if (amount >= 0.25)
+			return 255, 128, 0;
+		return 255, 0, 0;
+	}
+
+	vector2 DrawWeaponBlock(vector2 pos = (0,0), int flags = DI_SCREEN_RIGHT_BOTTOM)
 	{
 		let weap = CPlayer.readyweapon;
 		if (!weap)
-			return;
+			return (0, 0);
 
 		Ammo am1, am2;
 		int am1amt, am2amt;
 		[am1, am2, am1amt, am2amt] = GetCurrentAmmo();
 
-		vector2 size = (66, 50);
-		if (!am1 && !am2)
-			size.y *= 0.5;			
+		int indent = 1;
+		vector2 size = (66, 0);
+		vector2 weapIconBox = (size.x - indent*2, 18);
+		vector2 ammoIconBox = (size.x * 0.25 - indent*4, 16);
+		double ammoTextHeight = smallHUDFont.mFont.GetHeight();
+		int ammoBarHeight = 8;
+		if (am1 || am2)
+		{
+			size.y += ammoIconBox.y + ammoTextHeight + indent*4;
+		}
 		
-		let icon = weap.icon;
-		if ((!icon.isValid() || TexMan.GetName(icon) == "TNT1A0") && weap.spawnstate)
+		bool drawAmmobar = CVar.GetCVar('jgphud_drawAmmoBar', CPlayer).GetBool();
+		if (drawAmmobar)
 		{
-			icon = weap.spawnState.GetSpriteTexture(0);
+			size.y += ammoBarHeight + indent*2;
 		}
-		if (!icon.isValid() || TexMan.GetName(icon) == "TNT1A0")
+		
+		let weapIcon = weap.icon;
+		if ((!weapIcon.isValid() || TexMan.GetName(weapIcon) == "TNT1A0") && weap.spawnstate)
 		{
-			icon = weap.FindState('Ready').GetSpriteTexture(0);
+			weapIcon = weap.spawnState.GetSpriteTexture(0);
 		}
-		if (icon.IsValid() || am1 || am2)
+		if (!weapIcon.isValid() || TexMan.GetName(weapIcon) == "TNT1A0")
+		{
+			weapIcon = weap.FindState('Ready').GetSpriteTexture(0);
+		}
+		if (weapIcon.IsValid())
+		{
+			size.y += weapIconBox.y + indent*2;
+		}
+		if (weapIcon.IsValid() || am1 || am2)
 		{
 			Fill(GetBaseplateColor(), pos.x - size.x, pos.y - size.y, size.x, size.y, flags);
 		}
-		if (icon.IsValid())
+		if (weapIcon.IsValid())
 		{
-			vector2 iconBox = (64, 18);
-			DrawTexture(icon, pos - (iconBox.x  * 0.5 + 1, iconBox.y * 0.5 + 1), flags|DI_ITEM_CENTER, box: (64, 18));
+			DrawTexture(weapIcon, pos - (weapIconBox.x  * 0.5 + 1, weapIconBox.y * 0.5 + 1), flags|DI_ITEM_CENTER, box: (64, 18));
 		}
 
 		if (!am1 && !am2)
-			return;
+			return size;
 
-		vector2 ammoBoxSize = (22, 16);
-		vector2 ammo1pos = pos + (-size.x * 0.5, -size.y + ammoBoxSize.y * 0.5 + 1);
+		vector2 ammo1pos = pos + (-size.x * 0.5, -size.y + ammoIconBox.y * 0.5 + indent);
 		vector2 ammo2pos = ammo1pos;
+		vector2 ammoBarPos = (pos.x - size.x + indent, ammo1pos.y + ammoIconBox.y * 0.5 + ammoTextHeight + indent*2);
+		vector2 ammoTextPos = (ammo1Pos.x, pos.y - size.y + ammoIconBox.y + indent*2);
 		// Uses only 1 ammo type:
 		if ((am1 && !am2) || (!am1 && am2))
 		{
 			Ammo am = am1 ? am1 : am2;
-			DrawInventoryIcon(am, ammo1pos, flags|DI_ITEM_CENTER, boxSize: ammoBoxSize);
-			DrawString(smallHUDFont, ""..am.amount, (ammo1pos.x, pos.y - 32), flags|DI_TEXT_ALIGN_CENTER, translation: GetAmmoColor(am));
+			DrawInventoryIcon(am, ammo1pos, flags|DI_ITEM_CENTER, boxSize: ammoIconBox);
+			DrawString(smallHUDFont, ""..am.amount, ammoTextPos, flags|DI_TEXT_ALIGN_CENTER, translation: GetAmmoColor(am));
+			if (drawAmmobar)
+			{
+				DrawFlatColorBar(ammoBarPos, am.amount, am.maxamount, color(255, 192, 128, 40), barwidth: size.x - indent*2, barheight: ammoBarHeight, segments: am.maxamount / 10, flags: flags);				
+			}
 		}
 		// Uses 2 ammo types:
 		else
 		{
 			ammo1pos.x = pos.x + (-size.x * 0.25);
 			ammo2pos.x = pos.x + (-size.x * 0.75);
-			DrawInventoryIcon(am1, ammo1pos, flags|DI_ITEM_CENTER, boxSize: ammoBoxSize);
-			DrawString(smallHUDFont, ""..am1amt, (ammo1pos.x, pos.y - 32), flags|DI_TEXT_ALIGN_CENTER, translation: GetAmmoColor(am1));
-			DrawInventoryIcon(am2, ammo2pos, flags|DI_ITEM_CENTER, boxSize: ammoBoxSize);
-			DrawString(smallHUDFont, ""..am2amt, (ammo2pos.x, pos.y - 32), flags|DI_TEXT_ALIGN_CENTER, translation: GetAmmoColor(am2));
+			DrawInventoryIcon(am1, ammo1pos, flags|DI_ITEM_CENTER, boxSize: ammoIconBox);
+			DrawString(smallHUDFont, ""..am1amt, (ammo1pos.x, ammoTextPos.y), flags|DI_TEXT_ALIGN_CENTER, translation: GetAmmoColor(am1));
+			DrawInventoryIcon(am2, ammo2pos, flags|DI_ITEM_CENTER, boxSize: ammoIconBox);
+			DrawString(smallHUDFont, ""..am2amt, (ammo2pos.x, ammoTextPos.y), flags|DI_TEXT_ALIGN_CENTER, translation: GetAmmoColor(am2));
+			if (drawAmmobar)
+			{
+				DrawFlatColorBar(ammoBarPos, am1.amount, am1.maxamount, color(255, 192, 128, 40), barwidth: size.x * 0.5 - indent*4, barheight: ammoBarHeight, segments: am1.maxamount / 20, flags: flags);
+				ammoBarPos.x += size.x*0.5 + indent;
+				DrawFlatColorBar(ammoBarPos, am2.amount, am2.maxamount, color(255, 192, 128, 40), barwidth: size.x * 0.5 - indent*4, barheight: ammoBarHeight, segments: am2.maxamount / 20, flags: flags);
+			}
 		}
+		return size;
 	}
 
 	void DrawAllAmmo(vector2 pos, int flags = 0)
@@ -310,7 +377,16 @@ class JGP_FlexibleHUD : BaseStatusBar
 	array <JGP_HitMarkerData> hmData;
 	Actor prevAttacker;
 
-	void CreateHitIndicator()
+	void UpdateAttacker(double angle)
+	{
+		let hmd = JGP_HitMarkerData.Create(angle);
+		if (hmd)
+		{
+			hmData.Push(hmd);
+		}
+	}
+
+	void DrawHitMarkers(double size = 80)
 	{
 		if (!hitMarker)
 		{
@@ -326,20 +402,6 @@ class JGP_FlexibleHUD : BaseStatusBar
 			hitMarker.PushTriangle(0, 1, 2);
 			hitMarker.PushTriangle(1, 2, 3);
 		}
-	}
-
-	void UpdateAttacker(double angle)
-	{
-		let hmd = JGP_HitMarkerData.Create(angle);
-		if (hmd)
-		{
-			hmData.Push(hmd);
-		}
-	}
-
-	void DrawHitMarkers(double size = 80)
-	{
-		CreateHitIndicator();
 
 		for (int i = hmData.Size() - 1; i >= 0; i--)
 		{
@@ -349,7 +411,9 @@ class JGP_FlexibleHUD : BaseStatusBar
 			
 			vector2 hudscale = GetHudScale();
 			
-			hitMarkerTransf = new("Shape2DTransform");
+			if (!hitMarkerTransf)
+				hitMarkerTransf = new("Shape2DTransform");
+			hitMarkerTransf.Clear();
 			hitMarkerTransf.Scale((size, size) * hudscale.x);
 			hitMarkerTransf.Rotate(hmd.angle);
 			hitMarkerTransf.Translate((Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5));
@@ -371,6 +435,77 @@ class JGP_FlexibleHUD : BaseStatusBar
 			{
 				hmData.Delete(i);
 			}
+		}
+	}
+
+	Shape2D reticleHitMarker;
+	double reticleMarkerAlpha;
+	Shape2DTransform reticleMarkerTransform;
+	void RefreshReticleHitMarker()
+	{
+		reticleMarkerAlpha = 1.0;
+	}
+
+	void UpdateReticleHitMarker()
+	{
+		if (reticleMarkerAlpha > 0)
+		{
+			reticleMarkerAlpha -= 0.1;
+		}
+	}
+
+	void DrawReticleHitMarker()
+	{
+		if (!reticleHitMarker)
+		{
+			reticleHitMarker = new("Shape2D");
+			vector2 p1 = (-1,-1);
+			vector2 p2 = (-0.4, -0.2);
+			vector2 p3 = (p2.y, p2.x);
+			int id = 0;
+			for (int i = 0; i < 4; i++)
+			{
+				reticleHitMarker.Pushvertex(p1);
+				reticleHitMarker.Pushvertex(p2);
+				reticleHitMarker.Pushvertex(p3);
+				reticleHitMarker.PushCoord((0,0));
+				reticleHitMarker.PushCoord((0,0));
+				reticleHitMarker.PushCoord((0,0));
+				reticleHitMarker.PushTriangle(id, id+1, id+2);
+				id += 3;
+				if (i == 0 || i == 2)
+				{
+					p1.x *= -1;
+					p2.x *= -1;
+					p3.x *= -1;
+				}
+				else if (i == 1 || i == 3)
+				{
+					p1.y *= -1;
+					p2.y *= -1;
+					p3.y *= -1;
+				}
+			}		
+		}
+		if (reticleMarkerAlpha > 0)
+		{
+			if (!reticleMarkerTransform)
+				reticleMarkerTransform = new("Shape2DTransform");
+			vector2 hudscale = GetHudScale();
+			double size = 14 * CVar.GetCvar('CrosshairScale', CPlayer).GetFloat();	
+			reticleMarkerTransform.Clear();
+			reticleMarkerTransform.Scale((size, size) * hudscale.x);
+			reticleMarkerTransform.Translate((Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5));
+			reticleHitMarker.SetTransform(reticleMarkerTransform);
+			Screen.DrawShapeFill(color(0, 0, 255), reticleMarkerAlpha, reticleHitMarker);
+		}
+	}
+
+	array <Weapon> weapons;	
+	void UpdateWeaponSlots()
+	{
+		for (int i = 0; i <= 9; i++)
+		{
 		}
 	}
 }
@@ -399,20 +534,39 @@ class JGP_HitMarkerHandler : StaticEventHandler
 	override void WorldThingDamaged(worldEvent e)
 	{
 		let pmo = PlayerPawn(e.thing);
-		if (!pmo) return;
-		let attacker = pmo.player.attacker;
-		if (!attacker) return;
-		
-		EventHandler.SendInterfaceEvent(pmo.PlayerNumber(), "PlayerWasAttacked", Actor.DeltaAngle(pmo.AngleTo(attacker), pmo.angle));
+		if (pmo)
+		{
+			let attacker = pmo.player.attacker;
+			if (attacker)
+			{
+				EventHandler.SendInterfaceEvent(pmo.PlayerNumber(), "PlayerWasAttacked", Actor.DeltaAngle(pmo.AngleTo(attacker), pmo.angle));
+			}
+		}
+
+		if (e.thing.bSHOOTABLE && e.thing.bISMONSTER && e.thing.target)
+		{
+			pmo = PlayerPawn(e.thing.target);
+			if (pmo)
+			{
+				EventHandler.SendInterfaceEvent(pmo.PlayerNumber(), "PlayerHitMonster");
+			}
+		}
 	}
 
 	override void InterfaceProcess(consoleEvent e)
 	{
-		if (!e.isManual && e.name == "PlayerWasAttacked")
+		if (!e.isManual)
 		{
 			if (!hud)
 				hud = JGP_FlexibleHUD(StatusBar);
-			hud.UpdateAttacker(e.args[0]);
+			if(e.name == "PlayerWasAttacked")
+			{
+				hud.UpdateAttacker(e.args[0]);
+			}
+			if (e.name == "PlayerHitMonster")
+			{
+				hud.RefreshReticleHitMarker();
+			}
 		}
 	}
 }
