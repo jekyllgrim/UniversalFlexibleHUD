@@ -42,6 +42,8 @@ class JGP_FlexibleHUD : BaseStatusBar
 		if (!fnt)
 			fnt = "IndexFont";
 		numHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
+
+		GetWeaponSlots();
 	}
 
 	override void Tick()
@@ -49,6 +51,10 @@ class JGP_FlexibleHUD : BaseStatusBar
 		super.Tick();
 		UpdateHitMarkers();
 		UpdateReticleHitMarker();
+		if (weaponSlotData.Size() <= 0)
+		{
+			GetWeaponSlots();
+		}
 	}
 
 	override void Draw(int state, double ticFrac)
@@ -64,6 +70,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 		DrawHealthArmor((1,-1));
 		vector2 v = DrawWeaponBlock((-1, -1));
 		DrawAllAmmo((-34, -(v.y + 2)), DI_SCREEN_RIGHT_BOTTOM);
+		DrawWeaponSlots();
 	}
 
 	color GetBaseplateColor()
@@ -314,15 +321,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 			size.y += ammoBarHeight + indent*2;
 		}
 		
-		let weapIcon = weap.icon;
-		if ((!weapIcon.isValid() || TexMan.GetName(weapIcon) == "TNT1A0") && weap.spawnstate)
-		{
-			weapIcon = weap.spawnState.GetSpriteTexture(0);
-		}
-		if (!weapIcon.isValid() || TexMan.GetName(weapIcon) == "TNT1A0")
-		{
-			weapIcon = weap.FindState('Ready').GetSpriteTexture(0);
-		}
+		TextureID weapIcon = GetIcon(weap, DI_FORCESCALE);
 		if (weapIcon.IsValid())
 		{
 			size.y += weapIconBox.y + indent*2;
@@ -526,12 +525,104 @@ class JGP_FlexibleHUD : BaseStatusBar
 		}
 	}
 
-	array <Weapon> weapons;	
-	void UpdateWeaponSlots()
+	array <JGP_WeaponSlotData> weaponSlotData;
+	int uniqueSlots;
+	void GetWeaponSlots()
 	{
+		WeaponSlots wslots = CPlayer.weapons;
+		if (!wslots)
+			return;
+
 		for (int i = 0; i <= 9; i++)
 		{
+			int size = wslots.SlotSize(i);
+			if (size <= 0)
+				continue;
+			
+			uniqueSlots++;
+			for (int s = 0; s < size; s++)
+			{
+				class<Weapon> weap = CPlayer.weapons.GetWeapon(i, s);
+				if (weap)
+				{
+					let wsd = JGP_WeaponSlotData.Create(i, s, weap);
+					if (wsd)
+					{
+						weaponSlotData.Push(wsd);
+					}
+				}
+			}
 		}
+	}
+
+	void DrawWeaponSlots(vector2 pos = (0,0), vector2 box = (16, 10), int flags = DI_SCREEN_CENTER_TOP)
+	{
+		double indent = 2;
+		int updown = 1;
+		double width = (box.x + indent) * uniqueSlots;
+		if ((flags & DI_SCREEN_RIGHT) == DI_SCREEN_RIGHT)
+		{
+			pos.x -= width + box.x*0.5;
+		}
+		if ((flags & DI_SCREEN_HCENTER) == DI_SCREEN_HCENTER)
+		{
+			pos.x -= width * 0.5;
+		}
+		if ((flags & DI_SCREEN_BOTTOM) == DI_SCREEN_BOTTOM)
+		{
+			updown *= -1;
+		}
+		pos.y += (box.y * 0.5 + indent) * updown;
+		vector2 wpos;
+		for (int i = 0; i < weaponSlotData.Size(); i++)
+		{
+			let wsd = weaponSlotData[i];
+			if (wsd)
+			{
+				wpos.x = pos.x + (box.x + indent) * wsd.slot;
+				wpos.y = pos.y + (box.y + indent) * wsd.slotIndex * updown;
+				// greenish fill if the weapon is currently selected:
+				color col = GetBaseplateColor();
+				int fntCol = Font.CR_Untranslated;
+				if (CPlayer.readyweapon && CPlayer.readyweapon.GetClass() == wsd.weaponClass)
+				{
+					col = color(220, 80, 200, 60);
+					fntCol = Font.CR_Green;
+				}
+				Fill(col, wpos.x-box.x*0.5, wpos.y-box.y*0.5, box.x, box.y, flags);
+				DrawInventoryIcon(CPlayer.mo.FindInventory(wsd.weaponClass), wpos, flags|DI_ITEM_CENTER, boxsize: box);
+				double fy = smallHUDFont.mFont.GetHeight();
+				string slotNum;
+				if (wsd.slotIndex > 0)
+				{
+					slotNum = String.Format("%d-%d", wsd.slot, wsd.slotIndex);
+				}
+				else
+				{
+					slotNum = ""..wsd.slot;
+				}
+				DrawString(smallHUDFont, slotNum, (wpos.x, wpos.y+box.y*0.5-fy), flags|DI_TEXT_ALIGN_CENTER, fntCol, 0.8, scale:(0.5, 0.5));
+			}
+		}
+	}
+}
+
+class JGP_WeaponSlotData ui
+{
+	int slot;
+	int slotIndex;
+	class<Weapon> weaponClass;
+
+	static JGP_WeaponSlotData Create(int slot, int slotIndex, class<Weapon> weaponClass)
+	{
+		let wsd = JGP_WeaponSlotData(New("JGP_WeaponSlotData"));
+		if (wsd)
+		{
+			wsd.slot = slot;
+			wsd.slotIndex = slotIndex;
+			wsd.weaponClass = weaponClass;
+		}
+		return wsd;
 	}
 }
 
