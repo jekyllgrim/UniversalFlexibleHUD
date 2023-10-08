@@ -335,7 +335,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 		}
 		
 		bool drawAmmobar = CVar.GetCVar('jgphud_drawAmmoBar', CPlayer).GetBool();
-		if (drawAmmobar)
+		if (drawAmmobar && (am1 || am2))
 		{
 			size.y += ammoBarHeight + indent*2;
 		}
@@ -606,22 +606,22 @@ class JGP_FlexibleHUD : BaseStatusBar
 				int fntCol = Font.CR_Untranslated;
 				if (CPlayer.readyweapon && CPlayer.readyweapon.GetClass() == wsd.weaponClass)
 				{
-					col = color(220, 80, 200, 60);
-					fntCol = Font.CR_Green;
+					col = color(180, 80, 200, 60);
+					fntCol = Font.CR_Gold;
 				}
 				Fill(col, wpos.x-box.x*0.5, wpos.y-box.y*0.5, box.x, box.y, flags);
 				DrawInventoryIcon(CPlayer.mo.FindInventory(wsd.weaponClass), wpos, flags|DI_ITEM_CENTER, boxsize: box);
 				double fy = smallHUDFont.mFont.GetHeight();
-				string slotNum;
-				if (wsd.slotIndex > 0)
-				{
-					slotNum = String.Format("%d-%d", wsd.slot, wsd.slotIndex);
-				}
-				else
-				{
-					slotNum = ""..wsd.slot;
-				}
-				DrawString(smallHUDFont, slotNum, (wpos.x, wpos.y+box.y*0.5-fy), flags|DI_TEXT_ALIGN_CENTER, fntCol, 0.8, scale:(0.5, 0.5));
+				string slotNum = ""..wsd.slot;
+//				if (wsd.slotIndex > 0)
+//				{
+//					slotNum = String.Format("%d-%d", wsd.slot, wsd.slotIndex);
+//				}
+//				else
+//				{
+//					slotNum = ""..wsd.slot;
+//				}
+				DrawString(smallHUDFont, slotNum, (wpos.x+box.x*0.5, wpos.y+box.y-fy-indent*0.5), flags|DI_TEXT_ALIGN_RIGHT, fntCol, 0.8, scale:(0.5, 0.5));
 			}
 		}
 	}
