@@ -1,0 +1,36 @@
+AddOptionMenu "OptionsMenu" before "CustomizeControls" 
+{
+	Submenu "Flexible HUD settings", "JGPHUD_Settings"
+}
+
+AddOptionMenu "OptionsMenuSimple" before "CustomizeControls" 
+{
+	Submenu "Flexible HUD settings", "JGPHUD_Settings"
+	StaticText ""
+}
+
+OptionMenu "JGPHUD_Settings"
+{
+	Option "Health and armor display", "jgphud_drawMainbars", "MainBars"
+	Option "Mugshot next to health and armor", "jgphud_drawface", "OnOff"	
+	Option "Current ammo bar", "jgphud_drawAmmoBar", "OnOff"
+	Option "Incoming damage markers", "jgphud_drawHitmarkers", "OnOff"
+	Slider "Maximum damage marker opacity", "jgphud_HitMarkersAlpha", 0.0, 1.0, 0.1, 1, "jgphud_drawHitmarkers"
+
+	Option "Weapon slots display", "jgphud_drawWeaponSlots", "OnOff"
+	Option "Weapon slots position", "jgphud_weaponSlotPos", "weaponSlotPos", "jgphud_drawWeaponSlots"
+}
+
+OptionValue "MainBars"
+{
+	0, "Numbers"
+	1, "Bars"
+}
+
+OptionValue "weaponSlotPos"
+{
+	0, "Bottom center"
+	1, "Top center"
+	2, "Top right"
+	3, "Top left"
+}

@@ -6,3 +6,5 @@ user nosave bool jgphud_drawAmmoBar = true;
 user nosave bool jgphud_drawface = true;
 user nosave bool jgphud_drawHitmarkers = true;
 user nosave float jgphud_HitMarkersAlpha = 0.5;
+user nosave bool jgphud_drawWeaponSlots = true;
+user nosave int jgphud_weaponSlotPos = 1;
