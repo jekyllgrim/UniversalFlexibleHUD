@@ -70,7 +70,26 @@ class JGP_FlexibleHUD : BaseStatusBar
 		DrawHealthArmor((1,-1));
 		vector2 v = DrawWeaponBlock((-1, -1));
 		DrawAllAmmo((-34, -(v.y + 2)), DI_SCREEN_RIGHT_BOTTOM);
-		DrawWeaponSlots();
+		if (CVar.GetCvar('jgphud_drawWeaponSlots', CPlayer).GetBool())
+		{
+			int f;
+			switch (CVar.GetCvar('jgphud_weaponSlotPos', CPlayer).GetInt())
+			{
+				default:
+					f = DI_SCREEN_CENTER_BOTTOM;
+					break;
+				case 1:
+					f = DI_SCREEN_CENTER_TOP;
+					break;
+				case 2:
+					f = DI_SCREEN_RIGHT_TOP;
+					break;
+				case 3:
+					f = DI_SCREEN_LEFT_TOP;
+					break;
+			}
+			DrawWeaponSlots(flags:f);
+		}
 	}
 
 	color GetBaseplateColor()
@@ -211,7 +230,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 			fillSize.y,
 			flags
 		);
-		if (CVar.GetCvar('jgphud_drawface', CPlayer))
+		if (CVar.GetCvar('jgphud_drawface', CPlayer).GetBool())
 		{
 			fillpos.x += fillSize.x + 1;
 			fillSize.x = hasArmor ? bkgOfs : bkgOfs * 2;
@@ -562,7 +581,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 		double width = (box.x + indent) * uniqueSlots;
 		if ((flags & DI_SCREEN_RIGHT) == DI_SCREEN_RIGHT)
 		{
-			pos.x -= width + box.x*0.5;
+			pos.x -= width + box.x*0.5 + indent;
 		}
 		if ((flags & DI_SCREEN_HCENTER) == DI_SCREEN_HCENTER)
 		{
@@ -572,6 +591,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 		{
 			updown *= -1;
 		}
+		pos.x -= box.x*0.5 - indent;
 		pos.y += (box.y * 0.5 + indent) * updown;
 		vector2 wpos;
 		for (int i = 0; i < weaponSlotData.Size(); i++)
