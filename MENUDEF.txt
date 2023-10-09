@@ -11,14 +11,21 @@ AddOptionMenu "OptionsMenuSimple" before "CustomizeControls"
 
 OptionMenu "JGPHUD_Settings"
 {
+	Title "Universal flexible HUD"
+
+	StaticText ""
 	Option "Health and armor display", "jgphud_drawMainbars", "MainBars"
 	Option "Mugshot next to health and armor", "jgphud_drawface", "OnOff"	
 	Option "Current ammo bar", "jgphud_drawAmmoBar", "OnOff"
 	Option "Incoming damage markers", "jgphud_drawHitmarkers", "OnOff"
 	Slider "Maximum damage marker opacity", "jgphud_HitMarkersAlpha", 0.0, 1.0, 0.1, 1, "jgphud_drawHitmarkers"
 
+	StaticText ""	
+	StaticText "Weapon slots", yellow
 	Option "Weapon slots display", "jgphud_drawWeaponSlots", "OnOff"
-	Option "Weapon slots position", "jgphud_weaponSlotPos", "weaponSlotPos", "jgphud_drawWeaponSlots"
+	Option "Weapon slots position", "jgphud_weaponSlotPos", "ElementScreenPos", "jgphud_drawWeaponSlots"
+	Slider "Weapon slots hor. offset", "jgphud_weaponSlotX", 0, 320, 5, 0, "jgphud_drawWeaponSlots"
+	Slider "Weapon slots vert. offset", "jgphud_weaponSlotY", 0, 200, 5, 0, "jgphud_drawWeaponSlots"
 }
 
 OptionValue "MainBars"
@@ -27,10 +34,15 @@ OptionValue "MainBars"
 	1, "Bars"
 }
 
-OptionValue "weaponSlotPos"
+OptionValue "ElementScreenPos"
 {
-	0, "Bottom center"
+	0, "Top left"
 	1, "Top center"
 	2, "Top right"
-	3, "Top left"
+	3, "Left center"
+	4, "Center"
+	5, "Right center"
+	6, "Bottom left"
+	7, "Bottom center"
+	8, "Bottom right"
 }

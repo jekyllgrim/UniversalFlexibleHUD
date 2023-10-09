@@ -70,26 +70,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 		DrawHealthArmor((1,-1));
 		vector2 v = DrawWeaponBlock((-1, -1));
 		DrawAllAmmo((-34, -(v.y + 2)), DI_SCREEN_RIGHT_BOTTOM);
-		if (CVar.GetCvar('jgphud_drawWeaponSlots', CPlayer).GetBool())
-		{
-			int f;
-			switch (CVar.GetCvar('jgphud_weaponSlotPos', CPlayer).GetInt())
-			{
-				default:
-					f = DI_SCREEN_CENTER_BOTTOM;
-					break;
-				case 1:
-					f = DI_SCREEN_CENTER_TOP;
-					break;
-				case 2:
-					f = DI_SCREEN_RIGHT_TOP;
-					break;
-				case 3:
-					f = DI_SCREEN_LEFT_TOP;
-					break;
-			}
-			DrawWeaponSlots(flags:f);
-		}
+		DrawWeaponSlots();
 	}
 
 	color GetBaseplateColor()
@@ -97,14 +78,59 @@ class JGP_FlexibleHUD : BaseStatusBar
 		return color(140,113,66,80);
 	}
 
-	void DrawFlatColorBar(vector2 pos, double curValue, double maxValue, color barColor, string leftText = "", string rightText = "", int valueColor = -1, double barwidth = 64, double barheight = 8, double indent = 0.6, color backColor = color(255, 0, 0, 0), double sparsity = 1, uint segments = 0, int flags = 0, double scale = 1.0)
+	vector2 AdjustPosition(vector2 pos, int flags, vector2 size, vector2 ofs = (0,0))
 	{
-		barwidth *= scale;
-		barheight *= scale;
-		indent *= scale;
-		sparsity *= scale;
+		if ((flags & DI_SCREEN_HCENTER) == DI_SCREEN_HCENTER)
+		{
+			pos.x -= size.x*0.5;
+		}
+		
+		if ((flags & DI_SCREEN_VCENTER) == DI_SCREEN_VCENTER)
+		{
+			pos.y -= size.y*0.5;			
+		}
 
-		DrawString(smallHUDFont, leftText, pos + (-1, 0), flags|DI_TEXT_ALIGN_RIGHT, scale: (scale, scale));
+		if ((flags & DI_SCREEN_RIGHT) == DI_SCREEN_RIGHT)
+		{
+			pos.x -= size.x;
+			ofs.x *= -1;
+		}
+		
+		if ((flags & DI_SCREEN_BOTTOM) == DI_SCREEN_BOTTOM)
+		{
+			pos.y -= size.y;
+			ofs.y *= -1;
+		}
+
+		return pos + ofs;
+	}
+
+	static const int ScreenFlags[] =
+	{
+		DI_SCREEN_LEFT_TOP,
+		DI_SCREEN_CENTER_TOP,
+		DI_SCREEN_RIGHT_TOP,
+
+		DI_SCREEN_LEFT_CENTER,
+		DI_SCREEN_CENTER,
+		DI_SCREEN_RIGHT_CENTER,
+
+		DI_SCREEN_LEFT_BOTTOM,
+		DI_SCREEN_CENTER_BOTTOM,
+		DI_SCREEN_RIGHT_BOTTOM
+	};
+
+	// A CVar value should be passed here to return appropriate flags:
+	int SetScreenFlags(int val)
+	{
+		val = Clamp(val, 0, ScreenFlags.Size() - 1);
+		return ScreenFlags[val];
+	}
+
+	void DrawFlatColorBar(vector2 pos, double curValue, double maxValue, color barColor, string leftText = "", string rightText = "", int valueColor = -1, double barwidth = 64, double barheight = 8, double indent = 0.6, color backColor = color(255, 0, 0, 0), double sparsity = 1, uint segments = 0, int flags = 0)
+	{
+		if (leftText)
+			DrawString(smallHUDFont, leftText, pos + (-1, 0), flags|DI_TEXT_ALIGN_RIGHT);
 
 		vector2 barpos = pos;// + (0, barheight * 0.5);
 		Fill(backColor, barpos.x, barpos.y, barwidth, barheight, flags);
@@ -119,7 +145,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 			// segment color every other segment instead:
 			bool sparsityTooSmall = sparsity <= 0.5;
 			bool altColor = true;
-			int r,g,b;			
+			int r,g,b;
 			if (sparsityTooSmall)
 			{
 				sparsity = 0;
@@ -135,7 +161,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 				if (sparsityTooSmall)
 				{
 					if (altColor)
-						col = color(255, r,g,b);
+						col = color(barcolor.a, r,g,b);
 					altColor = !altColor;
 				}				
 				double segW = min(singleSegWidth, curInnerBarWidth - segPos.x + innerBarPos.x);
@@ -150,11 +176,12 @@ class JGP_FlexibleHUD : BaseStatusBar
 
 		if (valueColor != -1)
 		{
-			double fy = numHUDFont.mFont.GetHeight() * scale;
-			DrawString(numHUDFont, ""..int(curvalue), pos + (barwidth * 0.5, barheight * 0.5 - fy * 0.5), flags|DI_TEXT_ALIGN_CENTER, translation: valueColor, scale: (scale, scale));
+			double fy = numHUDFont.mFont.GetHeight();
+			DrawString(numHUDFont, ""..int(curvalue), pos + (barwidth * 0.5, barheight * 0.5 - fy * 0.5), flags|DI_TEXT_ALIGN_CENTER, translation: valueColor);
 		}
 		
-		DrawString(smallHUDFont, ""..rightText, pos + (barwidth + 1, 0), flags|DI_TEXT_ALIGN_LEFT, scale: (scale, scale));
+		if (rightText)
+			DrawString(smallHUDFont, ""..rightText, pos + (barwidth + 1, 0), flags|DI_TEXT_ALIGN_LEFT);
 	}
 
 	int, int, int, int GetArmorColor(double savePercent)
@@ -545,28 +572,31 @@ class JGP_FlexibleHUD : BaseStatusBar
 	}
 
 	array <JGP_WeaponSlotData> weaponSlotData;
-	int uniqueSlots;
+	int maxSlotID;
+	int totalSlots;
 	void GetWeaponSlots()
 	{
 		WeaponSlots wslots = CPlayer.weapons;
 		if (!wslots)
 			return;
 
-		for (int i = 0; i <= 9; i++)
+		for (int i = 1; i <= 10; i++)
 		{
-			int size = wslots.SlotSize(i);
+			int sn = i >= 10 ? 0 : i;
+			int size = wslots.SlotSize(sn);
 			if (size <= 0)
 				continue;
-			
-			uniqueSlots++;
+
 			for (int s = 0; s < size; s++)
 			{
-				class<Weapon> weap = CPlayer.weapons.GetWeapon(i, s);
+				class<Weapon> weap = CPlayer.weapons.GetWeapon(sn, s);
 				if (weap)
 				{
-					let wsd = JGP_WeaponSlotData.Create(i, s, weap);
+					let wsd = JGP_WeaponSlotData.Create(sn, s, weap);
 					if (wsd)
 					{
+						totalSlots = i;
+						maxSlotID = size+1; //index 0 is 1st box
 						weaponSlotData.Push(wsd);
 					}
 				}
@@ -574,33 +604,29 @@ class JGP_FlexibleHUD : BaseStatusBar
 		}
 	}
 
-	void DrawWeaponSlots(vector2 pos = (0,0), vector2 box = (16, 10), int flags = DI_SCREEN_CENTER_TOP)
+	void DrawWeaponSlots(vector2 pos = (0,0), vector2 box = (16, 10))
 	{
+		if (CVar.GetCvar('jgphud_drawWeaponSlots', CPlayer).GetBool() == false)
+			return;
+			
+		int flags = SetScreenFlags(CVar.GetCvar('jgphud_weaponSlotPos', CPlayer).GetInt());
+		vector2 ofs = ( CVar.GetCvar('jgphud_weaponSlotX', CPlayer).GetInt(), CVar.GetCvar('jgphud_weaponSlotY', CPlayer).GetInt() );
 		double indent = 2;
-		int updown = 1;
-		double width = (box.x + indent) * uniqueSlots;
-		if ((flags & DI_SCREEN_RIGHT) == DI_SCREEN_RIGHT)
-		{
-			pos.x -= width + box.x*0.5 + indent;
-		}
-		if ((flags & DI_SCREEN_HCENTER) == DI_SCREEN_HCENTER)
-		{
-			pos.x -= width * 0.5;
-		}
-		if ((flags & DI_SCREEN_BOTTOM) == DI_SCREEN_BOTTOM)
-		{
-			updown *= -1;
-		}
-		pos.x -= box.x*0.5 - indent;
-		pos.y += (box.y * 0.5 + indent) * updown;
-		vector2 wpos;
+		double width = (box.x + indent) * totalSlots - indent; //we don't need indent at the end
+		double height = (box.y + indent) * maxSlotID - indent; //ditto
+		pos = AdjustPosition(pos, flags, (width, height), ofs);
+		vector2 wpos = pos;
 		for (int i = 0; i < weaponSlotData.Size(); i++)
 		{
 			let wsd = weaponSlotData[i];
 			if (wsd)
 			{
-				wpos.x = pos.x + (box.x + indent) * wsd.slot;
-				wpos.y = pos.y + (box.y + indent) * wsd.slotIndex * updown;
+				if (wsd.slotIndex == 0 && i > 0)
+				{
+					wpos.x += (box.x + indent);
+				}
+				wpos.y = pos.y + (box.y + indent) * wsd.slotIndex;
+				
 				// greenish fill if the weapon is currently selected:
 				color col = GetBaseplateColor();
 				int fntCol = Font.CR_Untranslated;
@@ -609,19 +635,11 @@ class JGP_FlexibleHUD : BaseStatusBar
 					col = color(180, 80, 200, 60);
 					fntCol = Font.CR_Gold;
 				}
-				Fill(col, wpos.x-box.x*0.5, wpos.y-box.y*0.5, box.x, box.y, flags);
-				DrawInventoryIcon(CPlayer.mo.FindInventory(wsd.weaponClass), wpos, flags|DI_ITEM_CENTER, boxsize: box);
+				Fill(col, wpos.x, wpos.y, box.x, box.y, flags);
+				DrawInventoryIcon(CPlayer.mo.FindInventory(wsd.weaponClass), wpos + box*0.5, flags|DI_ITEM_CENTER, boxsize: box);
 				double fy = smallHUDFont.mFont.GetHeight();
 				string slotNum = ""..wsd.slot;
-//				if (wsd.slotIndex > 0)
-//				{
-//					slotNum = String.Format("%d-%d", wsd.slot, wsd.slotIndex);
-//				}
-//				else
-//				{
-//					slotNum = ""..wsd.slot;
-//				}
-				DrawString(smallHUDFont, slotNum, (wpos.x+box.x*0.5, wpos.y+box.y-fy-indent*0.5), flags|DI_TEXT_ALIGN_RIGHT, fntCol, 0.8, scale:(0.5, 0.5));
+				DrawString(smallHUDFont, slotNum, (wpos.x+box.x, wpos.y+box.y-fy*0.5), flags|DI_TEXT_ALIGN_RIGHT, fntCol, 0.8, scale:(0.5, 0.5));
 			}
 		}
 	}
