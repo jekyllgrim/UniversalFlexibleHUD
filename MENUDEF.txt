@@ -14,15 +14,28 @@ OptionMenu "JGPHUD_Settings"
 	Title "Universal flexible HUD"
 
 	StaticText ""
-	Option "Health and armor display", "jgphud_drawMainbars", "MainBars"
-	Option "Mugshot next to health and armor", "jgphud_drawface", "OnOff"	
-	Option "Current ammo bar", "jgphud_drawAmmoBar", "OnOff"
 	Option "Incoming damage markers", "jgphud_drawHitmarkers", "OnOff"
 	Slider "Maximum damage marker opacity", "jgphud_HitMarkersAlpha", 0.0, 1.0, 0.1, 1, "jgphud_drawHitmarkers"
 
 	StaticText ""	
+	StaticText "Health and armor", yellow
+	Option "Health and armor display", "jgphud_DrawMainbars", "MainBars"
+	Option "Health and armor position", "jgphud_MainBarsPos", "ElementScreenPos"
+	Slider "Health and armor hor. offset", "jgphud_MainBarsX", -160, 160, 2, 0
+	Slider "Health and armor vert. offset", "jgphud_MainBarsY", -100, 100, 2, 0
+	Option "Mugshot display", "jgphud_DrawFace", "OnOff"
+
+	StaticText ""	
+	StaticText "Current ammo and weapon", yellow
+	Option "Current ammo display", "jgphud_DrawAmmoBlock", "OnOff"
+	Option "Current ammo position", "jgphud_AmmoBlockPos", "ElementScreenPos", "jgphud_DrawAmmoBlock"
+	Slider "Current ammo hor. offset", "jgphud_AmmoBlockX", -160, 160, 2, 0, "jgphud_DrawAmmoBlock"
+	Slider "Current ammo vert. offset", "jgphud_AmmoBlockY", -100, 100, 2, 0, "jgphud_DrawAmmoBlock"
+	Option "Display ammo bar", "jgphud_DrawAmmoBar", "OnOff", "jgphud_DrawAmmoBlock"
+
+	StaticText ""	
 	StaticText "Weapon slots", yellow
-	Option "Weapon slots display", "jgphud_drawWeaponSlots", "OnOff"
+	Option "Weapon slots display", "jgphud_DrawWeaponSlots", "OnOff"
 	Option "Weapon slots position", "jgphud_weaponSlotPos", "ElementScreenPos", "jgphud_drawWeaponSlots"
 	Slider "Weapon slots hor. offset", "jgphud_weaponSlotX", -160, 160, 2, 0, "jgphud_drawWeaponSlots"
 	Slider "Weapon slots vert. offset", "jgphud_weaponSlotY", -100, 100, 2, 0, "jgphud_drawWeaponSlots"
