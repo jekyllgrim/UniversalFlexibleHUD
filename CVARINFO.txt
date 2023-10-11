@@ -27,6 +27,11 @@ user nosave int jgphud_AllAmmoPos = 8;
 user nosave int jgphud_AllAmmoX = 2;
 user nosave int jgphud_AllAmmoY = 60;
 
+user nosave bool jgphud_DrawPowerups = true;
+user nosave int jgphud_PowerupsPos = 2;
+user nosave int jgphud_PowerupsX = 0;
+user nosave int jgphud_PowerupsY = 0;
+
 user nosave bool jgphud_DrawMinimap = true;
 user nosave bool jgphud_CircularMinimap = false;
 user nosave int jgphud_MinimapSize = 64;

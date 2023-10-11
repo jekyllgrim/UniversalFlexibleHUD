@@ -48,6 +48,13 @@ OptionMenu "JGPHUD_Settings"
 	Slider "All ammo vert. offset", "jgphud_AllAmmoY", -100, 100, 2, 0, "jgphud_drawAllAmmo"
 
 	StaticText ""	
+	StaticText "Powerup timers", yellow
+	Option "Powerup timers display", "jgphud_DrawPowerups", "OnOff"
+	Option "Powerup timers position", "jgphud_PowerupsPos", "ElementScreenPos", "jgphud_drawPowerups"
+	Slider "Powerup timers hor. offset", "jgphud_PowerupsX", -160, 160, 2, 0, "jgphud_drawPowerups"
+	Slider "Powerup timers vert. offset", "jgphud_PowerupsY", -100, 100, 2, 0, "jgphud_drawPowerups"
+
+	StaticText ""	
 	StaticText "Minimap", yellow
 	Option "Minimap display", "jgphud_DrawMinimap", "OnOff"
 	Slider "Minimap size", "jgphud_MinimapSize", 0, 128, 1, 0, "jgphud_DrawMinimap"

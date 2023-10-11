@@ -6,6 +6,8 @@ class JGP_FlexibleHUD : BaseStatusBar
 	HUDFont smallHUDFont;
 	HUDFont numHUDFont;
 
+	JGP_HudDataHandler handler;
+
 	CVar c_mainfont;
 	CVar c_smallfont;
 	CVar c_numberfont;
@@ -34,6 +36,11 @@ class JGP_FlexibleHUD : BaseStatusBar
 	CVar c_weaponSlotPos;
 	CVar c_weaponSlotX;
 	CVar c_weaponSlotY;
+
+	CVar c_drawPowerups;
+	CVar c_PowerupsPos;
+	CVar c_PowerupsX;
+	CVar c_PowerupsY;
 
 	CVar c_drawMinimap;
 	CVar c_CircularMinimap;
@@ -117,10 +124,14 @@ class JGP_FlexibleHUD : BaseStatusBar
 		DrawAllAmmo();
 		DrawWeaponSlots();
 		DrawMinimap();
+		DrawPowerups();
 	}
 
 	void CacheCvars()
 	{
+		if (!handler)
+			handler = JGP_HudDataHandler(EventHandler.Find("JGP_HudDataHandler"));
+
 		if (!c_mainfont)
 			c_mainfont = CVar.GetCvar('jgphud_mainfont', CPlayer);
 		if (!c_smallfont)
@@ -138,7 +149,6 @@ class JGP_FlexibleHUD : BaseStatusBar
 			c_MainBarsY = CVar.GetCvar('jgphud_MainBarsY', CPlayer);
 		if (!c_DrawFace)
 			c_DrawFace = CVar.GetCvar('jgphud_Drawface', CPlayer);
-
 
 		if (!c_drawAmmoBlock)
 			c_drawAmmoBlock = CVar.GetCvar('jgphud_DrawAmmoBlock', CPlayer);
@@ -176,6 +186,15 @@ class JGP_FlexibleHUD : BaseStatusBar
 			c_weaponSlotX = CVar.GetCvar('jgphud_WeaponSlotX', CPlayer);
 		if (!c_weaponSlotY)
 			c_weaponSlotY = CVar.GetCvar('jgphud_WeaponSlotY', CPlayer);
+
+		if (!c_drawPowerups)
+			c_drawPowerups = CVar.GetCvar('jgphud_DrawPowerups', CPlayer);
+		if (!c_PowerupsPos)
+			c_PowerupsPos = CVar.GetCvar('jgphud_PowerupsPos', CPlayer);
+		if (!c_PowerupsX)
+			c_PowerupsX = CVar.GetCvar('jgphud_PowerupsX', CPlayer);
+		if (!c_PowerupsY)
+			c_PowerupsY = CVar.GetCvar('jgphud_PowerupsY', CPlayer);
 
 		if (!c_drawMinimap)
 			c_drawMinimap = CVar.GetCvar('jgphud_DrawMinimap', CPlayer);
@@ -522,7 +541,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 	{
 		if (!c_drawAmmoBlock.GetBool())
 			return;
-			
+
 		let weap = CPlayer.readyweapon;
 		if (!weap)
 			return;
@@ -611,7 +630,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 
 	void DrawAllAmmo()
 	{
-		if (c_drawAllAmmo.GetBool() == false)
+		if (!c_drawAllAmmo.GetBool())
 			return;
 
 		double iconSize = 6;
@@ -1007,7 +1026,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 			}
 			if (ln.activation & SPAC_PlayerActivate)
 			{
-				col = color(255, 0, col.g, 255);
+				col = color(255, 255, 255, 255);
 			}
 			Screen.DrawThickLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, thickness, col, col.a);
 		}
@@ -1035,6 +1054,72 @@ class JGP_FlexibleHUD : BaseStatusBar
 		// Disable the mask:
 		Screen.EnableStencil(false);
 		Screen.ClearStencil();
+	}
+
+	override void DrawPowerups()
+	{
+		if (!c_drawPowerups.GetBool())
+			return;
+		if (!handler)
+			return;
+
+		int powerNum = handler.powerupData.Size();
+		if (powerNum <= 0)
+			return;
+
+		int flags = SetScreenFlags(c_PowerupsPos.GetInt());
+		vector2 ofs = ( c_PowerupsX.GetInt(), c_PowerupsY.GetInt() );
+		double iconSize = 10;
+		int indent = 0;
+		HUDFont fnt = smallHUDFont;
+		double textScale = 0.8;
+		double fy = fnt.mFont.GetHeight() * textScale;
+		double width = fnt.mFont.StringWidth("00:00") * textScale + iconSize + indent;
+		double height = (iconsize + indent) * powerNum + indent;
+		vector2 pos = AdjustPosition((0,0), flags, (width, height), ofs);
+		pos.y += iconSize*0.5;
+
+		for (int i = 0; i < powerNum; i++)
+		{
+			let pwd = handler.powerupData[i];
+			if (!pwd)
+				continue;
+			let pow = Powerup(CPlayer.mo.FindInventory(pwd.powerupType));
+			if (pow)
+			{
+				DrawTexture(pwd.icon, (pos.x + iconSize*0.5, pos.y), flags|DI_ITEM_CENTER, box:(iconSize, iconSize));
+				int min, sec;
+				[min, sec] = TicsToSeconds(pow.EffectTics);
+				DrawString(fnt, String.Format("%2d:%2d",min,sec), (pos.x + iconsize + indent, pos.y - fy*0.5), flags|DI_TEXT_ALIGN_LEFT,scale:(textscale,textscale));
+				pos.y += iconSize + indent;
+			}
+		}
+	}
+
+	int, int TicsToSeconds(int tics)
+	{
+		int totalSeconds = tics / TICRATE;
+		int minutes = (totalSeconds / 60) % 60;
+		int seconds = totalSeconds % 60;
+
+		return minutes, seconds;
+	}
+}
+
+class JGP_PowerupData play
+{
+	TextureID icon;
+	class<Inventory> powerupType;
+
+	static JGP_PowerupData Create(TextureID icon, class<Inventory> powerupType)
+	{
+		let pwd = JGP_PowerupData(New("JGP_PowerupData"));
+		if (pwd)
+		{
+			pwd.icon = icon;
+			pwd.powerupType = powerupType;
+		}
+		return pwd;
 	}
 }
 
@@ -1074,9 +1159,10 @@ class JGP_HitMarkerData ui
 	}
 }
 
-class JGP_HitMarkerHandler : StaticEventHandler
+class JGP_HudDataHandler : EventHandler
 {
 	ui JGP_FlexibleHUD hud;
+	array <JGP_PowerupData> powerupData;
 
 	override void WorldThingDamaged(worldEvent e)
 	{
@@ -1096,6 +1182,53 @@ class JGP_HitMarkerHandler : StaticEventHandler
 			if (pmo)
 			{
 				EventHandler.SendInterfaceEvent(pmo.PlayerNumber(), "PlayerHitMonster");
+			}
+		}
+	}
+
+	// The weird hack that is mean to give icons to powerups
+	// that have no icons defined (like the Doom powerups):
+	override void WorldThingSpawned(worldEvent e)
+	{
+		// A wild PowerupGiver spawns!
+		let pwrg = PowerupGiver(e.thing);
+		if (pwrg)
+		{
+			// Get its powerupType field:
+			let pwr = GetDefaultByType((class<Inventory>)(pwrg.powerupType));			
+			if (!pwr)
+				return;
+			
+			// Check if that powerupType has a proper icon;
+			// if so, abort:
+			TextureID icon = pwr.Icon;
+			if (icon.isValid() && TexMan.GetName(icon) != 'TNT1A0')
+				return;
+
+			// Check if tha powerup was already processed:
+			JGP_PowerupData pwd;
+			let pwrCls = pwr.GetClass();
+			for (int i = 0; i < powerupData.Size(); i++)
+			{
+				pwd = powerupData[i];
+				if (pwd && pwd.powerupType == pwrCls)
+					return;
+			}
+			
+			// Try remembering the PowerupGiver's icon as this
+			// powerup's icon:
+			icon = pwrg.icon;
+			// If that didn't work, record the PowerupGiver's
+			// spawn sprite as that powerup's icon:
+			if (!icon.isValid() || TexMan.GetName(icon) == 'TNT1A0')
+			{
+				icon = pwrg.spawnState.GetSpriteTexture(0);
+			}
+			// In case of success, store it:
+			if (icon.isValid())
+			{
+				pwd = JGP_PowerupData.Create(icon, pwrCls);
+				powerupData.Push(pwd);
 			}
 		}
 	}
