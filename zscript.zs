@@ -5,9 +5,50 @@ class JGP_FlexibleHUD : BaseStatusBar
 	HUDFont mainHUDFont;
 	HUDFont smallHUDFont;
 	HUDFont numHUDFont;
-	CVar mainFontVar;
-	CVar smallFontVar;
-	CVar numFontVar;
+
+	CVar c_mainfont;
+	CVar c_smallfont;
+	CVar c_numberfont;
+	CVar c_drawMainbars;
+	CVar c_drawAmmoBar;
+	CVar c_drawface;
+	CVar c_drawHitmarkers;
+	CVar c_hitMarkersAlpha;
+
+	CVar c_drawWeaponSlots;
+	CVar c_weaponSlotPos;
+	CVar c_weaponSlotX;
+	CVar c_weaponSlotY;
+
+	CVar c_drawMinimap;
+	CVar c_CircularMinimap;
+	CVar c_minimapSize;
+	CVar c_minimapPos;
+	CVar c_minimapPosX;
+	CVar c_minimapPosY;
+	CVar c_minimapZoom;
+
+	// Hit (incoming damage) marker
+	Shape2D hitMarker;
+	Shape2DTransform hitMarkerTransf;
+	array <JGP_HitMarkerData> hmData;
+	Actor prevAttacker;
+
+	// Hit (reticle) marker
+	Shape2D reticleHitMarker;
+	double reticleMarkerAlpha;
+	Shape2DTransform reticleMarkerTransform;
+	
+	// Weapon slots
+	array <JGP_WeaponSlotData> weaponSlotData;
+	int maxSlotID;
+	int totalSlots;
+
+	// Minimap
+	Shape2D minimapShape_Square;
+	Shape2D minimapShape_Circle;
+	Shape2DTransform minimapTransform;
+	const MAPSCALEFACTOR = 8;
 
 	double LinearMap(double val, double source_min, double source_max, double out_min, double out_max, bool clampIt = false) 
 	{
@@ -23,24 +64,12 @@ class JGP_FlexibleHUD : BaseStatusBar
 
 	override void Init()
 	{
-		super.Init();
-		mainFontVar = CVar.GetCVar('jgphud_mainfont', players[consoleplayer]);
-		smallFontVar = CVar.GetCVar('jgphud_smallfont', players[consoleplayer]);
-		numFontVar = CVar.GetCVar('jgphud_numberfont', players[consoleplayer]);
-		
-		Font fnt = Font.FindFont(mainFontVar ? mainFontVar.GetString() : "BigUpper");
-		if (!fnt)
-			fnt = "BigUpper";
+		super.Init();		
+		Font fnt = "BigUpper";
 		mainHUDFont = HUDFont.Create(fnt);
-		
-		fnt = Font.FindFont(smallFontVar ? smallFontVar.GetString() : "Confont");
-		if (!fnt)
-			fnt = "Confont";
+		fnt = "Confont";
 		smallHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
-		
-		fnt = Font.FindFont(numFontVar ? numFontVar.GetString() : "IndexFont");
-		if (!fnt)
-			fnt = "IndexFont";
+		fnt = "IndexFont";
 		numHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
 
 		GetWeaponSlots();
@@ -52,7 +81,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 		UpdateHitMarkers();
 		UpdateReticleHitMarker();
 		GetWeaponSlots();
-		UpdateAutoMap();
+		//UpdateAutoMap();
 	}
 
 	override void Draw(int state, double ticFrac)
@@ -63,20 +92,68 @@ class JGP_FlexibleHUD : BaseStatusBar
 			return;
 		
 		BeginHUD();
+		CacheCvars(); //cache CVars before anything else
+
 		DrawHitMarkers();
 		DrawReticleHitMarker();
 		DrawHealthArmor((1,-1));
 		vector2 v = DrawWeaponBlock((-1, -1));
 		DrawAllAmmo((-34, -(v.y + 2)), DI_SCREEN_RIGHT_BOTTOM);
 		DrawWeaponSlots();
-		DrawAutoMap();
+		DrawMinimap();
 	}
 
-	color GetBaseplateColor()
+	void CacheCvars()
 	{
-		return color(140,113,66,80);
+		if (!c_mainfont)
+			c_mainfont = CVar.GetCvar('jgphud_mainfont', CPlayer);
+		if (!c_smallfont)
+			c_smallfont = CVar.GetCvar('jgphud_smallfont', CPlayer);
+		if (!c_numberfont)
+			c_numberfont = CVar.GetCvar('jgphud_numberfont', CPlayer);
+		if (!c_drawMainbars)
+			c_drawMainbars = CVar.GetCvar('jgphud_DrawMainbars', CPlayer);
+		if (!c_drawAmmoBar)
+			c_drawAmmoBar = CVar.GetCvar('jgphud_DrawAmmoBar', CPlayer);
+		if (!c_drawface)
+			c_drawface = CVar.GetCvar('jgphud_Drawface', CPlayer);
+		if (!c_drawHitmarkers)
+			c_drawHitmarkers = CVar.GetCvar('jgphud_DrawHitmarkers', CPlayer);
+		if (!c_hitMarkersAlpha)
+			c_hitMarkersAlpha = CVar.GetCvar('jgphud_HitMarkersAlpha', CPlayer);
+
+		if (!c_drawWeaponSlots)
+			c_drawWeaponSlots = CVar.GetCvar('jgphud_DrawWeaponSlots', CPlayer);
+		if (!c_weaponSlotPos)
+			c_weaponSlotPos = CVar.GetCvar('jgphud_WeaponSlotPos', CPlayer);
+		if (!c_weaponSlotX)
+			c_weaponSlotX = CVar.GetCvar('jgphud_WeaponSlotX', CPlayer);
+		if (!c_weaponSlotY)
+			c_weaponSlotY = CVar.GetCvar('jgphud_WeaponSlotY', CPlayer);
+
+		if (!c_drawMinimap)
+			c_drawMinimap = CVar.GetCvar('jgphud_DrawMinimap', CPlayer);
+		if (!c_CircularMinimap)
+			c_CircularMinimap = CVar.GetCvar('jgphud_CircularMinimap', CPlayer);
+		if (!c_minimapSize)
+			c_minimapSize = CVar.GetCvar('jgphud_MinimapSize', CPlayer);
+		if (!c_minimapPos)
+			c_minimapPos = CVar.GetCvar('jgphud_MinimapPos', CPlayer);
+		if (!c_minimapPosX)
+			c_minimapPosX = CVar.GetCvar('jgphud_MinimapPosX', CPlayer);
+		if (!c_minimapPosY)
+			c_minimapPosY = CVar.GetCvar('jgphud_MinimapPosY', CPlayer);
+		if (!c_minimapZoom)
+			c_minimapZoom = CVar.GetCvar('jgphud_MinimapZoom', CPlayer);
 	}
 
+	// Adjusts position of the element so that it never ends up
+	// outside the screen. It also flips X and Y offset values
+	// if the edge is at the bottom/right, so that positive
+	// values are always aimed inward, and negative values cannot
+	// take the element outside the screen.
+	// If 'real' is true, returns real screen coordinates multiplied
+	// but hudscale, rather than StatusBar coordinates.
 	vector2 AdjustPosition(vector2 pos, int flags, vector2 size, vector2 ofs = (0,0), bool real = false)
 	{
 		vector2 screenSize = (0,0);
@@ -157,6 +234,11 @@ class JGP_FlexibleHUD : BaseStatusBar
 	{
 		val = Clamp(val, 0, ScreenFlags.Size() - 1);
 		return ScreenFlags[val];
+	}
+
+	color GetBaseplateColor()
+	{
+		return color(140,113,66,80);
 	}
 
 	void DrawFlatColorBar(vector2 pos, double curValue, double maxValue, color barColor, string leftText = "", string rightText = "", int valueColor = -1, double barwidth = 64, double barheight = 8, double indent = 0.6, color backColor = color(255, 0, 0, 0), double sparsity = 1, uint segments = 0, int flags = 0)
@@ -255,22 +337,29 @@ class JGP_FlexibleHUD : BaseStatusBar
 		return Font.CR_Red;
 	}
 
+	// Returns color for a percentage value normalized
+	// to the 0.0-1.0 range:
 	int, int, int GetPercentageColor(double amount)
 	{
+		// Over 100%: cyan
 		if (amount > 1)
 			return 0, 255, 255;	
+		// Over 75%: green
 		if (amount >= 0.75)
 			return 0, 255, 0;	
+		// Over 50%: yellow
 		if (amount >= 0.5)
 			return 255, 255, 0;
+		// Over 25: orange:
 		if (amount >= 0.25)
 			return 255, 128, 0;
+		// Otherwise: red
 		return 255, 0, 0;
 	}
 
 	void DrawHealthArmor(vector2 pos = (0,0), int flags = DI_SCREEN_LEFT_BOTTOM, double width = 72)
 	{
-		bool drawbars = CVar.GetCvar('jgphud_drawMainbars', Cplayer).GetBool();
+		bool drawbars = c_drawMainbars.GetBool();
 		if (!drawbars)
 		{
 			width *= 0.32;
@@ -289,7 +378,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 			fillSize.y,
 			flags
 		);
-		if (CVar.GetCvar('jgphud_drawface', CPlayer).GetBool())
+		if (c_drawface.GetBool())
 		{
 			fillpos.x += fillSize.x + 1;
 			fillSize.x = hasArmor ? bkgOfs : bkgOfs * 2;
@@ -393,7 +482,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 			size.y += ammoIconBox.y + ammoTextHeight + indent*4;
 		}
 		
-		bool drawAmmobar = CVar.GetCVar('jgphud_drawAmmoBar', CPlayer).GetBool();
+		bool drawAmmobar = c_drawAmmoBar.GetBool();
 		if (drawAmmobar && (am1 || am2))
 		{
 			size.y += ammoBarHeight + indent*2;
@@ -478,10 +567,6 @@ class JGP_FlexibleHUD : BaseStatusBar
 		}*/
 	}
 
-	Shape2D hitMarker;
-	Shape2DTransform hitMarkerTransf;
-	array <JGP_HitMarkerData> hmData;
-	Actor prevAttacker;
 
 	void UpdateAttacker(double angle)
 	{
@@ -544,9 +629,6 @@ class JGP_FlexibleHUD : BaseStatusBar
 		}
 	}
 
-	Shape2D reticleHitMarker;
-	double reticleMarkerAlpha;
-	Shape2DTransform reticleMarkerTransform;
 	void RefreshReticleHitMarker()
 	{
 		reticleMarkerAlpha = 1.0;
@@ -607,9 +689,6 @@ class JGP_FlexibleHUD : BaseStatusBar
 		}
 	}
 
-	array <JGP_WeaponSlotData> weaponSlotData;
-	int maxSlotID;
-	int totalSlots;
 	void GetWeaponSlots()
 	{
 		if (weaponSlotData.Size() > 0)
@@ -645,11 +724,11 @@ class JGP_FlexibleHUD : BaseStatusBar
 
 	void DrawWeaponSlots(vector2 box = (16, 10))
 	{
-		if (CVar.GetCvar('jgphud_drawWeaponSlots', CPlayer).GetBool() == false)
+		if (c_drawWeaponSlots.GetBool() == false)
 			return;
 
-		int flags = SetScreenFlags(CVar.GetCvar('jgphud_weaponSlotPos', CPlayer).GetInt());
-		vector2 ofs = ( CVar.GetCvar('jgphud_weaponSlotX', CPlayer).GetInt(), CVar.GetCvar('jgphud_weaponSlotY', CPlayer).GetInt() );
+		int flags = SetScreenFlags(c_weaponSlotPos.GetInt());
+		vector2 ofs = ( c_weaponSlotX.GetInt(), c_weaponSlotY.GetInt() );
 		double indent = 2;
 		double width = (box.x + indent) * totalSlots - indent; //we don't need indent at the end
 		double height = (box.y + indent) * maxSlotID - indent; //ditto
@@ -683,103 +762,143 @@ class JGP_FlexibleHUD : BaseStatusBar
 		}
 	}
 
-	array <JGP_LineData> mapLineData;
-	int lineItrID;
-	void UpdateAutoMap(int step = 30)
+	// The minimap is a pretty annoying bit. Aside from potentially causing
+	// performance issues, it also has  to be drawn fully using Screen
+	// methods because StatusBar doesn't have anything like shapes and
+	// line drawing.
+	void DrawMinimap()
 	{
-		int totalLines = Level.Lines.Size();
-		if (lineItrID >= totalLines)
+		if (!c_drawMinimap.GetBool())
 			return;
 		
-		for (int i = 0; i < step && lineItrID < totalLines; i++)
-		{
-			Line ln = Level.Lines[lineItrID];
-			bool oneSided = !((ln.flags & Line.ML_TWOSIDED) == Line.ML_TWOSIDED);
-			/*if (!oneSided)
-			{
-				if (ln.frontsector == ln.backsector)
-					continue;
-			}*/
-			CacheLine(ln, oneSided);
-			lineItrID++;
-		}
-	}
-
-	void CacheLine(Line ln, bool blocking)
-	{
-		vector2 p1 = ln.v1.p;
-		vector2 p2 = ln.v2.p;
-		/*for (int i = 0; i < mapLineData.Size(); i++)
-		{
-			let lnd = mapLineData[i];
-			if (lnd && lnd.p1 == p1 && lnd.p2 == p2)
-			{
-				return;
-			}
-		}*/
-		let lnd = JGP_LineData.Create(ln.v1.p, ln.v2.p, blocking);
-		mapLineData.Push(lnd);
-	}
-
-	Shape2D minimapShape;
-	Shape2DTransform minimapTransform;
-	const MAPSCALEFACTOR = 8;
-	void DrawAutoMap(double size = 56)
-	{
+		double size = c_MinimapSize.GetFloat();
+		// Almost everything has to be multiplied by hudscale.x
+		// so that it matches the general HUD scale regarldess
+		// of physical resolution:
 		vector2 hudscale = GetHudScale();
-		int flags = SetScreenFlags(CVar.GetCvar('jgphud_MinimapPos', CPlayer).GetInt());
-		vector2 ofs = ( CVar.GetCvar('jgphud_MinimapPosX', CPlayer).GetInt(), CVar.GetCvar('jgphud_MinimapPosY', CPlayer).GetInt() );
+		// Screen flags are obtained as usual, although they're
+		// only used in AdjustPosition, not in the actual
+		// drawing functions, since Screen functions don't
+		// interact with statusbar DI_* flags:
+		int flags = SetScreenFlags(c_MinimapPos.GetInt());
+		vector2 ofs = ( c_MinimapPosX.GetInt(), c_MinimapPosY.GetInt() );
+		// Real: true makes this function return real screeen
+		// coordinates rather virtual ones:
 		vector2 pos = AdjustPosition((0,0), flags, (size, size), ofs, real:true);
 		size *= hudscale.x;
-		console.printf("Real pos: %.1f, %1.f", pos.x, pos.y);
 
-		double mapZoom = Clamp(CVar.GetCvar('jgphud_MinimapZoom', CPlayer).GetFloat(), 0.01, 10.0);
+		// Let the player change the size of the map:
+		double mapZoom = Clamp(c_MinimapZoom.GetFloat(), 0.01, 10.0);
 		mapZoom /= MAPSCALEFACTOR;
+		// These are needed to position the lines on our
+		// minimap to the same relative positions they are
+		// in the world:
 		vector2 ppos = CPlayer.mo.pos.xy;
 		double playerAngle = -(CPlayer.mo.angle + 90);
 		vector2 diff = Level.Vec2Diff((0,0), ppos);
 
-		if (!minimapShape)
+		// Create square and circular shapes for the minimap:
+		if (!minimapShape_Square)
 		{
-			minimapShape = New("Shape2D");
+			minimapShape_Square = New("Shape2D");
 			vector2 mv = (0, 0);
-			minimapShape.PushVertex(mv);
+			minimapShape_Square.PushVertex(mv);
 			mv = (0, 1);
-			minimapShape.PushVertex(mv);
+			minimapShape_Square.PushVertex(mv);
 			mv = (1, 0);
-			minimapShape.PushVertex(mv);
+			minimapShape_Square.PushVertex(mv);
 			mv = (1, 1);
-			minimapShape.PushVertex(mv);
-			minimapShape.PushCoord((0,0));
-			minimapShape.PushCoord((0,0));
-			minimapShape.PushCoord((0,0));
-			minimapShape.PushCoord((0,0));
-			minimapShape.PushTriangle(0,1,2);
-			minimapShape.PushTriangle(1,2,3);
-		}		
+			minimapShape_Square.PushVertex(mv);
+			minimapShape_Square.PushCoord((0,0));
+			minimapShape_Square.PushCoord((0,0));
+			minimapShape_Square.PushCoord((0,0));
+			minimapShape_Square.PushCoord((0,0));
+			minimapShape_Square.PushTriangle(0,1,2);
+			minimapShape_Square.PushTriangle(1,2,3);
+		}
+		if (!minimapShape_Circle)
+		{
+			minimapShape_Circle = New("Shape2D");
+			vector2 mv = (0.5, 0.5);
+			minimapShape_Circle.PushVertex(mv);
+			minimapShape_Circle.PushCoord((0,0));
+			int steps = 60;
+			double ang = 0;
+			double angStep = 360. / steps;
+			for (int i = 0; i < steps; i++)
+			{
+				double c = cos(ang);
+				double s = sin(ang);
+				minimapShape_Circle.PushVertex((c,s));
+				minimapShape_Circle.PushCoord((0,0));
+				ang += angStep;
+			}
+			for (int i = 1; i <= steps; ++i)
+			{
+				int next = i+1;
+				if (next > steps)
+					next -= steps;
+				minimapShape_Circle.PushTriangle(0, i, next);
+			}
+		}
 		if (!minimapTransform)
 		{
 			minimapTransform = New("Shape2DTransform");
 		}
 		minimapTransform.Clear();
-		minimapTransform.Scale((size,size));
-		minimapTransform.Translate(pos);
-		minimapShape.SetTransform(minimapTransform);
+		bool circular = c_CircularMinimap.GetBool();
+		Shape2D shapeToUse = circular ? minimapShape_Circle : minimapShape_Square;
+		// A circular shape that was created around (0,0) has to be
+		// scaled to 50% and moved to the center of the element,
+		// since it's drawn from the center, not the corner,
+		// in contrast to a square:
+		double shapeFac = circular ? 0.5 : 1.;
+		vector2 shapeOfs = circular ? (size*shapeFac,size*shapeFac) : (0,0);
+		minimapTransform.Scale((size,size) * shapeFac);
+		minimapTransform.Translate(pos + shapeOfs);
+		shapeToUse.SetTransform(minimapTransform);
+
+		// background:
+		Color baseCol = GetBaseplateColor();
+		double edgeThickness = 1 * hudscale.x;
+		
+		// Fill the shaep with the draw the outline color
+		// (remember than DrawShapeFill is BGR, not RGB):
+		Screen.DrawShapeFill(color(baseCol.B, baseCol.G, baseCol.R), 1.0, shapeToUse);
+		
+		// Scale the shape down to draw the black background:
+		// If the shape isn't circular, half of the line width
+		// must be added to the offsets, because of positioning
+		// differences:
+		if (!circular)
+			shapeOfs += (edgeThickness*0.5,edgeThickness*0.5);
+		minimapTransform.Clear();
+		minimapTransform.Scale((size-edgeThickness,size-edgeThickness) * shapeFac);
+		minimapTransform.Translate(pos + shapeOfs);
+		shapeToUse.SetTransform(minimapTransform);
+		Screen.DrawShapeFill(color(255,0,0,0), 1.0, shapeToUse);
+
+		// Apply mask
+		// It's applied after outline and background scaling, 
+		// so that the lines are maked within the outline:
 		Screen.EnableStencil(true);
 		Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
-		// mask:
-		Screen.DrawShapeFill(color(0,0,0,0), 1.0, minimapShape);
+		// shape is used for the mask (colors aren't needed):
+		Screen.DrawShapeFill(color(0,0,0,0), 0.0, shapeToUse);
 		Screen.SetStencil(1, SOP_Keep, SF_AllOn);
-		// actual background:
-		Screen.DrawShapeFill(color(255,0,0,0), 1.0, minimapShape);
-		for (int i = 0; i < mapLineData.Size(); i++)
+		
+		for (int i = 0; i < Level.Lines.Size(); i++)
 		{
-			let lnd = mapLineData[i];
-			if (!lnd)
+			Line ln = Level.Lines[i];
+			if (!ln)
 				continue;
-			
-			vector2 p1 = (lnd.p1 - diff) * mapZoom * hudscale.x;
-			vector2 p2 = (lnd.p2 - diff) * mapZoom * hudscale.x;
+
+			// Get vertices and scale them in accordance
+			// with zoom value and hudscale:
+			vector2 lp1 = ln.v1.p;
+			vector2 lp2 = ln.v2.p;
+			vector2 p1 = (lp1 - diff) * mapZoom * hudscale.x;
+			vector2 p2 = (lp2 - diff) * mapZoom * hudscale.x;
 			// Rotate and mirror horizontally, so that the top
 			// of the minimap is pointing where the player
 			// is facing:
@@ -787,16 +906,29 @@ class JGP_FlexibleHUD : BaseStatusBar
 			p2 = Actor.RotateVector(p2, playerAngle);
 			p1.x *= -1;
 			p2.x *= -1;
-			// Mask the minimap shape:
+			// Offset the vertices around the center
+			// of the map (NOT player position):
+			p1 += (size, size)*0.5;
+			p2 += (size, size)*0.5;
+			// Don't draw the lines that are 
+			// completely out of the mask area:
+			if (abs(p1.x) > size && abs(p1.y) > size && abs(p2.x) > size && abs(p2.y) > size)
+				continue;
+			// One-sided lines are thicker and opaque:
 			double thickness = 1;
 			color col = color(128, 0, 255, 0);
-			if (lnd.blocking)
+			if (!(ln.flags & Line.ML_TWOSIDED))
 			{
 				thickness = 2;
 				col = color(col.a * 2, col.r, col.g, col.b);
 			}
 			Screen.DrawThickLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, thickness, col, col.a);
 		}
+		// Red dot at the center:
+		double dotSize = 1 * hudscale.x;
+		Screen.Dim(color(255,255,0,0), 1, pos.x+size*0.5, pos.y+size*0.5, dotSize, dotSize);
+		
+		// Disable the mask:
 		Screen.EnableStencil(false);
 		Screen.ClearStencil();
 	}
@@ -835,25 +967,6 @@ class JGP_HitMarkerData ui
 			hmd.alpha = Cvar.GetCvar("jgphud_HitMarkersAlpha", players[consoleplayer]).GetFloat();
 		}
 		return hmd;
-	}
-}
-
-class JGP_LineData ui
-{
-	vector2 p1;
-	vector2 p2;
-	bool blocking;
-
-	static JGP_LineData Create(vector2 p1, vector2 p2, bool blocking)
-	{
-		let lnd = JGP_LineData(New("JGP_LineData"));
-		if (lnd)
-		{
-			lnd.p1 = p1;
-			lnd.p2 = p2;
-			lnd.blocking = blocking;
-		}
-		return lnd;
 	}
 }
 

@@ -13,6 +13,8 @@ user nosave int jgphud_WeaponSlotX = 0;
 user nosave int jgphud_WeaponSlotY = 0;
 
 user nosave bool jgphud_DrawMinimap = true;
+user nosave bool jgphud_CircularMinimap = false;
+user nosave int jgphud_MinimapSize = 64;
 user nosave int jgphud_MinimapPos = 0;
 user nosave int jgphud_MinimapPosX = 0;
 user nosave int jgphud_MinimapPosY = 0;
