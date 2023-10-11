@@ -24,8 +24,16 @@ OptionMenu "JGPHUD_Settings"
 	StaticText "Weapon slots", yellow
 	Option "Weapon slots display", "jgphud_drawWeaponSlots", "OnOff"
 	Option "Weapon slots position", "jgphud_weaponSlotPos", "ElementScreenPos", "jgphud_drawWeaponSlots"
-	Slider "Weapon slots hor. offset", "jgphud_weaponSlotX", 0, 320, 5, 0, "jgphud_drawWeaponSlots"
-	Slider "Weapon slots vert. offset", "jgphud_weaponSlotY", 0, 200, 5, 0, "jgphud_drawWeaponSlots"
+	Slider "Weapon slots hor. offset", "jgphud_weaponSlotX", -160, 160, 2, 0, "jgphud_drawWeaponSlots"
+	Slider "Weapon slots vert. offset", "jgphud_weaponSlotY", -100, 100, 2, 0, "jgphud_drawWeaponSlots"
+
+	StaticText ""	
+	StaticText "Minimap", yellow
+	Option "Minimap display", "jgphud_DrawMinimap", "OnOff"
+	Option "Minimap position", "jgphud_MinimapPos", "ElementScreenPos", "jgphud_DrawMinimap"
+	Slider "Minimap hor. offset", "jgphud_MinimapPosX", -160, 160, 2, 0, "jgphud_DrawMinimap"
+	Slider "Minimap vert. offset", "jgphud_MinimapPosY", -100, 100, 2, 0, "jgphud_DrawMinimap"
+	Slider "Minimap zoom", "jgphud_MinimapZoom", 0.01, 3.0, 0.05, 2, "jgphud_DrawMinimap"
 }
 
 OptionValue "MainBars"

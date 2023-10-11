@@ -51,10 +51,8 @@ class JGP_FlexibleHUD : BaseStatusBar
 		super.Tick();
 		UpdateHitMarkers();
 		UpdateReticleHitMarker();
-		if (weaponSlotData.Size() <= 0)
-		{
-			GetWeaponSlots();
-		}
+		GetWeaponSlots();
+		UpdateAutoMap();
 	}
 
 	override void Draw(int state, double ticFrac)
@@ -71,6 +69,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 		vector2 v = DrawWeaponBlock((-1, -1));
 		DrawAllAmmo((-34, -(v.y + 2)), DI_SCREEN_RIGHT_BOTTOM);
 		DrawWeaponSlots();
+		DrawAutoMap();
 	}
 
 	color GetBaseplateColor()
@@ -78,30 +77,63 @@ class JGP_FlexibleHUD : BaseStatusBar
 		return color(140,113,66,80);
 	}
 
-	vector2 AdjustPosition(vector2 pos, int flags, vector2 size, vector2 ofs = (0,0))
+	vector2 AdjustPosition(vector2 pos, int flags, vector2 size, vector2 ofs = (0,0), bool real = false)
 	{
+		vector2 screenSize = (0,0);
+		vector2 hudscale = GetHudScale();
+		if (real)
+		{
+			screenSize = (Screen.GetWidth(), Screen.GetHeight());
+			pos.x *= hudscale.x;
+			pos.y *= hudscale.y;
+			size.x *= hudscale.x;
+			size.y *= hudscale.y;
+		}
+
 		if ((flags & DI_SCREEN_HCENTER) == DI_SCREEN_HCENTER)
 		{
-			pos.x -= size.x*0.5;
+			pos.x += -size.x*0.5 + screenSize.x * 0.5;
 		}
-		
 		if ((flags & DI_SCREEN_VCENTER) == DI_SCREEN_VCENTER)
 		{
-			pos.y -= size.y*0.5;			
+			pos.y += -size.y*0.5 + screenSize.y * 0.5;
 		}
 
-		if ((flags & DI_SCREEN_RIGHT) == DI_SCREEN_RIGHT)
+		if ((flags & DI_SCREEN_CENTER) != DI_SCREEN_CENTER)
 		{
-			pos.x -= size.x;
-			ofs.x *= -1;
-		}
-		
-		if ((flags & DI_SCREEN_BOTTOM) == DI_SCREEN_BOTTOM)
-		{
-			pos.y -= size.y;
-			ofs.y *= -1;
-		}
+			if ((flags & DI_SCREEN_TOP) == DI_SCREEN_TOP)
+			{
+				if (ofs.y < 0)
+					ofs.y = 0;
+			}
+			if ((flags & DI_SCREEN_LEFT) == DI_SCREEN_LEFT)
+			{
+				if (ofs.x < 0)
+					ofs.x = 0;
+			}
 
+			if ((flags & DI_SCREEN_RIGHT) == DI_SCREEN_RIGHT)
+			{
+				pos.x += -size.x + screenSize.x;
+				if (ofs.x > 0)
+					ofs.x = -abs(ofs.x);
+				else
+					ofs.x = 0;
+			}		
+			if ((flags & DI_SCREEN_BOTTOM) == DI_SCREEN_BOTTOM)
+			{
+				pos.y += -size.y + screenSize.y;
+				if (ofs.y > 0)
+					ofs.y = -abs(ofs.y);
+				else
+					ofs.y = 0;
+			}
+		}
+		if (real)
+		{
+			ofs.x *= hudscale.x;
+			ofs.y *= hudscale.y;
+		}
 		return pos + ofs;
 	}
 
@@ -419,14 +451,14 @@ class JGP_FlexibleHUD : BaseStatusBar
 	}
 
 	void DrawAllAmmo(vector2 pos, int flags = 0)
-	{
+	{/*
 		double iconSize = 6;
 		pos -= (iconsize, iconsize * 0.5);
 		flags |= DI_ITEM_CENTER;
 		let hfnt = smallHUDFont;
 		double fntScale = 0.6;
 		double fy = hfnt.mFont.GetHeight() * fntScale;
-		Inventory item;
+		array <Ammo> ammoItems;
 		for (let item = CPlayer.mo.inv; item; item = item.Inv)
 		{
 			Ammo am = Ammo(item);
@@ -435,11 +467,15 @@ class JGP_FlexibleHUD : BaseStatusBar
 				let icon = am.icon;
 				if (!icon || !icon.IsValid())
 					continue;
-				DrawTexture(icon, pos, flags, box:(iconSize, iconSize));
-				DrawString(hfnt, String.Format("%3d/%3d", am.amount, am.maxamount), pos + (iconsize * 0.5 + 1, -fy * 0.5),flags, translation: GetPercentageFontColor(am.amount, am.maxamount), scale:(fntScale,fntScale));
-				pos.y -= max(fy, iconsize) + 1;
+				ammoItems.Push(am);
 			}
 		}
+		for (int i = 0; i < ammoItems.Size(); i++)
+		{
+			DrawInventoryIcon(icon, pos, flags, box:(iconSize, iconSize));
+			DrawString(hfnt, String.Format("%3d/%3d", am.amount, am.maxamount), pos + (iconsize * 0.5 + 1, -fy * 0.5),flags, translation: GetPercentageFontColor(am.amount, am.maxamount), scale:(fntScale,fntScale));
+			pos.y -= max(fy, iconsize) + 1;
+		}*/
 	}
 
 	Shape2D hitMarker;
@@ -555,7 +591,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 					p2.y *= -1;
 					p3.y *= -1;
 				}
-			}		
+			}
 		}
 		if (reticleMarkerAlpha > 0)
 		{
@@ -576,6 +612,9 @@ class JGP_FlexibleHUD : BaseStatusBar
 	int totalSlots;
 	void GetWeaponSlots()
 	{
+		if (weaponSlotData.Size() > 0)
+			return;
+
 		WeaponSlots wslots = CPlayer.weapons;
 		if (!wslots)
 			return;
@@ -604,17 +643,17 @@ class JGP_FlexibleHUD : BaseStatusBar
 		}
 	}
 
-	void DrawWeaponSlots(vector2 pos = (0,0), vector2 box = (16, 10))
+	void DrawWeaponSlots(vector2 box = (16, 10))
 	{
 		if (CVar.GetCvar('jgphud_drawWeaponSlots', CPlayer).GetBool() == false)
 			return;
-			
+
 		int flags = SetScreenFlags(CVar.GetCvar('jgphud_weaponSlotPos', CPlayer).GetInt());
 		vector2 ofs = ( CVar.GetCvar('jgphud_weaponSlotX', CPlayer).GetInt(), CVar.GetCvar('jgphud_weaponSlotY', CPlayer).GetInt() );
 		double indent = 2;
 		double width = (box.x + indent) * totalSlots - indent; //we don't need indent at the end
 		double height = (box.y + indent) * maxSlotID - indent; //ditto
-		pos = AdjustPosition(pos, flags, (width, height), ofs);
+		vector2 pos = AdjustPosition((0,0), flags, (width, height), ofs);
 		vector2 wpos = pos;
 		for (int i = 0; i < weaponSlotData.Size(); i++)
 		{
@@ -642,6 +681,124 @@ class JGP_FlexibleHUD : BaseStatusBar
 				DrawString(smallHUDFont, slotNum, (wpos.x+box.x, wpos.y+box.y-fy*0.5), flags|DI_TEXT_ALIGN_RIGHT, fntCol, 0.8, scale:(0.5, 0.5));
 			}
 		}
+	}
+
+	array <JGP_LineData> mapLineData;
+	int lineItrID;
+	void UpdateAutoMap(int step = 30)
+	{
+		int totalLines = Level.Lines.Size();
+		if (lineItrID >= totalLines)
+			return;
+		
+		for (int i = 0; i < step && lineItrID < totalLines; i++)
+		{
+			Line ln = Level.Lines[lineItrID];
+			bool oneSided = !((ln.flags & Line.ML_TWOSIDED) == Line.ML_TWOSIDED);
+			/*if (!oneSided)
+			{
+				if (ln.frontsector == ln.backsector)
+					continue;
+			}*/
+			CacheLine(ln, oneSided);
+			lineItrID++;
+		}
+	}
+
+	void CacheLine(Line ln, bool blocking)
+	{
+		vector2 p1 = ln.v1.p;
+		vector2 p2 = ln.v2.p;
+		/*for (int i = 0; i < mapLineData.Size(); i++)
+		{
+			let lnd = mapLineData[i];
+			if (lnd && lnd.p1 == p1 && lnd.p2 == p2)
+			{
+				return;
+			}
+		}*/
+		let lnd = JGP_LineData.Create(ln.v1.p, ln.v2.p, blocking);
+		mapLineData.Push(lnd);
+	}
+
+	Shape2D minimapShape;
+	Shape2DTransform minimapTransform;
+	const MAPSCALEFACTOR = 8;
+	void DrawAutoMap(double size = 56)
+	{
+		vector2 hudscale = GetHudScale();
+		int flags = SetScreenFlags(CVar.GetCvar('jgphud_MinimapPos', CPlayer).GetInt());
+		vector2 ofs = ( CVar.GetCvar('jgphud_MinimapPosX', CPlayer).GetInt(), CVar.GetCvar('jgphud_MinimapPosY', CPlayer).GetInt() );
+		vector2 pos = AdjustPosition((0,0), flags, (size, size), ofs, real:true);
+		size *= hudscale.x;
+		console.printf("Real pos: %.1f, %1.f", pos.x, pos.y);
+
+		double mapZoom = Clamp(CVar.GetCvar('jgphud_MinimapZoom', CPlayer).GetFloat(), 0.01, 10.0);
+		mapZoom /= MAPSCALEFACTOR;
+		vector2 ppos = CPlayer.mo.pos.xy;
+		double playerAngle = -(CPlayer.mo.angle + 90);
+		vector2 diff = Level.Vec2Diff((0,0), ppos);
+
+		if (!minimapShape)
+		{
+			minimapShape = New("Shape2D");
+			vector2 mv = (0, 0);
+			minimapShape.PushVertex(mv);
+			mv = (0, 1);
+			minimapShape.PushVertex(mv);
+			mv = (1, 0);
+			minimapShape.PushVertex(mv);
+			mv = (1, 1);
+			minimapShape.PushVertex(mv);
+			minimapShape.PushCoord((0,0));
+			minimapShape.PushCoord((0,0));
+			minimapShape.PushCoord((0,0));
+			minimapShape.PushCoord((0,0));
+			minimapShape.PushTriangle(0,1,2);
+			minimapShape.PushTriangle(1,2,3);
+		}		
+		if (!minimapTransform)
+		{
+			minimapTransform = New("Shape2DTransform");
+		}
+		minimapTransform.Clear();
+		minimapTransform.Scale((size,size));
+		minimapTransform.Translate(pos);
+		minimapShape.SetTransform(minimapTransform);
+		Screen.EnableStencil(true);
+		Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+		// mask:
+		Screen.DrawShapeFill(color(0,0,0,0), 1.0, minimapShape);
+		Screen.SetStencil(1, SOP_Keep, SF_AllOn);
+		// actual background:
+		Screen.DrawShapeFill(color(255,0,0,0), 1.0, minimapShape);
+		for (int i = 0; i < mapLineData.Size(); i++)
+		{
+			let lnd = mapLineData[i];
+			if (!lnd)
+				continue;
+			
+			vector2 p1 = (lnd.p1 - diff) * mapZoom * hudscale.x;
+			vector2 p2 = (lnd.p2 - diff) * mapZoom * hudscale.x;
+			// Rotate and mirror horizontally, so that the top
+			// of the minimap is pointing where the player
+			// is facing:
+			p1 = Actor.RotateVector(p1, playerAngle);
+			p2 = Actor.RotateVector(p2, playerAngle);
+			p1.x *= -1;
+			p2.x *= -1;
+			// Mask the minimap shape:
+			double thickness = 1;
+			color col = color(128, 0, 255, 0);
+			if (lnd.blocking)
+			{
+				thickness = 2;
+				col = color(col.a * 2, col.r, col.g, col.b);
+			}
+			Screen.DrawThickLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, thickness, col, col.a);
+		}
+		Screen.EnableStencil(false);
+		Screen.ClearStencil();
 	}
 }
 
@@ -678,6 +835,25 @@ class JGP_HitMarkerData ui
 			hmd.alpha = Cvar.GetCvar("jgphud_HitMarkersAlpha", players[consoleplayer]).GetFloat();
 		}
 		return hmd;
+	}
+}
+
+class JGP_LineData ui
+{
+	vector2 p1;
+	vector2 p2;
+	bool blocking;
+
+	static JGP_LineData Create(vector2 p1, vector2 p2, bool blocking)
+	{
+		let lnd = JGP_LineData(New("JGP_LineData"));
+		if (lnd)
+		{
+			lnd.p1 = p1;
+			lnd.p2 = p2;
+			lnd.blocking = blocking;
+		}
+		return lnd;
 	}
 }
 
