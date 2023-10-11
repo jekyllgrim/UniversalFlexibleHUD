@@ -15,6 +15,11 @@ class JGP_FlexibleHUD : BaseStatusBar
 	CVar c_drawHitmarkers;
 	CVar c_hitMarkersAlpha;
 
+	CVar c_drawAllAmmo;
+	CVar c_AllAmmoPos;
+	CVar c_AllAmmoX;
+	CVar c_AllAmmoY;
+
 	CVar c_drawWeaponSlots;
 	CVar c_weaponSlotPos;
 	CVar c_weaponSlotX;
@@ -47,6 +52,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 	// Minimap
 	Shape2D minimapShape_Square;
 	Shape2D minimapShape_Circle;
+	Shape2D minimapShape_Arrow;
 	Shape2DTransform minimapTransform;
 	const MAPSCALEFACTOR = 8;
 
@@ -97,8 +103,8 @@ class JGP_FlexibleHUD : BaseStatusBar
 		DrawHitMarkers();
 		DrawReticleHitMarker();
 		DrawHealthArmor((1,-1));
-		vector2 v = DrawWeaponBlock((-1, -1));
-		DrawAllAmmo((-34, -(v.y + 2)), DI_SCREEN_RIGHT_BOTTOM);
+		DrawWeaponBlock();
+		DrawAllAmmo();
 		DrawWeaponSlots();
 		DrawMinimap();
 	}
@@ -121,6 +127,15 @@ class JGP_FlexibleHUD : BaseStatusBar
 			c_drawHitmarkers = CVar.GetCvar('jgphud_DrawHitmarkers', CPlayer);
 		if (!c_hitMarkersAlpha)
 			c_hitMarkersAlpha = CVar.GetCvar('jgphud_HitMarkersAlpha', CPlayer);
+
+		if (!c_drawAllAmmo)
+			c_drawAllAmmo = CVar.GetCvar('jgphud_DrawAllAmmo', CPlayer);
+		if (!c_AllAmmoPos)
+			c_AllAmmoPos = CVar.GetCvar('jgphud_AllAmmoPos', CPlayer);
+		if (!c_AllAmmoX)
+			c_AllAmmoX = CVar.GetCvar('jgphud_AllAmmoX', CPlayer);
+		if (!c_AllAmmoY)
+			c_AllAmmoY = CVar.GetCvar('jgphud_AllAmmoY', CPlayer);
 
 		if (!c_drawWeaponSlots)
 			c_drawWeaponSlots = CVar.GetCvar('jgphud_DrawWeaponSlots', CPlayer);
@@ -539,32 +554,44 @@ class JGP_FlexibleHUD : BaseStatusBar
 		return size;
 	}
 
-	void DrawAllAmmo(vector2 pos, int flags = 0)
-	{/*
+	void DrawAllAmmo()
+	{
+		if (c_drawAllAmmo.GetBool() == false)
+			return;
+
 		double iconSize = 6;
-		pos -= (iconsize, iconsize * 0.5);
+		int indent = 1;
+		int flags = SetScreenFlags(c_AllAmmoPos.GetInt());
 		flags |= DI_ITEM_CENTER;
+		vector2 ofs = ( c_AllAmmoX.GetInt(), c_AllAmmoY.GetInt() );
 		let hfnt = smallHUDFont;
 		double fntScale = 0.6;
 		double fy = hfnt.mFont.GetHeight() * fntScale;
+		double width = iconsize + smallHUDFont.mFont.StringWidth("000/000") * fntScale;
+		double height;
+
 		array <Ammo> ammoItems;
 		for (let item = CPlayer.mo.inv; item; item = item.Inv)
 		{
 			Ammo am = Ammo(item);
 			if (am)
 			{
-				let icon = am.icon;
-				if (!icon || !icon.IsValid())
+				let icon = GetIcon(am, DI_SKIPSPAWN|DI_SKIPREADY);
+				if (!icon.IsValid())
 					continue;
-				ammoItems.Push(am);
+				ammoItems.Push(am); 
+				height += iconsize + indent;
 			}
 		}
+		double stringX = iconSize + (width - iconsize - indent)*0.5;
+		vector2 pos = AdjustPosition((0,0), flags, (width, height), ofs);
 		for (int i = 0; i < ammoItems.Size(); i++)
 		{
-			DrawInventoryIcon(icon, pos, flags, box:(iconSize, iconSize));
-			DrawString(hfnt, String.Format("%3d/%3d", am.amount, am.maxamount), pos + (iconsize * 0.5 + 1, -fy * 0.5),flags, translation: GetPercentageFontColor(am.amount, am.maxamount), scale:(fntScale,fntScale));
-			pos.y -= max(fy, iconsize) + 1;
-		}*/
+			Ammo am = ammoItems[i];
+			DrawInventoryIcon(am, pos + (iconSize*0.5,iconSize*0.5), flags, boxsize:(iconSize, iconSize));
+			DrawString(hfnt, String.Format("%3d/%3d", am.amount, am.maxamount), pos + (stringX, iconsize*0.5 -fy*0.5), flags|DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am.amount, am.maxamount), scale:(fntScale,fntScale));
+			pos.y += max(fy, iconsize) + indent;
+		}
 	}
 
 
@@ -584,8 +611,8 @@ class JGP_FlexibleHUD : BaseStatusBar
 			hitMarker = new("Shape2D");
 			hitMarker.Pushvertex((-0.25,-1.0));
 			hitMarker.Pushvertex((0.25,-1.0));
-			hitMarker.Pushvertex((-0.25,-1.0) * 0.8);
-			hitMarker.Pushvertex((0.25,-1.0) * 0.8);
+			hitMarker.Pushvertex((-0.25,-1.0) * 0.4);
+			hitMarker.Pushvertex((0.25,-1.0) * 0.4);
 			hitMarker.PushCoord((0,0));
 			hitMarker.PushCoord((0,0));
 			hitMarker.PushCoord((0,0));
@@ -594,16 +621,15 @@ class JGP_FlexibleHUD : BaseStatusBar
 			hitMarker.PushTriangle(1, 2, 3);
 		}
 
+		vector2 hudscale = GetHudScale();
+		if (!hitMarkerTransf)
+			hitMarkerTransf = new("Shape2DTransform");
 		for (int i = hmData.Size() - 1; i >= 0; i--)
 		{
 			let hmd = JGP_HitMarkerData(hmData[i]);
 			if (!hmd)
 				continue;
 			
-			vector2 hudscale = GetHudScale();
-			
-			if (!hitMarkerTransf)
-				hitMarkerTransf = new("Shape2DTransform");
 			hitMarkerTransf.Clear();
 			hitMarkerTransf.Scale((size, size) * hudscale.x);
 			hitMarkerTransf.Rotate(hmd.angle);
@@ -624,6 +650,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 			hmd.alpha -= 0.025;
 			if (hmd.alpha <= 0)
 			{
+				hmd.Destroy();
 				hmData.Delete(i);
 			}
 		}
@@ -700,6 +727,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 
 		for (int i = 1; i <= 10; i++)
 		{
+			// Slot 0 is the 10th slot:
 			int sn = i >= 10 ? 0 : i;
 			int size = wslots.SlotSize(sn);
 			if (size <= 0)
@@ -922,11 +950,32 @@ class JGP_FlexibleHUD : BaseStatusBar
 				thickness = 2;
 				col = color(col.a * 2, col.r, col.g, col.b);
 			}
+			if (ln.activation & SPAC_PlayerActivate)
+			{
+				col = color(255, 0, col.g, 255);
+			}
 			Screen.DrawThickLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, thickness, col, col.a);
 		}
-		// Red dot at the center:
-		double dotSize = 1 * hudscale.x;
-		Screen.Dim(color(255,255,0,0), 1, pos.x+size*0.5, pos.y+size*0.5, dotSize, dotSize);
+		// Red arrow at the center:
+		if (!minimapShape_Arrow)
+		{
+			minimapShape_Arrow = new("Shape2D");
+			minimapShape_Arrow.Pushvertex((0, 0));
+			minimapShape_Arrow.Pushvertex((0, -1));
+			minimapShape_Arrow.Pushvertex((-0.5,0.5));
+			minimapShape_Arrow.Pushvertex((0.5,0.5));
+			minimapShape_Arrow.PushCoord((0,0));
+			minimapShape_Arrow.PushCoord((0,0));
+			minimapShape_Arrow.PushCoord((0,0));
+			minimapShape_Arrow.PushCoord((0,0));
+			minimapShape_Arrow.PushTriangle(0, 1, 2);
+			minimapShape_Arrow.PushTriangle(0, 1, 3);
+		}
+		minimapTransform.Clear();
+		minimapTransform.Scale((3.2, 3.2) * hudscale.x);
+		minimapTransform.Translate(pos + (size*0.5,size*0.5));
+		minimapShape_Arrow.SetTransform(minimapTransform);
+		Screen.DrawShapeFill(color(0,0,255), 1.0, minimapShape_Arrow);
 		
 		// Disable the mask:
 		Screen.EnableStencil(false);
