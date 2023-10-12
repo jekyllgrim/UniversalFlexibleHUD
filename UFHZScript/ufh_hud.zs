@@ -675,17 +675,42 @@ class JGP_FlexibleHUD : BaseStatusBar
 		double width = iconsize + indent + smallHUDFont.mFont.StringWidth("000/000") * fntScale;
 		double height;
 
+		WeaponSlots wslots = CPlayer.weapons;
+		if (!wslots)
+			return;
 		array <Ammo> ammoItems;
-		for (let item = CPlayer.mo.inv; item; item = item.Inv)
+		for (int sn = 0; sn <= 10; sn++)
 		{
-			Ammo am = Ammo(item);
-			if (am)
+			int size = wslots.SlotSize(sn);
+			if (size <= 0)
+				continue;
+
+			for (int s = 0; s < size; s++)
 			{
-				let icon = GetIcon(am, DI_SKIPSPAWN|DI_SKIPREADY);
-				if (!icon.IsValid())
-					continue;
-				ammoItems.Push(am); 
-				height += iconsize + indent;
+				class<Weapon> weap = wslots.GetWeapon(sn, s);
+				if (weap)
+				{
+					let defWeap = GetDefaultByType((class<Weapon>)(weap));
+					Ammo am;
+					if (defWeap.ammotype1)
+					{
+						am = Ammo(CPlayer.mo.FindInventory(defWeap.ammotype1));
+						if (am && ammoItems.Find(am) == ammoItems.Size())
+						{
+							ammoItems.Push(am);
+							height += iconsize + indent;
+						}
+					}
+					if (defWeap.ammotype2 && defWeap.ammotype2 != defWeap.ammotype1)
+					{
+						am = Ammo(CPlayer.mo.FindInventory(defWeap.ammotype2));
+						if (am && ammoItems.Find(am) == ammoItems.Size())
+						{
+							ammoItems.Push(am);
+							height += iconsize + indent;
+						}
+					}
+				}
 			}
 		}
 		if (ammoItems.Size() <= 0)
@@ -852,7 +877,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 
 			for (int s = 0; s < size; s++)
 			{
-				class<Weapon> weap = CPlayer.weapons.GetWeapon(sn, s);
+				class<Weapon> weap = wslots.GetWeapon(sn, s);
 				if (weap)
 				{
 					let wsd = JGP_WeaponSlotData.Create(sn, s, weap);

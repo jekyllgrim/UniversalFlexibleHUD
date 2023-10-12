@@ -24,9 +24,9 @@ user nosave bool jgphud_DrawAmmoBar = true;
 user nosave bool jgphud_DrawWeapon = true;
 
 user nosave bool jgphud_DrawAllAmmo = true;
-user nosave int jgphud_AllAmmoPos = 8;
+user nosave int jgphud_AllAmmoPos = 5;
 user nosave int jgphud_AllAmmoX = 2;
-user nosave int jgphud_AllAmmoY = 62;
+user nosave int jgphud_AllAmmoY = 44;
 
 user nosave bool jgphud_DrawKeys = true;
 user nosave int jgphud_KeysPos = 8;
