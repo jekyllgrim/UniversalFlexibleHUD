@@ -14,6 +14,11 @@ OptionMenu "JGPHUD_Settings"
 	Title "Universal flexible HUD"
 
 	StaticText ""
+	StaticText "General", yellow
+	ColorPicker "HUD background color", "jgphud_BackColor"
+	Slider "HUD background opacity", "jgphud_BackAlpha", 0.00, 1.0, 0.05, 2, "jgphud_drawHitmarkers"
+
+	StaticText ""
 	StaticText "Incoming damage display", yellow
 	Slider "Classic screen reddening multiplier", "jgphud_ScreenReddenFactor", 0.0, 1.0, 0.1, 1
 	Option "Directional incoming damage markers", "jgphud_drawHitmarkers", "OnOff"
@@ -23,10 +28,10 @@ OptionMenu "JGPHUD_Settings"
 	StaticText ""	
 	StaticText "Health and armor", yellow
 	Option "Health and armor display", "jgphud_DrawMainbars", "MainBars"
-	Option "Health and armor position", "jgphud_MainBarsPos", "ElementScreenPos"
-	Slider "Health and armor hor. offset", "jgphud_MainBarsX", -160, 160, 2, 0
-	Slider "Health and armor vert. offset", "jgphud_MainBarsY", -100, 100, 2, 0
-	Option "Mugshot display", "jgphud_DrawFace", "OnOff"
+	Option "Health and armor position", "jgphud_MainBarsPos", "ElementScreenPos", "jgphud_DrawMainbars"
+	Slider "Health and armor hor. offset", "jgphud_MainBarsX", -160, 160, 2, 0, "jgphud_DrawMainbars"
+	Slider "Health and armor vert. offset", "jgphud_MainBarsY", -100, 100, 2, 0, "jgphud_DrawMainbars"
+	Option "Mugshot display", "jgphud_DrawFace", "OnOff", "jgphud_DrawMainbars"
 
 	StaticText ""	
 	StaticText "Current ammo and weapon", yellow
@@ -79,8 +84,9 @@ OptionMenu "JGPHUD_Settings"
 
 OptionValue "MainBars"
 {
-	0, "Numbers"
-	1, "Bars"
+	0, "Off"
+	1, "Numbers"
+	2, "Bars"
 }
 
 OptionValue "ElementScreenPos"

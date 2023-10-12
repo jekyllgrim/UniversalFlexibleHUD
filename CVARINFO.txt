@@ -2,48 +2,51 @@ user nosave string jgphud_mainfont = "BigUpper";
 user nosave string jgphud_smallfont = "Confont";
 user nosave string jgphud_numberfont = "IndexFont";
 
-user nosave bool jgphud_DrawMainbars = true;
+user nosave color jgphud_BackColor = "714258";
+user nosave float jgphud_BackAlpha = 0.5;
+
+user nosave float jgphud_ScreenReddenFactor = 1.0;
+user nosave bool jgphud_DrawHitmarkers = true;
+user nosave float jgphud_HitMarkersAlpha = 0.5;
+user nosave float jgphud_HitMarkersFadeTime = 0.5;
+
+user nosave int jgphud_DrawMainbars = 2;
 user nosave int jgphud_MainBarsPos = 6;
 user nosave int jgphud_MainBarsX = 2;
-user nosave int jgphud_MainBarsY = 60;
+user nosave int jgphud_MainBarsY = 2;
 user nosave bool jgphud_DrawFace = true;
 
 user nosave bool jgphud_DrawAmmoBlock = true;
 user nosave int jgphud_AmmoBlockPos = 8;
-user nosave int jgphud_AmmoBlockX = 0;
-user nosave int jgphud_AmmoBlockY = 0;
+user nosave int jgphud_AmmoBlockX = 2;
+user nosave int jgphud_AmmoBlockY = 2;
 user nosave bool jgphud_DrawAmmoBar = true;
 user nosave bool jgphud_DrawWeapon = true;
-
-user nosave bool jgphud_DrawHitmarkers = true;
-user nosave float jgphud_HitMarkersAlpha = 0.5;
-user nosave float jgphud_HitMarkersFadeTime = 0.6;
-user nosave float jgphud_ScreenReddenFactor = 1.0;
-
-user nosave bool jgphud_DrawWeaponSlots = true;
-user nosave int jgphud_WeaponSlotPos = 2;
-user nosave int jgphud_WeaponSlotX = 0;
-user nosave int jgphud_WeaponSlotY = 0;
 
 user nosave bool jgphud_DrawAllAmmo = true;
 user nosave int jgphud_AllAmmoPos = 8;
 user nosave int jgphud_AllAmmoX = 2;
-user nosave int jgphud_AllAmmoY = 60;
-
-user nosave bool jgphud_DrawPowerups = true;
-user nosave int jgphud_PowerupsPos = 2;
-user nosave int jgphud_PowerupsX = 0;
-user nosave int jgphud_PowerupsY = 0;
+user nosave int jgphud_AllAmmoY = 62;
 
 user nosave bool jgphud_DrawKeys = true;
 user nosave int jgphud_KeysPos = 8;
-user nosave int jgphud_KeysX = 0;
-user nosave int jgphud_KeysY = 0;
+user nosave int jgphud_KeysX = 70;
+user nosave int jgphud_KeysY = 2;
+
+user nosave bool jgphud_DrawWeaponSlots = true;
+user nosave int jgphud_WeaponSlotPos = 1;
+user nosave int jgphud_WeaponSlotX = 0;
+user nosave int jgphud_WeaponSlotY = 2;
+
+user nosave bool jgphud_DrawPowerups = true;
+user nosave int jgphud_PowerupsPos = 2;
+user nosave int jgphud_PowerupsX = 2;
+user nosave int jgphud_PowerupsY = 2;
 
 user nosave bool jgphud_DrawMinimap = true;
 user nosave bool jgphud_CircularMinimap = false;
 user nosave int jgphud_MinimapSize = 64;
 user nosave int jgphud_MinimapPos = 6;
 user nosave int jgphud_MinimapPosX = 2;
-user nosave int jgphud_MinimapPosY = 30;
-user nosave float jgphud_MinimapZoom = 1.0;
+user nosave int jgphud_MinimapPosY = 50;
+user nosave float jgphud_MinimapZoom = 0.7;

@@ -319,9 +319,19 @@ class JGP_FlexibleHUD : BaseStatusBar
 		return ScreenFlags[val];
 	}
 
+	CVar c_BackColor;
+	CVar c_BackAlpha;
 	color GetBaseplateColor()
 	{
-		return color(140,113,66,80);
+		if (!c_BackColor)
+			c_BackColor = CVar.GetCVar('jgphud_BackColor', CPlayer);
+		if (!c_BackAlpha)
+			c_BackAlpha = CVar.GetCVar('jgphud_BackAlpha', CPlayer);
+			
+		int a = 255 * c_BackAlpha.GetFloat();
+		color col = c_BackColor.GetInt();
+
+		return color(a, col.r, col.g, col.b);
 	}
 
 	void DrawFlatColorBar(vector2 pos, double curValue, double maxValue, color barColor, string leftText = "", string rightText = "", int valueColor = -1, double barwidth = 64, double barheight = 8, double indent = 0.6, color backColor = color(255, 0, 0, 0), double sparsity = 1, uint segments = 0, int flags = 0)
@@ -450,11 +460,15 @@ class JGP_FlexibleHUD : BaseStatusBar
 
 	void DrawHealthArmor(double height = 28, double width = 120)
 	{
+		int drawThis = c_drawMainbars.GetInt();
+		if (drawThis <= 0)
+			return;
+
 		int flags = SetScreenFlags(c_MainBarsPos.GetInt());
 		int indent = 1;
 		int faceSize = height;
 		int mainBlockWidth = width;
-		bool drawbars = c_drawMainbars.GetBool();
+		bool drawbars = drawThis >= 2;
 		bool drawface = c_DrawFace.GetBool();
 
 		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
