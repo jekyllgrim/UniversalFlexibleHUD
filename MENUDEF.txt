@@ -14,8 +14,11 @@ OptionMenu "JGPHUD_Settings"
 	Title "Universal flexible HUD"
 
 	StaticText ""
-	Option "Incoming damage markers", "jgphud_drawHitmarkers", "OnOff"
+	StaticText "Incoming damage display", yellow
+	Slider "Classic screen reddening multiplier", "jgphud_ScreenReddenFactor", 0.0, 1.0, 0.1, 1
+	Option "Directional incoming damage markers", "jgphud_drawHitmarkers", "OnOff"
 	Slider "Maximum damage marker opacity", "jgphud_HitMarkersAlpha", 0.0, 1.0, 0.1, 1, "jgphud_drawHitmarkers"
+	Slider "Damage marker fade-out time (seconds)", "jgphud_HitMarkersFadeTime", 0.05, 5.0, 0.05, 2, "jgphud_drawHitmarkers"
 
 	StaticText ""	
 	StaticText "Health and armor", yellow
@@ -31,14 +34,8 @@ OptionMenu "JGPHUD_Settings"
 	Option "Current ammo position", "jgphud_AmmoBlockPos", "ElementScreenPos", "jgphud_DrawAmmoBlock"
 	Slider "Current ammo hor. offset", "jgphud_AmmoBlockX", -160, 160, 2, 0, "jgphud_DrawAmmoBlock"
 	Slider "Current ammo vert. offset", "jgphud_AmmoBlockY", -100, 100, 2, 0, "jgphud_DrawAmmoBlock"
+	Option "Display weapon icon", "jgphud_DrawWeapon", "OnOff", "jgphud_DrawAmmoBlock"
 	Option "Display ammo bar", "jgphud_DrawAmmoBar", "OnOff", "jgphud_DrawAmmoBlock"
-
-	StaticText ""	
-	StaticText "Weapon slots", yellow
-	Option "Weapon slots display", "jgphud_DrawWeaponSlots", "OnOff"
-	Option "Weapon slots position", "jgphud_weaponSlotPos", "ElementScreenPos", "jgphud_drawWeaponSlots"
-	Slider "Weapon slots hor. offset", "jgphud_weaponSlotX", -160, 160, 2, 0, "jgphud_drawWeaponSlots"
-	Slider "Weapon slots vert. offset", "jgphud_weaponSlotY", -100, 100, 2, 0, "jgphud_drawWeaponSlots"
 
 	StaticText ""	
 	StaticText "All ammo", yellow
@@ -46,6 +43,20 @@ OptionMenu "JGPHUD_Settings"
 	Option "All ammo position", "jgphud_AllAmmoPos", "ElementScreenPos", "jgphud_drawAllAmmo"
 	Slider "All ammo hor. offset", "jgphud_AllAmmoX", -160, 160, 2, 0, "jgphud_drawAllAmmo"
 	Slider "All ammo vert. offset", "jgphud_AllAmmoY", -100, 100, 2, 0, "jgphud_drawAllAmmo"
+
+	StaticText ""	
+	StaticText "Keys", yellow
+	Option "Keys display", "jgphud_DrawKeys", "OnOff"
+	Option "Keys position", "jgphud_KeysPos", "ElementScreenPos", "jgphud_drawKeys"
+	Slider "Keys hor. offset", "jgphud_KeysX", -160, 160, 2, 0, "jgphud_drawKeys"
+	Slider "Keys vert. offset", "jgphud_KeysY", -100, 100, 2, 0, "jgphud_drawKeys"
+
+	StaticText ""
+	StaticText "Weapon slots", yellow
+	Option "Weapon slots display", "jgphud_DrawWeaponSlots", "OnOff"
+	Option "Weapon slots position", "jgphud_weaponSlotPos", "ElementScreenPos", "jgphud_drawWeaponSlots"
+	Slider "Weapon slots hor. offset", "jgphud_weaponSlotX", -160, 160, 2, 0, "jgphud_drawWeaponSlots"
+	Slider "Weapon slots vert. offset", "jgphud_weaponSlotY", -100, 100, 2, 0, "jgphud_drawWeaponSlots"
 
 	StaticText ""	
 	StaticText "Powerup timers", yellow
@@ -56,6 +67,7 @@ OptionMenu "JGPHUD_Settings"
 
 	StaticText ""	
 	StaticText "Minimap", yellow
+	StaticText "Note: The minimap can be performanceintensive\non levels with complex geometry, especially\nat low zoom values.", white
 	Option "Minimap display", "jgphud_DrawMinimap", "OnOff"
 	Slider "Minimap size", "jgphud_MinimapSize", 0, 128, 1, 0, "jgphud_DrawMinimap"
 	Option "Minimap shape", "jgphud_CircularMinimap", "MinimapShape", "jgphud_DrawMinimap"

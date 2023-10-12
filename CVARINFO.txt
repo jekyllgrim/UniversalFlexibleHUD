@@ -13,9 +13,12 @@ user nosave int jgphud_AmmoBlockPos = 8;
 user nosave int jgphud_AmmoBlockX = 0;
 user nosave int jgphud_AmmoBlockY = 0;
 user nosave bool jgphud_DrawAmmoBar = true;
+user nosave bool jgphud_DrawWeapon = true;
 
 user nosave bool jgphud_DrawHitmarkers = true;
 user nosave float jgphud_HitMarkersAlpha = 0.5;
+user nosave float jgphud_HitMarkersFadeTime = 0.6;
+user nosave float jgphud_ScreenReddenFactor = 1.0;
 
 user nosave bool jgphud_DrawWeaponSlots = true;
 user nosave int jgphud_WeaponSlotPos = 2;
@@ -31,6 +34,11 @@ user nosave bool jgphud_DrawPowerups = true;
 user nosave int jgphud_PowerupsPos = 2;
 user nosave int jgphud_PowerupsX = 0;
 user nosave int jgphud_PowerupsY = 0;
+
+user nosave bool jgphud_DrawKeys = true;
+user nosave int jgphud_KeysPos = 8;
+user nosave int jgphud_KeysX = 0;
+user nosave int jgphud_KeysY = 0;
 
 user nosave bool jgphud_DrawMinimap = true;
 user nosave bool jgphud_CircularMinimap = false;
