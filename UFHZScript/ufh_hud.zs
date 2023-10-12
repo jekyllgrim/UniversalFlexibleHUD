@@ -1173,7 +1173,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 		height = (iconsize + indent) * (placesInRow-1);
 
 		vector2 pos = AdjustPosition((0,0), flags, (width, height), ofs);
-		Fill(GetBaseplateColor(), pos.x, pos.y, width, height);
+		Fill(GetBaseplateColor(), pos.x, pos.y, width, height, flags);
 
 		pos += (iconsize*0.5+indent, iconsize*0.5+indent);
 		vector2 kpos = pos;
