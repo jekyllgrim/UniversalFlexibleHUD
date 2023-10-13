@@ -1179,23 +1179,25 @@ class JGP_FlexibleHUD : BaseStatusBar
 		double width;
 		double height;
 
-		int totalKeys = Key.GetKeyTypeCount();
-//		int possessedKeys;
-//		for (Inventory item = CPlayer.mo.Inv; item; item = item.Inv)
-//		{
-//			Key ki = Key(item);
-//			if (ki)
-//			{
-//				possessedKeys++;
-//			}
-//		}
-//		totalKeys = min(possessedKeys, totalKeys);
+		int keyCount = Key.GetKeyTypeCount();
+		int totalKeys;
+		for (int i = 0; i < keyCount; i++)
+		{
+			let k = CPlayer.mo.FindInventory(Key.GetKeyType(i));
+			if (k)
+			{
+				let icon = GetIcon(k,0);
+				if (icon.IsValid() && TexMan.GetName(icon) != 'TNT1A0')
+					totalKeys++;
+			}
+		}
 		if (totalKeys <= 0)
 			return;
 
-		int placesInRow = ceil(totalKeys / (totalKeys*0.5) + 1);
-		width = (iconsize + indent) * placesInRow + indent;
-		height = (iconsize + indent) * (placesInRow-1);
+		int columns = totalKeys > 3 ? ceil(sqrt(totalkeys)) : 3;
+		int rows = totalKeys > 3 ? ceil(totalkeys / columns) : 1;
+		width = (iconsize + indent) * columns + indent;
+		height = (iconsize + indent) * rows;
 
 		vector2 pos = AdjustPosition((0,0), flags, (width, height), ofs);
 		Fill(GetBaseplateColor(), pos.x, pos.y, width, height, flags);
@@ -1203,25 +1205,26 @@ class JGP_FlexibleHUD : BaseStatusBar
 		pos += (iconsize*0.5+indent, iconsize*0.5+indent);
 		vector2 kpos = pos;
 		int horKeys;
-		for(int i = 0; i < totalKeys; i++)
+		for (int i = 0; i < keyCount; i++)
 		{
-			Key inv = Key(CPlayer.mo.FindInventory(Key.GetKeyType(i)));
-			if (!inv)
-				continue;
-			TextureID icon = GetIcon(inv, 0);
-			if (!icon.IsValid() || TexMan.GetName(icon) == 'TNT1A0')
-				continue;
-			DrawTexture(icon, kpos, flags|DI_ITEM_CENTER, box:(iconSize, iconSize));
-			horKeys++;
-			if (horKeys >= placesInRow)
+			let k = CPlayer.mo.FindInventory(Key.GetKeyType(i));
+			if (k)
 			{
-				horKeys = 0;
-				kpos.x = pos.x;
-				kpos.y += iconSize;
-			}
-			else
-			{
-				kpos.x += iconsize + indent;
+				let icon = GetIcon(k,0);
+				if (!icon.IsValid() || TexMan.GetName(icon) == 'TNT1A0')
+					continue;
+				DrawTexture(icon, kpos, flags|DI_ITEM_CENTER, box:(iconSize, iconSize));
+				horKeys++;
+				if (horKeys >= columns)
+				{
+					horKeys = 0;
+					kpos.x = pos.x;
+					kpos.y += iconSize;
+				}
+				else
+				{
+					kpos.x += iconsize + indent;
+				}
 			}
 		}
 	}
