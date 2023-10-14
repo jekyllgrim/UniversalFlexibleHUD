@@ -1452,7 +1452,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			double scaleFac = LinearMap(i, 0, maxField, 1.0, 0.4);
 			double boxSize = iconSize * scaleFac;
 			itemPos.x = pos.x + (itemPosXOfs*scaleFac + indent) * i;
-			console.printf("%s | Pos.x: %.2f | i: %d | maxfield: %d", item.GetTag(), itemPos.x, i, maxfield);
 			TextureID icon = GetIcon(item, 0);
 			vector2 size = TexMan.GetscaledSize(icon);
 			double longside = max(size.x, size.y);
