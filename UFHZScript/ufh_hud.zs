@@ -1,10 +1,13 @@
-class JGP_FlexibleHUD : BaseStatusBar
+class JGPUFH_FlexibleHUD : BaseStatusBar
 {
 	HUDFont mainHUDFont;
 	HUDFont smallHUDFont;
 	HUDFont numHUDFont;
 
-	JGP_HudDataHandler handler;
+	JGPUFH_HudDataHandler handler;
+	InventoryBarState invbar;
+
+	CVar c_aspectscale;
 
 	CVar c_mainfont;
 	CVar c_smallfont;
@@ -55,10 +58,18 @@ class JGP_FlexibleHUD : BaseStatusBar
 	CVar c_minimapPosY;
 	CVar c_minimapZoom;
 
+	// Health/armor bars CVAR values:
+	enum EDrawBars
+	{
+		DB_NONE,
+		DB_DRAWNUMBERS,
+		DB_DRAWBARS,
+	}
+
 	// Hit (incoming damage) marker
 	Shape2D hitMarker;
 	Shape2DTransform hitMarkerTransf;
-	array <JGP_HitMarkerData> hmData;
+	array <JGPUFH_HitMarkerData> hmData;
 	Actor prevAttacker;
 
 	// Hit (reticle) marker
@@ -67,7 +78,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 	Shape2DTransform reticleMarkerTransform;
 	
 	// Weapon slots
-	array <JGP_WeaponSlotData> weaponSlotData;
+	array <JGPUFH_WeaponSlotData> weaponSlotData;
 	int maxSlotID;
 	int totalSlots;
 
@@ -109,6 +120,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 		UpdateHitMarkers();
 		UpdateReticleHitMarker();
 		GetWeaponSlots();
+		//UpdateItemXofs();
 	}
 
 	override void Draw(int state, double ticFrac)
@@ -130,12 +142,16 @@ class JGP_FlexibleHUD : BaseStatusBar
 		DrawMinimap();
 		DrawPowerups();
 		DrawKeys();
+		DrawInventoryBar();
 	}
 
 	void CacheCvars()
 	{
 		if (!handler)
-			handler = JGP_HudDataHandler(EventHandler.Find("JGP_HudDataHandler"));
+			handler = JGPUFH_HudDataHandler(EventHandler.Find("JGPUFH_HudDataHandler"));
+
+		if (!c_aspectscale)
+			c_aspectscale = CVar.GetCvar('hud_aspectscale', CPlayer);
 
 		if (!c_mainfont)
 			c_mainfont = CVar.GetCvar('jgphud_mainfont', CPlayer);
@@ -237,13 +253,19 @@ class JGP_FlexibleHUD : BaseStatusBar
 	// take the element outside the screen.
 	// If 'real' is true, returns real screen coordinates multiplied
 	// but hudscale, rather than StatusBar coordinates.
-	vector2 AdjustPosition(vector2 pos, int flags, vector2 size, vector2 ofs = (0,0), bool real = false)
+	vector2 AdjustElementPos(vector2 pos, int flags, vector2 size, vector2 ofs = (0,0), bool real = false)
 	{
 		vector2 screenSize = (0,0);
 		vector2 hudscale = GetHudScale();
 		if (real)
 		{
 			screenSize = (Screen.GetWidth(), Screen.GetHeight());
+			// Don't forget to get rid of the aspect correction if 
+			// the hud_aspectscale CVAR is in use, because the
+			// element's position must follow the angles properly
+			// (mostly used by the automap):
+			double aspect = c_aspectscale.GetBool() ? 1.2 : 1;
+			hudscale.y /= aspect;
 			pos.x *= hudscale.x;
 			pos.y *= hudscale.y;
 			size.x *= hudscale.x;
@@ -294,7 +316,8 @@ class JGP_FlexibleHUD : BaseStatusBar
 			ofs.x *= hudscale.x;
 			ofs.y *= hudscale.y;
 		}
-		return pos + ofs;
+		pos += ofs;
+		return pos;
 	}
 
 	static const int ScreenFlags[] =
@@ -461,34 +484,38 @@ class JGP_FlexibleHUD : BaseStatusBar
 	void DrawHealthArmor(double height = 28, double width = 120)
 	{
 		int drawThis = c_drawMainbars.GetInt();
-		if (drawThis <= 0)
+		if (drawThis <= DB_NONE)
 			return;
 
 		int flags = SetScreenFlags(c_MainBarsPos.GetInt());
 		int indent = 1;
 		int faceSize = height;
 		int mainBlockWidth = width;
-		bool drawbars = drawThis >= 2;
-		bool drawface = c_DrawFace.GetBool();
-
-		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
-		bool hasArmor = (barm && barm.amount > 0);
+		bool drawbars = drawThis >= DB_DRAWBARS;
+		// Draw the mugshot only if the CVAR allows it
+		// and a mugshot is actually defined, or the
+		// default STF graphics for it exist:
+		bool drawface = c_DrawFace.GetBool() && (TexMan.CheckForTexture(CPlayer.mo.face).IsValid() || TexMan.CheckForTexture('STFST00').IsValid());
+		// If bars are replaced with numbers,
+		// the width is much shorter:
 		if (!drawbars)
 		{
 			mainBlockWidth *= 0.36;
 		}
 		width = mainBlockWidth;
+		// Increase total width (for position/offset calculation)
+		// if we'll be drawing a mugshot:
 		if (drawface)
 		{
 			width += indent + faceSize;
 		}
 		vector2 ofs = ( c_MainBarsX.GetInt(), c_MainBarsY.GetInt() );
-		vector2 pos = AdjustPosition((0,0), flags, (width, height), ofs);
-		
+		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 		int baseCol = GetBaseplateColor();
 		// bars background:
 		Fill(baseCol, pos.x, pos.y, mainBlockWidth, height, flags);
-		// face background:
+		// face background (draw separately because there's
+		// a small indent between this and the bars background):
 		if (drawFace)
 		{
 			vector2 facePos = (pos.x + mainBlockWidth + indent, pos.y);
@@ -501,7 +528,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 		double iconSize = 8;
 		vector2 iconPos = (pos.x + indent + iconsize * 0.5, pos.y + height*0.75);
 
-		// Draw health cross shape:
+		// Draw health cross shape (instead of drawing a health item):
 		double crossWidth = 2;
 		double crossLength = 8;
 		vector2 crossPos = iconPos;
@@ -525,6 +552,8 @@ class JGP_FlexibleHUD : BaseStatusBar
 			crossWidth,
 			barFlags);
 		
+		// Calculate bar width (it should be indented deeper
+		// from the edges and offset from the icon):
 		int barWidth = mainBlockWidth - iconSize - indent*3;
 		double barPosX = iconPos.x + iconsize*0.5 + indent;
 		double fy = smallHUDFont.mFont.GetHeight();
@@ -545,6 +574,9 @@ class JGP_FlexibleHUD : BaseStatusBar
 		}
 		
 		// Draw armor bar:
+		// Check if armor exists and is above 0
+		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
+		bool hasArmor = (barm && barm.amount > 0);
 		iconPos.y = pos.y + height * 0.25;
 		if (hasArmor)
 		{
@@ -581,54 +613,79 @@ class JGP_FlexibleHUD : BaseStatusBar
 		int flags = SetScreenFlags(c_AmmoBlockPos.GetInt());
 		vector2 ofs = ( c_AmmoBlockX.GetInt(), c_AmmoBlockY.GetInt() );
 		
+		// As usual, calculate total block size first to do the fill.
+
+		// Check if the weapon is using any ammo:
 		Ammo am1, am2;
 		int am1amt, am2amt;
 		[am1, am2, am1amt, am2amt] = GetCurrentAmmo();
 
+		// X size is fixed, we'll calculate Y size from here:
 		int indent = 1;
 		vector2 size = (66, 0);
 		vector2 weapIconBox = (size.x - indent*2, 18);
 		vector2 ammoIconBox = (size.x * 0.25 - indent*4, 16);
 		double ammoTextHeight = smallHUDFont.mFont.GetHeight();
 		int ammoBarHeight = 8;
+		// If at least one ammo type exists, add ammoIconBox height
+		// and indentation to total height:
 		if (am1 || am2)
 		{
 			size.y += ammoIconBox.y + ammoTextHeight + indent*4;
 		}
 		
+		// If we're drawing the ammo bar, add its height and indentation
+		// to total height:
 		bool drawAmmobar = c_drawAmmoBar.GetBool();
 		if (drawAmmobar && (am1 || am2))
 		{
 			size.y += ammoBarHeight + indent*2;
 		}
 		
+		// If weapon icon is to be draw (check CVAR and the validity of
+		// the icon), add its height and indentation to total height:
 		TextureID weapIcon = GetIcon(weap, DI_FORCESCALE);
-		bool weapIconValid = weapIcon.IsValid();
-		if (weapIconValid && c_DrawWeapon.GetBool())
+		bool weapIconValid = c_DrawWeapon.GetBool() && weapIcon.IsValid() && TexMan.GetName(weapIcon) != 'TNT1A0';
+		if (weapIconValid)
 		{
 			size.y += weapIconBox.y + indent*2;
 		}
 
-		vector2 pos = AdjustPosition((0,0), flags, (size.x, size.y), ofs);
-
-		if (weapIconValid || am1 || am2)
+		// If there are no ammotypes or weapon icons, stop here:
+		if (!weapIconValid && !am1 && !am2)
 		{
-			Fill(GetBaseplateColor(), pos.x, pos.y, size.x, size.y, flags);
+			return;
 		}
-		if (weapIconValid && c_DrawWeapon.GetBool())
+
+		// Finally, adjust the position and draw fill:
+		vector2 pos = AdjustElementPos((0,0), flags, (size.x, size.y), ofs);
+		Fill(GetBaseplateColor(), pos.x, pos.y, size.x, size.y, flags);
+		
+		if (weapIconValid)
 		{
 			DrawTexture(weapIcon, pos + (weapIconBox.x  * 0.5 + indent, size.y - weapIconBox.y * 0.5 - indent), flags|DI_ITEM_CENTER, box: (64, 18));
 		}
 
+		// If there's no ammo, stop here:
 		if (!am1 && !am2)
+		{
 			return;
+		}
 
+		// Draw the ammo.
+		// Initially we'll assume there's only one ammo type
+		// and we'll place the icon horizontally at the center;
+		// if there are two ammo types, we'll adjust later:
 		vector2 ammo1pos = pos + (size.x * 0.5, ammoIconBox.y * 0.5 + indent);
 		vector2 ammo2pos = ammo1pos;
+		// Calculate position for ammo amount text, placed right
+		// below the ammo icon:
 		vector2 ammoTextPos = ammo1pos + (0, ammoIconBox.y*0.5 + indent);
+		// And now the ammo bar width:
 		int barwidth = size.x - indent*2;
+		// and the ammo bar pos:
 		vector2 ammoBarPos = ammoTextPos + (-barwidth*0.5, ammoTextHeight + indent);
-		// Uses only 1 ammo type:
+		// Uses only 1 ammo type - draw as calculated:
 		if ((am1 && !am2) || (!am1 && am2))
 		{
 			Ammo am = am1 ? am1 : am2;
@@ -636,14 +693,17 @@ class JGP_FlexibleHUD : BaseStatusBar
 			DrawString(smallHUDFont, ""..am.amount, ammoTextPos, flags|DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am.amount, am.maxamount));
 			if (drawAmmobar)
 			{
-				DrawFlatColorBar(ammoBarPos, am.amount, am.maxamount, color(255, 192, 128, 40), barwidth: barwidth, barheight: ammoBarHeight, segments: am.maxamount / 10, flags: flags);				
+				DrawFlatColorBar(ammoBarPos, am.amount, am.maxamount, color(255, 192, 128, 40), barwidth: barwidth, barheight: ammoBarHeight, segments: am.maxamount / 10, flags: flags);
 			}
 		}
 		// Uses 2 ammo types:
 		else
 		{
+			// Ammo 1 is at the center of the left half:
 			ammo1pos.x = pos.x + (size.x * 0.25);
+			// Ammo 2 is at the center of the right half:
 			ammo2pos.x = pos.x + (size.x * 0.75);
+			// Bars will be twice as short:
 			barwidth = size.x * 0.5 - indent * 4;
 			ammoBarPos.x = ammo1Pos.x - barWidth*0.5;
 			DrawInventoryIcon(am1, ammo1pos, flags|DI_ITEM_CENTER, boxSize: ammoIconBox);
@@ -657,7 +717,6 @@ class JGP_FlexibleHUD : BaseStatusBar
 				DrawFlatColorBar(ammoBarPos, am2.amount, am2.maxamount, color(255, 192, 128, 40), barwidth: barwidth, barheight: ammoBarHeight, segments: am2.maxamount / 20, flags: flags);
 			}
 		}
-		return;
 	}
 
 	void DrawAllAmmo()
@@ -675,23 +734,35 @@ class JGP_FlexibleHUD : BaseStatusBar
 		double width = iconsize + indent + smallHUDFont.mFont.StringWidth("000/000") * fntScale;
 		double height;
 
+		// We'll iterate over ammo first to calculate the total
+		// height of the block, put them in the array,
+		// then draw them from the array:
+
 		WeaponSlots wslots = CPlayer.weapons;
 		if (!wslots)
 			return;
 		array <Ammo> ammoItems;
+		// Sort ammo by weapon slots, not by the order of
+		// receiving them!
 		for (int sn = 0; sn <= 10; sn++)
 		{
 			int size = wslots.SlotSize(sn);
 			if (size <= 0)
 				continue;
 
+			// Get weapons in each index of the current slot:
 			for (int s = 0; s < size; s++)
 			{
+				// Get the weapon in the slot and the index:
 				class<Weapon> weap = wslots.GetWeapon(sn, s);
 				if (weap)
 				{
+					// To get the ammo, we need to read the defaults of
+					// the weapon (and cast them as class<Weapon>):
 					let defWeap = GetDefaultByType((class<Weapon>)(weap));
 					Ammo am;
+					// Don't forget to only draw ammo if the player
+					// actually has it in inventory:
 					if (defWeap.ammotype1)
 					{
 						am = Ammo(CPlayer.mo.FindInventory(defWeap.ammotype1));
@@ -701,6 +772,8 @@ class JGP_FlexibleHUD : BaseStatusBar
 							height += iconsize + indent;
 						}
 					}
+					// And draw second ammo only if it's not the same
+					// as primary ammo:
 					if (defWeap.ammotype2 && defWeap.ammotype2 != defWeap.ammotype1)
 					{
 						am = Ammo(CPlayer.mo.FindInventory(defWeap.ammotype2));
@@ -716,7 +789,8 @@ class JGP_FlexibleHUD : BaseStatusBar
 		if (ammoItems.Size() <= 0)
 			return;
 
-		vector2 pos = AdjustPosition((0,0), flags, (width, height), ofs);
+		// Finally, draw the ammo:
+		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 		for (int i = 0; i < ammoItems.Size(); i++)
 		{
 			Ammo am = ammoItems[i];
@@ -726,10 +800,9 @@ class JGP_FlexibleHUD : BaseStatusBar
 		}
 	}
 
-
 	void UpdateAttacker(double angle)
 	{
-		let hmd = JGP_HitMarkerData.Create(angle);
+		let hmd = JGPUFH_HitMarkerData.Create(angle);
 		if (hmd)
 		{
 			hmData.Push(hmd);
@@ -768,7 +841,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 			hitMarkerTransf = new("Shape2DTransform");
 		for (int i = hmData.Size() - 1; i >= 0; i--)
 		{
-			let hmd = JGP_HitMarkerData(hmData[i]);
+			let hmd = JGPUFH_HitMarkerData(hmData[i]);
 			if (!hmd)
 				continue;
 			
@@ -785,7 +858,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 	{
 		for (int i = hmData.Size() - 1; i >= 0; i--)
 		{
-			let hmd = JGP_HitMarkerData(hmData[i]);
+			let hmd = JGPUFH_HitMarkerData(hmData[i]);
 			if (!hmd)
 				continue;
 
@@ -880,7 +953,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 				class<Weapon> weap = wslots.GetWeapon(sn, s);
 				if (weap)
 				{
-					let wsd = JGP_WeaponSlotData.Create(sn, s, weap);
+					let wsd = JGPUFH_WeaponSlotData.Create(sn, s, weap);
 					if (wsd)
 					{
 						totalSlots = i;
@@ -902,7 +975,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 		double indent = 2;
 		double width = (box.x + indent) * totalSlots - indent; //we don't need indent at the end
 		double height = (box.y + indent) * maxSlotID - indent; //ditto
-		vector2 pos = AdjustPosition((0,0), flags, (width, height), ofs);
+		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 		vector2 wpos = pos;
 		for (int i = 0; i < weaponSlotData.Size(); i++)
 		{
@@ -938,7 +1011,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 	// line drawing.
 	void DrawMinimap()
 	{
-		if (!c_drawMinimap.GetBool())
+		if (!c_drawMinimap.GetBool() || automapActive)
 			return;
 		
 		double size = c_MinimapSize.GetFloat();
@@ -947,14 +1020,14 @@ class JGP_FlexibleHUD : BaseStatusBar
 		// of physical resolution:
 		vector2 hudscale = GetHudScale();
 		// Screen flags are obtained as usual, although they're
-		// only used in AdjustPosition, not in the actual
+		// only used in AdjustElementPos, not in the actual
 		// drawing functions, since Screen functions don't
 		// interact with statusbar DI_* flags:
 		int flags = SetScreenFlags(c_MinimapPos.GetInt());
 		vector2 ofs = ( c_MinimapPosX.GetInt(), c_MinimapPosY.GetInt() );
 		// Real: true makes this function return real screeen
 		// coordinates rather virtual ones:
-		vector2 pos = AdjustPosition((0,0), flags, (size, size), ofs, real:true);
+		vector2 pos = AdjustElementPos((0,0), flags, (size, size), ofs, real:true);
 		size *= hudscale.x;
 
 		// Let the player change the size of the map:
@@ -1124,6 +1197,15 @@ class JGP_FlexibleHUD : BaseStatusBar
 		Screen.ClearStencil();
 	}
 
+	int, int TicsToSeconds(int tics)
+	{
+		int totalSeconds = tics / TICRATE;
+		int minutes = (totalSeconds / 60) % 60;
+		int seconds = totalSeconds % 60;
+
+		return minutes, seconds;
+	}
+
 	override void DrawPowerups()
 	{
 		if (!c_drawPowerups.GetBool())
@@ -1144,7 +1226,7 @@ class JGP_FlexibleHUD : BaseStatusBar
 		double fy = fnt.mFont.GetHeight() * textScale;
 		double width = fnt.mFont.StringWidth("00:00") * textScale + iconSize + indent;
 		double height = (iconsize + indent) * powerNum + indent;
-		vector2 pos = AdjustPosition((0,0), flags, (width, height), ofs);
+		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 		pos.y += iconSize*0.5;
 
 		for (int i = 0; i < powerNum; i++)
@@ -1194,16 +1276,27 @@ class JGP_FlexibleHUD : BaseStatusBar
 		if (totalKeys <= 0)
 			return;
 
-		int columns = totalKeys > 3 ? ceil(sqrt(totalkeys)) : 3;
-		int rows = totalKeys > 3 ? ceil(totalkeys / columns) : 1;
+		// Calculate the size of the key block
+		// If there are 3 keys or fewer, the columns are = total keys,
+		// and rows = 1.
+		// Otherwise, columns are square root of the total number 
+		// of keys, ceil'd:
+		int columns = totalKeys > 3 ? ceil(sqrt(totalkeys)) : totalKeys;
+		// Rows are total number of keys / rows.
+		// Don't forget to convert columns to double, so that the resulting
+		// number is not truncated before it's ceil'd:
+		int rows = totalKeys > 3 ? ceil(totalkeys / double(columns)) : 1;
 		width = (iconsize + indent) * columns + indent;
 		height = (iconsize + indent) * rows;
 
-		vector2 pos = AdjustPosition((0,0), flags, (width, height), ofs);
+		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 		Fill(GetBaseplateColor(), pos.x, pos.y, width, height, flags);
 
 		pos += (iconsize*0.5+indent, iconsize*0.5+indent);
 		vector2 kpos = pos;
+		// Keep track of how many keys we've drawn horizontally,
+		// so we can switch to new line when we've filled all
+		// columns:
 		int horKeys;
 		for (int i = 0; i < keyCount; i++)
 		{
@@ -1215,38 +1308,258 @@ class JGP_FlexibleHUD : BaseStatusBar
 					continue;
 				DrawTexture(icon, kpos, flags|DI_ITEM_CENTER, box:(iconSize, iconSize));
 				horKeys++;
-				if (horKeys >= columns)
+				// Keep going right if this isn't the final
+				// column yet:
+				if (horKeys < columns)
+				{
+					kpos.x += iconsize + indent;
+				}
+				// Otherwise Reached the final column - 
+				// reset x pos and move y pos:
+				else
 				{
 					horKeys = 0;
 					kpos.x = pos.x;
 					kpos.y += iconSize;
 				}
-				else
-				{
-					kpos.x += iconsize + indent;
-				}
 			}
 		}
 	}
 
-	int, int TicsToSeconds(int tics)
+	LinearValueInterpolator itemPosIntr;
+	double newItemX;
+	Inventory prevInvSel;
+	const ITEMBARICONSIZE = 28;
+	void UpdateItemXofs()
 	{
-		int totalSeconds = tics / TICRATE;
-		int minutes = (totalSeconds / 60) % 60;
-		int seconds = totalSeconds % 60;
+		if (!itemPosIntr)
+		{
+			itemPosIntr = LinearValueInterpolator.Create(ITEMBARICONSIZE, 1);
+			newItemX = ITEMBARICONSIZE;
+		}
+		let invSel = CPlayer.mo.InvSel;
+		if (!prevInvSel)
+		{
+			prevInvSel = invSel;
+		}
+		if (invSel && invSel != prevInvSel)
+		{
+			if (invSel == prevInvSel.PrevInv())
+			{
+				newItemX += ITEMBARICONSIZE;
+			}
+			else if (invSel == prevInvSel.NextInv())
+			{
+				newItemX -= ITEMBARICONSIZE;
+			}
+			prevInvSel = invSel;
+		}
+		//console.printf("Cur value: %d | Target value: %d", itemPosIntr.GetValue(), newItemX);
+		itemPosIntr.Update(newItemX);
+	}
 
-		return minutes, seconds;
+	double GetItemXofs()
+	{
+		if (!itemPosIntr)
+		{
+			return newItemX;
+		}
+		return itemPosIntr.GetValue();
+	}
+
+	array <JGPUFH_InvbarData> invBarData;
+	void DrawInventoryBar(int numfields = 7)
+	{
+		CPlayer.mo.InvFirst = ValidateInvFirst(numfields);
+		if (!CPlayer.mo.InvFirst)
+			return;
+
+		int flags = DI_SCREEN_CENTER;
+		vector2 pos = (0,0);		
+		int indent = 1;
+		double iconSize = ITEMBARICONSIZE;
+		int width = (iconSize + indent) * numfields - indent;
+		int height = iconSize;
+		//pos.x -= iconSize*0.5;
+		/*if (!invbar)
+		{
+			invbar = InventoryBarState.Create();
+			invbar.boxSize = (iconSize,iconSize);
+			//invbar.box = TexMan.CheckForTexture("TNT1A0");
+		}*/
+		
+		vector2 size = (iconsize, iconsize);
+		// In contrast to vanilla inventory bar, here the cursor
+		// stays in place, and it's the items that move around,
+		// like on a fake Tomb Raider-style wheel. Thus, we start
+		// with the currently selected item (in the center)
+		// and draw items to the right of it, and to the left.
+		// Also, this invbar has no beginning or end: we just keep
+		// displaying items in a loop until we fill the specified
+		// number of places.
+
+		// The total number of icons we'll draw in both direction
+		// (not counting the item in the center, hence the -1):
+		int maxField = ceil((numfields - 1) / 2);
+		// Currently selected - that's where we start working from:
+		Inventory invSel = CPlayer.mo.InvSel;
+		// Calculate the currently first and last items in the list.
+		// This has to be done every time because these are not fixed!
+		Inventory invFirst = invSel;
+		Inventory invLast = invSel;
+		// Calculate first and last items:
+		while (invFirst.PrevInv())
+		{
+			invFirst = invFirst.PrevInv();
+		}
+		while (invLast.NextInv())
+		{
+			invLast = invLast.NextInv();
+		}
+		// When we begin drawing the left side, we start with
+		// the item directly behind the selected one, so we'll
+		// cache it here for convenience. If it doesn't exist, 
+		// we'll cache the rightmost (last) one:
+		Inventory prevSel = invSel.PrevInv();
+		if (!prevSel)
+		{
+			prevSel = invLast;
+		}
+
+		int i = 0;
+		vector2 itemPos = pos;
+		double itemPosXOfs = iconSize;//GetItemXofs();
+		Inventory item = invSel;
+		while (item)
+		{
+			//let invd = JGPUFH_InvbarData.Create(item, pos, size);
+			//invBarData.Push(invd);
+			if (i == 0)
+			{
+				vector2 cursPos = (pos.x - iconSize*0.5 - indent, pos.y - iconSize*0.5 - indent);
+				vector2 cursSize = (iconsize + indent*2, indent); //width, height
+				// back color:
+				Fill (color(80, 255,255,255), cursPos.x, cursPos.y, cursSize.x, cursSize.x, flags);
+				// edges:
+				color cursCol = color(220, 80, 200, 60);
+				Fill (cursCol, cursPos.x, cursPos.y, cursSize.x, cursSize.y, flags);
+				Fill (cursCol, cursPos.x, cursPos.y, cursSize.y, cursSize.x, flags);
+				Fill (cursCol, cursPos.x+cursSize.x-cursSize.y, cursPos.y, cursSize.y, cursSize.x, flags);
+				Fill (cursCol, cursPos.x, cursPos.y+cursSize.x-cursSize.y, cursSize.x, cursSize.y, flags);
+			}
+			indent = 4;
+			double alph = LinearMap(i, 0, maxField, 1.0, 0.5);
+			double scaleFac = LinearMap(i, 0, maxField, 1.0, 0.4);
+			double boxSize = iconSize * scaleFac;
+			itemPos.x = pos.x + (itemPosXOfs*scaleFac + indent) * i;
+			console.printf("%s | Pos.x: %.2f | i: %d | maxfield: %d", item.GetTag(), itemPos.x, i, maxfield);
+			TextureID icon = GetIcon(item, 0);
+			vector2 size = TexMan.GetscaledSize(icon);
+			double longside = max(size.x, size.y);
+			double scaleToBoxFac = boxSize / longSide;
+			DrawInventoryIcon(item, itemPos, flags|DI_ITEM_CENTER, alph, boxsize:(boxSize, boxSize), scale:(scaleToBoxFac,scaleToBoxFac));
+
+			// Going right:
+			if (maxfield > 0)
+			{
+				// keep going to the right:
+				if (i < maxField) 
+				{
+					i++;
+					// if there's no next item, draw the very
+					// first item in the list and keep going
+					// from there:
+					item = item.NextInv();
+					if (!item)
+						item = invFirst;
+				}
+				// reached right edge - move to the first item
+				// to the left of selected, and flip maxfield
+				// to negative:
+				else
+				{
+					i = -1;
+					maxfield *= -1;
+					item = prevSel;
+				}
+			}
+			// going left:
+			else 
+			{
+				// otherwise keep going to the left:
+				if (i > maxField)
+				{
+					// if there's no prev item, draw the very
+					// last item that was on the right and
+					// keep going from there:
+					item = item.PrevInv();
+					if (!item)
+						item = invLast;
+					i--;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
 	}
 }
 
-class JGP_PowerupData play
+class JGPUFH_InvbarData ui
+{
+	const UPDATETIME = 10; //tics to move
+	int timer;
+	Inventory item;
+	vector2 pos;
+	vector2 size;
+	vector2 posStep;
+	vector2 sizeStep;
+	vector2 targetPos;
+	vector2 targetSize;
+	
+	static JGPUFH_InvbarData Create(Inventory item, vector2 pos, vector2 size)
+	{
+		let invd = JGPUFH_InvbarData(New("JGPUFH_InvbarData"));
+		if (invd)
+		{
+			invd.item = item;
+			invd.pos = pos;
+			invd.size = size;
+		}
+		return invd;
+	}
+
+	void Move(vector2 newPos, vector2 newSize)
+	{
+		targetPos = newPos;
+		targetSize = newSize;
+		posStep.x = (targetPos.x - pos.x) / UPDATETIME;
+		posStep.y = (targetPos.y - pos.y) / UPDATETIME;
+		sizeStep.x = (targetSize.x - size.x) / UPDATETIME;
+		sizeStep.y = (targetSize.y - size.y) / UPDATETIME;
+		timer = UPDATETIME;
+	}
+
+	void Update()
+	{
+		if (timer > 0)
+		{
+			timer--;
+			pos += posStep;
+			size += sizeStep;
+		}
+	}
+}
+
+class JGPUFH_PowerupData play
 {
 	TextureID icon;
 	class<Inventory> powerupType;
 
-	static JGP_PowerupData Create(TextureID icon, class<Inventory> powerupType)
+	static JGPUFH_PowerupData Create(TextureID icon, class<Inventory> powerupType)
 	{
-		let pwd = JGP_PowerupData(New("JGP_PowerupData"));
+		let pwd = JGPUFH_PowerupData(New("JGPUFH_PowerupData"));
 		if (pwd)
 		{
 			pwd.icon = icon;
@@ -1256,15 +1569,15 @@ class JGP_PowerupData play
 	}
 }
 
-class JGP_WeaponSlotData ui
+class JGPUFH_WeaponSlotData ui
 {
 	int slot;
 	int slotIndex;
 	class<Weapon> weaponClass;
 
-	static JGP_WeaponSlotData Create(int slot, int slotIndex, class<Weapon> weaponClass)
+	static JGPUFH_WeaponSlotData Create(int slot, int slotIndex, class<Weapon> weaponClass)
 	{
-		let wsd = JGP_WeaponSlotData(New("JGP_WeaponSlotData"));
+		let wsd = JGPUFH_WeaponSlotData(New("JGPUFH_WeaponSlotData"));
 		if (wsd)
 		{
 			wsd.slot = slot;
@@ -1275,14 +1588,14 @@ class JGP_WeaponSlotData ui
 	}
 }
 
-class JGP_HitMarkerData ui
+class JGPUFH_HitMarkerData ui
 {
 	double angle;
 	double alpha;
 
-	static JGP_HitMarkerData Create(double angle)
+	static JGPUFH_HitMarkerData Create(double angle)
 	{
-		let hmd = JGP_HitMarkerData(New("JGP_HitMarkerData"));
+		let hmd = JGPUFH_HitMarkerData(New("JGPUFH_HitMarkerData"));
 		if (hmd)
 		{
 			hmd.angle = angle;
@@ -1292,10 +1605,10 @@ class JGP_HitMarkerData ui
 	}
 }
 
-class JGP_HudDataHandler : EventHandler
+class JGPUFH_HudDataHandler : EventHandler
 {
-	ui JGP_FlexibleHUD hud;
-	array <JGP_PowerupData> powerupData;
+	ui JGPUFH_FlexibleHUD hud;
+	array <JGPUFH_PowerupData> powerupData;
 	transient CVar c_ScreenReddenFactor;
 
 	override void WorldThingDamaged(worldEvent e)
@@ -1351,7 +1664,7 @@ class JGP_HudDataHandler : EventHandler
 				return;
 
 			// Check if tha powerup was already processed:
-			JGP_PowerupData pwd;
+			JGPUFH_PowerupData pwd;
 			let pwrCls = pwr.GetClass();
 			for (int i = 0; i < powerupData.Size(); i++)
 			{
@@ -1360,8 +1673,8 @@ class JGP_HudDataHandler : EventHandler
 					return;
 			}
 			
-			// Try remembering the PowerupGiver's icon as this
-			// powerup's icon:
+			// Try getting the icon for the powerup from its
+			// PowerupGiver:
 			icon = pwrg.icon;
 			// If that didn't work, record the PowerupGiver's
 			// spawn sprite as that powerup's icon:
@@ -1372,7 +1685,7 @@ class JGP_HudDataHandler : EventHandler
 			// In case of success, store it:
 			if (icon.isValid())
 			{
-				pwd = JGP_PowerupData.Create(icon, pwrCls);
+				pwd = JGPUFH_PowerupData.Create(icon, pwrCls);
 				powerupData.Push(pwd);
 			}
 		}
@@ -1383,7 +1696,7 @@ class JGP_HudDataHandler : EventHandler
 		if (!e.isManual)
 		{
 			if (!hud)
-				hud = JGP_FlexibleHUD(StatusBar);
+				hud = JGPUFH_FlexibleHUD(StatusBar);
 			if(e.name == "PlayerWasAttacked")
 			{
 				hud.UpdateAttacker(e.args[0]);

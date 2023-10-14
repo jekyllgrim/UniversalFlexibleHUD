@@ -1,5 +1,5 @@
 Gameinfo
 {
-	StatusBarClass = "JGP_FlexibleHUD"
-	AddEventHandlers = "JGP_HudDataHandler"
+	StatusBarClass = "JGPUFH_FlexibleHUD"
+	AddEventHandlers = "JGPUFH_HudDataHandler"
 }

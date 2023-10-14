@@ -16,7 +16,7 @@ OptionMenu "JGPHUD_Settings"
 	StaticText ""
 	StaticText "General", yellow
 	ColorPicker "HUD background color", "jgphud_BackColor"
-	Slider "HUD background opacity", "jgphud_BackAlpha", 0.00, 1.0, 0.05, 2, "jgphud_drawHitmarkers"
+	Slider "HUD background opacity", "jgphud_BackAlpha", 0.00, 1.0, 0.05, 2
 
 	StaticText ""
 	StaticText "Incoming damage display", yellow
@@ -72,7 +72,9 @@ OptionMenu "JGPHUD_Settings"
 
 	StaticText ""	
 	StaticText "Minimap", yellow
-	StaticText "Note: The minimap can be performanceintensive\non levels with complex geometry, especially\nat low zoom values.", white
+	StaticText "Note: The minimap can be performance-intensive", white
+	StaticText "on levels with complex geometry, especially", white
+	StaticText "at low zoom values.", white
 	Option "Minimap display", "jgphud_DrawMinimap", "OnOff"
 	Slider "Minimap size", "jgphud_MinimapSize", 0, 128, 1, 0, "jgphud_DrawMinimap"
 	Option "Minimap shape", "jgphud_CircularMinimap", "MinimapShape", "jgphud_DrawMinimap"
