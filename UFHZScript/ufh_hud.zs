@@ -121,6 +121,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		UpdateReticleHitMarker();
 		GetWeaponSlots();
 		//UpdateItemXofs();
+		UpdateInventoryBar();
 	}
 
 	override void Draw(int state, double ticFrac)
@@ -1328,33 +1329,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	LinearValueInterpolator itemPosIntr;
 	double newItemX;
-	Inventory prevInvSel;
 	const ITEMBARICONSIZE = 28;
-	void UpdateItemXofs()
+	void UpdateItemXofs(double newItemX)
 	{
 		if (!itemPosIntr)
 		{
 			itemPosIntr = LinearValueInterpolator.Create(ITEMBARICONSIZE, 1);
 			newItemX = ITEMBARICONSIZE;
 		}
-		let invSel = CPlayer.mo.InvSel;
-		if (!prevInvSel)
-		{
-			prevInvSel = invSel;
-		}
-		if (invSel && invSel != prevInvSel)
-		{
-			if (invSel == prevInvSel.PrevInv())
-			{
-				newItemX += ITEMBARICONSIZE;
-			}
-			else if (invSel == prevInvSel.NextInv())
-			{
-				newItemX -= ITEMBARICONSIZE;
-			}
-			prevInvSel = invSel;
-		}
-		//console.printf("Cur value: %d | Target value: %d", itemPosIntr.GetValue(), newItemX);
 		itemPosIntr.Update(newItemX);
 	}
 
@@ -1367,6 +1349,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		return itemPosIntr.GetValue();
 	}
 
+	Inventory prevInvSel;
+	array <Inventory> invBarItems;
 	array <JGPUFH_InvbarData> invBarData;
 	void DrawInventoryBar(int numfields = 7)
 	{
@@ -1380,83 +1364,152 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		double iconSize = ITEMBARICONSIZE;
 		int width = (iconSize + indent) * numfields - indent;
 		int height = iconSize;
-		//pos.x -= iconSize*0.5;
-		/*if (!invbar)
-		{
-			invbar = InventoryBarState.Create();
-			invbar.boxSize = (iconSize,iconSize);
-			//invbar.box = TexMan.CheckForTexture("TNT1A0");
-		}*/
-		
-		vector2 size = (iconsize, iconsize);
-		// In contrast to vanilla inventory bar, here the cursor
-		// stays in place, and it's the items that move around,
-		// like on a fake Tomb Raider-style wheel. Thus, we start
-		// with the currently selected item (in the center)
-		// and draw items to the right of it, and to the left.
-		// Also, this invbar has no beginning or end: we just keep
-		// displaying items in a loop until we fill the specified
-		// number of places.
 
-		// The total number of icons we'll draw in both direction
-		// (not counting the item in the center, hence the -1):
-		int maxField = ceil((numfields - 1) / 2);
+		vector2 cursPos = (pos.x - iconSize*0.5 - indent, pos.y - iconSize*0.5 - indent);
+		vector2 cursSize = (iconsize + indent*2, indent); //width, height
+		// back color:
+		Fill (color(80, 255,255,255), cursPos.x, cursPos.y, cursSize.x, cursSize.x, flags);
+		// edges:
+		color cursCol = color(220, 80, 200, 60);
+		Fill (cursCol, cursPos.x, cursPos.y, cursSize.x, cursSize.y, flags);
+		Fill (cursCol, cursPos.x, cursPos.y, cursSize.y, cursSize.x, flags);
+		Fill (cursCol, cursPos.x+cursSize.x-cursSize.y, cursPos.y, cursSize.y, cursSize.x, flags);
+		Fill (cursCol, cursPos.x, cursPos.y+cursSize.x-cursSize.y, cursSize.x, cursSize.y, flags);
+		
+		for (int i = 0; i < invBarData.Size(); i ++)
+		{
+			let invd = invBarData[i];
+			if (invd)
+			{
+				DrawInventoryIcon(invd.item, pos + invd.pos, flags|DI_ITEM_CENTER, scale:(invd.size.x / iconsize, invd.size.y / iconsize));
+				//console.printf("item: %s / %s | pos: %.1f, %1.f", invd.item.GetTag(), CPlayer.mo.InvSel.GetTag(), invd.pos.x, invd.pos.y);
+			}
+		}
+	}
+
+	void UpdateInventoryBar(int numfields = 7)
+	{
+		CPlayer.mo.InvFirst = ValidateInvFirst(numfields);
+		if (!CPlayer.mo.InvFirst)
+			return;
+		
+		double iconSize = ITEMBARICONSIZE;
+		numfields += 2;
 		// Currently selected - that's where we start working from:
 		Inventory invSel = CPlayer.mo.InvSel;
-		// Calculate the currently first and last items in the list.
-		// This has to be done every time because these are not fixed!
-		Inventory invFirst = invSel;
-		Inventory invLast = invSel;
-		// Calculate first and last items:
-		while (invFirst.PrevInv())
+		//if (!prevInvSel)
+		if (prevInvSel != invSel)
 		{
-			invFirst = invFirst.PrevInv();
+			BuildInventoryBar(numfields);
+			prevInvSel = invSel;
 		}
-		while (invLast.NextInv())
+		else if (prevInvSel != invSel)
 		{
-			invLast = invLast.NextInv();
-		}
-		// When we begin drawing the left side, we start with
-		// the item directly behind the selected one, so we'll
-		// cache it here for convenience. If it doesn't exist, 
-		// we'll cache the rightmost (last) one:
-		Inventory prevSel = invSel.PrevInv();
-		if (!prevSel)
-		{
-			prevSel = invLast;
+			let prevPrev = PrevItem(prevInvSel);
+			let prevNext = NextItem(prevInvSel);
+			console.printf(
+				"prevSel: \cD%s\c- | sel: \cD%s\c- \n"
+				"prevSel Last: \cD%s\c- | prevSel Next: \cD%s\c-",
+				prevInvSel.GetTag(), 
+				invSel.GetTag(), 
+				prevPrev ? prevPrev.GetTag() : "none", 
+				prevNext ? prevNext.GetTag() : "none"
+			);
+			prevInvSel = invSel;
+
+			int moveDir = (invsel == prevNext) ? -1 : 1;
+			
+			Inventory toAdd;
+			if (movedir == -1)
+			{
+				let f = invBarData[0];
+				toAdd = PrevItem(f.item);
+				let invd = JGPUFH_InvbarData.Create(toAdd, (f.pos.x - iconsize, f.pos.y), f.size);
+				invBarData.Insert(0, invd);
+				invBarData.Pop();
+			}
+			else
+			{
+				int id = invBarData.Size() - 1;
+				let f = invBarData[id];
+				toAdd = NextItem(f.item);
+				let invd = JGPUFH_InvbarData.Create(toAdd, (f.pos.x - iconsize, f.pos.y), f.size);
+				invBarData.Push(invd);
+				invBarData.Delete(0);
+			}
+			
+			for (int i = 0; i < invBarData.Size(); i++)
+			{
+				let invd = invBarData[i];
+				if (invd)
+				{
+					invd.Move((invd.pos.x + iconSize*moveDir, invd.pos.y));
+				}
+			}
 		}
 
+		for (int i = 0; i < invBarData.Size(); i++)
+		{
+			let invd = invBarData[i];
+			if (invd)
+			{
+				invd.Update();
+			}
+		}
+	}
+
+	Inventory NextItem(Inventory item)
+	{
+		if (item.NextInv())
+		{
+			return item.NextInv();
+		}
+		Inventory firstgood = item;
+		while (firstgood.PrevInv())
+		{
+			firstgood = firstgood.PrevInv();
+		}
+		return firstgood;
+	}
+
+	Inventory PrevItem(Inventory item)
+	{
+		if (item.PrevInv())
+		{
+			return item.PrevInv();
+		}
+		Inventory lastgood = item;
+		while (lastgood.NextInv())
+		{
+			lastgood = lastgood.NextInv();
+		}
+		return lastgood;
+	}
+
+	void BuildInventoryBar(int numfields = 7, vector2 pos = (0,0))
+	{
+		double iconSize = ITEMBARICONSIZE;
+		let invSel = CPlayer.mo.InvSel;
+		invBarData.Clear();
+
+		int maxField = ceil((numfields - 1) / 2);
 		int i = 0;
+		int indent = 4;
 		vector2 itemPos = pos;
-		double itemPosXOfs = iconSize;//GetItemXofs();
 		Inventory item = invSel;
 		while (item)
 		{
-			//let invd = JGPUFH_InvbarData.Create(item, pos, size);
-			//invBarData.Push(invd);
-			if (i == 0)
-			{
-				vector2 cursPos = (pos.x - iconSize*0.5 - indent, pos.y - iconSize*0.5 - indent);
-				vector2 cursSize = (iconsize + indent*2, indent); //width, height
-				// back color:
-				Fill (color(80, 255,255,255), cursPos.x, cursPos.y, cursSize.x, cursSize.x, flags);
-				// edges:
-				color cursCol = color(220, 80, 200, 60);
-				Fill (cursCol, cursPos.x, cursPos.y, cursSize.x, cursSize.y, flags);
-				Fill (cursCol, cursPos.x, cursPos.y, cursSize.y, cursSize.x, flags);
-				Fill (cursCol, cursPos.x+cursSize.x-cursSize.y, cursPos.y, cursSize.y, cursSize.x, flags);
-				Fill (cursCol, cursPos.x, cursPos.y+cursSize.x-cursSize.y, cursSize.x, cursSize.y, flags);
-			}
-			indent = 4;
 			double alph = LinearMap(i, 0, maxField, 1.0, 0.5);
 			double scaleFac = LinearMap(i, 0, maxField, 1.0, 0.4);
 			double boxSize = iconSize * scaleFac;
-			itemPos.x = pos.x + (itemPosXOfs*scaleFac + indent) * i;
 			TextureID icon = GetIcon(item, 0);
 			vector2 size = TexMan.GetscaledSize(icon);
 			double longside = max(size.x, size.y);
 			double scaleToBoxFac = boxSize / longSide;
-			DrawInventoryIcon(item, itemPos, flags|DI_ITEM_CENTER, alph, boxsize:(boxSize, boxSize), scale:(scaleToBoxFac,scaleToBoxFac));
+			itemPos.x = (iconsize*scaleFac + indent) * i;
+
+			let invd = JGPUFH_InvbarData.Create(item, itemPos, (iconsize,iconsize)*scaleToBoxFac);// (boxSize,boxSize) * scaleToBoxFac);
+			invBarData.Push(invd);
 
 			// Going right:
 			if (maxfield > 0)
@@ -1465,12 +1518,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				if (i < maxField) 
 				{
 					i++;
-					// if there's no next item, draw the very
-					// first item in the list and keep going
-					// from there:
-					item = item.NextInv();
-					if (!item)
-						item = invFirst;
+					item = NextItem(item);
 				}
 				// reached right edge - move to the first item
 				// to the left of selected, and flip maxfield
@@ -1479,23 +1527,22 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				{
 					i = -1;
 					maxfield *= -1;
-					item = prevSel;
+					item = PrevItem(invSel);
 				}
 			}
 			// going left:
 			else 
 			{
-				// otherwise keep going to the left:
+				// Keep going to the left:
 				if (i > maxField)
 				{
 					// if there's no prev item, draw the very
 					// last item that was on the right and
 					// keep going from there:
-					item = item.PrevInv();
-					if (!item)
-						item = invLast;
+					item = PrevItem(item);
 					i--;
 				}
+				// reached left edge: stop here
 				else
 				{
 					break;
@@ -1507,7 +1554,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 class JGPUFH_InvbarData ui
 {
-	const UPDATETIME = 10; //tics to move
+	const UPDATETIME = 5; //tics to move
 	int timer;
 	Inventory item;
 	vector2 pos;
@@ -1529,14 +1576,17 @@ class JGPUFH_InvbarData ui
 		return invd;
 	}
 
-	void Move(vector2 newPos, vector2 newSize)
+	void Move(vector2 newPos, vector2 newSize = (0,0))
 	{
 		targetPos = newPos;
 		targetSize = newSize;
 		posStep.x = (targetPos.x - pos.x) / UPDATETIME;
 		posStep.y = (targetPos.y - pos.y) / UPDATETIME;
-		sizeStep.x = (targetSize.x - size.x) / UPDATETIME;
-		sizeStep.y = (targetSize.y - size.y) / UPDATETIME;
+		if (newSize != (0,0))
+		{
+			sizeStep.x = (targetSize.x - size.x) / UPDATETIME;
+			sizeStep.y = (targetSize.y - size.y) / UPDATETIME;
+		}
 		timer = UPDATETIME;
 	}
 
