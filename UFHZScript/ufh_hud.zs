@@ -1,11 +1,10 @@
 class JGPUFH_FlexibleHUD : BaseStatusBar
 {
 	HUDFont mainHUDFont;
-	HUDFont smallHUDFont;
 	HUDFont numHUDFont;
 
 	JGPUFH_HudDataHandler handler;
-	InventoryBarState invbar;
+	array <JGPHUD_HexenArmorData> hexenArmorData;
 
 	CVar c_aspectscale;
 
@@ -135,10 +134,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	override void Init()
 	{
 		super.Init();		
-		Font fnt = "BigUpper";
-		mainHUDFont = HUDFont.Create(fnt);
-		fnt = "Confont";
-		smallHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
+		Font fnt = "Confont";
+		mainHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
 		fnt = "IndexFont";
 		numHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
 
@@ -398,7 +395,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 
 		if (leftText)
-			DrawString(smallHUDFont, leftText, barpos + (-1, 0), flags|DI_TEXT_ALIGN_RIGHT);
+			DrawString(mainHUDFont, leftText, barpos + (-1, 0), flags|DI_TEXT_ALIGN_RIGHT);
 
 		// Background color (fills whole width):
 		Fill(backColor, barpos.x, barpos.y, barwidth, barheight, flags);
@@ -461,7 +458,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 		
 		if (rightText)
-			DrawString(smallHUDFont, ""..rightText, barpos + (barwidth + 1, 0), flags|DI_TEXT_ALIGN_LEFT);
+			DrawString(mainHUDFont, ""..rightText, barpos + (barwidth + 1, 0), flags|DI_TEXT_ALIGN_LEFT);
 	}
 
 	int, int, int, int GetArmorColor(double savePercent)
@@ -521,6 +518,36 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			return 255, 128, 0;
 		// Otherwise: red
 		return 255, 0, 0;
+	}
+
+	// Cache existing icons for Hexen armor classes
+	// On the off chance somebody is crazy enough to
+	// create their own Hexen armor pickups...
+	void SetupHexenArmorIcons()
+	{
+		for (int i = 0; i < AllActorClasses.Size(); i++)
+		{
+			if (!AllActorClasses[i])
+				continue;
+			
+			let hexArm = (class<HexenArmor>)(AllActorClasses[i]);
+			// don't cache the base HexenArmor class itself:
+			if (hexArm && hexArm != 'HexenArmor')
+			{
+				let def = GetDefaultByType((class<HexenArmor>)(hexArm));
+				if (!def.spawnState)
+					continue;
+				let icon = def.SpawnState.GetSpriteTexture(0);
+				if (!icon.IsValid())
+					continue;
+				// in Hexen armor the health field is used to
+				// determine class (from 0 to 4, 0 being best,
+				// and 4 being natural armor you have by default)
+				int armorClass = def.health;
+				let had = JGPHUD_HexenArmorData.Create(icon, armorClass);
+				hexenArmorData.Push(had);
+			}
+		}
 	}
 
 	void DrawHealthArmor(double height = 28, double width = 120)
@@ -598,7 +625,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// from the edges and offset from the icon):
 		int barWidth = mainBlockWidth - iconSize - indent*3;
 		double barPosX = iconPos.x + iconsize*0.5 + indent;
-		double fy = smallHUDFont.mFont.GetHeight();
+		double fy = mainHUDFont.mFont.GetHeight();
 		// Draw health bar:
 		int health = CPlayer.mo.health;
 		int maxhealth = CPlayer.mo.GetMaxHealth(true);
@@ -612,25 +639,95 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 		else
 		{
-			DrawString(smallHUDFont, String.Format("%3d", health), (barPosX, iconPos.y - fy*0.5), translation:GetPercentageFontColor(health,maxhealth));
+			DrawString(mainHUDFont, String.Format("%3d", health), (barPosX, iconPos.y - fy*0.5), translation:GetPercentageFontColor(health,maxhealth));
 		}
 		
 		// Draw armor bar:
 		// Check if armor exists and is above 0
 		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
-		bool hasArmor = (barm && barm.amount > 0);
-		iconPos.y = pos.y + height * 0.25;
-		if (hasArmor)
+		let hexarm = HexenArmor(CPlayer.mo.FindInventory("HexenArmor"));
+		bool hasHexenArmor;
+		int bestHexenArmorPiece;
+		double armAmount;
+		double armMaxamount = 100;
+		TextureID armTex;
+		double armTexSize = 12;
+		if (barm)
 		{
-			int armAmount = barm.amount;
-			int armMaxAmount = barm.maxamount;
-			TextureID armTex = barm.icon;
-			string ap = "AP";
+			armAmount = barm.amount;
+			armMaxAmount = barm.maxamount;
 			[cRed, cGreen, cBlue, cFntCol] = GetArmorColor(barm.savePercent);
+			armTex = barm.icon;
+		}
+		if (hexArm)
+		{
+			for (int i = 0; i < hexArm.Slots.Size(); i++)
+			{
+				armAmount += hexArm.Slots[i];
+			}
+			if (armAmount > 0)
+			{
+				if (hexenArmorData.Size() <= 0)
+				{
+					SetupHexenArmorIcons();
+				}
+				for (int i = 0; i < hexArm.Slots.Size(); i++)
+				{
+					if (hexArm.Slots[i] > hexArm.Slots[bestHexenArmorPiece])
+					{
+						bestHexenArmorPiece = i;
+					}
+				}
+				for (int i = 0; i < hexenArmorData.Size(); i++)
+				{
+					let had = hexenArmorData[i];
+					if (had && bestHexenArmorPiece == had.armorClass)
+					{
+						armTex = had.icon;
+						break;
+					}
+				}
+				armMaxAmount = 80;
+				hasHexenArmor = true;
+				[cRed, cGreen, cBlue, cFntCol] = GetArmorColor(armAmount / armMaxAmount);
+			}
+		}
+
+		iconPos.y = pos.y + height * 0.25;
+		if (armAmount > 0)
+		{
+			string ap = "AP";
 			if (armTex.isValid())
 			{
 				ap = "";
-				DrawTexture(barm.icon, iconPos, flags|DI_ITEM_CENTER, box:(14,14));
+				// uses Hexen armor:
+				/*if (hasHexenArmor && bestHexenArmorPiece < 4)
+				{
+					vector2 armPos = iconPos + (-armTexSize*0.5, armTexSize*0.5);
+					armTexSize *= 0.5;
+					for (int i = 4; i >= bestHexenArmorPiece; i--)
+					{
+						TextureID icon;
+						for (int j = 0; j <hexenArmorData.Size(); j++)
+						{
+							let had = hexenArmorData[j];
+							if (had && had.armorClass == i)
+							{
+								icon = had.icon;
+								break;
+							}
+						}
+						DrawTexture(icon, armPos, flags|DI_ITEM_CENTER, box:(armTexSize,armTexSize));
+						armPos += (2, -2);
+					}
+				}*/
+
+				// uses normal armor:
+				//else
+				//{
+					DrawTexture(armTex, iconPos, flags|DI_ITEM_CENTER, box:(armTexSize,armTexSize));
+				//}
+
 			}
 			if (drawbars)
 			{
@@ -638,7 +735,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			}
 			else
 			{
-				DrawString(smallHUDFont, String.Format("%3d", armAmount), (barPosX, iconPos.y - fy*0.5), translation:cFntCol);
+				DrawString(mainHUDFont, String.Format("%3d", armAmount), (barPosX, iconPos.y - fy*0.5), translation:cFntCol);
 			}
 		}
 	}
@@ -667,7 +764,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		vector2 size = (66, 0);
 		vector2 weapIconBox = (size.x - indent*2, 18);
 		vector2 ammoIconBox = (size.x * 0.25 - indent*4, 16);
-		double ammoTextHeight = smallHUDFont.mFont.GetHeight();
+		double ammoTextHeight = mainHUDFont.mFont.GetHeight();
 		int ammoBarHeight = 8;
 		// If at least one ammo type exists, add ammoIconBox height
 		// and indentation to total height:
@@ -732,7 +829,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		{
 			Ammo am = am1 ? am1 : am2;
 			DrawInventoryIcon(am, ammo1pos, flags|DI_ITEM_CENTER, boxSize: ammoIconBox);
-			DrawString(smallHUDFont, ""..am.amount, ammoTextPos, flags|DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am.amount, am.maxamount));
+			DrawString(mainHUDFont, ""..am.amount, ammoTextPos, flags|DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am.amount, am.maxamount));
 			if (drawAmmobar)
 			{
 				DrawFlatColorBar(ammoBarPos, am.amount, am.maxamount, color(255, 192, 128, 40), barwidth: barwidth, barheight: ammoBarHeight, segments: am.maxamount / 10, flags: flags);
@@ -749,9 +846,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			barwidth = size.x * 0.5 - indent * 4;
 			ammoBarPos.x = ammo1Pos.x - barWidth*0.5;
 			DrawInventoryIcon(am1, ammo1pos, flags|DI_ITEM_CENTER, boxSize: ammoIconBox);
-			DrawString(smallHUDFont, ""..am1amt, (ammo1pos.x, ammoTextPos.y), flags|DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am1.amount, am1.maxamount));
+			DrawString(mainHUDFont, ""..am1amt, (ammo1pos.x, ammoTextPos.y), flags|DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am1.amount, am1.maxamount));
 			DrawInventoryIcon(am2, ammo2pos, flags|DI_ITEM_CENTER, boxSize: ammoIconBox);
-			DrawString(smallHUDFont, ""..am2amt, (ammo2pos.x, ammoTextPos.y), flags|DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am2.amount, am2.maxamount));
+			DrawString(mainHUDFont, ""..am2amt, (ammo2pos.x, ammoTextPos.y), flags|DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am2.amount, am2.maxamount));
 			if (drawAmmobar)
 			{
 				DrawFlatColorBar(ammoBarPos, am1.amount, am1.maxamount, color(255, 192, 128, 40), barwidth: barwidth, barheight: ammoBarHeight, segments: am1.maxamount / 20, flags: flags);
@@ -770,10 +867,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		int indent = 1;
 		int flags = SetScreenFlags(c_AllAmmoPos.GetInt());
 		vector2 ofs = ( c_AllAmmoX.GetInt(), c_AllAmmoY.GetInt() );
-		let hfnt = smallHUDFont;
+		let hfnt = mainHUDFont;
 		double fntScale = 0.6;
 		double fy = hfnt.mFont.GetHeight() * fntScale;
-		double width = iconsize + indent + smallHUDFont.mFont.StringWidth("000/000") * fntScale;
+		double width = iconsize + indent + mainHUDFont.mFont.StringWidth("000/000") * fntScale;
 		double height;
 
 		// We'll iterate over ammo first to calculate the total
@@ -1040,9 +1137,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				}
 				Fill(col, wpos.x, wpos.y, box.x, box.y, flags);
 				DrawInventoryIcon(CPlayer.mo.FindInventory(wsd.weaponClass), wpos + box*0.5, flags|DI_ITEM_CENTER, boxsize: box);
-				double fy = smallHUDFont.mFont.GetHeight();
+				double fy = mainHUDFont.mFont.GetHeight();
 				string slotNum = ""..wsd.slot;
-				DrawString(smallHUDFont, slotNum, (wpos.x+box.x, wpos.y+box.y-fy*0.5), flags|DI_TEXT_ALIGN_RIGHT, fntCol, 0.8, scale:(0.5, 0.5));
+				DrawString(mainHUDFont, slotNum, (wpos.x+box.x, wpos.y+box.y-fy*0.5), flags|DI_TEXT_ALIGN_RIGHT, fntCol, 0.8, scale:(0.5, 0.5));
 			}
 		}
 	}
@@ -1239,6 +1336,16 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		Screen.ClearStencil();
 	}
 
+	void DrawMapData(vector2 pos, vector2 box, int flags)
+	{
+		let fy = mainHUDFont.mFont.GetHeight();
+
+		if ((flags & DI_SCREEN_BOTTOM) == DI_SCREEN_BOTTOM)
+		{
+			pos.y -= fy;
+		}
+	}
+
 	int, int TicsToSeconds(int tics)
 	{
 		int totalSeconds = tics / TICRATE;
@@ -1263,7 +1370,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		vector2 ofs = ( c_PowerupsX.GetInt(), c_PowerupsY.GetInt() );
 		double iconSize = 10;
 		int indent = 0;
-		HUDFont fnt = smallHUDFont;
+		HUDFont fnt = mainHUDFont;
 		double textScale = 0.8;
 		double fy = fnt.mFont.GetHeight() * textScale;
 		double width = fnt.mFont.StringWidth("00:00") * textScale + iconSize + indent;
@@ -1613,6 +1720,23 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	}
 }
 
+class JGPHUD_HexenArmorData ui
+{
+	TextureID icon;
+	int armorClass;
+
+	static JGPHUD_HexenArmorData Create(TextureID icon, int armorClass)
+	{
+		let had = JGPHUD_HexenArmorData(New("JGPHUD_HexenArmorData"));
+		if (had)
+		{
+			had.icon = icon;
+			had.armorClass = armorClass;
+		}
+		return had;
+	}
+}
+
 class JGPUFH_PowerupData play
 {
 	TextureID icon;
@@ -1714,7 +1838,7 @@ class JGPUFH_HudDataHandler : EventHandler
 		if (pwrg)
 		{
 			// Get its powerupType field:
-			let pwr = GetDefaultByType((class<Inventory>)(pwrg.powerupType));			
+			let pwr = GetDefaultByType((class<Inventory>)(pwrg.powerupType));
 			if (!pwr)
 				return;
 			
