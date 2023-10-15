@@ -30,6 +30,13 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	CVar c_AllAmmoPos;
 	CVar c_AllAmmoX;
 	CVar c_AllAmmoY;
+
+	CVar c_drawInvBar;
+	CVar c_AlwaysShowInvBar;
+	CVar c_InvBarIconSize;
+	CVar c_InvBarPos;
+	CVar c_InvBarX;
+	CVar c_InvBarY;
 	
 	CVar c_drawHitmarkers;
 	CVar c_hitMarkersAlpha;
@@ -88,6 +95,30 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	Shape2D minimapShape_Arrow;
 	Shape2DTransform minimapTransform;
 	const MAPSCALEFACTOR = 8;
+
+	// see SetScreenFlags():
+	static const int ScreenFlags[] =
+	{
+		DI_SCREEN_LEFT_TOP,
+		DI_SCREEN_CENTER_TOP,
+		DI_SCREEN_RIGHT_TOP,
+
+		DI_SCREEN_LEFT_CENTER,
+		DI_SCREEN_CENTER,
+		DI_SCREEN_RIGHT_CENTER,
+
+		DI_SCREEN_LEFT_BOTTOM,
+		DI_SCREEN_CENTER_BOTTOM,
+		DI_SCREEN_RIGHT_BOTTOM
+	};
+
+	//See GetBaseplateColor():
+	CVar c_BackColor;
+	CVar c_BackAlpha;
+
+	// See DrawInventoryBar():
+	Inventory prevInvSel;
+	double invbarCycleOfs;
 
 	double LinearMap(double val, double source_min, double source_max, double out_min, double out_max, bool clampIt = false) 
 	{
@@ -202,6 +233,19 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			c_AllAmmoX = CVar.GetCvar('jgphud_AllAmmoX', CPlayer);
 		if (!c_AllAmmoY)
 			c_AllAmmoY = CVar.GetCvar('jgphud_AllAmmoY', CPlayer);
+
+		if (!c_drawInvBar)
+			c_drawInvBar = CVar.GetCvar('jgphud_DrawInvBar', CPlayer);
+		if (!c_AlwaysShowInvBar)
+			c_AlwaysShowInvBar = CVar.GetCvar('jgphud_AlwaysShowInvBar', CPlayer);
+		if (!c_InvBarIconSize)
+			c_InvBarIconSize = CVar.GetCvar('jgphud_InvBarIconSize', CPlayer);
+		if (!c_InvBarPos)
+			c_InvBarPos = CVar.GetCvar('jgphud_InvBarPos', CPlayer);
+		if (!c_InvBarX)
+			c_InvBarX = CVar.GetCvar('jgphud_InvBarX', CPlayer);
+		if (!c_InvBarY)
+			c_InvBarY = CVar.GetCvar('jgphud_InvBarY', CPlayer);
 
 		if (!c_drawWeaponSlots)
 			c_drawWeaponSlots = CVar.GetCvar('jgphud_DrawWeaponSlots', CPlayer);
@@ -320,21 +364,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		return pos;
 	}
 
-	static const int ScreenFlags[] =
-	{
-		DI_SCREEN_LEFT_TOP,
-		DI_SCREEN_CENTER_TOP,
-		DI_SCREEN_RIGHT_TOP,
-
-		DI_SCREEN_LEFT_CENTER,
-		DI_SCREEN_CENTER,
-		DI_SCREEN_RIGHT_CENTER,
-
-		DI_SCREEN_LEFT_BOTTOM,
-		DI_SCREEN_CENTER_BOTTOM,
-		DI_SCREEN_RIGHT_BOTTOM
-	};
-
 	// A CVar value should be passed here to return appropriate flags:
 	int SetScreenFlags(int val)
 	{
@@ -342,8 +371,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		return ScreenFlags[val];
 	}
 
-	CVar c_BackColor;
-	CVar c_BackAlpha;
 	color GetBaseplateColor()
 	{
 		if (!c_BackColor)
@@ -357,6 +384,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		return color(a, col.r, col.g, col.b);
 	}
 
+	// Draws a bar using Fill()
+	// If segments is above 0, will use multiple fills to create a segmented bar
 	void DrawFlatColorBar(vector2 pos, double curValue, double maxValue, color barColor, string leftText = "", string rightText = "", int valueColor = -1, double barwidth = 64, double barheight = 8, double indent = 0.6, color backColor = color(255, 0, 0, 0), double sparsity = 1, uint segments = 0, int flags = 0)
 	{
 		vector2 barpos = pos;
@@ -371,13 +400,20 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (leftText)
 			DrawString(smallHUDFont, leftText, barpos + (-1, 0), flags|DI_TEXT_ALIGN_RIGHT);
 
+		// Background color (fills whole width):
 		Fill(backColor, barpos.x, barpos.y, barwidth, barheight, flags);
+		// The bar itself is indented against the background:
 		double innerBarWidth = barwidth - (indent * 2);
 		double innerBarHeight = barheight - (indent * 2);
-		double curInnerBarWidth = LinearMap(curValue, 0, maxValue, 0, innerBarWidth, true);
 		vector2 innerBarPos = (barpos.x + indent, barpos.y + indent);
+		// Get the current bar size according to the provided values:
+		double curInnerBarWidth = LinearMap(curValue, 0, maxValue, 0, innerBarWidth, true);
+		
+		// Draw segmented bar:
 		if (sparsity > 0 && segments > 0)
 		{
+			// Sparsity can't be too small, or it'll corrupt the
+			// rendering of the bar making segments invisible:
 			sparsity = Clamp(sparsity, 0, innerBarWidth / (segments * 4));
 			// If sparsity is too small, we'll alternate
 			// segment color every other segment instead:
@@ -391,8 +427,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				g = barcolor.g * 0.75;
 				b = barcolor.b * 0.75;
 			}
+			// Calculate width of a single segment based
+			// on bar width and sparsity:
 			double singleSegWidth = (innerBarWidth - (segments - 1) * sparsity) / segments;
 			vector2 segPos = innerBarPos;
+			// Draw the segments:
 			while (segPos.x < curInnerBarWidth + innerBarPos.x)
 			{
 				color col = barcolor;
@@ -412,9 +451,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			Fill(barColor, innerBarPos.x, innerBarPos.y, curInnerBarWidth, innerBarHeight, flags);
 		}
 
+		// If value color is provided, draw the current value
+		// in the middle of the bar:
 		if (valueColor != -1)
 		{
 			double fy = numHUDFont.mFont.GetHeight();
+			fy = Clamp(fy, 2, barheight);
 			DrawString(numHUDFont, ""..int(curvalue), barpos + (barwidth * 0.5, barheight * 0.5 - fy * 0.5), flags|DI_TEXT_ALIGN_CENTER, translation: valueColor);
 		}
 		
@@ -1328,70 +1370,161 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	const ITEMBARICONSIZE = 28;
 
-	void DrawInventoryBar(int numfields = 7, double iconSize = 28)
+	double GetInvBarIconSize()
 	{
+		if (c_InvBarIconSize)
+			return c_InvBarIconSize.GetInt();
+		return ITEMBARICONSIZE;
+	}
+
+	void DrawInventoryBar(int numfields = 7)
+	{
+		// Perform the usual checks first:
+		if (Level.NoInventoryBar)
+			return;
+
 		CPlayer.mo.InvFirst = ValidateInvFirst(numfields);
 		if (!CPlayer.mo.InvFirst)
 			return;
+		
+		Inventory invSel = CPlayer.mo.InvSel;	
+		if (!invSel)
+			return;
+		
+		// Calculate the total number of items to display
+		// and clamp the number of icons to that value:
+		int totalItems;
+		Inventory invFirst = CPlayer.mo.InvFirst;
+		while (invFirst)
+		{
+			invFirst = invFirst.NextInv();
+			totalItems++;
+		}
+		numfields = Clamp(numfields, 1, totalItems);
 
-		int flags = DI_SCREEN_CENTER;
-		vector2 pos = (0,0);
+		// numfields must be an odd number:
+		if (numfields % 2 == 0)
+		{
+			numfields += 1;
+		}
 		int indent = 1;
+		double iconSize = GetInvBarIconSize();
 		int width = (iconSize + indent) * numfields - indent;
 		int height = iconSize;
 
-		vector2 cursPos = (pos.x - iconSize*0.5 - indent, pos.y - iconSize*0.5 - indent);
+		// Validate position as usual:
+		int flags = SetScreenFlags(c_InvBarPos.GetInt());
+		vector2 ofs = ( c_InvBarX.GetInt(), c_InvBarY.GetInt());
+		vector2 pos = AdjustElementPos((width*0.5, height*0.5), flags, (width, height), ofs);
+
+		vector2 cursOfs = (-iconSize*0.5 - indent, -iconSize*0.5 - indent);
+		vector2 cursPos = pos + cursOfs;
 		vector2 cursSize = (iconsize + indent*2, indent); //width, height
-		// back color:
-		Fill (color(80, 255,255,255), cursPos.x, cursPos.y, cursSize.x, cursSize.x, flags);
+
+		// Show some grey behind the center (selected item) icon:
+		color backCol = color(80, 255,255,255);
+		Fill (backCol, cursPos.x, cursPos.y, cursSize.x, cursSize.x, flags);
+
+		// Show gray gradient fill aimed to the left and right of
+		// the selected item when the inventory bar is active:
+		if (IsInventoryBarVisible())
+		{
+			double alph = backCol.a;
+			int steps = 8;
+			double sizex = (width*0.5 - cursSize.x) / steps;
+			double posx = cursPos.x + cursSize.x;
+			for (int i = 0; i < steps; i++)
+			{
+				alph *= 0.75;
+				Fill (color(int(alph), backCol.r, backCol.g, backCol.b), posx, cursPos.y, sizex, cursSize.x, flags);
+				posx += sizex;
+			}
+			alph = backCol.a;
+			posx = cursPos.x - sizex;
+			for (int i = 0; i < steps; i++)
+			{
+				alph *= 0.75;
+				Fill (color(int(alph), backCol.r, backCol.g, backCol.b), posx, cursPos.y, sizex, cursSize.x, flags);
+				posx -= sizex;
+			}
+		}
 		
-		Inventory invSel = CPlayer.mo.InvSel;		
+		// Null-check prevInvSel (will only run once):
 		if (!prevInvSel)
 		{
 			prevInvSel = invSel;
-		}		
+		}
+		// Detect the player cycled through inventory:
 		if (invSel != prevInvSel)
 		{
 			let prevNext = NextItem(prevInvSel);
-			invbarCycleOfs = ITEMBARICONSIZE;
-			invbarCycleOfs *= (invSel == prevNext) ? 1 : -1;
+			bool toNext = (invSel == prevNext);
+			// Add positive or negative offsets to the icon:
+			invbarCycleOfs = toNext ? iconSize : -iconSize;
 			prevInvSel = invSel;
 		}
 
+		// We'll draw 2 additional fields and hide them with
+		// SetClipRects, so that the rightmost/leftmost icons
+		// slide out of view gradually instead of disappearing:
 		numfields += 2;
 		int i = 0;
 		vector2 itemPos = pos;
+		// Adding this lets us interpolate icon position. Until the player
+		// cycles through inventory, invbarCycleOfs is 0; otherwise it's
+		// set to be the size of the icon and then tics down
+		// (see UpdateInventoryBar):
 		double itemPosXOfs = invbarCycleOfs;
 		Inventory item = invSel;
+		// Calculate the length of half of the bar (minus the selected item,
+		// thus minus 1) - we'll draw this much in both directions:
 		int maxField = ceil((numfields - 1) / 2);
+		// Hide two edge icons:
 		SetClipRect(pos.x - width*0.5, pos.y - height*0.5, width, height, flags);
+		// Scale the font (indexfont is made for 32x32 icons, so divide
+		// the current icon size by that value to get the right scale):
+		double fntScale = iconSize / 32.;
+		double fy = numHUDFont.mFont.GetHeight() * fntScale;
 		while (item)
 		{
+			// Modify alpha and scale based on how far the icon is from the center:
 			double alph = LinearMap(i, 0, maxField, 1.0, 0.5);
-			double scaleFac = LinearMap(i, 0, maxField, 1.0, 0.6);
+			// If an item is selected (invbar is inactive) but the "always show 
+			// invbar" CVar is true, make all items except selected one more
+			// translucent:
+			if (i != 0 && !IsInventoryBarVisible() && c_AlwaysShowInvBar.GetBool())
+			{
+				alph *= 0.5;
+			}
+			double scaleFac = LinearMap(i, 0, maxField, 1.0, 0.55);
 			double boxSize = iconSize * scaleFac;
 			itemPos.x = pos.x + (iconSize + indent) * i + itemPosXOfs;
 			TextureID icon = GetIcon(item, 0);
+			// Scale the icons to fit into the box (but without breaking their
+			// aspect ratio):
 			vector2 size = TexMan.GetscaledSize(icon);
 			double longside = max(size.x, size.y);
 			double scaleToBoxFac = boxSize / longSide;
 			DrawInventoryIcon(item, itemPos, flags|DI_ITEM_CENTER, alph, boxsize:(boxSize, boxSize), scale:(scaleToBoxFac,scaleToBoxFac));
+			DrawString(numHUDFont, ""..item.amount, itemPos + (boxsize*0.5, boxsize*0.5 - fy), flags|DI_TEXT_ALIGN_RIGHT, Font.CR_Gold, alpha: alph, scale:(fntscale, fntscale));
+			// If the bar is not visible, stop here:
+			if (!IsInventoryBarVisible() && !c_AlwaysShowInvBar.GetBool())
+			{
+				break;
+			}
 
 			// Going right:
 			if (maxfield > 0)
 			{
-				// keep going to the right:
+				// Keep going right until the edge:
 				if (i < maxField) 
 				{
 					i++;
-					// if there's no next item, draw the very
-					// first item in the list and keep going
-					// from there:
 					item = NextItem(item);
 				}
 				// reached right edge - move to the first item
 				// to the left of selected, and flip maxfield
-				// to negative:
+				// to negative, so we'll start going to the left:
 				else
 				{
 					i = -1;
@@ -1402,15 +1535,13 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			// going left:
 			else 
 			{
-				// otherwise keep going to the left:
+				// Keep going left until the edge:
 				if (i > maxField)
 				{
-					// if there's no prev item, draw the very
-					// last item that was on the right and
-					// keep going from there:
 					item = PrevItem(item);
 					i--;
 				}
+				// We've reached the edge, stop here:
 				else
 				{
 					break;
@@ -1419,16 +1550,17 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 		ClearClipRect();
 
-		// edges:
+		// Draw the edges of the cursor:
 		color cursCol = color(220, 80, 200, 60);
-		Fill (cursCol, cursPos.x, cursPos.y, cursSize.x, cursSize.y, flags);
-		Fill (cursCol, cursPos.x, cursPos.y, cursSize.y, cursSize.x, flags);
-		Fill (cursCol, cursPos.x+cursSize.x-cursSize.y, cursPos.y, cursSize.y, cursSize.x, flags);
-		Fill (cursCol, cursPos.x, cursPos.y+cursSize.x-cursSize.y, cursSize.x, cursSize.y, flags);
+		// Top edges are always drawn:
+		Fill (cursCol, cursPos.x, cursPos.y, cursSize.x, cursSize.y, flags); // top
+		Fill (cursCol, cursPos.x, cursPos.y+cursSize.x-cursSize.y, cursSize.x, cursSize.y, flags); //bottom
+		// Left/right edges are more translucent if the bar is
+		// currently visible:
+		color col2 = IsInventoryBarVisible() ? color(cursCol.a / 2, cursCol.r, cursCol.g, cursCol.b) : cursCol;
+		Fill (col2, cursPos.x, cursPos.y, cursSize.y, cursSize.x, flags); // left
+		Fill (col2, cursPos.x+cursSize.x-cursSize.y, cursPos.y, cursSize.y, cursSize.x, flags); //right
 	}
-
-	Inventory prevInvSel;
-	double invbarCycleOfs;
 
 	void UpdateInventoryBar(int numfields = 7)
 	{
@@ -1436,13 +1568,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (!CPlayer.mo.InvFirst)
 			return;
 
+		double iconSize = GetInvBarIconSize();
 		if (invbarCycleOfs > 0)
 		{
-			invbarCycleOfs = Clamp(invbarCycleOfs - ITEMBARICONSIZE * 0.25, 0, invbarCycleOfs);
+			invbarCycleOfs = Clamp(invbarCycleOfs - iconSize * 0.25, 0, invbarCycleOfs);
 		}
 		if (invbarCycleOfs < 0)
 		{
-			invbarCycleOfs = Clamp(invbarCycleOfs + ITEMBARICONSIZE * 0.25, invbarCycleOfs, 0);
+			invbarCycleOfs = Clamp(invbarCycleOfs + iconSize * 0.25, invbarCycleOfs, 0);
 		}
 	}
 
