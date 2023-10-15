@@ -46,9 +46,9 @@ user nosave int jgphud_PowerupsY = 2;
 user nosave bool jgphud_DrawMinimap = true;
 user nosave bool jgphud_CircularMinimap = false;
 user nosave int jgphud_MinimapSize = 64;
-user nosave int jgphud_MinimapPos = 6;
+user nosave int jgphud_MinimapPos = 3;
 user nosave int jgphud_MinimapPosX = 2;
-user nosave int jgphud_MinimapPosY = 50;
+user nosave int jgphud_MinimapPosY = 0;
 user nosave float jgphud_MinimapZoom = 0.7;
 
 user nosave bool jgphud_DrawInvBar = true;
