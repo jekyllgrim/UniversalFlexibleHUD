@@ -15,85 +15,143 @@ OptionMenu "JGPHUD_Settings"
 
 	StaticText ""
 	StaticText "$JGPHUD_GENERAL_TITLE", yellow
+	ScaleSlider "$HUDMNU_UISCALE", "uiscale", 0.0, 8.0, 1.0, "$SCALEMNU_ADAPT"
 	ColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor"
 	Slider "$JGPHUD_GENERAL_BACKALPHA", "jgphud_BackAlpha", 0.00, 1.0, 0.05, 2
 	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_BackColor:jgphud_BackAlpha"
 
 	StaticText ""
+	SubMenu "$JGPHUD_DMGMARKERS_TITLE", "JGPHUD_DamageMarkers"
+	SubMenu "$JGPHUD_MAINBARS_TITLE", "JGPHUD_MainBars"
+	SubMenu "$JGPHUD_AMMOBLOCK_TITLE", "JGPHUD_AmmoBlock"
+	SubMenu "$JGPHUD_ALLAMMO_TITLE", "JGPHUD_AllAmmo"
+	SubMenu "$JGPHUD_KEYS_TITLE", "JGPHUD_Keys"
+	SubMenu "$JGPHUD_WEAPSLOTS_TITLE", "JGPHUD_WeaponSlots"
+	SubMenu "$JGPHUD_INVBAR_TITLE", "JGPHUD_InvBar"
+	SubMenu "$JGPHUD_POWERUPS_TITLE", "JGPHUD_Powerups"
+	SubMenu "$JGPHUD_MINIMAP_TITLE", "JGPHUD_Minimap"
+}
+
+OptionMenu "JGPHUD_DamageMarkers"
+{
+	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_DMGMARKERS_TITLE", yellow
+	StaticText ""
 	Slider "$JGPHUD_DMGMARKERS_SCREENTINT", "jgphud_ScreenReddenFactor", 0.0, 1.0, 0.1, 1
 	Option "$JGPHUD_DMGMARKERS_ENABLE", "jgphud_drawHitmarkers", "OnOff"
 	Slider "$JGPHUD_DMGMARKERS_MAXALPHA", "jgphud_HitMarkersAlpha", 0.0, 1.0, 0.1, 1, "jgphud_drawHitmarkers"
 	Slider "$JGPHUD_DMGMARKERS_FADEOUTTIME", "jgphud_HitMarkersFadeTime", 0.05, 5.0, 0.05, 2, "jgphud_drawHitmarkers"
+	StaticText ""
 	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_ScreenReddenFactor:jgphud_drawHitmarkers:jgphud_HitMarkersAlpha:jgphud_HitMarkersFadeTime"
+}
 
-	StaticText ""	
+OptionMenu "JGPHUD_MainBars"
+{
+	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_MAINBARS_TITLE", yellow
+	StaticText ""
 	Option "$JGPHUD_MAINBARS_ENABLE", "jgphud_DrawMainbars", "MainBars"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_MainBarsPos", "ElementScreenPos", "jgphud_DrawMainbars"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_MainBarsX", -160, 160, 2, 0, "jgphud_DrawMainbars"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_MainBarsY", -100, 100, 2, 0, "jgphud_DrawMainbars"
 	Option "$JGPHUD_MAINBARS_SHOWFACE", "jgphud_DrawFace", "OnOff", "jgphud_DrawMainbars"
+	StaticText ""
 	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawMainbars:jgphud_MainBarsPos:jgphud_MainBarsX:jgphud_MainBarsY:jgphud_DrawFace:jgphud_MainBarsPos"
+}
 
-	StaticText ""	
+OptionMenu "JGPHUD_AmmoBlock"
+{
+	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_AMMOBLOCK_TITLE", yellow
+	StaticText ""
 	Option "$JGPHUD_AMMOBLOCK_ENABLE", "jgphud_DrawAmmoBlock", "OnOff"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_AmmoBlockPos", "ElementScreenPos", "jgphud_DrawAmmoBlock"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_AmmoBlockX", -160, 160, 2, 0, "jgphud_DrawAmmoBlock"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_AmmoBlockY", -100, 100, 2, 0, "jgphud_DrawAmmoBlock"
 	Option "$JGPHUD_AMMOBLOCK_SHOWWEAP", "jgphud_DrawWeapon", "OnOff", "jgphud_DrawAmmoBlock"
 	Option "$JGPHUD_AMMOBLOCK_SHOWAMMOBAR", "jgphud_DrawAmmoBar", "OnOff", "jgphud_DrawAmmoBlock"
+	StaticText ""
 	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawAmmoBlock:jgphud_AmmoBlockPos:jgphud_AmmoBlockY:jgphud_DrawWeapon:jgphud_DrawAmmoBar"
+}
 
-	StaticText ""	
+OptionMenu "JGPHUD_AllAmmo"
+{
+	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_ALLAMMO_TITLE", yellow
+	StaticText ""
 	Option "$JGPHUD_ALLAMMO_ENABLE", "jgphud_DrawAllAmmo", "OnOff"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_AllAmmoPos", "ElementScreenPos", "jgphud_drawAllAmmo"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_AllAmmoX", -160, 160, 2, 0, "jgphud_drawAllAmmo"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_AllAmmoY", -100, 100, 2, 0, "jgphud_drawAllAmmo"
+	StaticText ""
 	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawAllAmmo:jgphud_AllAmmoPos:jgphud_AllAmmoX:jgphud_AllAmmoY"
+}
 
-	StaticText ""	
+OptionMenu "JGPHUD_Keys"
+{
+	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_KEYS_TITLE", yellow
+	StaticText ""
 	Option "$JGPHUD_KEYS_ENABLE", "jgphud_DrawKeys", "OnOff"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_KeysPos", "ElementScreenPos", "jgphud_drawKeys"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_KeysX", -160, 160, 2, 0, "jgphud_drawKeys"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_KeysY", -100, 100, 2, 0, "jgphud_drawKeys"
+	StaticText ""
 	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawKeys:jgphud_KeysPos:jgphud_KeysX:jgphud_KeysY"
+}
 
-	StaticText ""	
+OptionMenu "JGPHUD_WeaponSlots"
+{
+	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_WEAPSLOTS_TITLE", yellow
+	StaticText ""
 	Option "$JGPHUD_WEAPSLOTS_ENABLE", "jgphud_DrawWeaponSlots", "OnOff"
-	Option "$JGPHUD_ELEMENT_POS", "jgphud_WeaponSlotsPos", "ElementScreenPos", "jgphud_drawWeaponSlots"
+	Option "$JGPHUD_ELEMENT_POS", "jgphud_WeaponSlotPos", "ElementScreenPos", "jgphud_drawWeaponSlots"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_WeaponSlotsX", -160, 160, 2, 0, "jgphud_drawWeaponSlots"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_WeaponSlotsY", -100, 100, 2, 0, "jgphud_drawWeaponSlots"
+	StaticText ""
 	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawWeaponSlots:jgphud_WeaponSlotsPos:jgphud_WeaponSlotsX:jgphud_WeaponSlotsY"
+}
 
-	StaticText ""	
+OptionMenu "JGPHUD_InvBar"
+{
+	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_INVBAR_TITLE", yellow
+	StaticText ""
 	StaticText "$JGPHUD_INVBAR_NOTE", gray
 	StaticText "" // the note is 2 lines long
+	StaticText ""
 	Option "$JGPHUD_INVBAR_ENABLE", "jgphud_DrawInvBar", "OnOff"
 	Option "$JGPHUD_INVBAR_ENABLEALWAYS", "jgphud_AlwaysShowInvBar", "OnOff", "jgphud_DrawInvBar"
 	StaticText "$JGPHUD_INVBAR_ENABLEALWAYS_NOTE", gray
 	StaticText "" // the note is 2 lines long
+	StaticText ""
 	Slider "$JGPHUD_INVBAR_ICONSIZE", "jgphud_InvBarIconSize", 4, 40, 1, 0, "jgphud_drawInvBar"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_InvBarPos", "ElementScreenPos", "jgphud_drawInvBar"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_InvBarX", -160, 160, 2, 0, "jgphud_drawInvBar"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_InvBarY", -100, 100, 2, 0, "jgphud_drawInvBar"
+	StaticText ""
 	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawInvBar:jgphud_AlwaysShowInvBar:jgphud_InvBarIconSize:jgphud_InvBarPos:jgphud_InvBarX:jgphud_InvBarY"
+}
 
-	StaticText ""	
+OptionMenu "JGPHUD_Powerups"
+{
+	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_POWERUPS_TITLE", yellow
+	StaticText ""
 	Option "$JGPHUD_POWERUPS_ENABLE", "jgphud_DrawPowerups", "OnOff"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_PowerupsPos", "ElementScreenPos", "jgphud_drawPowerups"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_PowerupsX", -160, 160, 2, 0, "jgphud_drawPowerups"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_PowerupsY", -100, 100, 2, 0, "jgphud_drawPowerups"
+	StaticText ""
 	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawPowerups:jgphud_PowerupsPos:jgphud_PowerupsX:jgphud_PowerupsY"
+}
 
-	StaticText ""	
+OptionMenu "JGPHUD_Minimap"
+{	
+	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_MINIMAP_TITLE", yellow
+	StaticText ""
 	StaticText "$JGPHUD_MINIMAP_NOTE", gray
 	StaticText "" // the note is 2 lines long
 	Option "$JGPHUD_MINIMAP_ENABLE", "jgphud_DrawMinimap", "OnOff"
@@ -103,6 +161,7 @@ OptionMenu "JGPHUD_Settings"
 	Slider "$JGPHUD_MINIMAP_SIZE", "jgphud_MinimapSize", 0, 128, 1, 0, "jgphud_DrawMinimap"
 	Option "$JGPHUD_MINIMAP_SHAPE", "jgphud_CircularMinimap", "MinimapShape", "jgphud_DrawMinimap"
 	Slider "$JGPHUD_MINIMAP_ZOOM", "jgphud_MinimapZoom", 0.15, 3.0, 0.05, 2, "jgphud_DrawMinimap"
+	StaticText ""
 	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawMinimap:jgphud_MinimapPos:jgphud_MinimapPosX:jgphud_MinimapPosY:jgphud_MinimapSize:jgphud_CircularMinimap:jgphud_MinimapZoom"
 }
 
