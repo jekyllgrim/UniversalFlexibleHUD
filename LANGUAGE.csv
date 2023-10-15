@@ -1,0 +1,65 @@
+default,identifier,remarks,ru
+FlexiHUD settings,JGPHUD_SETTINGS_TITLE,,Настройки FlexiHUD
+General,JGPHUD_GENERAL_TITLE,,Общее
+HUD background color,JGPHUD_GENERAL_BACKCOL,,Цвет фона
+HUD background opacity,JGPHUD_GENERAL_BACKALPHA,,Прозрачность фона
+Top left,JGPHUD_POS_TOPLEFT,,Верхний левый угол
+Top center,JGPHUD_POS_TOPCENTER,,Центр верхней границы
+Top right,JGPHUD_POS_TOPRIGHT,,Верхний правый угол
+Left center,JGPHUD_POS_LEFTCENTER,,Центр левого края
+Center,JGPHUD_POS_CENTER,,Центр экрана
+Right center,JGPHUD_POS_RIGHTCENTER,,Центр правого края
+Bottom left,JGPHUD_POS_BOTTOMLEFT,,Нижний левый угол
+Bottom center,JGPHUD_POS_BOTTOMCENTER,,Центр нижней границы
+Bottom right,JGPHUD_POS_BOTTOMRIGHT,,Нижний правый угол
+Position anchor point,JGPHUD_ELEMENT_POS,,Точка привязки элемента
+Horizontal offset,JGPHUD_ELEMENT_OFSX,,Горизонтальный сдвиг элемента
+Vertical offset,JGPHUD_ELEMENT_OFSY,,Вертикальный сдвиг элемента
+Incoming damage display,JGPHUD_DMGMARKERS_TITLE,,Индикаторы получаемого урона
+Classic screen reddening multiplier,JGPHUD_DMGMARKERS_SCREENTINT,,Степень покраснения экрана при получении урона
+Directional incoming damage markers,JGPHUD_DMGMARKERS_ENABLE,,Направленные индикаторы входящего урона
+Maximum damage marker opacity ,JGPHUD_DMGMARKERS_MAXALPHA,,Прозрачность индикаторов входящего урона
+Damage marker fade-out time (seconds) ,JGPHUD_DMGMARKERS_FADEOUTTIME,,Время исчезновения индикаторов урона (сек.)
+Health and armor ,JGPHUD_MAINBARS_TITLE,,Здоровье и броня
+Health and armor display ,JGPHUD_MAINBARS_ENABLE,,Отображение здоровья и брони
+Health and armor position ,JGPHUD_MAINBARS_POS,,Позиция блока здоровья и брони
+Health and armor hor. offset ,JGPHUD_MAINBARS_OFSX,,Горизонтальный сдвиг блока здоровья и брони
+Health and armor vert. offset ,JGPHUD_MAINBARS_OFSY,,Вертикальный сдвиг блока здоровья и брони
+Mugshot display (if exists) ,JGPHUD_MAINBARS_SHOWFACE,,Показывать лицо персонажа (при наличии)
+Numbers,JGPHUD_MAINBARS_OPT_NUMBERS,,Цифры
+Bars,JGPHUD_MAINBARS_OPT_BARS,,Полоски
+Current ammo and weapon ,JGPHUD_AMMOBLOCK_TITLE,,Текущий боезапас и оружие
+Current ammo display ,JGPHUD_AMMOBLOCK_ENABLE,,Показывать патроны для текущего оружия
+Display weapon icon ,JGPHUD_AMMOBLOCK_SHOWWEAP,,Показывать значок текущего оружия
+Display ammo bar ,JGPHUD_AMMOBLOCK_SHOWAMMOBAR,,Показывать полоску патронов
+All ammo ,JGPHUD_ALLAMMO_TITLE,,Общий боезапас
+All ammo display ,JGPHUD_ALLAMMO_ENABLE,,Показывать общий боезапас
+All ammo position ,JGPHUD_ALLAMMO_POS,,Положение блока общего боезапаса
+All ammo hor. offset ,JGPHUD_ALLAMMO_OFSX,,Горизонтальный сдвиг блока общего боезапаса
+All ammo vert. offset ,JGPHUD_ALLAMMO_OFSY,,Вертикальный сдвиг блока общего боезапаса
+Keys ,JGPHUD_KEYS_TITLE,,Ключи
+Keys display ,JGPHUD_KEYS_ENABLE,,Показывать ключи
+Weapon slots ,JGPHUD_WEAPSLOTS_TITLE,,Ячейки оружия
+Weapon slots display ,JGPHUD_WEAPSLOTS_ENABLE,,Показывать ячейки оружия
+Weapon slots position ,JGPHUD_WEAPSLOTS_POS,,Положение ячеек оружия
+Weapon slots hor. offset ,JGPHUD_WEAPSLOTS_OFSX,,Горизонтальный сдвиг ячеек оружия
+Weapon slots vert. offset ,JGPHUD_WEAPSLOTS_OFSY,,Вертикальный сдвиг ячеек оружия
+Powerup timers ,JGPHUD_POWERUPS_TITLE,,Таймеры усилителей
+Powerup timers display ,JGPHUD_POWERUPS_ENABLE,,Показывать таймеры усилителей
+Inventory bar ,JGPHUD_INVBAR_TITLE,,Полоса предметов
+Inventory bar display ,JGPHUD_INVBAR_ENABLE,,Показывать полосу предметов
+Don't hide bar after selecting item,JGPHUD_INVBAR_ENABLEALWAYS,,Не скрывать полосу после выбора предмета
+Inventory bar icon size,JGPHUD_INVBAR_ICONSIZE,,Размер значков в полосе предметов
+"Note: Inventory bar will only appear in games/mods that have
+items that can be placed in inventory and used from it.",JGPHUD_INVBAR_NOTE,Keep under 2 lines,"Внимание: полоса предметов отображается, только если в игре/моде
+есть предметы, которые можно использовать из инвентаря."
+Minimap ,JGPHUD_MINIMAP_TITLE,,Мини-карта
+Minimap display,JGPHUD_MINIMAP_ENABLE,,Показывать мини-карту
+Minimap size ,JGPHUD_MINIMAP_SIZE,,Размер мини-карты
+Minimap shape,JGPHUD_MINIMAP_SHAPE,,Форма мини-карты
+Circle,JGPHUD_MINIMAP_SHAPE_CIRCLE,,Круг
+Square,JGPHUD_MINIMAP_SHAPE_SQUARE,,Квадрат
+Minimap zoom,JGPHUD_MINIMAP_ZOOM,,Увеличение мини-карты
+"Note: The minimap may cause performance issues on maps
+with complex geometry, especially at low zoom values.",JGPHUD_MINIMAP_NOTE,Keep under 2 lines,"Внимание: мини-карта может сказываться на производительности,
+особенно на картах со сложной геометрией и при низком увеличении."
