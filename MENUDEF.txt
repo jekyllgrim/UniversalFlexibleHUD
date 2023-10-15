@@ -76,6 +76,8 @@ OptionMenu "JGPHUD_Settings"
 	StaticText "" // the note is 2 lines long
 	Option "$JGPHUD_INVBAR_ENABLE", "jgphud_DrawInvBar", "OnOff"
 	Option "$JGPHUD_INVBAR_ENABLEALWAYS", "jgphud_AlwaysShowInvBar", "OnOff", "jgphud_DrawInvBar"
+	StaticText "$JGPHUD_INVBAR_ENABLEALWAYS_NOTE", gray
+	StaticText "" // the note is 2 lines long
 	Slider "$JGPHUD_INVBAR_ICONSIZE", "jgphud_InvBarIconSize", 4, 40, 1, 0, "jgphud_drawInvBar"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_InvBarPos", "ElementScreenPos", "jgphud_drawInvBar"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_InvBarX", -160, 160, 2, 0, "jgphud_drawInvBar"

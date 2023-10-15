@@ -1380,13 +1380,13 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	void DrawInventoryBar(int numfields = 7)
 	{
 		// Perform the usual checks first:
+		if (!c_drawInvBar.GetBool())
+			return;
 		if (Level.NoInventoryBar)
 			return;
-
 		CPlayer.mo.InvFirst = ValidateInvFirst(numfields);
 		if (!CPlayer.mo.InvFirst)
 			return;
-		
 		Inventory invSel = CPlayer.mo.InvSel;	
 		if (!invSel)
 			return;
@@ -1462,6 +1462,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			// Add positive or negative offsets to the icon:
 			invbarCycleOfs = toNext ? iconSize : -iconSize;
 			prevInvSel = invSel;
+			if (c_AlwaysShowInvBar.GetBool())
+			{
+				CPlayer.inventoryTics = 0;
+			}
 		}
 
 		// We'll draw 2 additional fields and hide them with
@@ -1555,11 +1559,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// Top edges are always drawn:
 		Fill (cursCol, cursPos.x, cursPos.y, cursSize.x, cursSize.y, flags); // top
 		Fill (cursCol, cursPos.x, cursPos.y+cursSize.x-cursSize.y, cursSize.x, cursSize.y, flags); //bottom
-		// Left/right edges are more translucent if the bar is
-		// currently visible:
-		color col2 = IsInventoryBarVisible() ? color(cursCol.a / 2, cursCol.r, cursCol.g, cursCol.b) : cursCol;
-		Fill (col2, cursPos.x, cursPos.y, cursSize.y, cursSize.x, flags); // left
-		Fill (col2, cursPos.x+cursSize.x-cursSize.y, cursPos.y, cursSize.y, cursSize.x, flags); //right
+		Fill (cursCol, cursPos.x, cursPos.y, cursSize.y, cursSize.x, flags); // left
+		Fill (cursCol, cursPos.x+cursSize.x-cursSize.y, cursPos.y, cursSize.y, cursSize.x, flags); //right
 	}
 
 	void UpdateInventoryBar(int numfields = 7)
