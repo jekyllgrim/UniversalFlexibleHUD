@@ -120,7 +120,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		UpdateHitMarkers();
 		UpdateReticleHitMarker();
 		GetWeaponSlots();
-		//UpdateItemXofs();
 		UpdateInventoryBar();
 	}
 
@@ -1327,41 +1326,17 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
-	LinearValueInterpolator itemPosIntr;
-	double newItemX;
 	const ITEMBARICONSIZE = 28;
-	void UpdateItemXofs(double newItemX)
-	{
-		if (!itemPosIntr)
-		{
-			itemPosIntr = LinearValueInterpolator.Create(0, 5);
-			newItemX = ITEMBARICONSIZE;
-		}
-		itemPosIntr.Update(newItemX);
-	}
 
-	double GetItemXofs()
-	{
-		if (!itemPosIntr)
-		{
-			return newItemX;
-		}
-		return itemPosIntr.GetValue();
-	}
-
-	Inventory prevInvSel;
-	array <JGPUFH_InvbarData> invBarData;
-	int curInvSelIndex;
-	void DrawInventoryBar(int numfields = 7)
+	void DrawInventoryBar(int numfields = 7, double iconSize = 28)
 	{
 		CPlayer.mo.InvFirst = ValidateInvFirst(numfields);
 		if (!CPlayer.mo.InvFirst)
 			return;
 
 		int flags = DI_SCREEN_CENTER;
-		vector2 pos = (0,0);		
+		vector2 pos = (0,0);
 		int indent = 1;
-		double iconSize = ITEMBARICONSIZE;
 		int width = (iconSize + indent) * numfields - indent;
 		int height = iconSize;
 
@@ -1370,18 +1345,80 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// back color:
 		Fill (color(80, 255,255,255), cursPos.x, cursPos.y, cursSize.x, cursSize.x, flags);
 		
-		//console.printf("Current size: %d. CurInvSelIndex: %d", invBarData.Size(), curInvSelIndex);
-		for (int i = 0; i < invBarData.Size(); i++)
+		Inventory invSel = CPlayer.mo.InvSel;		
+		if (!prevInvSel)
 		{
-			let invd = invBarData[i];
-			if (invd)
+			prevInvSel = invSel;
+		}		
+		if (invSel != prevInvSel)
+		{
+			let prevNext = NextItem(prevInvSel);
+			invbarCycleOfs = ITEMBARICONSIZE;
+			invbarCycleOfs *= (invSel == prevNext) ? 1 : -1;
+			prevInvSel = invSel;
+		}
+
+		numfields += 2;
+		int i = 0;
+		vector2 itemPos = pos;
+		double itemPosXOfs = invbarCycleOfs;
+		Inventory item = invSel;
+		int maxField = ceil((numfields - 1) / 2);
+		SetClipRect(pos.x - width*0.5, pos.y - height*0.5, width, height, flags);
+		while (item)
+		{
+			double alph = LinearMap(i, 0, maxField, 1.0, 0.5);
+			double scaleFac = LinearMap(i, 0, maxField, 1.0, 0.6);
+			double boxSize = iconSize * scaleFac;
+			itemPos.x = pos.x + (iconSize + indent) * i + itemPosXOfs;
+			TextureID icon = GetIcon(item, 0);
+			vector2 size = TexMan.GetscaledSize(icon);
+			double longside = max(size.x, size.y);
+			double scaleToBoxFac = boxSize / longSide;
+			DrawInventoryIcon(item, itemPos, flags|DI_ITEM_CENTER, alph, boxsize:(boxSize, boxSize), scale:(scaleToBoxFac,scaleToBoxFac));
+
+			// Going right:
+			if (maxfield > 0)
 			{
-				//DrawTexture(invd.icon, pos + invd.pos - (invd.size.x * curInvSelIndex, 0), flags|DI_ITEM_CENTER, scale:(invd.size.x / iconsize, invd.size.y / iconsize));
-				DrawInventoryIcon(invd.item, invd.pos, DI_ITEM_CENTER, scale:(invd.size.x / iconsize, invd.size.y / iconsize));
-				//console.printf("ID %d: icon '%s' | pos.x %.1f", i, TexMan.GetName(invBarData[i].icon), invd.pos.x);
+				// keep going to the right:
+				if (i < maxField) 
+				{
+					i++;
+					// if there's no next item, draw the very
+					// first item in the list and keep going
+					// from there:
+					item = NextItem(item);
+				}
+				// reached right edge - move to the first item
+				// to the left of selected, and flip maxfield
+				// to negative:
+				else
+				{
+					i = -1;
+					maxfield *= -1;
+					item = PrevItem(invSel);
+				}
+			}
+			// going left:
+			else 
+			{
+				// otherwise keep going to the left:
+				if (i > maxField)
+				{
+					// if there's no prev item, draw the very
+					// last item that was on the right and
+					// keep going from there:
+					item = PrevItem(item);
+					i--;
+				}
+				else
+				{
+					break;
+				}
 			}
 		}
-		//console.printf("sel item: %s", CPlayer.mo.InvSel.GetTag());
+		ClearClipRect();
+
 		// edges:
 		color cursCol = color(220, 80, 200, 60);
 		Fill (cursCol, cursPos.x, cursPos.y, cursSize.x, cursSize.y, flags);
@@ -1390,57 +1427,27 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		Fill (cursCol, cursPos.x, cursPos.y+cursSize.x-cursSize.y, cursSize.x, cursSize.y, flags);
 	}
 
-	int invBarInputDelay;
+	Inventory prevInvSel;
+	double invbarCycleOfs;
+
 	void UpdateInventoryBar(int numfields = 7)
 	{
 		CPlayer.mo.InvFirst = ValidateInvFirst(numfields);
 		if (!CPlayer.mo.InvFirst)
 			return;
-		
-		double iconSize = ITEMBARICONSIZE;
-		numfields += 2;
-		// Currently selected - that's where we start working from:
-		Inventory invSel = CPlayer.mo.InvSel;
-		if (!prevInvSel)
-		//if (prevInvSel != invSel)
-		{
-			BuildInventoryBar(numfields);
-			prevInvSel = invSel;
-		}
-		else if (prevInvSel != invSel && invBarInputDelay <= 0)
-		{
-			invBarInputDelay = JGPUFH_InvbarData.UPDATETIME;
-			let prevPrev = PrevItem(prevInvSel);
-			let prevNext = NextItem(prevInvSel);
-			prevInvSel = invSel;
 
-			int moveDir = (invsel == prevNext) ? -1 : 1;
-			
-			for (int i = 0; i < invBarData.Size(); i++)
-			{
-				let invd = invBarData[i];
-				if (invd)
-				{
-					invd.Move((invd.pos.x + iconSize*moveDir, invd.pos.y));
-				}
-			}
-		}
-
-		if (invBarInputDelay > 0)
+		if (invbarCycleOfs > 0)
 		{
-			invBarInputDelay--;
+			invbarCycleOfs = Clamp(invbarCycleOfs - ITEMBARICONSIZE * 0.25, 0, invbarCycleOfs);
 		}
-
-		for (int i = 0; i < invBarData.Size(); i++)
+		if (invbarCycleOfs < 0)
 		{
-			let invd = invBarData[i];
-			if (invd)
-			{
-				//invd.Update();
-			}
+			invbarCycleOfs = Clamp(invbarCycleOfs + ITEMBARICONSIZE * 0.25, invbarCycleOfs, 0);
 		}
 	}
 
+	// Returns actual next item, or the item
+	// at the start of the list if there's nothing:
 	Inventory NextItem(Inventory item)
 	{
 		if (item.NextInv())
@@ -1455,6 +1462,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		return firstgood;
 	}
 
+	// Returns actual prev item, or the item
+	// at the end of the list if there's nothing:
 	Inventory PrevItem(Inventory item)
 	{
 		if (item.PrevInv())
@@ -1467,98 +1476,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			lastgood = lastgood.NextInv();
 		}
 		return lastgood;
-	}
-
-	void BuildInventoryBar(int numfields = 7, vector2 pos = (0,0), int indent = 0)
-	{
-		CPlayer.mo.InvFirst = ValidateInvFirst(numfields);
-		if (!CPlayer.mo.InvFirst)
-			return;
-		
-		double iconSize = ITEMBARICONSIZE;
-		invBarData.Clear();
-
-		int maxField = ceil((numfields - 1) / 2);
-		int i = 0;
-		vector2 itemPos = pos;
-
-		let item = CPlayer.mo.InvFirst;
-		while (item.NextInv())
-		{
-			let invd = JGPUFH_InvbarData.Create(item, pos, (iconsize, iconsize));
-			invBarData.Push(invd);
-			pos.x += iconsize + indent;
-			item = item.NextInv();
-		}
-		console.printf("Build an array of %d items", invBarData.Size());
-
-		int curSize = invBarData.Size();
-		for (int i = 1; i <= 2; i++)
-		{
-			for (int s = 0; s < curSize; s++)
-			{
-				if (invBarData[s].item == CPlayer.mo.invSel)
-					curInvSelIndex = s;
-				
-				let curInvd = invBarData[s];
-				let invd = JGPUFH_InvbarData.Create(curInvd.item, (curInvd.pos.x + curInvd.size.x*curSize*i, curInvd.pos.y), curInvd.size);
-				invBarData.Push(curInvd);
-				console.printf("ID %d: | pos.x %.1f", invBarData.Size()-1, invd.pos.x);
-			}
-		}
-		curInvSelIndex = curSize;
-		//console.printf("Expanded array to %d items. CurInvSelIndex: %d", invBarData.Size(), curInvSelIndex);
-	}
-}
-
-class JGPUFH_InvbarData ui
-{
-	const UPDATETIME = 7; //tics to move
-	int timer;
-	Inventory item;
-	TextureID icon;
-	vector2 pos;
-	vector2 size;
-	vector2 posStep;
-	vector2 sizeStep;
-	vector2 targetPos;
-	vector2 targetSize;
-	
-	static JGPUFH_InvbarData Create(Inventory item, vector2 pos, vector2 size)
-	{
-		let invd = JGPUFH_InvbarData(New("JGPUFH_InvbarData"));
-		if (invd)
-		{
-			invd.item = item;
-			invd.icon = StatusBar.GetIcon(item,0);
-			invd.pos = pos;
-			invd.size = size;
-		}
-		return invd;
-	}
-
-	void Move(vector2 newPos, vector2 newSize = (0,0))
-	{
-		targetPos = newPos;
-		targetSize = newSize;
-		posStep.x = (targetPos.x - pos.x) / UPDATETIME;
-		posStep.y = (targetPos.y - pos.y) / UPDATETIME;
-		if (newSize != (0,0))
-		{
-			sizeStep.x = (targetSize.x - size.x) / UPDATETIME;
-			sizeStep.y = (targetSize.y - size.y) / UPDATETIME;
-		}
-		timer = UPDATETIME;
-	}
-
-	void Update()
-	{
-		if (timer > 0)
-		{
-			timer--;
-			pos += posStep;
-			size += sizeStep;
-		}
 	}
 }
 
