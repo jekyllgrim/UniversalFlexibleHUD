@@ -30,7 +30,7 @@ OptionMenu "JGPHUD_Settings"
 	SubMenu "$JGPHUD_WEAPSLOTS_TITLE", "JGPHUD_WeaponSlots"
 	SubMenu "$JGPHUD_INVBAR_TITLE", "JGPHUD_InvBar"
 	SubMenu "$JGPHUD_POWERUPS_TITLE", "JGPHUD_Powerups"
-	SubMenu "$JGPHUD_MINIMAP_TITLE", "JGPHUD_Minimap"
+	SubMenu "$JGPHUD_MAPDATA_TITLE", "JGPHUD_MapData"
 }
 
 OptionMenu "JGPHUD_DamageMarkers"
@@ -148,22 +148,28 @@ OptionMenu "JGPHUD_Powerups"
 	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawPowerups:jgphud_PowerupsPos:jgphud_PowerupsX:jgphud_PowerupsY"
 }
 
-OptionMenu "JGPHUD_Minimap"
+OptionMenu "JGPHUD_MapData"
 {	
 	Title "$JGPHUD_SETTINGS_TITLE"
-	StaticText "$JGPHUD_MINIMAP_TITLE", yellow
+	Option "$JGPHUD_ELEMENT_POS", "jgphud_MinimapPos", "ElementScreenPos"
+	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_MinimapPosX", -160, 160, 2, 0
+	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_MinimapPosY", -100, 100, 2, 0
 	StaticText ""
+	StaticText "$JGPHUD_MINIMAP_TITLE", yellow
 	StaticText "$JGPHUD_MINIMAP_NOTE", gray
 	StaticText "" // the note is 2 lines long
 	Option "$JGPHUD_MINIMAP_ENABLE", "jgphud_DrawMinimap", "OnOff"
-	Option "$JGPHUD_ELEMENT_POS", "jgphud_MinimapPos", "ElementScreenPos", "jgphud_DrawMinimap"
-	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_MinimapPosX", -160, 160, 2, 0, "jgphud_DrawMinimap"
-	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_MinimapPosY", -100, 100, 2, 0, "jgphud_DrawMinimap"
 	Slider "$JGPHUD_MINIMAP_SIZE", "jgphud_MinimapSize", 0, 128, 1, 0, "jgphud_DrawMinimap"
 	Option "$JGPHUD_MINIMAP_SHAPE", "jgphud_CircularMinimap", "MinimapShape", "jgphud_DrawMinimap"
 	Slider "$JGPHUD_MINIMAP_ZOOM", "jgphud_MinimapZoom", 0.15, 3.0, 0.05, 2, "jgphud_DrawMinimap"
 	StaticText ""
-	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawMinimap:jgphud_MinimapPos:jgphud_MinimapPosX:jgphud_MinimapPosY:jgphud_MinimapSize:jgphud_CircularMinimap:jgphud_MinimapZoom"
+	StaticText "$Map data display", yellow
+	Option "$JGPHUD_MAPDATA_KILLS", "jgphud_DrawKills", "OnOff"
+	Option "$JGPHUD_MAPDATA_ITEMS", "jgphud_DrawItems", "OnOff"
+	Option "$JGPHUD_MAPDATA_SECRETS", "jgphud_DrawSecrets", "OnOff"
+	Option "$JGPHUD_MAPDATA_TIME", "jgphud_DrawTime", "OnOff"
+	StaticText ""
+	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawMinimap:jgphud_MinimapPos:jgphud_MinimapPosX:jgphud_MinimapPosY:jgphud_MinimapSize:jgphud_CircularMinimap:jgphud_MinimapZoom:jgphud_DrawKills:jgphud_DrawItems:jgphud_DrawSecrets:jgphud_DrawTime"
 }
 
 OptionValue "MainBars"

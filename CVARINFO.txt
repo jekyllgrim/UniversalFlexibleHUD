@@ -52,6 +52,11 @@ user nosave int jgphud_MinimapPosX = 2;
 user nosave int jgphud_MinimapPosY = 0;
 user nosave float jgphud_MinimapZoom = 0.7;
 
+user nosave bool jgphud_DrawKills = true;
+user nosave bool jgphud_DrawItems = true;
+user nosave bool jgphud_DrawSecrets = true;
+user nosave bool jgphud_DrawTime = false;
+
 user nosave bool jgphud_DrawInvBar = true;
 user nosave bool jgphud_AlwaysShowInvBar = true;
 user nosave int jgphud_InvBarIconSize = 18;

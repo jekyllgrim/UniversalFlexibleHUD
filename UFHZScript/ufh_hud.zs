@@ -1,6 +1,10 @@
 class JGPUFH_FlexibleHUD : BaseStatusBar
 {
+	const MAPSCALEFACTOR = 8.;
+	const ASPECTSCALE = 1.2;
+
 	HUDFont mainHUDFont;
+	HUDFont monoHUDFont;
 	HUDFont numHUDFont;
 
 	JGPUFH_HudDataHandler handler;
@@ -64,6 +68,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	CVar c_minimapPosY;
 	CVar c_minimapZoom;
 
+	CVar c_DrawKills;
+	CVar c_DrawItems;
+	CVar c_DrawSecrets;
+	CVar c_DrawTime;
+
 	// Health/armor bars CVAR values:
 	enum EDrawBars
 	{
@@ -98,7 +107,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	Shape2D minimapShape_Circle;
 	Shape2D minimapShape_Arrow;
 	Shape2DTransform minimapTransform;
-	const MAPSCALEFACTOR = 8;
 
 	// see SetScreenFlags():
 	static const int ScreenFlags[] =
@@ -138,9 +146,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	override void Init()
 	{
-		super.Init();		
+		super.Init();
 		Font fnt = "Confont";
-		mainHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
+		mainHUDFont = HUDFont.Create(fnt);
+		monoHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), Mono_CellLeft);
 		fnt = "IndexFont";
 		numHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
 
@@ -292,6 +301,15 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			c_minimapPosY = CVar.GetCvar('jgphud_MinimapPosY', CPlayer);
 		if (!c_minimapZoom)
 			c_minimapZoom = CVar.GetCvar('jgphud_MinimapZoom', CPlayer);
+
+		if (!c_DrawKills)
+			c_DrawKills = CVar.GetCvar('jgphud_DrawKills', CPlayer);
+		if (!c_DrawItems)
+			c_DrawItems = CVar.GetCvar('jgphud_DrawItems', CPlayer);
+		if (!c_DrawSecrets)
+			c_DrawSecrets = CVar.GetCvar('jgphud_DrawSecrets', CPlayer);
+		if (!c_DrawTime)
+			c_DrawTime = CVar.GetCvar('jgphud_DrawTime', CPlayer);
 	}
 
 	// Adjusts position of the element so that it never ends up
@@ -312,7 +330,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			// the hud_aspectscale CVAR is in use, because the
 			// element's position must follow the angles properly
 			// (mostly used by the automap):
-			double aspect = c_aspectscale.GetBool() ? 1.2 : 1;
+			double aspect = c_aspectscale.GetBool() ? ASPECTSCALE : 1;
 			hudscale.y /= aspect;
 			pos.x *= hudscale.x;
 			pos.y *= hudscale.y;
@@ -1217,10 +1235,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	// methods because StatusBar doesn't have anything like shapes and
 	// line drawing.
 	void DrawMinimap()
-	{
-		if (!c_drawMinimap.GetBool() || automapActive)
-			return;
-		
+	{		
 		double size = c_MinimapSize.GetFloat();
 		// Almost everything has to be multiplied by hudscale.x
 		// so that it matches the general HUD scale regarldess
@@ -1235,6 +1250,29 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// Real: true makes this function return real screeen
 		// coordinates rather virtual ones:
 		vector2 pos = AdjustElementPos((0,0), flags, (size, size), ofs, real:true);
+
+		// Draw map data below the minimap
+		// (or above it if it's at the bottom of the screen):
+		vector2 msize = (64, 0);
+		if (c_drawMinimap.GetBool())
+		{
+			msize = (max(size, 44), size); //going under 44 pixels looks too bad scaling-wise
+		}
+		vector2 mapDataSize = (msize.x, msize.y + 16);
+		// draw it above the minimap if that's at the bottom:
+		vector2 mapDataPos = ((flags & DI_SCREEN_BOTTOM) == DI_SCREEN_BOTTOM) ? (0, 0) : (0, msize.y);
+		mapdataPos = AdjustElementPos(mapDataPos, flags, (msize.x, msize.y), ofs);
+		// Since this thing is anchored to the minimap, we need to make sure stays
+		// next to it regardless of aspect scaling (since minimap ignores it):
+		if (c_aspectscale.GetBool())
+		{
+			mapDataPos.y /= ASPECTSCALE;
+		}
+		DrawMapData(mapDataPos, flags, msize.x, 0.5);
+		
+		if (!c_drawMinimap.GetBool() || automapActive)
+			return;
+
 		size *= hudscale.x;
 
 		// Let the player change the size of the map:
@@ -1404,23 +1442,107 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		Screen.ClearStencil();
 	}
 
-	void DrawMapData(vector2 pos, vector2 box, int flags)
+	void DrawMapData(vector2 pos, int flags, double width, double scale = 1.0)
 	{
-		let fy = mainHUDFont.mFont.GetHeight();
+		HUDFont hfnt = monoHUDFont;
+		Font fnt = hfnt.mFont;
+		let fy = fnt.GetHeight() * scale;
 
+		pos.x += width*0.5;
+		// flip if it's at the bottom:
 		if ((flags & DI_SCREEN_BOTTOM) == DI_SCREEN_BOTTOM)
 		{
-			pos.y -= fy;
+			pos.y -= fy * 3;
+		}
+
+		int secrets = Level.found_secrets;
+		int kills = Level.killed_monsters;
+		int items = Level.found_items;
+		if (multiplayer)
+		{
+			secrets = CPlayer.secretcount;
+			kills = CPlayer.killcount;
+			items = CPlayer.itemcount;
+		}
+		int totalsecrets = Level.total_secrets;
+		int totalkills = Level.total_monsters;
+		int totalitems = Level.total_items;
+		string s_left, s_right;
+
+		if (c_DrawKills.GetBool())
+		{
+			s_left = String.Format("\cG%s", StringTable.Localize("$TXT_IMKILLS"));
+			s_right = String.Format("\cD%d\c-/\cD%d", kills, totalkills);
+			DrawMapDataElement(s_left, s_right, hfnt, pos, flags, width, scale);
+			pos.y+=fy;
+		}
+
+		if (c_DrawItems.GetBool())
+		{
+			s_left = String.Format("\cG%s", StringTable.Localize("$TXT_IMITEMS"));
+			s_right = String.Format("\cD%d\c-/\cD%d", items, totalitems);
+			DrawMapDataElement(s_left, s_right, hfnt, pos, flags, width, scale);
+			pos.y+=fy;
+		}
+
+		if (c_DrawSecrets.GetBool())
+		{
+			s_left = String.Format("\cG%s", StringTable.Localize("$TXT_IMSECRETS"));
+			s_right = String.Format("\cD%d\c-/\cD%d", secrets, totalsecrets);
+			DrawMapDataElement(s_left, s_right, hfnt, pos, flags, width, scale);
+			pos.y+=fy;
+		}
+
+		if (c_DrawTime.GetBool())
+		{
+			s_left = String.Format("\cG%s", StringTable.Localize("$TXT_IMTIME"));
+			int h,m,s;
+			[h,m,s] = TicsToHours(level.time);
+			if (h > 0)
+			{
+				s_right = String.Format("\cD%d:%d:%d", h, m, s);
+			}
+			else
+			{
+				s_right = String.Format("\cD%d:%d", m, s);
+			}
+			DrawMapDataElement(s_left, s_right, hfnt, pos, flags, width, scale);
 		}
 	}
 
-	int, int TicsToSeconds(int tics)
+	void DrawMapDataElement(string str1, string str2, HUDFont hfnt, vector2 pos, int flags, double width, double scale = 1.0)
+	{
+		Font fnt = hfnt.mFont;
+		double strOfs = 3 * scale;
+		double maxStrWidth = width*0.5 - strOfs;
+		double strScale = scale;
+		double strWidth = fnt.StringWidth(str1) * scale;
+		if (strWidth > maxStrWidth)
+		{
+			strScale = scale * (maxStrWidth / strWidth);
+		}
+		DrawString(hfnt, str1, pos-(strOfs,0), flags|DI_TEXT_ALIGN_RIGHT, scale:(strScale,strScale));
+		DrawString(hfnt, ":", pos, flags|DI_TEXT_ALIGN_CENTER, scale:(scale,scale));
+		DrawString(hfnt, str2, pos+(strOfs,0), flags|DI_TEXT_ALIGN_LEFT, scale:(scale,scale));
+	}
+
+	int, int TicsToMinutes(int tics)
 	{
 		int totalSeconds = tics / TICRATE;
 		int minutes = (totalSeconds / 60) % 60;
 		int seconds = totalSeconds % 60;
 
 		return minutes, seconds;
+	}
+
+	int, int, int TicsToHours(int tics)
+	{
+		int totalSeconds = tics / TICRATE;
+		int hours = (totalSeconds / 3600) % 60;
+		int minutes = (totalSeconds / 60) % 60;
+		int seconds = totalSeconds % 60;
+
+		return hours, minutes, seconds;
 	}
 
 	override void DrawPowerups()
@@ -1456,7 +1578,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			{
 				DrawTexture(pwd.icon, (pos.x + iconSize*0.5, pos.y), flags|DI_ITEM_CENTER, box:(iconSize, iconSize));
 				int min, sec;
-				[min, sec] = TicsToSeconds(pow.EffectTics);
+				[min, sec] = TicsToMinutes(pow.EffectTics);
 				DrawString(fnt, String.Format("%2d:%2d",min,sec), (pos.x + iconsize + indent, pos.y - fy*0.5), flags|DI_TEXT_ALIGN_LEFT, alpha: pow.isBlinking() ? 0.5 : 1.0, scale:(textscale,textscale));
 				pos.y += iconSize + indent;
 			}

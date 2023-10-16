@@ -48,6 +48,11 @@ Inventory bar icon size,JGPHUD_INVBAR_ICONSIZE,,Размер значков в �
 "Note: Inventory bar will only appear in games/mods that have
 items that can be placed in inventory and used from it.",JGPHUD_INVBAR_NOTE,Keep under 2 lines,"Внимание: полоса предметов отображается, только если в игре/моде
 есть предметы, которые можно использовать из инвентаря."
+Show kill count,JGPHUD_MAPDATA_KILLS,,Показывать убийства
+Show secrets count,JGPHUD_MAPDATA_SECRETS,,Показывать секреты
+Show items count,JGPHUD_MAPDATA_ITEMS,,Показывать предметы
+Show map time,JGPHUD_MAPDATA_TIME,,Показывать время уровня
+Map data display,JGPHUD_MAPDATA_TITLE,,Данные об уровне
 Minimap,JGPHUD_MINIMAP_TITLE,,Мини-карта
 Minimap display,JGPHUD_MINIMAP_ENABLE,,Показывать мини-карту
 Minimap size,JGPHUD_MINIMAP_SIZE,,Размер мини-карты
