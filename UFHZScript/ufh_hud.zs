@@ -674,7 +674,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// Check if armor exists and is above 0
 		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
 		let hexarm = HexenArmor(CPlayer.mo.FindInventory("HexenArmor"));
-		bool hasHexenArmor;
+		bool hasHexenArmor = false;
 		double armAmount;
 		double armMaxamount = 100;
 		TextureID armTex;
@@ -685,19 +685,22 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			armMaxAmount = barm.maxamount;
 			[cRed, cGreen, cBlue, cFntCol] = GetArmorColor(barm.savePercent);
 			armTex = barm.icon;
+			Console.Printf("Normal armor. Icon: %s | Colors: %d,%d,%d", TexMan.GetName(armTex), cRed,cGreen,cBlue);
 		}
 		if (hexArm)
 		{
+			double hexArmAmount;
 			for (int i = 0; i < hexArm.Slots.Size(); i++)
 			{
-				armAmount += hexArm.Slots[i];
+				hexArmAmount += hexArm.Slots[i];
 			}
-			if (armAmount > 0)
+			if (hexArmAmount > 0)
 			{
 				SetupHexenArmorIcons();
 				hasHexenArmor = true;
+				armAmount = hexArmAmount;
 				armMaxAmount = 80;
-				[cRed, cGreen, cBlue, cFntCol] = GetArmorColor(armAmount / armMaxAmount);
+				[cRed, cGreen, cBlue, cFntCol] = GetArmorColor(hexArmAmount / armMaxAmount);
 			}
 		}
 
@@ -759,6 +762,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			// uses normal armor:
 			else if (armTex.IsValid())
 			{
+				ap = "";
 				DrawTexture(armTex, iconPos, flags|DI_ITEM_CENTER, box:(armTexSize,armTexSize));
 			}
 
