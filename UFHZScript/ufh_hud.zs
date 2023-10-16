@@ -685,7 +685,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			armMaxAmount = barm.maxamount;
 			[cRed, cGreen, cBlue, cFntCol] = GetArmorColor(barm.savePercent);
 			armTex = barm.icon;
-			Console.Printf("Normal armor. Icon: %s | Colors: %d,%d,%d", TexMan.GetName(armTex), cRed,cGreen,cBlue);
 		}
 		if (hexArm)
 		{
