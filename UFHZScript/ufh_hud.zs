@@ -4,7 +4,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	HUDFont numHUDFont;
 
 	JGPUFH_HudDataHandler handler;
-	array <JGPHUD_HexenArmorData> hexenArmorData;
 
 	CVar c_aspectscale;
 
@@ -40,6 +39,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	CVar c_drawHitmarkers;
 	CVar c_hitMarkersAlpha;
 	CVar c_HitMarkersFadeTime;
+	CVar c_DrawEnemyHitMarkers;
 
 	CVar c_drawWeaponSlots;
 	CVar c_weaponSlotPos;
@@ -71,6 +71,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		DB_DRAWNUMBERS,
 		DB_DRAWBARS,
 	}
+	
+	// Hexen armor data:
+	const WEAKEST_HEXEN_ARMOR_PIECE = 3;
+	TextureID hexenArmorIcons[WEAKEST_HEXEN_ARMOR_PIECE+1];
+	bool hexenArmorSetupDone;
 
 	// Hit (incoming damage) marker
 	Shape2D hitMarker;
@@ -218,6 +223,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			c_hitMarkersAlpha = CVar.GetCvar('jgphud_HitMarkersAlpha', CPlayer);
 		if (!c_HitMarkersFadeTime)
 			c_HitMarkersFadeTime = CVar.GetCvar('jgphud_HitMarkersFadeTime', CPlayer);
+		if (!c_DrawEnemyHitMarkers)
+			c_DrawEnemyHitMarkers = CVar.GetCvar('jgphud_DrawEnemyHitMarkers', CPlayer);
 
 		if (!c_drawAmmoBar)
 			c_drawAmmoBar = CVar.GetCvar('jgphud_DrawAmmoBar', CPlayer);
@@ -395,7 +402,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 
 		if (leftText)
-			DrawString(mainHUDFont, leftText, barpos + (-1, 0), flags|DI_TEXT_ALIGN_RIGHT);
+		{
+			DrawString(mainHUDFont, leftText, barpos, flags|DI_TEXT_ALIGN_RIGHT);
+		}
 
 		// Background color (fills whole width):
 		Fill(backColor, barpos.x, barpos.y, barwidth, barheight, flags);
@@ -458,7 +467,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 		
 		if (rightText)
+		{
 			DrawString(mainHUDFont, ""..rightText, barpos + (barwidth + 1, 0), flags|DI_TEXT_ALIGN_LEFT);
+		}
 	}
 
 	int, int, int, int GetArmorColor(double savePercent)
@@ -523,8 +534,16 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	// Cache existing icons for Hexen armor classes
 	// On the off chance somebody is crazy enough to
 	// create their own Hexen armor pickups...
+	// Hexen armor is split into four classes, 0 being the strongest,
+	// and 4 being the weakest  Classses 0-3 are pickups and have icons;
+	// while 4 is your natural ammo and you always have it.
+	// Since class 4 is not a pickup, we're not going to try and find
+	// the icon for it.
 	void SetupHexenArmorIcons()
 	{
+		if (hexenArmorSetupDone)
+			return;
+
 		for (int i = 0; i < AllActorClasses.Size(); i++)
 		{
 			if (!AllActorClasses[i])
@@ -540,12 +559,21 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				let icon = def.SpawnState.GetSpriteTexture(0);
 				if (!icon.IsValid())
 					continue;
-				// in Hexen armor the health field is used to
-				// determine class (from 0 to 4, 0 being best,
-				// and 4 being natural armor you have by default)
-				int armorClass = def.health;
-				let had = JGPHUD_HexenArmorData.Create(icon, armorClass);
-				hexenArmorData.Push(had);
+				// The health field in Hexen armor pickups is used to
+				// determine the class (from 0 to 3):
+				int armorClass = Clamp(def.health, 0, WEAKEST_HEXEN_ARMOR_PIECE);
+				hexenArmorIcons[armorClass] = icon;
+			}
+		}
+		// If all icons have been cached, setup is done:
+		hexenArmorSetupDone = true;
+		for (int i = 0; i < hexenArmorIcons.Size(); i++)
+		{
+			TextureID check = hexenArmorIcons[i];
+			if (!check.IsValid())
+			{
+				hexenArmorSetupDone = false;
+				break;
 			}
 		}
 	}
@@ -626,7 +654,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		int barWidth = mainBlockWidth - iconSize - indent*3;
 		double barPosX = iconPos.x + iconsize*0.5 + indent;
 		double fy = mainHUDFont.mFont.GetHeight();
-		// Draw health bar:
+		// Draw health bar or numbers:
 		int health = CPlayer.mo.health;
 		int maxhealth = CPlayer.mo.GetMaxHealth(true);
 		int cRed, cGreen, cBlue, cFntCol;
@@ -647,7 +675,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
 		let hexarm = HexenArmor(CPlayer.mo.FindInventory("HexenArmor"));
 		bool hasHexenArmor;
-		int bestHexenArmorPiece;
 		double armAmount;
 		double armMaxamount = 100;
 		TextureID armTex;
@@ -667,68 +694,74 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			}
 			if (armAmount > 0)
 			{
-				if (hexenArmorData.Size() <= 0)
-				{
-					SetupHexenArmorIcons();
-				}
-				for (int i = 0; i < hexArm.Slots.Size(); i++)
-				{
-					if (hexArm.Slots[i] > hexArm.Slots[bestHexenArmorPiece])
-					{
-						bestHexenArmorPiece = i;
-					}
-				}
-				for (int i = 0; i < hexenArmorData.Size(); i++)
-				{
-					let had = hexenArmorData[i];
-					if (had && bestHexenArmorPiece == had.armorClass)
-					{
-						armTex = had.icon;
-						break;
-					}
-				}
-				armMaxAmount = 80;
+				SetupHexenArmorIcons();
 				hasHexenArmor = true;
+				armMaxAmount = 80;
 				[cRed, cGreen, cBlue, cFntCol] = GetArmorColor(armAmount / armMaxAmount);
 			}
 		}
 
-		iconPos.y = pos.y + height * 0.25;
 		if (armAmount > 0)
 		{
+			iconPos.y = pos.y + height * 0.25;
 			string ap = "AP";
-			if (armTex.isValid())
+			// uses Hexen armor:
+			if (hasHexenArmor)
 			{
-				ap = "";
-				// uses Hexen armor:
-				/*if (hasHexenArmor && bestHexenArmorPiece < 4)
+				//console.printf("HexArmSlots| 0: %.1f | 1: %.2f | 2: %.2f | 3: %.2f | 4: %.2f", hexArm.Slots[0], hexArm.Slots[1], hexArm.Slots[2], hexArm.Slots[3], hexArm.Slots[4]);
+				// Build an array of icons from the previously set up array
+				// (see SetupHexenArmorIcons()):
+				array <TextureID> hArmTex;
+				for (int i = WEAKEST_HEXEN_ARMOR_PIECE; i >= 0; i--)
 				{
-					vector2 armPos = iconPos + (-armTexSize*0.5, armTexSize*0.5);
-					armTexSize *= 0.5;
-					for (int i = 4; i >= bestHexenArmorPiece; i--)
+					TextureID icon;
+					if (hexArm.Slots[i] <= 0)
+						continue;
+					// cache the icon for the slot if the amount of armor
+					// in that slot is over 0 (since Hexen doesn't use
+					// armor items or icons at all, only amounts):
+					hArmTex.Push(int(hexenArmorIcons[i]));
+				}
+				// If any icons have been pushed, draw them:
+				if (hArmTex.Size() > 0)
+				{
+					ap = "";
+					// If there's only one armor piece, draw it as usual:
+					if (hArmTex.Size() == 1)
 					{
-						TextureID icon;
-						for (int j = 0; j <hexenArmorData.Size(); j++)
-						{
-							let had = hexenArmorData[j];
-							if (had && had.armorClass == i)
-							{
-								icon = had.icon;
-								break;
-							}
-						}
-						DrawTexture(icon, armPos, flags|DI_ITEM_CENTER, box:(armTexSize,armTexSize));
-						armPos += (2, -2);
+						armTex = hArmTex[0];
+						DrawTexture(armTex, iconPos, flags|DI_ITEM_CENTER, box:(armTexSize,armTexSize));
 					}
-				}*/
-
-				// uses normal armor:
-				//else
-				//{
-					DrawTexture(armTex, iconPos, flags|DI_ITEM_CENTER, box:(armTexSize,armTexSize));
-				//}
-
+					// If there's more, draw smaller version of them in
+					// a 2x2 pattern:
+					else
+					{
+						armTexSize *= 0.5;
+						double ofs = armTexSize*0.5;
+						vector2 armPos;
+						for (int i = 0; i < hArmTex.Size(); i++)
+						{
+							armTex = hArmTex[i];
+							if (i == 0 || i == 2)
+								armPos.x = iconPos.x - ofs;
+							else
+								armPos.x = iconPos.x + ofs;
+							if (i == 0 || i == 1)
+								armPos.y = iconPos.y - ofs;
+							else
+								armPos.y = iconPos.y + ofs;
+							DrawTexture(armTex, armPos, flags|DI_ITEM_CENTER, box:(armTexSize,armTexSize));
+						}
+					}
+				}
 			}
+
+			// uses normal armor:
+			else if (armTex.IsValid())
+			{
+				DrawTexture(armTex, iconPos, flags|DI_ITEM_CENTER, box:(armTexSize,armTexSize));
+			}
+
 			if (drawbars)
 			{
 				DrawFlatColorBar((barPosX, iconPos.y), armAmount, armMaxamount, color(255, cRed, cGreen, cBlue), ap, valueColor: Font.CR_White, barwidth:barWidth, barheight: 6, segments: barm.maxamount / 10, flags:barFlags);
@@ -738,6 +771,21 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				DrawString(mainHUDFont, String.Format("%3d", armAmount), (barPosX, iconPos.y - fy*0.5), translation:cFntCol);
 			}
 		}
+	}
+
+	color GetAmmoColor(Ammo am)
+	{
+		int a = 255;
+		// Explicit colors for Hexen mana:
+		if (am is 'Mana1')
+		{
+			return color(a, 38, 41, 167);
+		}
+		if (am is 'Mana2')
+		{
+			return color(a, 42, 252, 42);
+		}
+		return color(a, 192, 128, 40);
 	}
 
 	void DrawWeaponBlock()
@@ -762,26 +810,27 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// X size is fixed, we'll calculate Y size from here:
 		int indent = 1;
 		vector2 size = (66, 0);
+		// predefine size for the weapon icon and ammo icon boxes:
 		vector2 weapIconBox = (size.x - indent*2, 18);
 		vector2 ammoIconBox = (size.x * 0.25 - indent*4, 16);
 		double ammoTextHeight = mainHUDFont.mFont.GetHeight();
+		// If we're drawing the ammo bar, add its height and indentation
+		// to total height:
+		bool drawAmmobar = c_drawAmmoBar.GetBool();
 		int ammoBarHeight = 8;
 		// If at least one ammo type exists, add ammoIconBox height
 		// and indentation to total height:
 		if (am1 || am2)
 		{
 			size.y += ammoIconBox.y + ammoTextHeight + indent*4;
+			// If ammo exists, also add ammo bar height:
+			if (drawAmmobar)
+			{
+				size.y += ammoBarHeight + indent*2;
+			}
 		}
 		
-		// If we're drawing the ammo bar, add its height and indentation
-		// to total height:
-		bool drawAmmobar = c_drawAmmoBar.GetBool();
-		if (drawAmmobar && (am1 || am2))
-		{
-			size.y += ammoBarHeight + indent*2;
-		}
-		
-		// If weapon icon is to be draw (check CVAR and the validity of
+		// If weapon icon is to be drawn (check CVAR and the validity of
 		// the icon), add its height and indentation to total height:
 		TextureID weapIcon = GetIcon(weap, DI_FORCESCALE);
 		bool weapIconValid = c_DrawWeapon.GetBool() && weapIcon.IsValid() && TexMan.GetName(weapIcon) != 'TNT1A0';
@@ -790,7 +839,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			size.y += weapIconBox.y + indent*2;
 		}
 
-		// If there are no ammotypes or weapon icons, stop here:
+		// If there are no ammotypes or weapon icons, no need to draw anything,
+		// so we'll stop here:
 		if (!weapIconValid && !am1 && !am2)
 		{
 			return;
@@ -824,6 +874,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		int barwidth = size.x - indent*2;
 		// and the ammo bar pos:
 		vector2 ammoBarPos = ammoTextPos + (-barwidth*0.5, ammoTextHeight + indent);
+
 		// Uses only 1 ammo type - draw as calculated:
 		if ((am1 && !am2) || (!am1 && am2))
 		{
@@ -832,7 +883,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			DrawString(mainHUDFont, ""..am.amount, ammoTextPos, flags|DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am.amount, am.maxamount));
 			if (drawAmmobar)
 			{
-				DrawFlatColorBar(ammoBarPos, am.amount, am.maxamount, color(255, 192, 128, 40), barwidth: barwidth, barheight: ammoBarHeight, segments: am.maxamount / 10, flags: flags);
+				DrawFlatColorBar(ammoBarPos, am.amount, am.maxamount, GetAmmoColor(am), barwidth: barwidth, barheight: ammoBarHeight, segments: am.maxamount / 10, flags: flags);
 			}
 		}
 		// Uses 2 ammo types:
@@ -851,13 +902,15 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			DrawString(mainHUDFont, ""..am2amt, (ammo2pos.x, ammoTextPos.y), flags|DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am2.amount, am2.maxamount));
 			if (drawAmmobar)
 			{
-				DrawFlatColorBar(ammoBarPos, am1.amount, am1.maxamount, color(255, 192, 128, 40), barwidth: barwidth, barheight: ammoBarHeight, segments: am1.maxamount / 20, flags: flags);
+				DrawFlatColorBar(ammoBarPos, am1.amount, am1.maxamount, GetAmmoColor(am1), barwidth: barwidth, barheight: ammoBarHeight, segments: am1.maxamount / 20, flags: flags);
 				ammoBarPos.x = ammo2Pos.x - barWidth*0.5;
-				DrawFlatColorBar(ammoBarPos, am2.amount, am2.maxamount, color(255, 192, 128, 40), barwidth: barwidth, barheight: ammoBarHeight, segments: am2.maxamount / 20, flags: flags);
+				DrawFlatColorBar(ammoBarPos, am2.amount, am2.maxamount, GetAmmoColor(am2), barwidth: barwidth, barheight: ammoBarHeight, segments: am2.maxamount / 20, flags: flags);
 			}
 		}
 	}
 
+	// Draws a list of all ammo ordered by weapon slots,
+	// akin to althud:
 	void DrawAllAmmo()
 	{
 		if (!c_drawAllAmmo.GetBool())
@@ -939,6 +992,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
+	// Called by event handler when the player is damaged:
 	void UpdateAttacker(double angle)
 	{
 		let hmd = JGPUFH_HitMarkerData.Create(angle);
@@ -948,11 +1002,13 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
+	// Draws directional incoming damage markers:
 	void DrawHitMarkers(double size = 80)
 	{
 		if (!c_drawHitmarkers.GetBool())
 			return;
 
+		// Create a simple long and narrow trapezium shape:
 		if (!hitMarker)
 		{
 			hitMarker = new("Shape2D");
@@ -975,9 +1031,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			hitMarker.PushTriangle(1, 2, 3);
 		}
 
+		// Don't forget to multiply by hudscale:
 		vector2 hudscale = GetHudScale();
 		if (!hitMarkerTransf)
 			hitMarkerTransf = new("Shape2DTransform");
+		// Draw the shape for each damage marker data
+		// in the previously built array:
 		for (int i = hmData.Size() - 1; i >= 0; i--)
 		{
 			let hmd = JGPUFH_HitMarkerData(hmData[i]);
@@ -993,6 +1052,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
+	// Fade out damage markers:
 	void UpdateHitMarkers()
 	{
 		for (int i = hmData.Size() - 1; i >= 0; i--)
@@ -1025,6 +1085,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	void DrawReticleHitMarker()
 	{
+		if (!c_DrawEnemyHitMarkers.GetBool())
+			return;
+		
+		// Four simple triangle shapes around the crosshair:
 		if (!reticleHitMarker)
 		{
 			reticleHitMarker = new("Shape2D");
@@ -1061,6 +1125,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			if (!reticleMarkerTransform)
 				reticleMarkerTransform = new("Shape2DTransform");
 			vector2 hudscale = GetHudScale();
+			// Factor in the crosshair size:
 			double size = 14 * CVar.GetCvar('CrosshairScale', CPlayer).GetFloat();	
 			reticleMarkerTransform.Clear();
 			reticleMarkerTransform.Scale((size, size) * hudscale.x);
@@ -1717,23 +1782,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			lastgood = lastgood.NextInv();
 		}
 		return lastgood;
-	}
-}
-
-class JGPHUD_HexenArmorData ui
-{
-	TextureID icon;
-	int armorClass;
-
-	static JGPHUD_HexenArmorData Create(TextureID icon, int armorClass)
-	{
-		let had = JGPHUD_HexenArmorData(New("JGPHUD_HexenArmorData"));
-		if (had)
-		{
-			had.icon = icon;
-			had.armorClass = armorClass;
-		}
-		return had;
 	}
 }
 

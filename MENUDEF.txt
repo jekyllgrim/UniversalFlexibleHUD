@@ -18,6 +18,7 @@ OptionMenu "JGPHUD_Settings"
 	ScaleSlider "$HUDMNU_UISCALE", "uiscale", 0.0, 8.0, 1.0, "$SCALEMNU_ADAPT"
 	ColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor"
 	Slider "$JGPHUD_GENERAL_BACKALPHA", "jgphud_BackAlpha", 0.00, 1.0, 0.05, 2
+	Option "$JGPHUD_HITMARKERS_ENABLE", "jgphud_DrawEnemyHitMarkers", "OnOff"
 	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_BackColor:jgphud_BackAlpha"
 
 	StaticText ""

@@ -3,6 +3,7 @@ FlexiHUD settings,JGPHUD_SETTINGS_TITLE,,Настройки FlexiHUD
 General,JGPHUD_GENERAL_TITLE,,Общее
 HUD background color,JGPHUD_GENERAL_BACKCOL,,Цвет фона
 HUD background opacity,JGPHUD_GENERAL_BACKALPHA,,Прозрачность фона
+Draw enemy hit markers around crosshair,JGPHUD_HITMARKERS_ENABLE,,Индикаторы попадания по врагам вокруг прицела
 Top left,JGPHUD_POS_TOPLEFT,,Верхний левый угол
 Top center,JGPHUD_POS_TOPCENTER,,Центр верхней границы
 Top right,JGPHUD_POS_TOPRIGHT,,Верхний правый угол
