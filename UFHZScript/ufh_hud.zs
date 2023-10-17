@@ -1236,21 +1236,22 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			roundBarsGeneralMaskTransf2 = New("Shape2DTransform");
 		}
 
+		// Position and sizes:
 		vector2 screenCenter = (Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5);
 		vector2 hudscale = GetHudScale();
+		double widthFac = 1.0 - Clamp(c_ReticleBarsWidth.GetFloat(), 0.0, 1.0);
 		double size = c_ReticleBarsSize.GetInt() * hudscale.x;
-		double secondarySize = size * 1.25;
-		// Apply mask:
-		double maskWidthFac = Clamp(c_ReticleBarsWidth.GetFloat(), 0.0, 1.0);
-		double maskSize = size * (1 - maskWidthFac);
+		double maskSize = size * widthFac;
+		double secondarySize = size * (1.05 / widthfac);
+		double secondaryMaskSize = secondarySize * widthFac;
+
+		// Mask for inner bars:
 		roundBarsGeneralMaskTransf.Clear();
 		roundBarsGeneralMaskTransf.Scale((maskSize, maskSize));
 		roundBarsGeneralMaskTransf.Translate(screenCenter);
-
-		// Apply mask for outer circles:
-		maskSize = secondarySize * (1 - maskWidthFac);
+		// Mask for outer bars:
 		roundBarsGeneralMaskTransf2.Clear();
-		roundBarsGeneralMaskTransf2.Scale((maskSize, maskSize));
+		roundBarsGeneralMaskTransf2.Scale((secondaryMaskSize, secondaryMaskSize));
 		roundBarsGeneralMaskTransf2.Translate(screenCenter);
 
 		double valueFrac;
