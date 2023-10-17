@@ -2,14 +2,45 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 {
 	const MAPSCALEFACTOR = 8.;
 	const ASPECTSCALE = 1.2;
+	const ITEMBARICONSIZE = 28;
+	const CIRCLEANGLES = 360.0;
 
 	HUDFont mainHUDFont;
-	HUDFont monoHUDFont;
+	HUDFont smallHUDFont;
 	HUDFont numHUDFont;
 
 	JGPUFH_HudDataHandler handler;
 
+	// Health/armor bars CVAR values:
+	enum EDrawBars
+	{
+		DB_NONE,
+		DB_DRAWNUMBERS,
+		DB_DRAWBARS,
+	}
+
+	// see SetScreenFlags():
+	static const int ScreenFlags[] =
+	{
+		DI_SCREEN_LEFT_TOP,
+		DI_SCREEN_CENTER_TOP,
+		DI_SCREEN_RIGHT_TOP,
+
+		DI_SCREEN_LEFT_CENTER,
+		DI_SCREEN_CENTER,
+		DI_SCREEN_RIGHT_CENTER,
+
+		DI_SCREEN_LEFT_BOTTOM,
+		DI_SCREEN_CENTER_BOTTOM,
+		DI_SCREEN_RIGHT_BOTTOM
+	};
+
+	//See GetBaseplateColor():
+	CVar c_BackColor;
+	CVar c_BackAlpha;
+
 	CVar c_aspectscale;
+	CVar c_crosshairScale;
 
 	CVar c_mainfont;
 	CVar c_smallfont;
@@ -73,13 +104,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	CVar c_DrawSecrets;
 	CVar c_DrawTime;
 
-	// Health/armor bars CVAR values:
-	enum EDrawBars
-	{
-		DB_NONE,
-		DB_DRAWNUMBERS,
-		DB_DRAWBARS,
-	}
+	CVar c_DrawReticleBars;
+	CVar c_ReticleBarsAlpha;
+	CVar c_ReticleBarsSize;
+	CVar c_ReticleBarsWidth;
+
+	double armAmount;
+	double armMaxamount;
+	color armorColor;
 	
 	// Hexen armor data:
 	const WEAKEST_HEXEN_ARMOR_PIECE = 3;
@@ -96,6 +128,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	Shape2D reticleHitMarker;
 	double reticleMarkerAlpha;
 	Shape2DTransform reticleMarkerTransform;
+
+	Shape2D roundBars;
+	Shape2D roundBarsAngMask;
+	Shape2D roundBarsInnerMask;
+	Shape2DTransform roundBarsTransform;
 	
 	// Weapon slots
 	array <JGPUFH_WeaponSlotData> weaponSlotData;
@@ -108,25 +145,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	Shape2D minimapShape_Arrow;
 	Shape2DTransform minimapTransform;
 
-	// see SetScreenFlags():
-	static const int ScreenFlags[] =
-	{
-		DI_SCREEN_LEFT_TOP,
-		DI_SCREEN_CENTER_TOP,
-		DI_SCREEN_RIGHT_TOP,
-
-		DI_SCREEN_LEFT_CENTER,
-		DI_SCREEN_CENTER,
-		DI_SCREEN_RIGHT_CENTER,
-
-		DI_SCREEN_LEFT_BOTTOM,
-		DI_SCREEN_CENTER_BOTTOM,
-		DI_SCREEN_RIGHT_BOTTOM
-	};
-
-	//See GetBaseplateColor():
-	CVar c_BackColor;
-	CVar c_BackAlpha;
+	// Bars around crosshair:
+	Shape2D roundBarsGeneralMask;
+	Shape2DTransform roundBarsGeneralMaskTransf;
+	Shape2DTransform roundBarsGeneralMaskTransf2;
 
 	// See DrawInventoryBar():
 	Inventory prevInvSel;
@@ -149,7 +171,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		super.Init();
 		Font fnt = "Confont";
 		mainHUDFont = HUDFont.Create(fnt);
-		monoHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), Mono_CellLeft);
+		smallHUDFont = HUDFont.Create(newConsoleFont);
 		fnt = "IndexFont";
 		numHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
 
@@ -176,8 +198,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		CacheCvars(); //cache CVars before anything else
 
 		DrawHealthArmor();
-		DrawHitMarkers();
-		DrawReticleHitMarker();
 		DrawWeaponBlock();
 		DrawAllAmmo();
 		DrawWeaponSlots();
@@ -185,6 +205,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		DrawPowerups();
 		DrawKeys();
 		DrawInventoryBar();
+		DrawHitMarkers();
+		DrawReticleHitMarker();
+		DrawReticleBars();
 	}
 
 	void CacheCvars()
@@ -194,6 +217,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 		if (!c_aspectscale)
 			c_aspectscale = CVar.GetCvar('hud_aspectscale', CPlayer);
+		if (!c_crosshairScale)
+			c_crosshairScale = CVar.GetCvar('CrosshairScale', CPlayer);
 
 		if (!c_mainfont)
 			c_mainfont = CVar.GetCvar('jgphud_mainfont', CPlayer);
@@ -310,6 +335,15 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			c_DrawSecrets = CVar.GetCvar('jgphud_DrawSecrets', CPlayer);
 		if (!c_DrawTime)
 			c_DrawTime = CVar.GetCvar('jgphud_DrawTime', CPlayer);
+
+		if (!c_DrawReticleBars)
+			c_DrawReticleBars = CVar.GetCvar('jgphud_DrawReticleBars', CPlayer);
+		if (!c_ReticleBarsAlpha)
+			c_ReticleBarsAlpha = CVar.GetCvar('jgphud_ReticleBarsAlpha', CPlayer);
+		if (!c_ReticleBarsSize)
+			c_ReticleBarsSize = CVar.GetCvar('jgphud_ReticleBarsSize', CPlayer);
+		if (!c_ReticleBarsWidth)
+			c_ReticleBarsWidth = CVar.GetCvar('jgphud_ReticleBarsWidth', CPlayer);
 	}
 
 	// Adjusts position of the element so that it never ends up
@@ -692,16 +726,16 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// Check if armor exists and is above 0
 		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
 		let hexarm = HexenArmor(CPlayer.mo.FindInventory("HexenArmor"));
-		bool hasHexenArmor = false;
-		double armAmount;
-		double armMaxamount = 100;
+		armMaxamount = 100;
 		TextureID armTex;
 		double armTexSize = 12;
+		bool hasHexenArmor = false;
 		if (barm)
 		{
 			armAmount = barm.amount;
 			armMaxAmount = barm.maxamount;
 			[cRed, cGreen, cBlue, cFntCol] = GetArmorColor(barm.savePercent);
+			armorColor = color(cRed, cGreen, cBlue); //store for crosshair bars
 			armTex = barm.icon;
 		}
 		if (hexArm)
@@ -718,6 +752,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				armAmount = hexArmAmount;
 				armMaxAmount = 80;
 				[cRed, cGreen, cBlue, cFntCol] = GetArmorColor(hexArmAmount / armMaxAmount);
+				armorColor = color(cRed, cGreen, cBlue); //store for crosshair bars
 			}
 		}
 
@@ -1109,6 +1144,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (!c_DrawEnemyHitMarkers.GetBool())
 			return;
 		
+		vector2 screenCenter = (Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5);
+		vector2 hudscale = GetHudScale();
 		// Four simple triangle shapes around the crosshair:
 		if (!reticleHitMarker)
 		{
@@ -1145,14 +1182,259 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		{
 			if (!reticleMarkerTransform)
 				reticleMarkerTransform = new("Shape2DTransform");
-			vector2 hudscale = GetHudScale();
 			// Factor in the crosshair size:
-			double size = 14 * CVar.GetCvar('CrosshairScale', CPlayer).GetFloat();	
+			double size = 14 * c_crosshairScale.GetFloat();	
 			reticleMarkerTransform.Clear();
 			reticleMarkerTransform.Scale((size, size) * hudscale.x);
-			reticleMarkerTransform.Translate((Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5));
+			reticleMarkerTransform.Translate(screenCenter);
 			reticleHitMarker.SetTransform(reticleMarkerTransform);
 			Screen.DrawShapeFill(color(0, 0, 255), reticleMarkerAlpha, reticleHitMarker);
+		}
+	}
+
+	void DrawReticleBars(int steps = 100, double coverAngle = 80)
+	{
+		if (!c_DrawReticleBars.GetBool())
+			return;
+
+		// This is the general mask that cuts out the inner part
+		// of the disks to make them appear as circular bars:
+		if (!roundBarsGeneralMask)
+		{
+			double angStep = CIRCLEANGLES / steps;
+			double ang = 270;
+			roundBarsGeneralMask = New("Shape2D");
+			// anchor point at the center:
+			roundBarsGeneralMask.PushVertex((0,0));
+			// coords are irrelevant as usual, because no textures:
+			roundBarsGeneralMask.PushCoord((0,0));
+			for (int i = 0; i < steps; i++)
+			{
+				double c = cos(ang);
+				double s = sin(ang);
+				roundBarsGeneralMask.PushVertex((c,s));
+				roundBarsGeneralMask.PushCoord((0,0));
+				ang += angStep;
+			}
+			int maxSegments = steps;
+			// start with 1 because point 0 is the center
+			// and is already accounted for:
+			for (int i = 1; i <= steps; ++i)
+			{
+				int next = i+1;
+				if (next > steps)
+					next -= steps;
+				roundBarsGeneralMask.PushTriangle(0, i, next);
+			}
+		}
+		if (!roundBarsGeneralMaskTransf)
+		{
+			roundBarsGeneralMaskTransf = New("Shape2DTransform");
+		}
+		if (!roundBarsGeneralMaskTransf2)
+		{
+			roundBarsGeneralMaskTransf2 = New("Shape2DTransform");
+		}
+
+		vector2 screenCenter = (Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5);
+		vector2 hudscale = GetHudScale();
+		double size = c_ReticleBarsSize.GetInt() * hudscale.x;
+		double secondarySize = size * 1.25;
+		// Apply mask:
+		double maskWidthFac = Clamp(c_ReticleBarsWidth.GetFloat(), 0.0, 1.0);
+		double maskSize = size * (1 - maskWidthFac);
+		roundBarsGeneralMaskTransf.Clear();
+		roundBarsGeneralMaskTransf.Scale((maskSize, maskSize));
+		roundBarsGeneralMaskTransf.Translate(screenCenter);
+
+		// Apply mask for outer circles:
+		maskSize = secondarySize * (1 - maskWidthFac);
+		roundBarsGeneralMaskTransf2.Clear();
+		roundBarsGeneralMaskTransf2.Scale((maskSize, maskSize));
+		roundBarsGeneralMaskTransf2.Translate(screenCenter);
+
+		double valueFrac;
+		double angle = 90;
+		roundBarsGeneralMask.SetTransform(roundBarsGeneralMaskTransf);
+
+		// Health bar:
+		angle *= -1;
+		Screen.EnableStencil(true);
+		Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+		Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
+		Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+		double health = CPlayer.mo.health;
+		double maxhealth = CPlayer.mo.GetMaxHealth(true);
+		valueFrac = LinearMap(health, 0, maxhealth, 1.0, 0.0, true);
+		DrawCircleSegmentShape(color(255,0,0), screenCenter, size, steps, angle, coverAngle, valueFrac);
+		// Clear the general mask:
+		Screen.EnableStencil(false);
+		Screen.ClearStencil();
+		
+
+		Ammo am1, am2;
+		[am1, am2] = GetCurrentAmmo();
+
+		// Ammo 1 bar:
+		angle *= -1;
+		if (am1)
+		{
+			Screen.EnableStencil(true);
+			Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+			Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
+			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+			valueFrac = LinearMap(am1.amount, 0, am1.maxAmount, 1.0, 0.0, true);
+			DrawCircleSegmentShape(GetAmmoColor(am1), screenCenter, size, steps, angle, coverAngle, valueFrac);
+			Screen.EnableStencil(false);
+			Screen.ClearStencil();
+		}
+
+		roundBarsGeneralMask.SetTransform(roundBarsGeneralMaskTransf2);
+
+		// Armor bar:
+		angle *= -1;
+		Screen.EnableStencil(true);
+		Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+		Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
+		Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+		valueFrac = LinearMap(armAmount, 0, armMaxAmount, 1.0, 0.0, true);
+		DrawCircleSegmentShape(armorColor, screenCenter, secondarySize, steps, angle, coverAngle, valueFrac);
+		Screen.EnableStencil(false);
+		Screen.ClearStencil();
+
+		// Ammo 2 bar:
+		angle *= -1;
+		if (am2)
+		{
+			Screen.EnableStencil(true);
+			Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+			Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
+			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+			valueFrac = LinearMap(am2.amount, 0, am2.maxAmount, 1.0, 0.0, true);
+			color amCol = GetAmmoColor(am2);
+			DrawCircleSegmentShape(color(amCol.a, int(amCol.r*0.7),int(amCol.g*0.7),int(amCol.b*0.7)), screenCenter, secondarySize, steps, angle, coverAngle, valueFrac);
+			Screen.EnableStencil(false);
+			Screen.ClearStencil();
+		}
+	}
+
+	void DrawCircleSegmentShape(color col, vector2 pos, double size, int steps, double angle, double coverAngle, double frac = 1.0)
+	{
+		// Make sure the shapes and transforms exist:
+		if (!roundBars || !roundBarsAngMask || !roundBarsTransform)
+		{
+			CreateCircleSegmentShapes(roundBars, roundBarsAngMask, steps, coverAngle);
+		}
+
+		double alpha = Clamp(c_ReticleBarsAlpha.GetFloat(), 0.0, 1.0);
+
+		// Draw the black background:
+		roundBarsTransform.Clear();
+		roundBarsTransform.Scale((size, size));
+		roundBarsTransform.Rotate(angle);
+		roundBarsTransform.Translate(pos);
+		roundBars.SetTransform(roundBarsTransform);
+		Screen.DrawShapeFill(color(0,0,0), alpha, roundBars);
+		// enable mask:
+		Screen.EnableStencil(true);
+		Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+		// draw mask shape:
+		roundBarsTransform.Clear();
+		// Increase the size slightly just to make sure it doesn't
+		// leave any stray pixels at the edge of the bar:
+		roundBarsTransform.Scale((size, size) * 1.1);
+		// Angle the mask (flip the angle if it was negative,
+		// so it goes counter-clockwise instead of clockwise):
+		double ofsMaskAngle = coverAngle*frac;
+		if (angle < 0)
+			 ofsMaskAngle *= -1;
+		roundBarsTransform.Rotate(angle + ofsMaskAngle);
+		roundBarsTransform.Translate(pos);
+		roundBarsAngMask.SetTransform(roundBarsTransform);
+		Screen.DrawShapeFill(color(0,0,0), 0, roundBarsAngMask);
+		// set mask:
+		Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+		// draw bar:
+		roundBarsTransform.Clear();
+		roundBarsTransform.Scale((size, size));
+		roundBarsTransform.Rotate(angle);
+		roundBarsTransform.Translate(pos);
+		roundBars.SetTransform(roundBarsTransform);
+		color colBGR = color(col.b, col.g, col.r);
+		Screen.DrawShapeFill(colBGR, alpha, roundBars);
+		// disable mask:
+		Screen.EnableStencil(false);
+		Screen.ClearStencil();
+	}
+
+	void CreateCircleSegmentShapes(out Shape2D inShape, out Shape2D outShape, int steps, double coverAngle)
+	{
+		if (!roundBarsTransform)
+		{
+			roundBarsTransform = New("Shape2DTransform");
+		}
+		coverAngle = Clamp(coverAngle, 0., CIRCLEANGLES);
+		// split the total number of steps between the smaller shape
+		// and the bigger shape:
+		int inSteps = ceil(steps * (coverAngle / CIRCLEANGLES));
+		int outSteps = steps - inSteps;
+		// Start at the top, half of the required cover angle to the left:
+		double startAng = 270; //top
+		// Begin with the inner (pie) shape:
+		if (!inShape)
+		{
+			double angStep = coverAngle / inSteps;
+			double ang = startAng - coverAngle*0.5;
+			inShape = New("Shape2D");
+			// anchor point at the center:
+			inShape.PushVertex((0,0));
+			inShape.PushCoord((0,0));
+			for (int i = 0; i < inSteps; i++)
+			{
+				double c = cos(ang);
+				double s = sin(ang);
+				inShape.PushVertex((c,s));
+				inShape.PushCoord((0,0));
+				ang += angStep;
+			}
+			int maxSegments = inSteps;
+			// start with 1 because point 0 is the center
+			// and is already accounted for:
+			for (int i = 1; i < maxSegments; i++)
+			{
+				int next = i+1;
+				if (next > maxSegments)
+					next -= maxSegments;
+				inShape.PushTriangle(0, i, next);
+			}
+		}
+		// Now create another shape that covers the rest of the disk:
+		if (!outShape)
+		{
+			// Move in the opposite direction:
+			double angStep = (CIRCLEANGLES - coverAngle) / outSteps;
+			// And start at the end of the previous shape:
+			double ang = startAng + coverAngle*0.5;
+			outShape = New("Shape2D");
+
+			outShape.PushVertex((0,0));
+			outShape.PushCoord((0,0));
+			for (int i = 0; i < outSteps; i++)
+			{
+				double c = cos(ang);
+				double s = sin(ang);
+				outShape.PushVertex((c,s));
+				outShape.PushCoord((0,0));
+				ang += angStep;
+			}
+			int maxSegments = outSteps;
+			for (int i = 1; i < maxSegments; i++)
+			{
+				int next = i+1;
+				if (next > maxSegments)
+					next -= maxSegments;
+				outShape.PushTriangle(0, i, next);
+			}
 		}
 	}
 
@@ -1235,7 +1517,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	// methods because StatusBar doesn't have anything like shapes and
 	// line drawing.
 	void DrawMinimap()
-	{		
+	{
+		// Don't draw any of this if the map is active:
+		if (autoMapActive)
+			return;
+
+		bool drawMinimap = c_drawMinimap.GetBool();
 		double size = c_MinimapSize.GetFloat();
 		// Almost everything has to be multiplied by hudscale.x
 		// so that it matches the general HUD scale regarldess
@@ -1254,7 +1541,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// Draw map data below the minimap
 		// (or above it if it's at the bottom of the screen):
 		vector2 msize = (64, 0);
-		if (c_drawMinimap.GetBool())
+		if (drawMinimap)
 		{
 			msize = (max(size, 44), size); //going under 44 pixels looks too bad scaling-wise
 		}
@@ -1268,9 +1555,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		{
 			mapDataPos.y /= ASPECTSCALE;
 		}
-		DrawMapData(mapDataPos, flags, msize.x, 0.5);
+		DrawMapData(mapDataPos, flags, msize.x, 0.35);
 		
-		if (!c_drawMinimap.GetBool() || automapActive)
+		if (!drawMinimap)
 			return;
 
 		size *= hudscale.x;
@@ -1312,7 +1599,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			minimapShape_Circle.PushCoord((0,0));
 			int steps = 60;
 			double ang = 0;
-			double angStep = 360. / steps;
+			double angStep = CIRCLEANGLES / steps;
 			for (int i = 0; i < steps; i++)
 			{
 				double c = cos(ang);
@@ -1444,7 +1731,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	void DrawMapData(vector2 pos, int flags, double width, double scale = 1.0)
 	{
-		HUDFont hfnt = monoHUDFont;
+		HUDFont hfnt = smallHUDFont;
 		Font fnt = hfnt.mFont;
 		let fy = fnt.GetHeight() * scale;
 
@@ -1664,8 +1951,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			}
 		}
 	}
-
-	const ITEMBARICONSIZE = 28;
 
 	double GetInvBarIconSize()
 	{

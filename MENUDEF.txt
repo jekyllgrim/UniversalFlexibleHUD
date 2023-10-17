@@ -18,11 +18,9 @@ OptionMenu "JGPHUD_Settings"
 	ScaleSlider "$HUDMNU_UISCALE", "uiscale", 0.0, 8.0, 1.0, "$SCALEMNU_ADAPT"
 	ColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor"
 	Slider "$JGPHUD_GENERAL_BACKALPHA", "jgphud_BackAlpha", 0.00, 1.0, 0.05, 2
-	Option "$JGPHUD_HITMARKERS_ENABLE", "jgphud_DrawEnemyHitMarkers", "OnOff"
 	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_BackColor:jgphud_BackAlpha"
 
 	StaticText ""
-	SubMenu "$JGPHUD_DMGMARKERS_TITLE", "JGPHUD_DamageMarkers"
 	SubMenu "$JGPHUD_MAINBARS_TITLE", "JGPHUD_MainBars"
 	SubMenu "$JGPHUD_AMMOBLOCK_TITLE", "JGPHUD_AmmoBlock"
 	SubMenu "$JGPHUD_ALLAMMO_TITLE", "JGPHUD_AllAmmo"
@@ -30,6 +28,8 @@ OptionMenu "JGPHUD_Settings"
 	SubMenu "$JGPHUD_WEAPSLOTS_TITLE", "JGPHUD_WeaponSlots"
 	SubMenu "$JGPHUD_INVBAR_TITLE", "JGPHUD_InvBar"
 	SubMenu "$JGPHUD_POWERUPS_TITLE", "JGPHUD_Powerups"
+	SubMenu "$JGPHUD_DMGMARKERS_TITLE", "JGPHUD_DamageMarkers"
+	SubMenu "$JGPHUD_CROSSHAIR_TITLE", "JGPHUD_CrosshairOptions"
 	SubMenu "$JGPHUD_MAPDATA_TITLE", "JGPHUD_MapData"
 }
 
@@ -170,6 +170,23 @@ OptionMenu "JGPHUD_MapData"
 	Option "$JGPHUD_MAPDATA_TIME", "jgphud_DrawTime", "OnOff"
 	StaticText ""
 	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawMinimap:jgphud_MinimapPos:jgphud_MinimapPosX:jgphud_MinimapPosY:jgphud_MinimapSize:jgphud_CircularMinimap:jgphud_MinimapZoom:jgphud_DrawKills:jgphud_DrawItems:jgphud_DrawSecrets:jgphud_DrawTime"
+}
+
+OptionMenu "JGPHUD_CrosshairOptions"
+{
+	Title "$JGPHUD_SETTINGS_TITLE"
+	StaticText "$JGPHUD_CROSSHAIR_TITLE", yellow
+	StaticText ""
+	Option "$HUDMNU_CROSSHAIRON", "crosshairon", "OnOff"
+	Option "$HUDMNU_CROSSHAIR", "crosshair", "Crosshairs", "crosshairon"
+	Slider "$HUDMNU_CROSSHAIRSCALE", "crosshairscale", 0.0, 2.0, 0.05, 2, "crosshairon"
+	Option "$JGPHUD_CROSSHAIR_HITMARKERS", "jgphud_DrawEnemyHitMarkers", "OnOff"
+	Option "$JGPHUD_CROSSHAIR_INFOBARS", "jgphud_DrawReticleBars", "OnOff"
+	Slider "$JGPHUD_CROSSHAIR_BARS_SIZE", "jgphud_ReticleBarsSize", 1, 200, 2, 0, "jgphud_DrawReticleBars"
+	Slider "$JGPHUD_CROSSHAIR_BARS_ALPHA", "jgphud_ReticleBarsAlpha", 0.0, 1.0, 0.1, 1, "jgphud_DrawReticleBars"
+	Slider "$JGPHUD_CROSSHAIR_BARS_WIDTH", "jgphud_ReticleBarsWidth", 0.0, 1.0, 0.05, 2, "jgphud_DrawReticleBars"
+	StaticText ""
+	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawEnemyHitMarkers:jgphud_DrawReticleBars:jgphud_ReticleBarsSize:jgphud_ReticleBarsAlpha:jgphud_ReticleBarsWidth"
 }
 
 OptionValue "MainBars"
