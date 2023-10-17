@@ -69,3 +69,4 @@ Draw enemy hit markers around crosshair,JGPHUD_CROSSHAIR_HITMARKERS,,Индик�
 Info bars size,JGPHUD_CROSSHAIR_BARS_SIZE,,Размер индикаторов вокруг прицела
 Info size opacity,JGPHUD_CROSSHAIR_BARS_ALPHA,,Прозрачность индикаторов вокруг прицела
 Info bars width (multiplier),JGPHUD_CROSSHAIR_BARS_WIDTH,,Ширина индикаторов вокруг прицела (множитель)
+Numbers next to info bars,JGPHUD_CROSSHAIR_BARS_TEXT,,Цифры рядом с индикаторами
