@@ -105,6 +105,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	CVar c_DrawTime;
 
 	CVar c_DrawReticleBars;
+	CVar c_ReticleBarsText;
 	CVar c_ReticleBarsAlpha;
 	CVar c_ReticleBarsSize;
 	CVar c_ReticleBarsWidth;
@@ -338,6 +339,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 		if (!c_DrawReticleBars)
 			c_DrawReticleBars = CVar.GetCvar('jgphud_DrawReticleBars', CPlayer);
+		if (!c_ReticleBarsText)
+			c_ReticleBarsText = CVar.GetCvar('jgphud_ReticleBarsText', CPlayer);
 		if (!c_ReticleBarsAlpha)
 			c_ReticleBarsAlpha = CVar.GetCvar('jgphud_ReticleBarsAlpha', CPlayer);
 		if (!c_ReticleBarsSize)
@@ -1240,9 +1243,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		vector2 screenCenter = (Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5);
 		vector2 hudscale = GetHudScale();
 		double widthFac = 1.0 - Clamp(c_ReticleBarsWidth.GetFloat(), 0.0, 1.0);
-		double size = c_ReticleBarsSize.GetInt() * hudscale.x;
+		double virtualSize = c_ReticleBarsSize.GetInt();
+		double secSizeFac = 1.05;
+		double size = virtualSize * hudscale.x;
 		double maskSize = size * widthFac;
-		double secondarySize = size * (1.05 / widthfac);
+		double secondarySize = (size * (secSizeFac / widthfac)) / secSizeFac;
 		double secondaryMaskSize = secondarySize * widthFac;
 
 		// Mask for inner bars:
@@ -1253,6 +1258,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		roundBarsGeneralMaskTransf2.Clear();
 		roundBarsGeneralMaskTransf2.Scale((secondaryMaskSize, secondaryMaskSize));
 		roundBarsGeneralMaskTransf2.Translate(screenCenter);
+
+		bool drawBarText = c_ReticleBarsText.GetBool();
+		HUDFont hfnt = numHUDFont;
+		Font fnt = hfnt.mFont;
+		double fntScale = LinearMap(virtualSize, 12, 200, 0.5, 5, true);
+		double fy = fnt.GetHeight() * fntScale;
+		vector2 fntpos = (-maskSize / hudscale.x + 1, -fy*0.25);
+		vector2 fntpos2 = (-secondarySize / hudscale.x - 1, fntpos.y);
 
 		double valueFrac;
 		double angle = 90;
@@ -1268,6 +1281,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		double maxhealth = CPlayer.mo.GetMaxHealth(true);
 		valueFrac = LinearMap(health, 0, maxhealth, 1.0, 0.0, true);
 		DrawCircleSegmentShape(color(255,0,0), screenCenter, size, steps, angle, coverAngle, valueFrac);
+		if (drawBarText)
+			DrawString(hfnt, String.Format("%d", health), fntpos, DI_SCREEN_CENTER|DI_TEXT_ALIGN_LEFT, Font.CR_White, 0.7, scale: (fntScale,fntScale*0.75));
 		// Clear the general mask:
 		Screen.EnableStencil(false);
 		Screen.ClearStencil();
@@ -1286,6 +1301,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
 			valueFrac = LinearMap(am1.amount, 0, am1.maxAmount, 1.0, 0.0, true);
 			DrawCircleSegmentShape(GetAmmoColor(am1), screenCenter, size, steps, angle, coverAngle, valueFrac);
+			if (drawBarText)
+				DrawString(hfnt, String.Format("%d", am1.amount), (-fntpos.x, fntpos.y), DI_SCREEN_CENTER|DI_TEXT_ALIGN_RIGHT, Font.CR_White, 0.7, scale: (fntScale,fntScale*0.75));
 			Screen.EnableStencil(false);
 			Screen.ClearStencil();
 		}
@@ -1300,6 +1317,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		Screen.SetStencil(0, SOP_Keep, SF_AllOn);
 		valueFrac = LinearMap(armAmount, 0, armMaxAmount, 1.0, 0.0, true);
 		DrawCircleSegmentShape(armorColor, screenCenter, secondarySize, steps, angle, coverAngle, valueFrac);
+		if (drawBarText)
+			DrawString(hfnt, String.Format("%d", armAmount), fntpos2, DI_SCREEN_CENTER|DI_TEXT_ALIGN_RIGHT, Font.CR_White, 0.7, scale: (fntScale,fntScale*0.75));
 		Screen.EnableStencil(false);
 		Screen.ClearStencil();
 
@@ -1314,6 +1333,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			valueFrac = LinearMap(am2.amount, 0, am2.maxAmount, 1.0, 0.0, true);
 			color amCol = GetAmmoColor(am2);
 			DrawCircleSegmentShape(color(amCol.a, int(amCol.r*0.7),int(amCol.g*0.7),int(amCol.b*0.7)), screenCenter, secondarySize, steps, angle, coverAngle, valueFrac);
+			if (drawBarText)
+				DrawString(hfnt, String.Format("%d", am2.amount), (-fntpos2.x, fntpos2.y), DI_SCREEN_CENTER|DI_TEXT_ALIGN_LEFT, Font.CR_White, 0.7, scale: (fntScale,fntScale*0.75));
 			Screen.EnableStencil(false);
 			Screen.ClearStencil();
 		}

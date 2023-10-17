@@ -65,6 +65,7 @@ user nosave int jgphud_InvBarX = 0;
 user nosave int jgphud_InvBarY = 32;
 
 user nosave bool jgphud_DrawReticleBars = true;
+user nosave bool jgphud_ReticleBarsText = true;
 user nosave int jgphud_ReticleBarsSize = 15;
 user nosave float jgphud_ReticleBarsAlpha = 0.6;
 user nosave float jgphud_ReticleBarsWidth = 0.1;
