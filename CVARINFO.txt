@@ -33,7 +33,7 @@ user nosave int jgphud_KeysPos = 8;
 user nosave int jgphud_KeysX = 70;
 user nosave int jgphud_KeysY = 2;
 
-user nosave bool jgphud_DrawWeaponSlots = true;
+user nosave int jgphud_DrawWeaponSlots = 2;
 user nosave int jgphud_WeaponSlotPos = 1;
 user nosave int jgphud_WeaponSlotX = 0;
 user nosave int jgphud_WeaponSlotY = 2;

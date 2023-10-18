@@ -129,6 +129,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	
 	// Weapon slots
 	array <JGPUFH_WeaponSlotData> weaponSlotData;
+	const SLOTSDISPLAYDELAY = TICRATE * 2;
+	int slotsDisplayTime;
+	Weapon prevReadyWeapon;
 
 	// Minimap
 	const MAPSCALEFACTOR = 8.;
@@ -142,7 +145,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	Inventory prevInvSel;
 	double invbarCycleOfs;
 
-	// See DrawReticleBars():	
+	// See DrawReticleBars():
 	Shape2D roundBars;
 	Shape2D roundBarsAngMask;
 	Shape2D roundBarsInnerMask;
@@ -167,12 +170,13 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		RM_Ammo1,
 		RM_Ammo2,
 	}
-	// Reticle bars CVAR values:
-	enum EDrawReticleBars
+	// CVar values for options that have no/autohide/always
+	// display modes:
+	enum EDisplayModes
 	{
-		RB_NONE,
-		RB_AUTOHIDE,
-		RB_ALWAYS,
+		DM_NONE,
+		DM_AUTOHIDE,
+		DM_ALWAYS,
 	}
 
 	double LinearMap(double val, double source_min, double source_max, double out_min, double out_max, bool clampIt = false) 
@@ -202,6 +206,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		super.Tick();
 		UpdateDamageMarkers();
 		UpdateReticleHitMarker();
+		UpdateWeaponSlots();
 		UpdateInventoryBar();
 		UpdateReticleBars();
 	}
@@ -1227,7 +1232,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	void DrawReticleBars(int steps = 100, double coverAngle = 80)
 	{
-		if (c_DrawReticleBars.GetInt() <= RB_NONE)
+		if (c_DrawReticleBars.GetInt() <= DM_NONE)
 			return;
 
 		// This is the general mask that cuts out the inner part
@@ -1289,7 +1294,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		roundBarsGeneralMaskTransf2.Scale((secondaryMaskSize, secondaryMaskSize));
 		roundBarsGeneralMaskTransf2.Translate(screenCenter);
 
-		bool autoHide = c_DrawReticleBars.GetInt() == RB_AUTOHIDE;
+		bool autoHide = c_DrawReticleBars.GetInt() == DM_AUTOHIDE;
 		bool drawBarText = c_ReticleBarsText.GetBool();
 		HUDFont hfnt = numHUDFont;
 		Font fnt = hfnt.mFont;
@@ -1564,11 +1569,36 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
+	void UpdateWeaponSlots()
+	{
+		if (!prevReadyWeapon)
+		{
+			prevReadyWeapon = CPlayer.readyweapon;
+		}
+		if (CPlayer.readyweapon == prevReadyWeapon)
+		{
+			if (slotsDisplayTime > 0)
+			{
+				slotsDisplayTime--;
+			}
+		}
+		else
+		{
+			slotsDisplayTime = SLOTSDISPLAYDELAY;
+			prevReadyWeapon = CPlayer.readyweapon;
+		}
+	}
+
 	void DrawWeaponSlots(vector2 box = (16, 10))
 	{
-		if (c_drawWeaponSlots.GetBool() == false)
+		if (c_drawWeaponSlots.GetInt() <= DM_NONE)
 			return;
 
+		if (c_drawWeaponSlots.GetInt()  == DM_AUTOHIDE && slotsDisplayTime <= 0)
+			return;
+		
+		// Always run to make sure the slot data
+		// is properly set up:
 		GetWeaponSlots();
 
 		int flags = SetScreenFlags(c_weaponSlotPos.GetInt());
@@ -1601,14 +1631,19 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			let wsd = weaponSlotData[i];
 			if (wsd)
 			{
+				// Only draw slots for weapons that the player actually has:
 				let weap = Weapon(CPlayer.mo.FindInventory(wsd.weaponClass));
 				if (!weap)
 					continue;
 
+				// Move the box horizontally if this is the first weapon in
+				// this slot but not the very first slot:
 				if (wsd.slotIndex == 0 && i > 0)
 				{
 					wpos.x += (box.x + indent);
 				}
+				// Move the box vertically multiplied per index
+				// (first index is 0 so it won't move the box):
 				wpos.y = pos.y + (box.y + indent) * wsd.slotIndex;
 				
 				color col = GetBaseplateColor();
@@ -1628,14 +1663,16 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				double barheight = 0.5;
 				double barPosY = wpos.y + box.y - barheight;
 				Ammo am1 = weap.ammo1;
-				color amCol = color(255, 0, 255, 0);
-				color amCol2 = color(255, 255, 128, 0);
+				color amCol = color(255, 0, 255, 0); //ammo1 is green
+				color amCol2 = color(255, 255, 128, 0); //ammo2 is orange
 				if (am1)
 				{
 					double barWidth = LinearMap(am1.amount, 0, am1.maxamount, 0., box.x, true);
 					Fill(amCol, wpos.x, barPosY, barWidth, barheight, flags);
 					barPosY -= barHeight*2;
 				}
+				// Only draw the second bar if ammotype2 isn't the same
+				// as ammotype 1:
 				Ammo am2 = weap.ammo2;
 				if (am2 && am2 != am1)
 				{
@@ -1688,14 +1725,17 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// draw it above the minimap if that's at the bottom:
 		vector2 mapDataPos = ((flags & DI_SCREEN_BOTTOM) == DI_SCREEN_BOTTOM) ? (0, 0) : (0, msize.y);
 		mapdataPos = AdjustElementPos(mapDataPos, flags, (msize.x, msize.y), ofs);
-		// Since this thing is anchored to the minimap, we need to make sure stays
-		// next to it regardless of aspect scaling (since minimap ignores it):
+		// Since this thing is anchored to the minimap, and the minimap,
+		// being drawn by Screen, ignores HUD aspect scaling, we
+		// need to make sure this bit's position also ignores
+		// HUD scaling:
 		if (c_aspectscale.GetBool())
 		{
 			mapDataPos.y /= ASPECTSCALE;
 		}
 		DrawMapData(mapDataPos, flags, msize.x, 0.35);
 		
+		// If the actual minimap is disabled, stop here:
 		if (!drawMinimap)
 			return;
 
@@ -1760,12 +1800,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			minimapTransform = New("Shape2DTransform");
 		}
 		minimapTransform.Clear();
+		// Pick the shape to use based on the player's choice:
 		bool circular = c_CircularMinimap.GetBool();
 		Shape2D shapeToUse = circular ? minimapShape_Circle : minimapShape_Square;
-		// A circular shape that was created around (0,0) has to be
-		// scaled to 50% and moved to the center of the element,
-		// since it's drawn from the center, not the corner,
-		// in contrast to a square:
+		// A circular shape has to be scaled to 50% and moved 
+		// to the center of the element, since it's drawn from
+		// the center, not the corner, in contrast to a square:
 		double shapeFac = circular ? 0.5 : 1.;
 		vector2 shapeOfs = circular ? (size*shapeFac,size*shapeFac) : (0,0);
 		minimapTransform.Scale((size,size) * shapeFac);
@@ -1776,7 +1816,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		Color baseCol = GetBaseplateColor();
 		double edgeThickness = 1 * hudscale.x;
 		
-		// Fill the shaep with the draw the outline color
+		// Fill the shape with the outline color
 		// (remember than DrawShapeFill is BGR, not RGB):
 		Screen.DrawShapeFill(color(baseCol.B, baseCol.G, baseCol.R), 1.0, shapeToUse);
 		
@@ -1868,6 +1908,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		Screen.ClearStencil();
 	}
 
+	// Draw map data (kills/secrets/items/time) below the
+	// minimap (even if the minimap isn't draw, it'll be
+	// attached to the same position):
 	void DrawMapData(vector2 pos, int flags, double width, double scale = 1.0)
 	{
 		HUDFont hfnt = smallHUDFont;
@@ -1884,6 +1927,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		int secrets = Level.found_secrets;
 		int kills = Level.killed_monsters;
 		int items = Level.found_items;
+		// Don't forget to account for multiplayer:
 		if (multiplayer)
 		{
 			secrets = CPlayer.secretcount;
@@ -1895,6 +1939,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		int totalitems = Level.total_items;
 		string s_left, s_right;
 
+		// Drawing the actual elements is relegated to a
+		// separate function to properly handle scaling:
 		if (c_DrawKills.GetBool())
 		{
 			s_left = String.Format("\cG%s", StringTable.Localize("$TXT_IMKILLS"));
@@ -1936,9 +1982,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
+	// Draws the actual map element, consisting of a label
+	// (left), a colon, and the value (right):
 	void DrawMapDataElement(string str1, string str2, HUDFont hfnt, vector2 pos, int flags, double width, double scale = 1.0)
 	{
 		Font fnt = hfnt.mFont;
+		// Scale the string down if it's too wide
+		// to account for possible long localized
+		// strings (I wish more games would do that):
 		double strOfs = 3 * scale;
 		double maxStrWidth = width*0.5 - strOfs;
 		double strScale = scale;
@@ -2110,6 +2161,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		return ITEMBARICONSIZE;
 	}
 
+	// This draws a vaguely Silent Hill-style inventory bar,
+	// where the selected item is in the center, and the other
+	// items are drawn to the left and to the right of it.
+	// The bar has no beginning or end and can be scrolled
+	// infinitely:
 	void DrawInventoryBar(int numfields = 7)
 	{
 		// Perform the usual checks first:
@@ -2117,9 +2173,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			return;
 		if (Level.NoInventoryBar)
 			return;
+		// This does something important to make sure
+		// the first item in the list is valid:
 		CPlayer.mo.InvFirst = ValidateInvFirst(numfields);
 		if (!CPlayer.mo.InvFirst)
 			return;
+		// Cache the currently selected item:
 		Inventory invSel = CPlayer.mo.InvSel;	
 		if (!invSel)
 			return;
@@ -2133,9 +2192,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			invFirst = invFirst.NextInv();
 			totalItems++;
 		}
+		// The number of fields can't be larger than the
+		// total number of items:
 		numfields = Clamp(numfields, 1, totalItems);
 
-		// numfields must be an odd number:
+		// Numfields must be an odd number. So, if the player
+		// only has 2 items, they'll see the current item
+		// in the center, and the next item both to the left
+		// and to the right of it:
 		if (numfields % 2 == 0)
 		{
 			numfields += 1;
@@ -2154,12 +2218,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		vector2 cursPos = pos + cursOfs;
 		vector2 cursSize = (iconsize + indent*2, indent); //width, height
 
-		// Show some grey behind the center (selected item) icon:
+		// Show some gray fill behind the central icon
+		// (which is the selected item):
 		color backCol = color(80, 255,255,255);
 		Fill (backCol, cursPos.x, cursPos.y, cursSize.x, cursSize.x, flags);
 
 		// Show gray gradient fill aimed to the left and right of
-		// the selected item when the inventory bar is active:
+		// the selected item when the inventory bar is active,
+		// to visually "open it up":
 		if (IsInventoryBarVisible())
 		{
 			double alph = backCol.a;
@@ -2216,7 +2282,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// Calculate the length of half of the bar (minus the selected item,
 		// thus minus 1) - we'll draw this much in both directions:
 		int maxField = ceil((numfields - 1) / 2);
-		// Hide two edge icons:
+		// Set up clip rectangle to hide the two edge icons:
 		SetClipRect(pos.x - width*0.5, pos.y - height*0.5, width, height, flags);
 		// Scale the font (indexfont is made for 32x32 icons, so divide
 		// the current icon size by that value to get the right scale):
