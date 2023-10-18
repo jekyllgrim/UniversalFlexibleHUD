@@ -123,12 +123,14 @@ OptionMenu "JGPHUD_InvBar"
 	StaticText "$JGPHUD_INVBAR_TITLE", yellow
 	StaticText ""
 	StaticText "$JGPHUD_INVBAR_NOTE", gray
-	StaticText "" // the note is 2 lines long
+	StaticText "" // make space for the note
+	StaticText ""
 	StaticText ""
 	Option "$JGPHUD_INVBAR_ENABLE", "jgphud_DrawInvBar", "OnOff"
 	Option "$JGPHUD_INVBAR_ENABLEALWAYS", "jgphud_AlwaysShowInvBar", "OnOff", "jgphud_DrawInvBar"
 	StaticText "$JGPHUD_INVBAR_ENABLEALWAYS_NOTE", gray
-	StaticText "" // the note is 2 lines long
+	StaticText "" // make space for the note
+	StaticText ""
 	StaticText ""
 	Slider "$JGPHUD_INVBAR_ICONSIZE", "jgphud_InvBarIconSize", 4, 40, 1, 0, "jgphud_drawInvBar"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_InvBarPos", "ElementScreenPos", "jgphud_drawInvBar"
@@ -160,7 +162,9 @@ OptionMenu "JGPHUD_MapData"
 	StaticText ""
 	StaticText "$JGPHUD_MINIMAP_TITLE", yellow
 	StaticText "$JGPHUD_MINIMAP_NOTE", gray
-	StaticText "" // the note is 2 lines long
+	StaticText "" // make space for the note
+	StaticText ""
+	StaticText ""
 	Option "$JGPHUD_MINIMAP_ENABLE", "jgphud_DrawMinimap", "OnOff"
 	Slider "$JGPHUD_MINIMAP_SIZE", "jgphud_MinimapSize", 0, 128, 1, 0, "jgphud_DrawMinimap"
 	Option "$JGPHUD_MINIMAP_SHAPE", "jgphud_CircularMinimap", "MinimapShape", "jgphud_DrawMinimap"
