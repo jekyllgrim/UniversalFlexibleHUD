@@ -2025,8 +2025,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			return;
 
 		// Calculate the size of the key block
-		// If there are 3 keys or fewer, the columns are = total keys,
-		// and rows = 1.
+		// If there are 3 keys or fewer: columns = total keys, and rows = 1.
 		// Otherwise, columns are square root of the total number 
 		// of keys, ceil'd:
 		int columns = totalKeys > 3 ? ceil(sqrt(totalkeys)) : totalKeys;
@@ -2269,10 +2268,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	void UpdateInventoryBar(int numfields = 7)
 	{
-		CPlayer.mo.InvFirst = ValidateInvFirst(numfields);
-		if (!CPlayer.mo.InvFirst)
-			return;
-
 		double iconSize = GetInvBarIconSize();
 		if (invbarCycleOfs > 0)
 		{
