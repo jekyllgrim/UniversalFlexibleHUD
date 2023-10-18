@@ -1601,7 +1601,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			let wsd = weaponSlotData[i];
 			if (wsd)
 			{
-				let weap = CPlayer.mo.FindInventory(wsd.weaponClass);
+				let weap = Weapon(CPlayer.mo.FindInventory(wsd.weaponClass));
 				if (!weap)
 					continue;
 
@@ -1613,14 +1613,37 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				
 				color col = GetBaseplateColor();
 				int fntCol = Font.CR_Untranslated;
-				// Modify colors if the weapon is currently selected:
+				// If the box is for the weapon currently selected,
+				// invert its colors:
 				if (CPlayer.readyweapon == weap)
 				{
 					col = color(col.a, 255 - col.r, 255 - col.g, 255 - col.b);
 					fntCol = Font.CR_Gold;
 				}
+				// fill the box color, then draw the weapon's icon:
 				Fill(col, wpos.x, wpos.y, box.x, box.y, flags);
 				DrawInventoryIcon(weap, wpos + box*0.5, flags|DI_ITEM_CENTER, boxsize: box);
+				
+				// draw small ammo bars at the bottom of the box:
+				double barheight = 0.5;
+				double barPosY = wpos.y + box.y - barheight;
+				Ammo am1 = weap.ammo1;
+				color amCol = color(255, 0, 255, 0);
+				color amCol2 = color(255, 255, 128, 0);
+				if (am1)
+				{
+					double barWidth = LinearMap(am1.amount, 0, am1.maxamount, 0., box.x, true);
+					Fill(amCol, wpos.x, barPosY, barWidth, barheight, flags);
+					barPosY -= barHeight*2;
+				}
+				Ammo am2 = weap.ammo2;
+				if (am2 && am2 != am1)
+				{
+					double barWidth = LinearMap(am2.amount, 0, am2.maxamount, 0., box.x, true);
+					Fill(amCol2, wpos.x, barPosY, barWidth, barheight, flags);
+				}
+				
+				// draw slot number in the bottom right corner of the box:
 				double fy = mainHUDFont.mFont.GetHeight();
 				string slotNum = ""..wsd.slot;
 				DrawString(mainHUDFont, slotNum, (wpos.x+box.x, wpos.y+box.y-fy*0.5), flags|DI_TEXT_ALIGN_RIGHT, fntCol, 0.8, scale:(0.5, 0.5));
