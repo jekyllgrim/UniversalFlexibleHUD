@@ -137,8 +137,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	
 	// Weapon slots
 	array <JGPUFH_WeaponSlotData> weaponSlotData;
-	int maxSlotID;
-	int totalSlots;
 
 	// Minimap
 	Shape2D minimapShape_Square;
@@ -175,8 +173,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		smallHUDFont = HUDFont.Create(newConsoleFont);
 		fnt = "IndexFont";
 		numHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
-
-		GetWeaponSlots();
 	}
 
 	override void Tick()
@@ -184,7 +180,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		super.Tick();
 		UpdateDamageMarkers();
 		UpdateReticleHitMarker();
-		GetWeaponSlots();
 		UpdateInventoryBar();
 		UpdateReticleBars();
 	}
@@ -1555,8 +1550,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 					let wsd = JGPUFH_WeaponSlotData.Create(sn, s, weap);
 					if (wsd)
 					{
-						totalSlots = i;
-						maxSlotID = size+1; //index 0 is 1st box
 						weaponSlotData.Push(wsd);
 					}
 				}
@@ -1569,9 +1562,29 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (c_drawWeaponSlots.GetBool() == false)
 			return;
 
+		GetWeaponSlots();
+
 		int flags = SetScreenFlags(c_weaponSlotPos.GetInt());
 		vector2 ofs = ( c_weaponSlotX.GetInt(), c_weaponSlotY.GetInt() );
 		double indent = 2;
+		int totalSlots;
+		int maxSlotID = 1;
+		// first iteration to calculate the size of the whole block:
+		for (int i = 0; i < weaponSlotData.Size(); i++)
+		{
+			let wsd = weaponSlotData[i];
+			if (wsd && CPlayer.mo.FindInventory(wsd.weaponClass))
+			{
+				if  (wsd.slotIndex == 0)
+				{
+					totalSlots++;
+				}
+				else
+				{
+					maxSlotID = max(maxSlotID, wsd.slotIndex+1);
+				}
+			}
+		}
 		double width = (box.x + indent) * totalSlots - indent; //we don't need indent at the end
 		double height = (box.y + indent) * maxSlotID - indent; //ditto
 		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
@@ -1581,22 +1594,26 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			let wsd = weaponSlotData[i];
 			if (wsd)
 			{
+				let weap = CPlayer.mo.FindInventory(wsd.weaponClass);
+				if (!weap)
+					continue;
+
 				if (wsd.slotIndex == 0 && i > 0)
 				{
 					wpos.x += (box.x + indent);
 				}
 				wpos.y = pos.y + (box.y + indent) * wsd.slotIndex;
 				
-				// greenish fill if the weapon is currently selected:
 				color col = GetBaseplateColor();
 				int fntCol = Font.CR_Untranslated;
-				if (CPlayer.readyweapon && CPlayer.readyweapon.GetClass() == wsd.weaponClass)
+				// Modify colors if the weapon is currently selected:
+				if (CPlayer.readyweapon == weap)
 				{
-					col = color(180, 80, 200, 60);
+					col = color(col.a, 255 - col.r, 255 - col.g, 255 - col.b);
 					fntCol = Font.CR_Gold;
 				}
 				Fill(col, wpos.x, wpos.y, box.x, box.y, flags);
-				DrawInventoryIcon(CPlayer.mo.FindInventory(wsd.weaponClass), wpos + box*0.5, flags|DI_ITEM_CENTER, boxsize: box);
+				DrawInventoryIcon(weap, wpos + box*0.5, flags|DI_ITEM_CENTER, boxsize: box);
 				double fy = mainHUDFont.mFont.GetHeight();
 				string slotNum = ""..wsd.slot;
 				DrawString(mainHUDFont, slotNum, (wpos.x+box.x, wpos.y+box.y-fy*0.5), flags|DI_TEXT_ALIGN_RIGHT, fntCol, 0.8, scale:(0.5, 0.5));
