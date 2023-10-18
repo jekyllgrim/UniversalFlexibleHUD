@@ -1,47 +1,7 @@
 class JGPUFH_FlexibleHUD : BaseStatusBar
 {
-	const MAPSCALEFACTOR = 8.;
 	const ASPECTSCALE = 1.2;
-	const ITEMBARICONSIZE = 28;
 	const CIRCLEANGLES = 360.0;
-
-	HUDFont mainHUDFont;
-	HUDFont smallHUDFont;
-	HUDFont numHUDFont;
-
-	JGPUFH_HudDataHandler handler;
-
-	// Health/armor bars CVAR values:
-	enum EDrawBars
-	{
-		DB_NONE,
-		DB_DRAWNUMBERS,
-		DB_DRAWBARS,
-	}
-
-	// Reticle bars CVAR values:
-	enum EDrawReticleBars
-	{
-		RB_NONE,
-		RB_AUTOHIDE,
-		RB_ALWAYS,
-	}
-
-	// see SetScreenFlags():
-	static const int ScreenFlags[] =
-	{
-		DI_SCREEN_LEFT_TOP,
-		DI_SCREEN_CENTER_TOP,
-		DI_SCREEN_RIGHT_TOP,
-
-		DI_SCREEN_LEFT_CENTER,
-		DI_SCREEN_CENTER,
-		DI_SCREEN_RIGHT_CENTER,
-
-		DI_SCREEN_LEFT_BOTTOM,
-		DI_SCREEN_CENTER_BOTTOM,
-		DI_SCREEN_RIGHT_BOTTOM
-	};
 
 	//See GetBaseplateColor():
 	CVar c_BackColor;
@@ -118,6 +78,35 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	CVar c_ReticleBarsSize;
 	CVar c_ReticleBarsWidth;
 
+	HUDFont mainHUDFont;
+	HUDFont smallHUDFont;
+	HUDFont numHUDFont;
+
+	JGPUFH_HudDataHandler handler;
+
+	// see SetScreenFlags():
+	static const int ScreenFlags[] =
+	{
+		DI_SCREEN_LEFT_TOP,
+		DI_SCREEN_CENTER_TOP,
+		DI_SCREEN_RIGHT_TOP,
+
+		DI_SCREEN_LEFT_CENTER,
+		DI_SCREEN_CENTER,
+		DI_SCREEN_RIGHT_CENTER,
+
+		DI_SCREEN_LEFT_BOTTOM,
+		DI_SCREEN_CENTER_BOTTOM,
+		DI_SCREEN_RIGHT_BOTTOM
+	};
+
+	// Health/armor bars CVAR values:
+	enum EDrawBars
+	{
+		DB_NONE,
+		DB_DRAWNUMBERS,
+		DB_DRAWBARS,
+	}
 	double armAmount;
 	double armMaxamount;
 	color armorColor;
@@ -127,39 +116,64 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	TextureID hexenArmorIcons[WEAKEST_HEXEN_ARMOR_PIECE+1];
 	bool hexenArmorSetupDone;
 
-	// Hit (incoming damage) marker
+	// Damage markers:
 	Shape2D hitMarker;
 	Shape2DTransform hitMarkerTransf;
 	array <JGPUFH_HitMarkerData> hmData;
 	Actor prevAttacker;
 
-	// Hit (reticle) marker
+	// Hit (reticle) markers:
 	Shape2D reticleHitMarker;
 	double reticleMarkerAlpha;
 	Shape2DTransform reticleMarkerTransform;
-
-	Shape2D roundBars;
-	Shape2D roundBarsAngMask;
-	Shape2D roundBarsInnerMask;
-	Shape2DTransform roundBarsTransform;
 	
 	// Weapon slots
 	array <JGPUFH_WeaponSlotData> weaponSlotData;
 
 	// Minimap
+	const MAPSCALEFACTOR = 8.;
 	Shape2D minimapShape_Square;
 	Shape2D minimapShape_Circle;
 	Shape2D minimapShape_Arrow;
 	Shape2DTransform minimapTransform;
 
-	// Bars around crosshair:
-	Shape2D roundBarsGeneralMask;
-	Shape2DTransform roundBarsGeneralMaskTransf;
-	Shape2DTransform roundBarsGeneralMaskTransf2;
-
 	// See DrawInventoryBar():
+	const ITEMBARICONSIZE = 28;
 	Inventory prevInvSel;
 	double invbarCycleOfs;
+
+	// See DrawReticleBars():	
+	Shape2D roundBars;
+	Shape2D roundBarsAngMask;
+	Shape2D roundBarsInnerMask;
+	Shape2D roundBarsGeneralMask;
+	Shape2DTransform roundBarsTransform;
+	Shape2DTransform roundBarsGeneralMaskTransf;
+	Shape2DTransform roundBarsGeneralMaskTransf2;
+	const MARKERSDELAY = TICRATE*2;
+	double prevArmAmount;
+	double prevArmMaxAmount;
+	int prevHealth;
+	int prevMaxHealth;
+	int prevAmmo1Amount;
+	int prevAmmo1MaxAmount;
+	int prevAmmo2Amount;
+	int prevAmmo2MaxAmount;
+	int reticleMarkersDelay[4];
+	enum EReticleBarTypes
+	{
+		RM_Health,
+		RM_Armor,
+		RM_Ammo1,
+		RM_Ammo2,
+	}
+	// Reticle bars CVAR values:
+	enum EDrawReticleBars
+	{
+		RB_NONE,
+		RB_AUTOHIDE,
+		RB_ALWAYS,
+	}
 
 	double LinearMap(double val, double source_min, double source_max, double out_min, double out_max, bool clampIt = false) 
 	{
@@ -1199,24 +1213,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			Screen.DrawShapeFill(color(0, 0, 255), reticleMarkerAlpha, reticleHitMarker);
 		}
 	}
-
-	double prevArmAmount;
-	double prevArmMaxAmount;
-	int prevHealth;
-	int prevMaxHealth;
-	int prevAmmo1Amount;
-	int prevAmmo1MaxAmount;
-	int prevAmmo2Amount;
-	int prevAmmo2MaxAmount;
-	int reticleMarkersDelay[4];
-	enum EReticleMarkers
-	{
-		RM_Health,
-		RM_Armor,
-		RM_Ammo1,
-		RM_Ammo2,
-	}
-	const MARKERSDELAY = TICRATE*2;
 
 	void UpdateReticleBars()
 	{
