@@ -65,8 +65,10 @@ with complex geometry, especially at low zoom values.",JGPHUD_MINIMAP_NOTE,Keep 
 особенно на картах со сложной геометрией и при низком увеличении."
 Crosshair options,JGPHUD_CROSSHAIR_TITLE,,
 Draw enemy hit markers around crosshair,JGPHUD_CROSSHAIR_HITMARKERS,,Индикаторы попадания по врагам вокруг прицела
-"Draw info bars around crosshair (health, armor, ammo)",JGPHUD_CROSSHAIR_INFOBARS,,"Показывать индикаторы вокруг прицела (здоровье, броня, патроны)"
-Info bars size,JGPHUD_CROSSHAIR_BARS_SIZE,,Размер индикаторов вокруг прицела
-Info size opacity,JGPHUD_CROSSHAIR_BARS_ALPHA,,Прозрачность индикаторов вокруг прицела
-Info bars width (multiplier),JGPHUD_CROSSHAIR_BARS_WIDTH,,Ширина индикаторов вокруг прицела (множитель)
-Numbers next to info bars,JGPHUD_CROSSHAIR_BARS_TEXT,,Цифры рядом с индикаторами
+Health/armor/ammo bars around crosshair,JGPHUD_CROSSHAIR_BARS_ENABLE,,Индикаторы здоровья/брони/патронов вокруг прицела
+Bars size,JGPHUD_CROSSHAIR_BARS_SIZE,,Размер индикаторов
+Bars opacity,JGPHUD_CROSSHAIR_BARS_ALPHA,,Прозрачность индикаторов
+Bars width (multiplier),JGPHUD_CROSSHAIR_BARS_WIDTH,,Ширина индикаторов (множитель)
+Numbers next to bars,JGPHUD_CROSSHAIR_BARS_TEXT,,Цифры рядом с индикаторами
+Show always,JGPHUD_CROSSHAIR_BARS_ALWAYS,,Показывать всегда
+Auto-hide when values don't change,JGPHUD_CROSSHAIR_BARS_AUTOHIDE,,"Скрывать, пока значения не изменяются"

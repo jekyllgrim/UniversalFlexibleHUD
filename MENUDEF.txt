@@ -39,11 +39,11 @@ OptionMenu "JGPHUD_DamageMarkers"
 	StaticText "$JGPHUD_DMGMARKERS_TITLE", yellow
 	StaticText ""
 	Slider "$JGPHUD_DMGMARKERS_SCREENTINT", "jgphud_ScreenReddenFactor", 0.0, 1.0, 0.1, 1
-	Option "$JGPHUD_DMGMARKERS_ENABLE", "jgphud_drawHitmarkers", "OnOff"
-	Slider "$JGPHUD_DMGMARKERS_MAXALPHA", "jgphud_HitMarkersAlpha", 0.0, 1.0, 0.1, 1, "jgphud_drawHitmarkers"
-	Slider "$JGPHUD_DMGMARKERS_FADEOUTTIME", "jgphud_HitMarkersFadeTime", 0.05, 5.0, 0.05, 2, "jgphud_drawHitmarkers"
+	Option "$JGPHUD_DMGMARKERS_ENABLE", "jgphud_drawDamageMarkers", "OnOff"
+	Slider "$JGPHUD_DMGMARKERS_MAXALPHA", "jgphud_DamageMarkersAlpha", 0.0, 1.0, 0.1, 1, "jgphud_drawDamageMarkers"
+	Slider "$JGPHUD_DMGMARKERS_FADEOUTTIME", "jgphud_DamageMarkersFadeTime", 0.05, 5.0, 0.05, 2, "jgphud_drawDamageMarkers"
 	StaticText ""
-	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_ScreenReddenFactor:jgphud_drawHitmarkers:jgphud_HitMarkersAlpha:jgphud_HitMarkersFadeTime"
+	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_ScreenReddenFactor:jgphud_drawDamageMarkers:jgphud_DamageMarkersAlpha:jgphud_DamageMarkersFadeTime"
 }
 
 OptionMenu "JGPHUD_MainBars"
@@ -182,7 +182,8 @@ OptionMenu "JGPHUD_CrosshairOptions"
 	Slider "$HUDMNU_CROSSHAIRSCALE", "crosshairscale", 0.0, 2.0, 0.05, 2, "crosshairon"
 	StaticText ""
 	Option "$JGPHUD_CROSSHAIR_HITMARKERS", "jgphud_DrawEnemyHitMarkers", "OnOff"
-	Option "$JGPHUD_CROSSHAIR_INFOBARS", "jgphud_DrawReticleBars", "OnOff"
+	StaticText ""
+	Option "$JGPHUD_CROSSHAIR_BARS_ENABLE", "jgphud_DrawReticleBars", "ReticleBars"
 	Slider "$JGPHUD_CROSSHAIR_BARS_SIZE", "jgphud_ReticleBarsSize", 1, 200, 2, 0, "jgphud_DrawReticleBars"
 	Slider "$JGPHUD_CROSSHAIR_BARS_ALPHA", "jgphud_ReticleBarsAlpha", 0.0, 1.0, 0.1, 1, "jgphud_DrawReticleBars"
 	Slider "$JGPHUD_CROSSHAIR_BARS_WIDTH", "jgphud_ReticleBarsWidth", 0.0, 0.5, 0.01, 2, "jgphud_DrawReticleBars"
@@ -215,4 +216,11 @@ OptionValue "MinimapShape"
 {
 	0, "$JGPHUD_MINIMAP_SHAPE_SQUARE"
 	1, "$JGPHUD_MINIMAP_SHAPE_CIRCLE"
+}
+
+OptionValue "ReticleBars"
+{
+	0, "$OPTVAL_OFF"
+	1, "$JGPHUD_CROSSHAIR_BARS_AUTOHIDE"
+	2, "$JGPHUD_CROSSHAIR_BARS_ALWAYS"
 }

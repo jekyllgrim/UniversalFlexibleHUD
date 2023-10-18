@@ -6,10 +6,9 @@ user nosave color jgphud_BackColor = "433515";
 user nosave float jgphud_BackAlpha = 0.5;
 
 user nosave float jgphud_ScreenReddenFactor = 1.0;
-user nosave bool jgphud_DrawHitmarkers = true;
-user nosave float jgphud_HitMarkersAlpha = 0.5;
-user nosave float jgphud_HitMarkersFadeTime = 0.5;
-user nosave bool jgphud_DrawEnemyHitMarkers = true;
+user nosave bool jgphud_DrawDamageMarkers = true;
+user nosave float jgphud_DamageMarkersAlpha = 0.5;
+user nosave float jgphud_DamageMarkersFadeTime = 0.5;
 
 user nosave int jgphud_DrawMainbars = 2;
 user nosave int jgphud_MainBarsPos = 6;
@@ -64,7 +63,8 @@ user nosave int jgphud_InvBarPos = 6;
 user nosave int jgphud_InvBarX = 0;
 user nosave int jgphud_InvBarY = 32;
 
-user nosave bool jgphud_DrawReticleBars = true;
+user nosave bool jgphud_DrawEnemyHitMarkers = true;
+user nosave int jgphud_DrawReticleBars = 2;
 user nosave bool jgphud_ReticleBarsText = true;
 user nosave int jgphud_ReticleBarsSize = 15;
 user nosave float jgphud_ReticleBarsAlpha = 0.6;

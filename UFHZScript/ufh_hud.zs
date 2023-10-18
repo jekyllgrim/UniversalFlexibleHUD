@@ -71,10 +71,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	CVar c_InvBarX;
 	CVar c_InvBarY;
 	
-	CVar c_drawHitmarkers;
-	CVar c_hitMarkersAlpha;
-	CVar c_HitMarkersFadeTime;
-	CVar c_DrawEnemyHitMarkers;
+	CVar c_drawDamageMarkers;
+	CVar c_DamageMarkersAlpha;
+	CVar c_DamageMarkersFadeTime;
 
 	CVar c_drawWeaponSlots;
 	CVar c_weaponSlotPos;
@@ -104,6 +103,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	CVar c_DrawSecrets;
 	CVar c_DrawTime;
 
+	CVar c_DrawEnemyHitMarkers;
 	CVar c_DrawReticleBars;
 	CVar c_ReticleBarsText;
 	CVar c_ReticleBarsAlpha;
@@ -182,10 +182,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	override void Tick()
 	{
 		super.Tick();
-		UpdateHitMarkers();
+		UpdateDamageMarkers();
 		UpdateReticleHitMarker();
 		GetWeaponSlots();
 		UpdateInventoryBar();
+		UpdateReticleBars();
 	}
 
 	override void Draw(int state, double ticFrac)
@@ -206,7 +207,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		DrawPowerups();
 		DrawKeys();
 		DrawInventoryBar();
-		DrawHitMarkers();
+		DrawDamageMarkers();
 		DrawReticleHitMarker();
 		DrawReticleBars();
 	}
@@ -252,12 +253,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (!c_DrawWeapon)
 			c_DrawWeapon = CVar.GetCvar('jgphud_DrawWeapon', CPlayer);
 
-		if (!c_drawHitmarkers)
-			c_drawHitmarkers = CVar.GetCvar('jgphud_DrawHitmarkers', CPlayer);
-		if (!c_hitMarkersAlpha)
-			c_hitMarkersAlpha = CVar.GetCvar('jgphud_HitMarkersAlpha', CPlayer);
-		if (!c_HitMarkersFadeTime)
-			c_HitMarkersFadeTime = CVar.GetCvar('jgphud_HitMarkersFadeTime', CPlayer);
+		if (!c_drawDamageMarkers)
+			c_drawDamageMarkers = CVar.GetCvar('jgphud_DrawDamageMarkers', CPlayer);
+		if (!c_DamageMarkersAlpha)
+			c_DamageMarkersAlpha = CVar.GetCvar('jgphud_DamageMarkersAlpha', CPlayer);
+		if (!c_DamageMarkersFadeTime)
+			c_DamageMarkersFadeTime = CVar.GetCvar('jgphud_DamageMarkersFadeTime', CPlayer);
 		if (!c_DrawEnemyHitMarkers)
 			c_DrawEnemyHitMarkers = CVar.GetCvar('jgphud_DrawEnemyHitMarkers', CPlayer);
 
@@ -1062,9 +1063,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	}
 
 	// Draws directional incoming damage markers:
-	void DrawHitMarkers(double size = 80)
+	void DrawDamageMarkers(double size = 80)
 	{
-		if (!c_drawHitmarkers.GetBool())
+		if (!c_drawDamageMarkers.GetBool())
 			return;
 
 		// Create a simple long and narrow trapezium shape:
@@ -1112,7 +1113,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	}
 
 	// Fade out damage markers:
-	void UpdateHitMarkers()
+	void UpdateDamageMarkers()
 	{
 		for (int i = hmData.Size() - 1; i >= 0; i--)
 		{
@@ -1120,7 +1121,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			if (!hmd)
 				continue;
 
-			hmd.alpha -= c_HitMarkersAlpha.GetFloat() / (c_HitMarkersFadeTime.GetFloat() * TICRATE);
+			hmd.alpha -= c_DamageMarkersAlpha.GetFloat() / (c_DamageMarkersFadeTime.GetFloat() * TICRATE);
 			if (hmd.alpha <= 0)
 			{
 				hmd.Destroy();
@@ -1131,14 +1132,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	void RefreshReticleHitMarker()
 	{
-		reticleMarkerAlpha = c_HitMarkersAlpha.GetFloat();
+		reticleMarkerAlpha = 1.0;
 	}
 
 	void UpdateReticleHitMarker()
 	{
 		if (reticleMarkerAlpha > 0)
 		{
-			reticleMarkerAlpha -= 0.1;
+			reticleMarkerAlpha -= 0.15;
 		}
 	}
 
@@ -1185,8 +1186,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		{
 			if (!reticleMarkerTransform)
 				reticleMarkerTransform = new("Shape2DTransform");
-			// Factor in the crosshair size:
-			double size = 14 * c_crosshairScale.GetFloat();	
+			// Factor in the crosshair size but up to a point
+			// as to not make these too small:
+			double size = 15 * max(c_crosshairScale.GetFloat(), 0.3);
 			reticleMarkerTransform.Clear();
 			reticleMarkerTransform.Scale((size, size) * hudscale.x);
 			reticleMarkerTransform.Translate(screenCenter);
@@ -1195,9 +1197,38 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
+	double prevArmAmount;
+	double prevArmMaxAmount;
+	int prevHealth;
+	int prevMaxHealth;
+	int prevAmmo1Amount;
+	int prevAmmo1MaxAmount;
+	int prevAmmo2Amount;
+	int prevAmmo2MaxAmount;
+	int reticleMarkersDelay[4];
+	enum EReticleMarkers
+	{
+		RM_Health,
+		RM_Armor,
+		RM_Ammo1,
+		RM_Ammo2,
+	}
+	const MARKERSDELAY = TICRATE*2;
+
+	void UpdateReticleBars()
+	{
+		for (int i = 0; i < reticleMarkersDelay.Size(); i++)
+		{
+			if (reticleMarkersDelay[i] > 0)
+			{
+				reticleMarkersDelay[i]--;
+			}
+		}
+	}
+
 	void DrawReticleBars(int steps = 100, double coverAngle = 80)
 	{
-		if (!c_DrawReticleBars.GetBool())
+		if (c_DrawReticleBars.GetInt() <= 0)
 			return;
 
 		// This is the general mask that cuts out the inner part
@@ -1259,6 +1290,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		roundBarsGeneralMaskTransf2.Scale((secondaryMaskSize, secondaryMaskSize));
 		roundBarsGeneralMaskTransf2.Translate(screenCenter);
 
+		bool autoHide = c_DrawReticleBars.GetInt() == 1;
 		bool drawBarText = c_ReticleBarsText.GetBool();
 		HUDFont hfnt = numHUDFont;
 		Font fnt = hfnt.mFont;
@@ -1268,75 +1300,113 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		vector2 fntpos2 = (-secondarySize / hudscale.x - 1, fntpos.y);
 
 		double valueFrac;
-		double angle = 90;
+		double angle;
 		roundBarsGeneralMask.SetTransform(roundBarsGeneralMaskTransf);
 
 		// Health bar:
-		angle *= -1;
-		Screen.EnableStencil(true);
-		Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
-		Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
-		Screen.SetStencil(0, SOP_Keep, SF_AllOn);
-		double health = CPlayer.mo.health;
-		double maxhealth = CPlayer.mo.GetMaxHealth(true);
-		valueFrac = LinearMap(health, 0, maxhealth, 1.0, 0.0, true);
-		DrawCircleSegmentShape(color(255,0,0), screenCenter, size, steps, angle, coverAngle, valueFrac);
-		if (drawBarText)
-			DrawString(hfnt, String.Format("%d", health), fntpos, DI_SCREEN_CENTER|DI_TEXT_ALIGN_LEFT, Font.CR_White, 0.7, scale: (fntScale,fntScale*0.75));
-		// Clear the general mask:
-		Screen.EnableStencil(false);
-		Screen.ClearStencil();
+		int health = CPlayer.mo.health;
+		int maxhealth = CPlayer.mo.GetMaxHealth(true);
+		if (prevHealth != health || prevMaxHealth != maxhealth)
+		{
+			prevHealth = health;
+			prevMaxHealth = maxhealth;
+			reticleMarkersDelay[RM_HEALTH] = MARKERSDELAY;
+		}
+		if (!autoHide || reticleMarkersDelay[RM_HEALTH] > 0)
+		{
+			angle = -90;
+			Screen.EnableStencil(true);
+			Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+			Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
+			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+			valueFrac = LinearMap(health, 0, maxhealth, 1.0, 0.0, true);
+			DrawCircleSegmentShape(color(255,0,0), screenCenter, size, steps, angle, coverAngle, valueFrac);
+			if (drawBarText)
+				DrawString(hfnt, String.Format("%d", health), fntpos, DI_SCREEN_CENTER|DI_TEXT_ALIGN_LEFT, Font.CR_White, 0.7, scale: (fntScale,fntScale*0.75));
+			// Clear the general mask:
+			Screen.EnableStencil(false);
+			Screen.ClearStencil();
+		}
 		
 
 		Ammo am1, am2;
 		[am1, am2] = GetCurrentAmmo();
 
 		// Ammo 1 bar:
-		angle *= -1;
 		if (am1)
 		{
-			Screen.EnableStencil(true);
-			Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
-			Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
-			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
-			valueFrac = LinearMap(am1.amount, 0, am1.maxAmount, 1.0, 0.0, true);
-			DrawCircleSegmentShape(GetAmmoColor(am1), screenCenter, size, steps, angle, coverAngle, valueFrac);
-			if (drawBarText)
-				DrawString(hfnt, String.Format("%d", am1.amount), (-fntpos.x, fntpos.y), DI_SCREEN_CENTER|DI_TEXT_ALIGN_RIGHT, Font.CR_White, 0.7, scale: (fntScale,fntScale*0.75));
-			Screen.EnableStencil(false);
-			Screen.ClearStencil();
+			if (prevAmmo1Amount != am1.amount || prevAmmo1MaxAmount != am1.maxamount)
+			{
+				prevAmmo1Amount = am1.amount;
+				prevAmmo1MaxAmount = am1.maxamount;
+				reticleMarkersDelay[RM_Ammo1] = MARKERSDELAY;
+			}
+			if (!autoHide || reticleMarkersDelay[RM_Ammo1] > 0)
+			{
+				angle = 90;
+				Screen.EnableStencil(true);
+				Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+				Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
+				Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+				valueFrac = LinearMap(am1.amount, 0, am1.maxAmount, 1.0, 0.0, true);
+				DrawCircleSegmentShape(GetAmmoColor(am1), screenCenter, size, steps, angle, coverAngle, valueFrac);
+				if (drawBarText)
+					DrawString(hfnt, String.Format("%d", am1.amount), (-fntpos.x, fntpos.y), DI_SCREEN_CENTER|DI_TEXT_ALIGN_RIGHT, Font.CR_White, 0.7, scale: (fntScale,fntScale*0.75));
+				Screen.EnableStencil(false);
+				Screen.ClearStencil();
+			}
 		}
 
 		roundBarsGeneralMask.SetTransform(roundBarsGeneralMaskTransf2);
 
 		// Armor bar:
-		angle *= -1;
-		Screen.EnableStencil(true);
-		Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
-		Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
-		Screen.SetStencil(0, SOP_Keep, SF_AllOn);
-		valueFrac = LinearMap(armAmount, 0, armMaxAmount, 1.0, 0.0, true);
-		DrawCircleSegmentShape(armorColor, screenCenter, secondarySize, steps, angle, coverAngle, valueFrac);
-		if (drawBarText)
-			DrawString(hfnt, String.Format("%d", armAmount), fntpos2, DI_SCREEN_CENTER|DI_TEXT_ALIGN_RIGHT, Font.CR_White, 0.7, scale: (fntScale,fntScale*0.75));
-		Screen.EnableStencil(false);
-		Screen.ClearStencil();
-
-		// Ammo 2 bar:
-		angle *= -1;
-		if (am2)
+		int armAmount = armAmount;
+		int armMaxAmount = armMaxAmount;
+		if (prevArmAmount != armAmount || prevArmMaxAmount != armMaxAmount)
 		{
+			prevArmAmount = armAmount;
+			prevArmMaxAmount = armMaxAmount;
+			reticleMarkersDelay[RM_Armor] = MARKERSDELAY;
+		}
+		if (!autoHide || reticleMarkersDelay[RM_Armor] > 0)
+		{
+			angle = -90;
 			Screen.EnableStencil(true);
 			Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
 			Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
 			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
-			valueFrac = LinearMap(am2.amount, 0, am2.maxAmount, 1.0, 0.0, true);
-			color amCol = GetAmmoColor(am2);
-			DrawCircleSegmentShape(color(amCol.a, int(amCol.r*0.7),int(amCol.g*0.7),int(amCol.b*0.7)), screenCenter, secondarySize, steps, angle, coverAngle, valueFrac);
+			valueFrac = LinearMap(armAmount, 0, armMaxAmount, 1.0, 0.0, true);
+			DrawCircleSegmentShape(armorColor, screenCenter, secondarySize, steps, angle, coverAngle, valueFrac);
 			if (drawBarText)
-				DrawString(hfnt, String.Format("%d", am2.amount), (-fntpos2.x, fntpos2.y), DI_SCREEN_CENTER|DI_TEXT_ALIGN_LEFT, Font.CR_White, 0.7, scale: (fntScale,fntScale*0.75));
+				DrawString(hfnt, String.Format("%d", armAmount), fntpos2, DI_SCREEN_CENTER|DI_TEXT_ALIGN_RIGHT, Font.CR_White, 0.7, scale: (fntScale,fntScale*0.75));
 			Screen.EnableStencil(false);
 			Screen.ClearStencil();
+		}
+
+		// Ammo 2 bar:
+		if (am2)
+		{
+			if (prevAmmo2Amount != am2.amount || prevAmmo2MaxAmount != am2.maxamount)
+			{
+				prevAmmo2Amount = am2.amount;
+				prevAmmo2MaxAmount = am2.maxamount;
+				reticleMarkersDelay[RM_Ammo2] = MARKERSDELAY;
+			}
+			if (!autoHide || reticleMarkersDelay[RM_Ammo2] > 0)
+			{
+				angle = 90;
+				Screen.EnableStencil(true);
+				Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+				Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
+				Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+				valueFrac = LinearMap(am2.amount, 0, am2.maxAmount, 1.0, 0.0, true);
+				color amCol = GetAmmoColor(am2);
+				DrawCircleSegmentShape(color(amCol.a, int(amCol.r*0.7),int(amCol.g*0.7),int(amCol.b*0.7)), screenCenter, secondarySize, steps, angle, coverAngle, valueFrac);
+				if (drawBarText)
+					DrawString(hfnt, String.Format("%d", am2.amount), (-fntpos2.x, fntpos2.y), DI_SCREEN_CENTER|DI_TEXT_ALIGN_LEFT, Font.CR_White, 0.7, scale: (fntScale,fntScale*0.75));
+				Screen.EnableStencil(false);
+				Screen.ClearStencil();
+			}
 		}
 	}
 
@@ -2264,7 +2334,7 @@ class JGPUFH_HitMarkerData ui
 		if (hmd)
 		{
 			hmd.angle = angle;
-			hmd.alpha = Cvar.GetCvar("jgphud_HitMarkersAlpha", players[consoleplayer]).GetFloat();
+			hmd.alpha = Cvar.GetCvar("jgphud_DamageMarkersAlpha", players[consoleplayer]).GetFloat();
 		}
 		return hmd;
 	}
