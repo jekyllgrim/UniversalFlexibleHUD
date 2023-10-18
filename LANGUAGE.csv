@@ -3,7 +3,6 @@ FlexiHUD settings,JGPHUD_SETTINGS_TITLE,,Настройки FlexiHUD
 General,JGPHUD_GENERAL_TITLE,,Общее
 HUD background color,JGPHUD_GENERAL_BACKCOL,,Цвет фона
 HUD background opacity,JGPHUD_GENERAL_BACKALPHA,,Прозрачность фона
-,,,
 Top left,JGPHUD_POS_TOPLEFT,,Верхний левый угол
 Top center,JGPHUD_POS_TOPCENTER,,Центр верхней границы
 Top right,JGPHUD_POS_TOPRIGHT,,Верхний правый угол
@@ -63,7 +62,7 @@ Minimap zoom,JGPHUD_MINIMAP_ZOOM,,Увеличение мини-карты
 "Note: The minimap may cause performance issues on maps
 with complex geometry, especially at low zoom values.",JGPHUD_MINIMAP_NOTE,Keep under 2 lines,"Внимание: мини-карта может сказываться на производительности,
 особенно на картах со сложной геометрией и при низком увеличении."
-Crosshair options,JGPHUD_CROSSHAIR_TITLE,,
+Crosshair options,JGPHUD_CROSSHAIR_TITLE,,Настройки прицела
 Draw enemy hit markers around crosshair,JGPHUD_CROSSHAIR_HITMARKERS,,Индикаторы попадания по врагам вокруг прицела
 Health/armor/ammo bars around crosshair,JGPHUD_CROSSHAIR_BARS_ENABLE,,Индикаторы здоровья/брони/патронов вокруг прицела
 Bars size,JGPHUD_CROSSHAIR_BARS_SIZE,,Размер индикаторов

@@ -19,6 +19,9 @@ OptionMenu "JGPHUD_Settings"
 	ColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor"
 	Slider "$JGPHUD_GENERAL_BACKALPHA", "jgphud_BackAlpha", 0.00, 1.0, 0.05, 2
 	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_BackColor:jgphud_BackAlpha"
+	
+	StaticText ""
+	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_BackColor:jgphud_BackAlpha"
 
 	StaticText ""
 	SubMenu "$JGPHUD_MAINBARS_TITLE", "JGPHUD_MainBars"
@@ -163,7 +166,7 @@ OptionMenu "JGPHUD_MapData"
 	Option "$JGPHUD_MINIMAP_SHAPE", "jgphud_CircularMinimap", "MinimapShape", "jgphud_DrawMinimap"
 	Slider "$JGPHUD_MINIMAP_ZOOM", "jgphud_MinimapZoom", 0.15, 3.0, 0.05, 2, "jgphud_DrawMinimap"
 	StaticText ""
-	StaticText "$Map data display", yellow
+	StaticText "$JGPHUD_MAPDATA_TITLE", yellow
 	Option "$JGPHUD_MAPDATA_KILLS", "jgphud_DrawKills", "OnOff"
 	Option "$JGPHUD_MAPDATA_ITEMS", "jgphud_DrawItems", "OnOff"
 	Option "$JGPHUD_MAPDATA_SECRETS", "jgphud_DrawSecrets", "OnOff"
