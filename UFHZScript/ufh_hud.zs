@@ -1922,15 +1922,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		DrawString(hfnt, str2, pos+(strOfs,0), flags|DI_TEXT_ALIGN_LEFT, scale:(scale,scale));
 	}
 
-	int, int TicsToMinutes(int tics)
-	{
-		int totalSeconds = tics / TICRATE;
-		int minutes = (totalSeconds / 60) % 60;
-		int seconds = totalSeconds % 60;
-
-		return minutes, seconds;
-	}
-
 	int, int, int TicsToHours(int tics)
 	{
 		int totalSeconds = tics / TICRATE;
@@ -1956,14 +1947,21 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		vector2 ofs = ( c_PowerupsX.GetInt(), c_PowerupsY.GetInt() );
 		double iconSize = 10;
 		int indent = 0;
-		HUDFont fnt = mainHUDFont;
-		double textScale = 0.8;
+		HUDFont fnt = smallHUDFont;
+		double textScale = 0.5;
 		double fy = fnt.mFont.GetHeight() * textScale;
-		double width = fnt.mFont.StringWidth("00:00") * textScale + iconSize + indent;
+		double width = iconSize + indent;
 		double height = (iconsize + indent) * powerNum + indent;
 		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 		pos.y += iconSize*0.5;
 
+		double textOfs = iconsize + indent;
+		flags |=  DI_ITEM_CENTER;
+		if ((flags & DI_SCREEN_RIGHT) == DI_SCREEN_RIGHT)
+		{
+			flags |= DI_TEXT_ALIGN_RIGHT;
+			textOfs = -1;
+		}
 		for (int i = 0; i < powerNum; i++)
 		{
 			let pwd = handler.powerupData[i];
@@ -1973,9 +1971,24 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			if (pow)
 			{
 				DrawTexture(pwd.icon, (pos.x + iconSize*0.5, pos.y), flags|DI_ITEM_CENTER, box:(iconSize, iconSize));
-				int min, sec;
-				[min, sec] = TicsToMinutes(pow.EffectTics);
-				DrawString(fnt, String.Format("%2d:%2d",min,sec), (pos.x + iconsize + indent, pos.y - fy*0.5), flags|DI_TEXT_ALIGN_LEFT, alpha: pow.isBlinking() ? 0.5 : 1.0, scale:(textscale,textscale));
+				// Account for infinite flight in singleplayer:
+				if (!multiplayer && pow is 'PowerFlight' && Level.infinite_flight)
+				{
+					continue;
+				}
+
+				string s_time;
+				int h,m,s;
+				[h,m,s] = TicsToHours(pow.EffectTics);
+				if (h > 0)
+				{
+					s_time = String.Format("%d:%d:%d", h, m, s);
+				}
+				else
+				{
+					s_time = String.Format("%d:%d", m, s);
+				}
+				DrawString(fnt, s_time, pos + (textOfs, -fy*0.5), flags|DI_TEXT_ALIGN_LEFT, alpha: pow.isBlinking() ? 0.5 : 1.0, scale:(textscale,textscale));
 				pos.y += iconSize + indent;
 			}
 		}
