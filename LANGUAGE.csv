@@ -1,73 +1,78 @@
-default,identifier,remarks,ru
-FlexiHUD settings,JGPHUD_SETTINGS_TITLE,,Настройки FlexiHUD
-General,JGPHUD_GENERAL_TITLE,,Общее
-HUD background color,JGPHUD_GENERAL_BACKCOL,,Цвет фона
-HUD background opacity,JGPHUD_GENERAL_BACKALPHA,,Прозрачность фона
-Top left,JGPHUD_POS_TOPLEFT,,Верхний левый угол
-Top center,JGPHUD_POS_TOPCENTER,,Центр верхней границы
-Top right,JGPHUD_POS_TOPRIGHT,,Верхний правый угол
-Left center,JGPHUD_POS_LEFTCENTER,,Центр левого края
-Center,JGPHUD_POS_CENTER,,Центр экрана
-Right center,JGPHUD_POS_RIGHTCENTER,,Центр правого края
-Bottom left,JGPHUD_POS_BOTTOMLEFT,,Нижний левый угол
-Bottom center,JGPHUD_POS_BOTTOMCENTER,,Центр нижней границы
-Bottom right,JGPHUD_POS_BOTTOMRIGHT,,Нижний правый угол
-Position anchor point,JGPHUD_ELEMENT_POS,,Точка привязки элемента
-Horizontal offset,JGPHUD_ELEMENT_OFSX,,Горизонтальный сдвиг элемента
-Vertical offset,JGPHUD_ELEMENT_OFSY,,Вертикальный сдвиг элемента
-Incoming damage display,JGPHUD_DMGMARKERS_TITLE,,Индикаторы получаемого урона
-Classic screen reddening multiplier,JGPHUD_DMGMARKERS_SCREENTINT,,Степень покраснения экрана при получении урона
-Directional incoming damage markers,JGPHUD_DMGMARKERS_ENABLE,,Направленные индикаторы входящего урона
-Maximum damage marker opacity,JGPHUD_DMGMARKERS_MAXALPHA,,Прозрачность индикаторов входящего урона
-Damage marker fade-out time (seconds),JGPHUD_DMGMARKERS_FADEOUTTIME,,Время исчезновения индикаторов урона (сек.)
-Health and armor,JGPHUD_MAINBARS_TITLE,,Здоровье и броня
-Health and armor display,JGPHUD_MAINBARS_ENABLE,,Отображение здоровья и брони
-Mugshot display (if exists),JGPHUD_MAINBARS_SHOWFACE,,Показывать лицо персонажа (при наличии)
-Numbers,JGPHUD_MAINBARS_OPT_NUMBERS,,Цифры
-Bars,JGPHUD_MAINBARS_OPT_BARS,,Шкалы
-Current ammo and weapon,JGPHUD_AMMOBLOCK_TITLE,,Текущий боезапас и оружие
-Current ammo display,JGPHUD_AMMOBLOCK_ENABLE,,Показывать патроны для текущего оружия
-Display weapon icon,JGPHUD_AMMOBLOCK_SHOWWEAP,,Показывать значок текущего оружия
-Display ammo bar,JGPHUD_AMMOBLOCK_SHOWAMMOBAR,,Показывать шкалу остатка патронов
-All ammo,JGPHUD_ALLAMMO_TITLE,,Общий боезапас
-All ammo display,JGPHUD_ALLAMMO_ENABLE,,Показывать общий боезапас
-Keys,JGPHUD_KEYS_TITLE,,Ключи
-Keys display,JGPHUD_KEYS_ENABLE,,Показывать ключи
-Weapon slots,JGPHUD_WEAPSLOTS_TITLE,,Ячейки оружия
-Weapon slots display,JGPHUD_WEAPSLOTS_ENABLE,,Показывать ячейки оружия
-Powerup timers,JGPHUD_POWERUPS_TITLE,,Таймеры усилителей
-Powerup timers display,JGPHUD_POWERUPS_ENABLE,,Показывать таймеры усилителей
-Inventory bar,JGPHUD_INVBAR_TITLE,,Полоса предметов
-Inventory bar display,JGPHUD_INVBAR_ENABLE,,Показывать полосу предметов
-Always show full inventory bar,JGPHUD_INVBAR_ENABLEALWAYS,,Не скрывать полосу предметов
+default,identifier,remarks,ru,pt
+FlexiHUD settings,JGPHUD_SETTINGS_TITLE,"FlexiHUD is the mod's name, do not localize",Настройки FlexiHUD,Configurações do FlexiHUD
+General,JGPHUD_GENERAL_TITLE,Title for the general options,Общее,Geral
+HUD background color,JGPHUD_GENERAL_BACKCOL,General background color,Цвет фона,Cor de fundo
+HUD background opacity,JGPHUD_GENERAL_BACKALPHA,General background opacity,Прозрачность фона,Opacidade
+Position anchor point,JGPHUD_ELEMENT_POS,,Точка привязки элемента,Ponto da âncora
+Top left,JGPHUD_POS_TOPLEFT,Anchor point for the HUD element on the screen,Верхний левый угол,Canto superior esquerdo
+Top center,JGPHUD_POS_TOPCENTER,Anchor point for the HUD element on the screen,Середина верхней границы,Centro superior
+Top right,JGPHUD_POS_TOPRIGHT,Anchor point for the HUD element on the screen,Верхний правый угол,Canto superior direito
+Left center,JGPHUD_POS_LEFTCENTER,Anchor point for the HUD element on the screen,Середина левого края,Esquerda do centro
+Center,JGPHUD_POS_CENTER,Anchor point for the HUD element on the screen,Центр экрана,Centro
+Right center,JGPHUD_POS_RIGHTCENTER,Anchor point for the HUD element on the screen,Середина правого края,Centro direito
+Bottom left,JGPHUD_POS_BOTTOMLEFT,Anchor point for the HUD element on the screen,Нижний левый угол,Canto inferior esquerdo
+Bottom center,JGPHUD_POS_BOTTOMCENTER,Anchor point for the HUD element on the screen,Середина нижней границы,Centro inferior
+Bottom right,JGPHUD_POS_BOTTOMRIGHT,Anchor point for the HUD element on the screen,Нижний правый угол,Canto inferior direito
+Horizontal offset,JGPHUD_ELEMENT_OFSX,General option (every HUD element can be offset from their anchor point with this),Горизонтальный сдвиг элемента,Deslocamento horizontal
+Vertical offset,JGPHUD_ELEMENT_OFSY,General option (every HUD element can be offset from their anchor point with this),Вертикальный сдвиг элемента,Deslocamento vertical
+Incoming damage display,JGPHUD_DMGMARKERS_TITLE,Title for the damage display settings,Индикаторы получаемого урона,Marcadores de dano
+Classic screen reddening multiplier,JGPHUD_DMGMARKERS_SCREENTINT,"This lets the player change the multiplier for the classic red screen tint when they take damage. If they prefer to only rely on damage markers as a damage indicator, they may choose to reduce this to 0.",Степень покраснения экрана при получении урона,Envermelhação clássica da tela
+Directional incoming damage markers,JGPHUD_DMGMARKERS_ENABLE,"Directional damage markers are shown on the HUD, pointing to the enemy that just attacked the player",Направленные индикаторы входящего урона,Marcadores de dano direcionais
+Maximum damage marker opacity,JGPHUD_DMGMARKERS_MAXALPHA,,Прозрачность индикаторов входящего урона,Opacidade máxima do marcador de dano
+Damage marker fade-out time (seconds),JGPHUD_DMGMARKERS_FADEOUTTIME,,Время исчезновения индикаторов урона (сек.),Tempo de desvanecimento do marcador de dano (segundos)
+Health and armor,JGPHUD_MAINBARS_TITLE,,Здоровье и броня,Vida e armadura
+Health and armor display,JGPHUD_MAINBARS_ENABLE,Whether health/armor is displayed,Отображение здоровья и брони,Exibir barras de vida e armadura
+Mugshot display (if exists),JGPHUD_MAINBARS_SHOWFACE,Whether mugshot is displayed,Показывать лицо персонажа (при наличии),Mostrar face do personagem (se existe)
+Numbers,JGPHUD_MAINBARS_OPT_NUMBERS,Option for how health/armor is displayed: numbers or bars,Цифры,Números
+Bars,JGPHUD_MAINBARS_OPT_BARS,Option for how health/armor is displayed: numbers or bars,Шкалы,Barras
+Current ammo and weapon,JGPHUD_AMMOBLOCK_TITLE,,Текущий боезапас и оружие,Munição e arma atual
+Current ammo display,JGPHUD_AMMOBLOCK_ENABLE,Whether current ammo is displayed,Показывать патроны для текущего оружия,Mostrar munição atual
+Display weapon icon,JGPHUD_AMMOBLOCK_SHOWWEAP,Whether selected weapon icon is displayed,Показывать значок текущего оружия,Mostrar ícone de arma
+Display ammo bar,JGPHUD_AMMOBLOCK_SHOWAMMOBAR,"Whether a gauge for the ammo is displayed. If this is false, only the number will be shown.",Показывать шкалу остатка патронов,Mostrar barra de munição
+All ammo,JGPHUD_ALLAMMO_TITLE,,Общий боезапас,Munição no inventário
+All ammo display,JGPHUD_ALLAMMO_ENABLE,Whether to display a block with all ammo currently in the player's inventory (not just for the selected weapon),Показывать общий боезапас,Mostrar munição no inventário
+Keys,JGPHUD_KEYS_TITLE,,Ключи,Chaves
+Keys display,JGPHUD_KEYS_ENABLE,Whether to show keys on the HUD,Показывать ключи,Mostrar chaves
+Weapon slots,JGPHUD_WEAPSLOTS_TITLE,,Ячейки оружия,Colocações de armas
+Weapon slots display,JGPHUD_WEAPSLOTS_ENABLE,Whether to show weapon slots on the HUD,Показывать ячейки оружия,Mostrar colocações de armas
+Powerup timers,JGPHUD_POWERUPS_TITLE,,Таймеры усилителей,Temporizadores de powerup
+Powerup timers display,JGPHUD_POWERUPS_ENABLE,,Показывать таймеры усилителей,Mostrar temporizadores de powerup
+Inventory bar,JGPHUD_INVBAR_TITLE,,Полоса предметов,Barra de inventário
+Inventory bar display,JGPHUD_INVBAR_ENABLE,,Показывать полосу предметов,Mostrar barra de inventário
+Always show full inventory bar,JGPHUD_INVBAR_ENABLEALWAYS,"If this is false, inventory bar will auto-hide after 2 seconds and only the currently selected item will be shown.",Не скрывать полосу предметов,Sempre mostrar barra de inventário
 "If inventory bar is always shown, ""Use Item"" button will instantly use the item.
-If not, first press will select the item, second press will use it.",JGPHUD_INVBAR_ENABLEALWAYS_NOTE,Keep under 2 lines,"Если полоса предметов всегда включена, кнопка ""Использовать предмет"" сразу использует его.
-В противном случае первое нажатие выбирает предмет, а второе использует."
-Inventory bar icon size,JGPHUD_INVBAR_ICONSIZE,,Размер значков в полосе предметов
+If not, first press will select the item, second press will use it.",JGPHUD_INVBAR_ENABLEALWAYS_NOTE,"Keep under 2 lines! (Use actual linebreak to separate them, there's no autowrapping)","Если полоса предметов всегда включена, кнопка ""Использовать предмет"" сразу использует его.
+В противном случае первое нажатие выбирает предмет, а второе использует.","Se a barra de inventário estiver sempre mostrando,
+o botão ""Usar item"" funciona instantâneamente"
+Inventory bar icon size,JGPHUD_INVBAR_ICONSIZE,Size of icons in the inventory bar (absolute pixel value),Размер значков в полосе предметов,Tamanho do ícone dos itens
 "Note: Inventory bar will only appear in games/mods that have
-items that can be placed in inventory and used from it.",JGPHUD_INVBAR_NOTE,Keep under 2 lines,"Внимание: полоса предметов отображается, только если в игре/моде
-есть предметы, которые можно использовать из инвентаря."
-Show kill count,JGPHUD_MAPDATA_KILLS,,Показывать убийства
-Show secrets count,JGPHUD_MAPDATA_SECRETS,,Показывать секреты
-Show items count,JGPHUD_MAPDATA_ITEMS,,Показывать предметы
-Show map time,JGPHUD_MAPDATA_TIME,,Показывать время уровня
-Map data display,JGPHUD_MAPDATA_TITLE,,Данные об уровне
-Minimap,JGPHUD_MINIMAP_TITLE,,Мини-карта
-Minimap display,JGPHUD_MINIMAP_ENABLE,,Показывать мини-карту
-Minimap size,JGPHUD_MINIMAP_SIZE,,Размер мини-карты
-Minimap shape,JGPHUD_MINIMAP_SHAPE,,Форма мини-карты
-Circle,JGPHUD_MINIMAP_SHAPE_CIRCLE,,Круг
-Square,JGPHUD_MINIMAP_SHAPE_SQUARE,,Квадрат
-Minimap zoom,JGPHUD_MINIMAP_ZOOM,,Увеличение мини-карты
+items that can be placed in inventory and used from it.",JGPHUD_INVBAR_NOTE,"Keep under 2 lines! (Use actual linebreak to separate them, there's no autowrapping)","Внимание: полоса предметов отображается, только если в игре/моде
+есть предметы, которые можно использовать из инвентаря.","Obs.: Barra de inventário aparece apenas em jogos/mods
+que têm itens que podem ser colocados no inventário."
+Map data display,JGPHUD_MAPDATA_TITLE,This is a title for a block of options that determine what kind of extra data about the current map is drawn on the HUD,Данные об уровне,Dados do mapa
+Show map time,JGPHUD_MAPDATA_TIME,Option in the Map Data options block,Показывать время уровня,Mostrar tempo do mapa
+Show kill count,JGPHUD_MAPDATA_KILLS,Option in the Map Data options block,Показывать убийства,Mostrar contagem de vitimas
+Show secrets count,JGPHUD_MAPDATA_SECRETS,Option in the Map Data options block,Показывать секреты,Mostrar contagem de segredos
+Show items count,JGPHUD_MAPDATA_ITEMS,Option in the Map Data options block,Показывать предметы,Mostrar contagem de itens
+Minimap,JGPHUD_MINIMAP_TITLE,Option block title,Мини-карта,Minimapa
+Minimap display,JGPHUD_MINIMAP_ENABLE,Whether to draw the minimap,Показывать мини-карту,Mostrar minimapa
+Minimap size,JGPHUD_MINIMAP_SIZE,,Размер мини-карты,Tamanho do minimapa
+Minimap shape,JGPHUD_MINIMAP_SHAPE,,Форма мини-карты,Formato do minimapa
+Circle,JGPHUD_MINIMAP_SHAPE_CIRCLE,possible minimap shape,Круг,Círculo
+Square,JGPHUD_MINIMAP_SHAPE_SQUARE,possible minimap shape,Квадрат,Quadrado
+Minimap zoom,JGPHUD_MINIMAP_ZOOM,minimap zoom value,Увеличение мини-карты,Zoom do minimapa
 "Note: The minimap may cause performance issues on maps
-with complex geometry, especially at low zoom values.",JGPHUD_MINIMAP_NOTE,Keep under 2 lines,"Внимание: мини-карта может сказываться на производительности,
-особенно на картах со сложной геометрией и при низком увеличении."
-Crosshair options,JGPHUD_CROSSHAIR_TITLE,,Настройки прицела
-Draw enemy hit markers around crosshair,JGPHUD_CROSSHAIR_HITMARKERS,,Индикаторы попадания по врагам вокруг прицела
-Health/armor/ammo bars around crosshair,JGPHUD_CROSSHAIR_BARS_ENABLE,,Индикаторы здоровья/брони/патронов вокруг прицела
-Bars size,JGPHUD_CROSSHAIR_BARS_SIZE,,Размер индикаторов
-Bars opacity,JGPHUD_CROSSHAIR_BARS_ALPHA,,Прозрачность индикаторов
-Bars width (multiplier),JGPHUD_CROSSHAIR_BARS_WIDTH,,Ширина индикаторов (множитель)
-Numbers next to bars,JGPHUD_CROSSHAIR_BARS_TEXT,,Цифры рядом с индикаторами
-Show always,JGPHUD_CROSSHAIR_BARS_ALWAYS,,Показывать всегда
-Auto-hide when values don't change,JGPHUD_CROSSHAIR_BARS_AUTOHIDE,,"Скрывать, пока значения не изменяются"
+with complex geometry, especially at low zoom values.",JGPHUD_MINIMAP_NOTE,"Keep under 2 lines! (Use actual linebreak to separate them, there's no autowrapping)","Внимание: мини-карта может сказываться на производительности,
+особенно на картах со сложной геометрией и при низком увеличении.","Obs.: O minimapa pode causar problemas de
+desempenho em mapas complexos."
+Crosshair options,JGPHUD_CROSSHAIR_TITLE,Title for various crosshair options,Настройки прицела,Opções de retícula
+Draw enemy hit markers around crosshair,JGPHUD_CROSSHAIR_HITMARKERS,Small angled cross marker around the crosshair when a player's attack hits an enemy.,Индикаторы попадания по врагам вокруг прицела,Mostrar marcadores de acerto ao redor da retícula
+Health/armor/ammo bars around crosshair,JGPHUD_CROSSHAIR_BARS_ENABLE,Curved bars around the crosshair in the style of HL2,Индикаторы здоровья/брони/патронов вокруг прицела,Barra de vida/armadura/munição ao redor da retícula
+Bars size,JGPHUD_CROSSHAIR_BARS_SIZE,Option for the bars around the crosshair,Размер индикаторов,Tamanho das barras
+Bars opacity,JGPHUD_CROSSHAIR_BARS_ALPHA,Option for the bars around the crosshair,Прозрачность индикаторов,Opacidade das barras
+Bars width (multiplier),JGPHUD_CROSSHAIR_BARS_WIDTH,Option for the bars around the crosshair,Ширина индикаторов (множитель),Grossura das barras
+Numbers next to bars,JGPHUD_CROSSHAIR_BARS_TEXT,Option for the bars around the crosshair,Цифры рядом с индикаторами,Números perto das barras
+Show always,JGPHUD_CROSSHAIR_BARS_ALWAYS,Option for the bars around the crosshair,Показывать всегда,Sempre mostrar
+Auto-hide when values don't change,JGPHUD_CROSSHAIR_BARS_AUTOHIDE,Option for the bars around the crosshair,"Скрывать, пока значения не изменяются",Automaticamente esconder quando valores não mudam
+Show enemy health next to crosshair,JGPHUD_CROSSHAIR_ENEMYHEALTH,(Possible future option) Show a curved bar above the crosshair depicting the health of the enemy you're looking at,Показывать здоровье текущего противника,Mostrar vida do inimigo perto da retícula
+Bars background,JGPHUD_CROSSHAIR_BARS_BKG,(Possible future option) Whether to draw a dark background behind the health/armor/ammo bars around the crosshair,Фон индикаторов,Fundo das barras
