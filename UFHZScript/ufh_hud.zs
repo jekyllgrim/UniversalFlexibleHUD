@@ -19,6 +19,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		DB_DRAWBARS,
 	}
 
+	// Reticle bars CVAR values:
+	enum EDrawReticleBars
+	{
+		RB_NONE,
+		RB_AUTOHIDE,
+		RB_ALWAYS,
+	}
+
 	// see SetScreenFlags():
 	static const int ScreenFlags[] =
 	{
@@ -1223,7 +1231,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	void DrawReticleBars(int steps = 100, double coverAngle = 80)
 	{
-		if (c_DrawReticleBars.GetInt() <= 0)
+		if (c_DrawReticleBars.GetInt() <= RB_NONE)
 			return;
 
 		// This is the general mask that cuts out the inner part
@@ -1285,7 +1293,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		roundBarsGeneralMaskTransf2.Scale((secondaryMaskSize, secondaryMaskSize));
 		roundBarsGeneralMaskTransf2.Translate(screenCenter);
 
-		bool autoHide = c_DrawReticleBars.GetInt() == 1;
+		bool autoHide = c_DrawReticleBars.GetInt() == RB_AUTOHIDE;
 		bool drawBarText = c_ReticleBarsText.GetBool();
 		HUDFont hfnt = numHUDFont;
 		Font fnt = hfnt.mFont;
@@ -1296,6 +1304,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 		double valueFrac;
 		double angle;
+		double alpha = Clamp(c_ReticleBarsAlpha.GetFloat(), 0.0, 1.0);
 		roundBarsGeneralMask.SetTransform(roundBarsGeneralMaskTransf);
 
 		// Health bar:
@@ -1309,15 +1318,16 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 		if (!autoHide || reticleMarkersDelay[RM_HEALTH] > 0)
 		{
+			double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RM_HEALTH], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
 			angle = -90;
 			Screen.EnableStencil(true);
 			Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
 			Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
 			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
 			valueFrac = LinearMap(health, 0, maxhealth, 1.0, 0.0, true);
-			DrawCircleSegmentShape(color(255,0,0), screenCenter, size, steps, angle, coverAngle, valueFrac);
+			DrawCircleSegmentShape(color(255,0,0), screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
 			if (drawBarText)
-				DrawString(hfnt, String.Format("%d", health), fntpos, DI_SCREEN_CENTER|DI_TEXT_ALIGN_LEFT, Font.CR_White, 0.7, scale: (fntScale,fntScale*0.75));
+				DrawString(hfnt, String.Format("%d", health), fntpos, DI_SCREEN_CENTER|DI_TEXT_ALIGN_LEFT, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
 			// Clear the general mask:
 			Screen.EnableStencil(false);
 			Screen.ClearStencil();
@@ -1338,15 +1348,16 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			}
 			if (!autoHide || reticleMarkersDelay[RM_Ammo1] > 0)
 			{
+				double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RM_Ammo1], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
 				angle = 90;
 				Screen.EnableStencil(true);
 				Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
 				Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
 				Screen.SetStencil(0, SOP_Keep, SF_AllOn);
 				valueFrac = LinearMap(am1.amount, 0, am1.maxAmount, 1.0, 0.0, true);
-				DrawCircleSegmentShape(GetAmmoColor(am1), screenCenter, size, steps, angle, coverAngle, valueFrac);
+				DrawCircleSegmentShape(GetAmmoColor(am1), screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
 				if (drawBarText)
-					DrawString(hfnt, String.Format("%d", am1.amount), (-fntpos.x, fntpos.y), DI_SCREEN_CENTER|DI_TEXT_ALIGN_RIGHT, Font.CR_White, 0.7, scale: (fntScale,fntScale*0.75));
+					DrawString(hfnt, String.Format("%d", am1.amount), (-fntpos.x, fntpos.y), DI_SCREEN_CENTER|DI_TEXT_ALIGN_RIGHT, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
 				Screen.EnableStencil(false);
 				Screen.ClearStencil();
 			}
@@ -1365,15 +1376,16 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 		if (!autoHide || reticleMarkersDelay[RM_Armor] > 0)
 		{
+			double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RM_Armor], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
 			angle = -90;
 			Screen.EnableStencil(true);
 			Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
 			Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
 			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
 			valueFrac = LinearMap(armAmount, 0, armMaxAmount, 1.0, 0.0, true);
-			DrawCircleSegmentShape(armorColor, screenCenter, secondarySize, steps, angle, coverAngle, valueFrac);
+			DrawCircleSegmentShape(armorColor, screenCenter, secondarySize, steps, angle, coverAngle, valueFrac, fadeAlph);
 			if (drawBarText)
-				DrawString(hfnt, String.Format("%d", armAmount), fntpos2, DI_SCREEN_CENTER|DI_TEXT_ALIGN_RIGHT, Font.CR_White, 0.7, scale: (fntScale,fntScale*0.75));
+				DrawString(hfnt, String.Format("%d", armAmount), fntpos2, DI_SCREEN_CENTER|DI_TEXT_ALIGN_RIGHT, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
 			Screen.EnableStencil(false);
 			Screen.ClearStencil();
 		}
@@ -1389,6 +1401,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			}
 			if (!autoHide || reticleMarkersDelay[RM_Ammo2] > 0)
 			{
+				double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RM_Ammo2], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
 				angle = 90;
 				Screen.EnableStencil(true);
 				Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
@@ -1396,24 +1409,22 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				Screen.SetStencil(0, SOP_Keep, SF_AllOn);
 				valueFrac = LinearMap(am2.amount, 0, am2.maxAmount, 1.0, 0.0, true);
 				color amCol = GetAmmoColor(am2);
-				DrawCircleSegmentShape(color(amCol.a, int(amCol.r*0.7),int(amCol.g*0.7),int(amCol.b*0.7)), screenCenter, secondarySize, steps, angle, coverAngle, valueFrac);
+				DrawCircleSegmentShape(color(amCol.a, int(amCol.r*0.7),int(amCol.g*0.7),int(amCol.b*0.7)), screenCenter, secondarySize, steps, angle, coverAngle, valueFrac, fadeAlph);
 				if (drawBarText)
-					DrawString(hfnt, String.Format("%d", am2.amount), (-fntpos2.x, fntpos2.y), DI_SCREEN_CENTER|DI_TEXT_ALIGN_LEFT, Font.CR_White, 0.7, scale: (fntScale,fntScale*0.75));
+					DrawString(hfnt, String.Format("%d", am2.amount), (-fntpos2.x, fntpos2.y), DI_SCREEN_CENTER|DI_TEXT_ALIGN_LEFT, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
 				Screen.EnableStencil(false);
 				Screen.ClearStencil();
 			}
 		}
 	}
 
-	void DrawCircleSegmentShape(color col, vector2 pos, double size, int steps, double angle, double coverAngle, double frac = 1.0)
+	void DrawCircleSegmentShape(color col, vector2 pos, double size, int steps, double angle, double coverAngle, double frac = 1.0, double alpha = 1.0)
 	{
 		// Make sure the shapes and transforms exist:
 		if (!roundBars || !roundBarsAngMask || !roundBarsTransform)
 		{
 			CreateCircleSegmentShapes(roundBars, roundBarsAngMask, steps, coverAngle);
 		}
-
-		double alpha = Clamp(c_ReticleBarsAlpha.GetFloat(), 0.0, 1.0);
 
 		// Draw the black background:
 		roundBarsTransform.Clear();
