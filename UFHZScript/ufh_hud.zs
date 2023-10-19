@@ -83,6 +83,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	HUDFont numHUDFont;
 
 	JGPUFH_HudDataHandler handler;
+	JGPHUD_LookTargetController lookTC;
 
 	// see SetScreenFlags():
 	static const int ScreenFlags[] =
@@ -117,9 +118,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	bool hexenArmorSetupDone;
 
 	// Damage markers:
-	Shape2D hitMarker;
-	Shape2DTransform hitMarkerTransf;
-	array <JGPUFH_HitMarkerData> hmData;
+	Shape2D dmgMarker;
+	Shape2DTransform dmgMarkerTransf;
+	array <JGPUFH_DamageMarkerData> dmgMrkData;
 	Actor prevAttacker;
 
 	// Hit (reticle) markers:
@@ -1077,10 +1078,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	// Called by event handler when the player is damaged:
 	void UpdateAttacker(double angle)
 	{
-		let hmd = JGPUFH_HitMarkerData.Create(angle);
+		let hmd = JGPUFH_DamageMarkerData.Create(angle);
 		if (hmd)
 		{
-			hmData.Push(hmd);
+			dmgMrkData.Push(hmd);
 		}
 	}
 
@@ -1091,55 +1092,55 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			return;
 
 		// Create a simple long and narrow trapezium shape:
-		if (!hitMarker)
+		if (!dmgMarker)
 		{
-			hitMarker = new("Shape2D");
+			dmgMarker = new("Shape2D");
 
 			vector2 p = (-0.1, -1);
-			hitMarker.Pushvertex(p);
-			hitMarker.PushCoord((0,0));
+			dmgMarker.Pushvertex(p);
+			dmgMarker.PushCoord((0,0));
 			p.x*= -1;
-			hitMarker.Pushvertex(p);
-			hitMarker.PushCoord((0,0));
+			dmgMarker.Pushvertex(p);
+			dmgMarker.PushCoord((0,0));
 			p.x *= -0.4;
 			p.y = -0.55;
-			hitMarker.Pushvertex(p);
-			hitMarker.PushCoord((0,0));
+			dmgMarker.Pushvertex(p);
+			dmgMarker.PushCoord((0,0));
 			p.x*= -1;
-			hitMarker.Pushvertex(p);
-			hitMarker.PushCoord((0,0));
+			dmgMarker.Pushvertex(p);
+			dmgMarker.PushCoord((0,0));
 
-			hitMarker.PushTriangle(0, 1, 2);
-			hitMarker.PushTriangle(1, 2, 3);
+			dmgMarker.PushTriangle(0, 1, 2);
+			dmgMarker.PushTriangle(1, 2, 3);
 		}
 
 		// Don't forget to multiply by hudscale:
 		vector2 hudscale = GetHudScale();
-		if (!hitMarkerTransf)
-			hitMarkerTransf = new("Shape2DTransform");
+		if (!dmgMarkerTransf)
+			dmgMarkerTransf = new("Shape2DTransform");
 		// Draw the shape for each damage marker data
 		// in the previously built array:
-		for (int i = hmData.Size() - 1; i >= 0; i--)
+		for (int i = dmgMrkData.Size() - 1; i >= 0; i--)
 		{
-			let hmd = JGPUFH_HitMarkerData(hmData[i]);
+			let hmd = JGPUFH_DamageMarkerData(dmgMrkData[i]);
 			if (!hmd)
 				continue;
 			
-			hitMarkerTransf.Clear();
-			hitMarkerTransf.Scale((size, size) * hudscale.x);
-			hitMarkerTransf.Rotate(hmd.angle);
-			hitMarkerTransf.Translate((Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5));
-			hitMarker.SetTransform(hitMarkerTransf);
-			Screen.DrawShapeFill(color(0, 0, 255), hmd.alpha, hitMarker);
+			dmgMarkerTransf.Clear();
+			dmgMarkerTransf.Scale((size, size) * hudscale.x);
+			dmgMarkerTransf.Rotate(hmd.angle);
+			dmgMarkerTransf.Translate((Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5));
+			dmgMarker.SetTransform(dmgMarkerTransf);
+			Screen.DrawShapeFill(color(0, 0, 255), hmd.alpha, dmgMarker);
 		}
 	}
 
 	// Fade out damage markers:
 	void UpdateDamageMarkers()
 	{
-		for (int i = hmData.Size() - 1; i >= 0; i--)
+		for (int i = dmgMrkData.Size() - 1; i >= 0; i--)
 		{
-			let hmd = JGPUFH_HitMarkerData(hmData[i]);
+			let hmd = JGPUFH_DamageMarkerData(dmgMrkData[i]);
 			if (!hmd)
 				continue;
 
@@ -1147,7 +1148,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			if (hmd.alpha <= 0)
 			{
 				hmd.Destroy();
-				hmData.Delete(i);
+				dmgMrkData.Delete(i);
 			}
 		}
 	}
@@ -1234,6 +1235,21 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	{
 		if (c_DrawReticleBars.GetInt() <= DM_NONE)
 			return;
+		
+		if (!lookTC)
+		{
+			let ti = ThinkerIterator.Create("JGPHUD_LookTargetController");
+			Thinker th;
+			while (th = JGPHUD_LookTargetController(ti.Next()))
+			{
+				let ltc = JGPHUD_LookTargetController(th);
+				if (ltc && ltc.pp && ltc.pp == CPlayer.mo)
+				{
+					lookTC = ltc;
+					break;
+				}
+			}
+		}
 
 		// This is the general mask that cuts out the inner part
 		// of the disks to make them appear as circular bars:
@@ -1308,6 +1324,32 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		double alpha = Clamp(c_ReticleBarsAlpha.GetFloat(), 0.0, 1.0);
 		roundBarsGeneralMask.SetTransform(roundBarsGeneralMaskTransf);
 
+		// Looktarget healthbar:
+		if (lookTC && lookTC.looktarget)
+		{
+			let lt = lookTC.looktarget;
+			int health = lt.health;
+			let ltDef = GetDefaultByType(lt.GetClass());
+			int maxhealth = max(lt.starthealth, lt.GetMaxHealth());
+			angle = 0;
+			Screen.EnableStencil(true);
+			Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+			Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
+			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+			alpha = LinearMap(lookTC.targetTimer, 0, JGPHUD_LookTargetController.TARGETDISPLAYTIME / 2, 0.0, 1.0, true);
+			valueFrac = LinearMap(health, 0, maxhealth, 1.0, 0.0, true);
+			DrawCircleSegmentShape(color(60,160,60), screenCenter, size, steps, angle, coverAngle, valueFrac, alpha);
+			if (drawBarText)
+			{
+				double s = 0.5;
+				DrawString(smallHUDFont, String.Format("%s", lt.GetTag()), (0, -size / hudscale.x - fy*s), DI_SCREEN_CENTER|DI_TEXT_ALIGN_CENTER, Font.CR_White, alpha, scale: (fntScale,fntScale*0.75) * s);
+			}
+			// Clear the general mask:
+			Screen.EnableStencil(false);
+			Screen.ClearStencil();
+		}
+
+
 		// Health bar:
 		int health = CPlayer.mo.health;
 		int maxhealth = CPlayer.mo.GetMaxHealth(true);
@@ -1326,7 +1368,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
 			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
 			valueFrac = LinearMap(health, 0, maxhealth, 1.0, 0.0, true);
-			DrawCircleSegmentShape(color(255,0,0), screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
+			DrawCircleSegmentShape(color(215,100,100), screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
 			if (drawBarText)
 				DrawString(hfnt, String.Format("%d", health), fntpos, DI_SCREEN_CENTER|DI_TEXT_ALIGN_LEFT, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
 			// Clear the general mask:
@@ -1384,7 +1426,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
 			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
 			valueFrac = LinearMap(armAmount, 0, armMaxAmount, 1.0, 0.0, true);
-			DrawCircleSegmentShape(armorColor, screenCenter, secondarySize, steps, angle, coverAngle, valueFrac, fadeAlph);
+			DrawCircleSegmentShape(color(armorColor.a, armorcolor.r+32, armorcolor.g+32, armorcolor.b+32), screenCenter, secondarySize, steps, angle, coverAngle, valueFrac, fadeAlph);
 			if (drawBarText)
 				DrawString(hfnt, String.Format("%d", armAmount), fntpos2, DI_SCREEN_CENTER|DI_TEXT_ALIGN_RIGHT, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
 			Screen.EnableStencil(false);
@@ -1445,7 +1487,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// Angle the mask (flip the angle if it was negative,
 		// so it goes counter-clockwise instead of clockwise):
 		double ofsMaskAngle = coverAngle*frac;
-		if (angle < 0)
+		if (angle <= 0)
 			 ofsMaskAngle *= -1;
 		roundBarsTransform.Rotate(angle + ofsMaskAngle);
 		roundBarsTransform.Translate(pos);
@@ -1537,6 +1579,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
+	// Collects the icons, slots and slot indexes of existing
+	// weapons into an array of custom classes:
+	// (See JGPUFH_WeaponSlotData class)
 	void GetWeaponSlots()
 	{
 		if (weaponSlotData.Size() > 0)
@@ -1601,15 +1646,13 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// is properly set up:
 		GetWeaponSlots();
 
-		int flags = SetScreenFlags(c_weaponSlotPos.GetInt());
-		vector2 ofs = ( c_weaponSlotX.GetInt(), c_weaponSlotY.GetInt() );
-		double indent = 2;
 		int totalSlots;
 		int maxSlotID = 1;
 		// first iteration to calculate the size of the whole block:
 		for (int i = 0; i < weaponSlotData.Size(); i++)
 		{
 			let wsd = weaponSlotData[i];
+			// Only account for weapons in inventory:
 			if (wsd && CPlayer.mo.FindInventory(wsd.weaponClass))
 			{
 				if  (wsd.slotIndex == 0)
@@ -1622,9 +1665,24 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				}
 			}
 		}
-		double width = (box.x + indent) * totalSlots - indent; //we don't need indent at the end
-		double height = (box.y + indent) * maxSlotID - indent; //ditto
+
+		int flags = SetScreenFlags(c_weaponSlotPos.GetInt());
+		bool vertical = (flags & DI_SCREEN_CENTER != DI_SCREEN_CENTER) && ((flags & DI_SCREEN_LEFT_CENTER == DI_SCREEN_LEFT_CENTER) || (flags & DI_SCREEN_RIGHT_CENTER == DI_SCREEN_RIGHT_CENTER));
+		bool rightEdge = vertical && (flags & DI_SCREEN_RIGHT_CENTER == DI_SCREEN_RIGHT_CENTER);
+		vector2 ofs = ( c_weaponSlotX.GetInt(), c_weaponSlotY.GetInt() );
+		double indent = 2;
+		double horMul = vertical ? maxSlotID : totalSlots;
+		double vertMul = vertical ? totalSlots : maxSlotID;
+		double width = (box.x + indent) * horMul - indent; //we don't need indent at the end
+		double height = (box.y + indent) * vertMul - indent; //ditto
 		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
+		if (vertical)
+		{
+			if (rightEdge)
+				pos.x += box.x + indent;
+			pos.y += height - box.y;
+		}
+
 		vector2 wpos = pos;
 		for (int i = 0; i < weaponSlotData.Size(); i++)
 		{
@@ -1640,19 +1698,44 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				// this slot but not the very first slot:
 				if (wsd.slotIndex == 0 && i > 0)
 				{
-					wpos.x += (box.x + indent);
+					if (vertical)
+					{
+						wpos.y -= (box.x*0.5 + indent*2);
+					}
+					else
+					{
+						wpos.x += (box.x + indent);
+					}
 				}
 				// Move the box vertically multiplied per index
 				// (first index is 0 so it won't move the box):
-				wpos.y = pos.y + (box.y + indent) * wsd.slotIndex;
+				if (vertical)
+				{
+					double ofsx = (box.x + indent) * wsd.slotIndex;
+					if (rightEdge)
+					{
+						ofsx *= -1;
+					}
+					wpos.x = pos.x + ofsx;
+				}
+				else
+				{
+					wpos.y = pos.y + (box.y + indent) * wsd.slotIndex;
+				}
 				
 				color col = GetBaseplateColor();
 				int fntCol = Font.CR_Untranslated;
-				// If the box is for the weapon currently selected,
-				// invert its colors:
-				if (CPlayer.readyweapon == weap)
+				// Compare this weapon to readyweapon and pendingweapon:
+				Weapon rweap = Weapon(CPlayer.readyweapon);
+				// MUST explicitly cast it as Weapon, because otherwise
+				// for some weird reason pendingweapon returns 'Object'
+				// when checked in UI scope:
+				Weapon pweap = Weapon(CPlayer.pendingweapon);
+				// If the weapon in question is selected or being
+				// selected, invert the colors of the box:
+				if ((rweap == weap && !pweap) || pweap == weap)
 				{
-					col = color(col.a, 255 - col.r, 255 - col.g, 255 - col.b);
+					col = color(200, 255 - col.r, 255 - col.g, 255 - col.b);
 					fntCol = Font.CR_Gold;
 				}
 				// fill the box color, then draw the weapon's icon:
@@ -2425,6 +2508,8 @@ class JGPUFH_PowerupData play
 	}
 }
 
+// A simple container that saves a weapon class,
+// its slot number and slot index:
 class JGPUFH_WeaponSlotData ui
 {
 	int slot;
@@ -2444,14 +2529,15 @@ class JGPUFH_WeaponSlotData ui
 	}
 }
 
-class JGPUFH_HitMarkerData ui
+// Stores current angle and alpha for incoming damage markers:
+class JGPUFH_DamageMarkerData ui
 {
 	double angle;
 	double alpha;
 
-	static JGPUFH_HitMarkerData Create(double angle)
+	static JGPUFH_DamageMarkerData Create(double angle)
 	{
-		let hmd = JGPUFH_HitMarkerData(New("JGPUFH_HitMarkerData"));
+		let hmd = JGPUFH_DamageMarkerData(New("JGPUFH_DamageMarkerData"));
 		if (hmd)
 		{
 			hmd.angle = angle;
@@ -2461,11 +2547,56 @@ class JGPUFH_HitMarkerData ui
 	}
 }
 
+class JGPHUD_LookTargetController : Thinker
+{
+	PlayerPawn pp;
+	Actor looktarget;
+	int targetTimer;
+	const TARGETDISPLAYTIME = TICRATE;
+
+	override void Tick()
+	{
+		if (!pp)
+		{
+			Destroy();
+			return;
+		}
+		FLineTraceData lt;
+		pp.LineTrace(pp.angle, 2048, pp.pitch, offsetz: pp.height * 0.5 - pp.floorclip + pp.AttackZOffset*pp.player.crouchFactor, data:lt);
+		if (lt.HitType == TRACE_HitActor)
+		{
+			let ha = lt.HitActor;
+			if (ha && ha.bISMONSTER && ha.bSHOOTABLE && ha.health > 0)
+			{
+				looktarget = ha;
+				targetTimer = TARGETDISPLAYTIME;
+			}
+		}
+		if (looktarget && looktarget.health <= 0)
+		{
+			looktarget = null;
+		}
+		if (targetTimer > 0)
+		{
+			targetTimer--;
+			if (targetTimer == 0)
+			{
+				looktarget = null;
+			}
+		}
+	}
+}
+
 class JGPUFH_HudDataHandler : EventHandler
 {
 	ui JGPUFH_FlexibleHUD hud;
 	array <JGPUFH_PowerupData> powerupData;
 	transient CVar c_ScreenReddenFactor;
+
+	bool IsVoodooDoll(PlayerPawn mo)
+	{
+		return !mo.player || !mo.player.mo || mo.player.mo != mo;
+	}
 
 	override void WorldThingDamaged(worldEvent e)
 	{
@@ -2500,7 +2631,7 @@ class JGPUFH_HudDataHandler : EventHandler
 		}
 	}
 
-	// The weird hack that is mean to give icons to powerups
+	// The weird hack that is meant to give icons to powerups
 	// that have no icons defined (like the Doom powerups):
 	override void WorldThingSpawned(worldEvent e)
 	{
@@ -2514,12 +2645,12 @@ class JGPUFH_HudDataHandler : EventHandler
 				return;
 			
 			// Check if that powerupType has a proper icon;
-			// if so, abort:
+			// if so, we're good, so abort:
 			TextureID icon = pwr.Icon;
 			if (icon.isValid() && TexMan.GetName(icon) != 'TNT1A0')
 				return;
 
-			// Check if tha powerup was already processed:
+			// Check if that powerup was already processed:
 			JGPUFH_PowerupData pwd;
 			let pwrCls = pwr.GetClass();
 			for (int i = 0; i < powerupData.Size(); i++)
@@ -2543,6 +2674,16 @@ class JGPUFH_HudDataHandler : EventHandler
 			{
 				pwd = JGPUFH_PowerupData.Create(icon, pwrCls);
 				powerupData.Push(pwd);
+			}
+		}
+
+		let pmo = PlayerPawn(e.thing);
+		if (pmo && !IsVoodooDoll(pmo))
+		{
+			let ltc = New("JGPHUD_LookTargetController");
+			if (ltc)
+			{
+				ltc.pp = pmo;
 			}
 		}
 	}
