@@ -73,6 +73,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	CVar c_DrawEnemyHitMarkers;
 	CVar c_DrawReticleBars;
+	CVar c_ReticleBarsCoverAngle;
+	CVar c_ReticleBarsHealthArmor;
+	CVar c_ReticleBarsAmmo;
+	CVar c_ReticleBarsEnemy;
 	CVar c_ReticleBarsText;
 	CVar c_ReticleBarsAlpha;
 	CVar c_ReticleBarsSize;
@@ -150,10 +154,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	Shape2D roundBars;
 	Shape2D roundBarsAngMask;
 	Shape2D roundBarsInnerMask;
-	Shape2D roundBarsGeneralMask;
+	Shape2D roundBarsGenMask;
 	Shape2DTransform roundBarsTransform;
-	Shape2DTransform roundBarsGeneralMaskTransf;
-	Shape2DTransform roundBarsGeneralMaskTransf2;
+	Shape2DTransform roundBarsGenMaskTransfInner;
+	Shape2DTransform roundBarsGenMaskTransfOuter;
 	const MARKERSDELAY = TICRATE*2;
 	double prevArmAmount;
 	double prevArmMaxAmount;
@@ -164,15 +168,26 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	int prevAmmo2Amount;
 	int prevAmmo2MaxAmount;
 	int reticleMarkersDelay[4];
+	const BARCOVERANGLE = 80.0;
 	enum EReticleBarTypes
 	{
-		RM_Health,
-		RM_Armor,
-		RM_Ammo1,
-		RM_Ammo2,
+		RB_HEALTH,
+		RB_ARMOR,
+		RB_AMMO1,
+		RB_AMMO2,
 	}
-	// CVar values for options that have no/autohide/always
-	// display modes:
+	enum EReticleBarPos
+	{
+		RB_NONE,
+		RB_LEFT,
+		RB_TOP,
+		RB_RIGHT,
+		RB_BOTTOM,
+		RB_DONTDRAW = 1000,
+	}
+
+	// CVar values for options that have
+	// "no/autohide/always" display modes:
 	enum EDisplayModes
 	{
 		DM_NONE,
@@ -369,6 +384,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			c_ReticleBarsAlpha = CVar.GetCvar('jgphud_ReticleBarsAlpha', CPlayer);
 		if (!c_ReticleBarsSize)
 			c_ReticleBarsSize = CVar.GetCvar('jgphud_ReticleBarsSize', CPlayer);
+		if (!c_ReticleBarsCoverAngle)
+			c_ReticleBarsCoverAngle = CVar.GetCvar('jgphud_ReticleBarsCoverAngle', CPlayer);
+		if (!c_ReticleBarsHealthArmor)
+			c_ReticleBarsHealthArmor = CVar.GetCvar('jgphud_ReticleBarsHealthArmor', CPlayer);
+		if (!c_ReticleBarsAmmo)
+			c_ReticleBarsAmmo = CVar.GetCvar('jgphud_ReticleBarsAmmo', CPlayer);
+		if (!c_ReticleBarsEnemy)
+			c_ReticleBarsEnemy = CVar.GetCvar('jgphud_ReticleBarsEnemy', CPlayer);
 		if (!c_ReticleBarsWidth)
 			c_ReticleBarsWidth = CVar.GetCvar('jgphud_ReticleBarsWidth', CPlayer);
 	}
@@ -1220,22 +1243,127 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
+	bool CanDrawReticleBar(int which)
+	{
+		if (c_DrawReticleBars && c_DrawReticleBars.GetInt() != DM_AUTOHIDE)
+			return true;
+
+		which = Clamp(which, 0, reticleMarkersDelay.Size()-1);
+		return reticleMarkersDelay[which] > 0;
+	}
+
 	void UpdateReticleBars()
 	{
-		for (int i = 0; i < reticleMarkersDelay.Size(); i++)
+		if (c_DrawReticleBars && c_DrawReticleBars.GetInt() != DM_AUTOHIDE)
 		{
-			if (reticleMarkersDelay[i] > 0)
-			{
-				reticleMarkersDelay[i]--;
-			}
+			reticleMarkersDelay[RB_HEALTH] = MARKERSDELAY;
+			reticleMarkersDelay[RB_ARMOR] = MARKERSDELAY;
+			reticleMarkersDelay[RB_AMMO1] = MARKERSDELAY;
+			reticleMarkersDelay[RB_AMMO2] = MARKERSDELAY;
+			return;
+		}
+
+		int health = CPlayer.mo.health;
+		int maxhealth = CPlayer.mo.GetMaxHealth(true);
+		if (prevHealth != health || prevMaxHealth != maxhealth)
+		{
+			prevHealth = health;
+			prevMaxHealth = maxhealth;
+			reticleMarkersDelay[RB_HEALTH] = MARKERSDELAY;
+		}
+		else
+		{
+			reticleMarkersDelay[RB_HEALTH] -= 1;
+		}
+
+		if (prevArmAmount != armAmount || prevArmMaxAmount != armMaxAmount)
+		{
+			prevArmAmount = armAmount;
+			prevArmMaxAmount = armMaxAmount;
+			reticleMarkersDelay[RB_ARMOR] = MARKERSDELAY;
+		}
+		else
+		{
+			reticleMarkersDelay[RB_ARMOR] -= 1;
+		}
+
+
+		Ammo am1, am2;
+		[am1, am2] = GetCurrentAmmo();
+		if (am1 && (prevAmmo1Amount != am1.amount || prevAmmo1MaxAmount != am1.maxamount))
+		{
+			prevAmmo1Amount = am1.amount;
+			prevAmmo1MaxAmount = am1.maxamount;
+			reticleMarkersDelay[RB_AMMO1] = MARKERSDELAY;
+		}
+		else
+		{
+			reticleMarkersDelay[RB_AMMO1] -= 1;
+		}
+		if (am2 && (prevAmmo2Amount != am2.amount || prevAmmo2MaxAmount != am2.maxamount))
+		{
+			prevAmmo2Amount = am2.amount;
+			prevAmmo2MaxAmount = am2.maxamount;
+			reticleMarkersDelay[RB_AMMO2] = MARKERSDELAY;
+		}
+		else
+		{
+			reticleMarkersDelay[RB_AMMO2] -= 1;
 		}
 	}
 
-	void DrawReticleBars(int steps = 100, double coverAngle = 80)
+	double, vector2, vector2, int, int GetReticleBarsPos(int i, double inwidth, double outwidth, double fntHeight)
+	{
+		i = Clamp(i, 0, 4);
+		vector2 posIn;
+		vector2 posOut;
+		double angle;
+		int inFlags = DI_TEXT_ALIGN_CENTER;
+		int outFlags = DI_TEXT_ALIGN_CENTER;
+		switch (i)
+		{
+			default:
+				angle = RB_DONTDRAW;
+				break;
+			case RB_LEFT:
+				angle = -90;
+				posIn = (-inWidth, -fntHeight*0.25);
+				posOut = (-outWidth, posIn.y);
+				inFlags = DI_TEXT_ALIGN_LEFT;
+				outFlags = DI_TEXT_ALIGN_RIGHT;
+				break;
+			case RB_TOP:
+				angle = 0;
+				posIn = (0, -inWidth + fntHeight*0.25);
+				posOut = (0, -outWidth - fntHeight);
+				break;
+			case RB_RIGHT:
+				angle = 90;
+				posIn = (inWidth, -fntHeight*0.25);
+				posOut = (outWidth, -fntHeight*0.25);
+				inFlags = DI_TEXT_ALIGN_RIGHT;
+				outFlags = DI_TEXT_ALIGN_LEFT;
+				break;
+			case RB_BOTTOM:
+				angle = 180;
+				posIn = (0, inWidth - fntHeight);
+				posOut = (0, outWidth);
+				break;
+		}
+		if (c_aspectscale.GetBool())
+		{
+			posIn.y /= ASPECTSCALE;
+			posOut.y /= ASPECTSCALE;
+		}
+		return angle, posIn, posOut, inFlags|DI_SCREEN_CENTER, outFlags|DI_SCREEN_CENTER;
+	}
+
+	void DrawReticleBars(int steps = 100)
 	{
 		if (c_DrawReticleBars.GetInt() <= DM_NONE)
 			return;
 		
+		double coverAngle = BARCOVERANGLE;//Clamp(c_ReticleBarsCoverAngle.GetInt(), 10, 90);
 		if (!lookTC)
 		{
 			let ti = ThinkerIterator.Create("JGPHUD_LookTargetController");
@@ -1253,21 +1381,21 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 		// This is the general mask that cuts out the inner part
 		// of the disks to make them appear as circular bars:
-		if (!roundBarsGeneralMask)
+		if (!roundBarsGenMask)
 		{
 			double angStep = CIRCLEANGLES / steps;
 			double ang = 270;
-			roundBarsGeneralMask = New("Shape2D");
+			roundBarsGenMask = New("Shape2D");
 			// anchor point at the center:
-			roundBarsGeneralMask.PushVertex((0,0));
+			roundBarsGenMask.PushVertex((0,0));
 			// coords are irrelevant as usual, because no textures:
-			roundBarsGeneralMask.PushCoord((0,0));
+			roundBarsGenMask.PushCoord((0,0));
 			for (int i = 0; i < steps; i++)
 			{
 				double c = cos(ang);
 				double s = sin(ang);
-				roundBarsGeneralMask.PushVertex((c,s));
-				roundBarsGeneralMask.PushCoord((0,0));
+				roundBarsGenMask.PushVertex((c,s));
+				roundBarsGenMask.PushCoord((0,0));
 				ang += angStep;
 			}
 			int maxSegments = steps;
@@ -1278,16 +1406,16 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				int next = i+1;
 				if (next > steps)
 					next -= steps;
-				roundBarsGeneralMask.PushTriangle(0, i, next);
+				roundBarsGenMask.PushTriangle(0, i, next);
 			}
 		}
-		if (!roundBarsGeneralMaskTransf)
+		if (!roundBarsGenMaskTransfInner)
 		{
-			roundBarsGeneralMaskTransf = New("Shape2DTransform");
+			roundBarsGenMaskTransfInner = New("Shape2DTransform");
 		}
-		if (!roundBarsGeneralMaskTransf2)
+		if (!roundBarsGenMaskTransfOuter)
 		{
-			roundBarsGeneralMaskTransf2 = New("Shape2DTransform");
+			roundBarsGenMaskTransfOuter = New("Shape2DTransform");
 		}
 
 		// Position and sizes:
@@ -1302,47 +1430,64 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		double secondaryMaskSize = secondarySize * widthFac;
 
 		// Mask for inner bars:
-		roundBarsGeneralMaskTransf.Clear();
-		roundBarsGeneralMaskTransf.Scale((maskSize, maskSize));
-		roundBarsGeneralMaskTransf.Translate(screenCenter);
+		roundBarsGenMaskTransfInner.Clear();
+		roundBarsGenMaskTransfInner.Scale((maskSize, maskSize));
+		roundBarsGenMaskTransfInner.Translate(screenCenter);
 		// Mask for outer bars:
-		roundBarsGeneralMaskTransf2.Clear();
-		roundBarsGeneralMaskTransf2.Scale((secondaryMaskSize, secondaryMaskSize));
-		roundBarsGeneralMaskTransf2.Translate(screenCenter);
-
+		roundBarsGenMaskTransfOuter.Clear();
+		roundBarsGenMaskTransfOuter.Scale((secondaryMaskSize, secondaryMaskSize));
+		roundBarsGenMaskTransfOuter.Translate(screenCenter);
+		// Autoide
 		bool autoHide = c_DrawReticleBars.GetInt() == DM_AUTOHIDE;
+		// Should draw text?
 		bool drawBarText = c_ReticleBarsText.GetBool();
+		// Element alpha:
+		double alpha = Clamp(c_ReticleBarsAlpha.GetFloat(), 0.0, 1.0);
+		
+		// Font position and scale setup:
 		HUDFont hfnt = numHUDFont;
 		Font fnt = hfnt.mFont;
+		// We need to do a lot here. The text strings, if show, have to be shown
+		// in specific places, depending on where the bar is located (left, top,
+		// right, bottom), and also whether it's an inner bar or an outer bar.
+		// So, we need two sets of positions and two sets of flags (for inner 
+		// and outer). Font height also plays a role for vertical positioning.
+		// And, obviously, the angle at which the bar is rotated. All of this
+		// can be set up by the player by changing the appropriate CVar.
+		// See GetReticleBarsPos() with a whopping 5 return values.
 		double fntScale = LinearMap(virtualSize, 12, 200, 0.5, 5, true);
 		double fy = fnt.GetHeight() * fntScale;
-		vector2 fntpos = (-maskSize / hudscale.x + 1, -fy*0.25);
-		vector2 fntpos2 = (-secondarySize / hudscale.x - 1, fntpos.y);
-
-		double valueFrac;
+		double fontOfsIn = maskSize / hudscale.x - 1;
+		double fontOfsOut = secondarySize / hudscale.x + 1;
+		vector2 fntPosIn, fntPosOut;
+		int fntFlagsIn, fntFlagsOut;
 		double angle;
-		double alpha = Clamp(c_ReticleBarsAlpha.GetFloat(), 0.0, 1.0);
-		roundBarsGeneralMask.SetTransform(roundBarsGeneralMaskTransf);
+		double valueFrac;
 
-		// Looktarget healthbar:
-		if (lookTC && lookTC.looktarget)
+		// We also need to apply and remove stencil around each step,
+		// so that each bar is masked individually.
+
+		// Looktarget healthbar (inner bar):
+		[angle, fntPosIn, fntPosOut, fntFlagsIn, fntFlagsOut] = GetReticleBarsPos(c_ReticleBarsEnemy.GetInt(), fontOfsIn, fontOfsOut, fy);
+		if (angle != RB_DONTDRAW && lookTC && lookTC.looktarget)
 		{
+			roundBarsGenMask.SetTransform(roundBarsGenMaskTransfInner);
 			let lt = lookTC.looktarget;
 			int health = lt.health;
 			let ltDef = GetDefaultByType(lt.GetClass());
 			int maxhealth = max(lt.starthealth, lt.GetMaxHealth());
-			angle = 0;
 			Screen.EnableStencil(true);
 			Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
-			Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
+			Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGenMask);
 			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
-			alpha = LinearMap(lookTC.targetTimer, 0, JGPHUD_LookTargetController.TARGETDISPLAYTIME / 2, 0.0, 1.0, true);
+			double fadeAlph = LinearMap(lookTC.targetTimer, 0, JGPHUD_LookTargetController.TARGETDISPLAYTIME / 2, 0.0, 1.0, true);
 			valueFrac = LinearMap(health, 0, maxhealth, 1.0, 0.0, true);
-			DrawCircleSegmentShape(color(60,160,60), screenCenter, size, steps, angle, coverAngle, valueFrac, alpha);
+			DrawCircleSegmentShape(color(60,160,60), screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
 			if (drawBarText)
 			{
-				double s = 0.5;
-				DrawString(smallHUDFont, String.Format("%s", lt.GetTag()), (0, -size / hudscale.x - fy*s), DI_SCREEN_CENTER|DI_TEXT_ALIGN_CENTER, Font.CR_White, alpha, scale: (fntScale,fntScale*0.75) * s);
+				double s = 0.35;
+				DrawString(smallHUDFont, String.Format("%s", lt.GetTag()), fntPosOut, fntFlagsOut, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75) * s);
+				DrawString(hfnt, String.Format("%d", health), fntPosIn, fntFlagsIn, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
 			}
 			// Clear the general mask:
 			Screen.EnableStencil(false);
@@ -1350,113 +1495,103 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 
 
-		// Health bar:
-		int health = CPlayer.mo.health;
-		int maxhealth = CPlayer.mo.GetMaxHealth(true);
-		if (prevHealth != health || prevMaxHealth != maxhealth)
+		// Health and armor bars:
+		[angle, fntPosIn, fntPosOut, fntFlagsIn, fntFlagsOut] = GetReticleBarsPos(c_ReticleBarsHealthArmor.GetInt(), fontOfsIn, fontOfsOut, fy);
+		if (angle != RB_DONTDRAW)
 		{
-			prevHealth = health;
-			prevMaxHealth = maxhealth;
-			reticleMarkersDelay[RM_HEALTH] = MARKERSDELAY;
-		}
-		if (!autoHide || reticleMarkersDelay[RM_HEALTH] > 0)
-		{
-			double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RM_HEALTH], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
-			angle = -90;
-			Screen.EnableStencil(true);
-			Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
-			Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
-			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
-			valueFrac = LinearMap(health, 0, maxhealth, 1.0, 0.0, true);
-			DrawCircleSegmentShape(color(215,100,100), screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
-			if (drawBarText)
-				DrawString(hfnt, String.Format("%d", health), fntpos, DI_SCREEN_CENTER|DI_TEXT_ALIGN_LEFT, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
-			// Clear the general mask:
-			Screen.EnableStencil(false);
-			Screen.ClearStencil();
+			// Health bar (inner):
+			int health = CPlayer.mo.health;
+			int maxhealth = CPlayer.mo.GetMaxHealth(true);
+			if (CanDrawReticleBar(RB_HEALTH))
+			{
+				roundBarsGenMask.SetTransform(roundBarsGenMaskTransfInner);
+				double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RB_HEALTH], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
+				Screen.EnableStencil(true);
+				Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+				Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGenMask);
+				Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+				valueFrac = LinearMap(health, 0, maxhealth, 1.0, 0.0, true);
+				DrawCircleSegmentShape(color(215,100,100), screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
+				if (drawBarText)
+				{
+					DrawString(hfnt, String.Format("%d", health), fntPosIn, fntFlagsIn, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
+				}
+				// Clear the general mask:
+				Screen.EnableStencil(false);
+				Screen.ClearStencil();
+			}
+			// Armor bar (outer):
+			int armAmount = armAmount;
+			int armMaxAmount = armMaxAmount;
+			if (CanDrawReticleBar(RB_ARMOR))
+			{
+				roundBarsGenMask.SetTransform(roundBarsGenMaskTransfOuter);
+				double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RB_ARMOR], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
+				Screen.EnableStencil(true);
+				Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+				Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGenMask);
+				Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+				valueFrac = LinearMap(armAmount, 0, armMaxAmount, 1.0, 0.0, true);
+				DrawCircleSegmentShape(color(armorColor.a, armorcolor.r+32, armorcolor.g+32, armorcolor.b+32), screenCenter, secondarySize, steps, angle, coverAngle, valueFrac, fadeAlph);
+				if (drawBarText)
+				{
+					DrawString(hfnt, String.Format("%d", armAmount), fntPosOut, fntFlagsOut, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
+				}
+				Screen.EnableStencil(false);
+				Screen.ClearStencil();
+			}
 		}
 		
 
 		Ammo am1, am2;
 		[am1, am2] = GetCurrentAmmo();
 
-		// Ammo 1 bar:
-		if (am1)
+		// Ammo bars:
+		[angle, fntPosIn, fntPosOut, fntFlagsIn, fntFlagsOut] = GetReticleBarsPos(c_ReticleBarsAmmo.GetInt(), fontOfsIn, fontOfsOut, fy);
+		if (angle != RB_DONTDRAW)
 		{
-			if (prevAmmo1Amount != am1.amount || prevAmmo1MaxAmount != am1.maxamount)
+			color amCol = GetAmmoColor(am2);
+			// Ammo 1 (inner):
+			if (am1)
 			{
-				prevAmmo1Amount = am1.amount;
-				prevAmmo1MaxAmount = am1.maxamount;
-				reticleMarkersDelay[RM_Ammo1] = MARKERSDELAY;
+				if (CanDrawReticleBar(RB_AMMO1))
+				{
+					roundBarsGenMask.SetTransform(roundBarsGenMaskTransfInner);
+					double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RB_AMMO1], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
+					Screen.EnableStencil(true);
+					Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+					Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGenMask);
+					Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+					valueFrac = LinearMap(am1.amount, 0, am1.maxAmount, 1.0, 0.0, true);
+					DrawCircleSegmentShape(amCol, screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
+					if (drawBarText)
+					{
+						DrawString(hfnt, String.Format("%d", am1.amount), fntPosIn, fntFlagsIn, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
+					}
+					Screen.EnableStencil(false);
+					Screen.ClearStencil();
+				}
 			}
-			if (!autoHide || reticleMarkersDelay[RM_Ammo1] > 0)
+			// Ammo 2 (outer):
+			if (am2 && am2 != am1)
 			{
-				double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RM_Ammo1], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
-				angle = 90;
-				Screen.EnableStencil(true);
-				Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
-				Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
-				Screen.SetStencil(0, SOP_Keep, SF_AllOn);
-				valueFrac = LinearMap(am1.amount, 0, am1.maxAmount, 1.0, 0.0, true);
-				DrawCircleSegmentShape(GetAmmoColor(am1), screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
-				if (drawBarText)
-					DrawString(hfnt, String.Format("%d", am1.amount), (-fntpos.x, fntpos.y), DI_SCREEN_CENTER|DI_TEXT_ALIGN_RIGHT, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
-				Screen.EnableStencil(false);
-				Screen.ClearStencil();
-			}
-		}
-
-		roundBarsGeneralMask.SetTransform(roundBarsGeneralMaskTransf2);
-
-		// Armor bar:
-		int armAmount = armAmount;
-		int armMaxAmount = armMaxAmount;
-		if (prevArmAmount != armAmount || prevArmMaxAmount != armMaxAmount)
-		{
-			prevArmAmount = armAmount;
-			prevArmMaxAmount = armMaxAmount;
-			reticleMarkersDelay[RM_Armor] = MARKERSDELAY;
-		}
-		if (!autoHide || reticleMarkersDelay[RM_Armor] > 0)
-		{
-			double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RM_Armor], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
-			angle = -90;
-			Screen.EnableStencil(true);
-			Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
-			Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
-			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
-			valueFrac = LinearMap(armAmount, 0, armMaxAmount, 1.0, 0.0, true);
-			DrawCircleSegmentShape(color(armorColor.a, armorcolor.r+32, armorcolor.g+32, armorcolor.b+32), screenCenter, secondarySize, steps, angle, coverAngle, valueFrac, fadeAlph);
-			if (drawBarText)
-				DrawString(hfnt, String.Format("%d", armAmount), fntpos2, DI_SCREEN_CENTER|DI_TEXT_ALIGN_RIGHT, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
-			Screen.EnableStencil(false);
-			Screen.ClearStencil();
-		}
-
-		// Ammo 2 bar:
-		if (am2)
-		{
-			if (prevAmmo2Amount != am2.amount || prevAmmo2MaxAmount != am2.maxamount)
-			{
-				prevAmmo2Amount = am2.amount;
-				prevAmmo2MaxAmount = am2.maxamount;
-				reticleMarkersDelay[RM_Ammo2] = MARKERSDELAY;
-			}
-			if (!autoHide || reticleMarkersDelay[RM_Ammo2] > 0)
-			{
-				double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RM_Ammo2], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
-				angle = 90;
-				Screen.EnableStencil(true);
-				Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
-				Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGeneralMask);
-				Screen.SetStencil(0, SOP_Keep, SF_AllOn);
-				valueFrac = LinearMap(am2.amount, 0, am2.maxAmount, 1.0, 0.0, true);
-				color amCol = GetAmmoColor(am2);
-				DrawCircleSegmentShape(color(amCol.a, int(amCol.r*0.7),int(amCol.g*0.7),int(amCol.b*0.7)), screenCenter, secondarySize, steps, angle, coverAngle, valueFrac, fadeAlph);
-				if (drawBarText)
-					DrawString(hfnt, String.Format("%d", am2.amount), (-fntpos2.x, fntpos2.y), DI_SCREEN_CENTER|DI_TEXT_ALIGN_LEFT, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
-				Screen.EnableStencil(false);
-				Screen.ClearStencil();
+				if (CanDrawReticleBar(RB_AMMO2))
+				{
+					roundBarsGenMask.SetTransform(roundBarsGenMaskTransfOuter);
+					double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RB_AMMO2], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
+					Screen.EnableStencil(true);
+					Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+					Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGenMask);
+					Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+					valueFrac = LinearMap(am2.amount, 0, am2.maxAmount, 1.0, 0.0, true);
+					DrawCircleSegmentShape(color(amCol.a, int(amCol.r*0.7),int(amCol.g*0.7),int(amCol.b*0.7)), screenCenter, secondarySize, steps, angle, coverAngle, valueFrac, fadeAlph);
+					if (drawBarText)
+					{
+						DrawString(hfnt, String.Format("%d", am2.amount), fntPosOut, fntFlagsOut, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
+					}
+					Screen.EnableStencil(false);
+					Screen.ClearStencil();
+				}
 			}
 		}
 	}
@@ -1469,31 +1604,31 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			CreateCircleSegmentShapes(roundBars, roundBarsAngMask, steps, coverAngle);
 		}
 
-		// Draw the black background:
 		roundBarsTransform.Clear();
 		roundBarsTransform.Scale((size, size));
 		roundBarsTransform.Rotate(angle);
 		roundBarsTransform.Translate(pos);
 		roundBars.SetTransform(roundBarsTransform);
+		// Draw the black background:
 		Screen.DrawShapeFill(color(0,0,0), alpha, roundBars);
 		// enable mask:
 		Screen.EnableStencil(true);
 		Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
 		// draw mask shape:
-		roundBarsTransform.Clear();
-		// Increase the size slightly just to make sure it doesn't
-		// leave any stray pixels at the edge of the bar:
-		roundBarsTransform.Scale((size, size) * 1.1);
 		// Angle the mask (flip the angle if it was negative,
 		// so it goes counter-clockwise instead of clockwise):
 		double ofsMaskAngle = coverAngle*frac;
 		if (angle <= 0)
 			 ofsMaskAngle *= -1;
+		roundBarsTransform.Clear();
+		// Increase the size slightly just to make sure it doesn't
+		// leave any stray pixels at the edge of the bar:
+		roundBarsTransform.Scale((size, size));
 		roundBarsTransform.Rotate(angle + ofsMaskAngle);
 		roundBarsTransform.Translate(pos);
 		roundBarsAngMask.SetTransform(roundBarsTransform);
-		Screen.DrawShapeFill(color(0,0,0), 0, roundBarsAngMask);
 		// set mask:
+		Screen.DrawShapeFill(color(0,0,0), 1.0, roundBarsAngMask);
 		Screen.SetStencil(0, SOP_Keep, SF_AllOn);
 		// draw bar:
 		roundBarsTransform.Clear();
@@ -1515,22 +1650,25 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			roundBarsTransform = New("Shape2DTransform");
 		}
 		coverAngle = Clamp(coverAngle, 0., CIRCLEANGLES);
+		double halfAngle = coverAngle*0.5;
 		// split the total number of steps between the smaller shape
 		// and the bigger shape:
-		int inSteps = ceil(steps * (coverAngle / CIRCLEANGLES));
-		int outSteps = steps - inSteps;
-		// Start at the top, half of the required cover angle to the left:
-		double startAng = 270; //top
+		int inSteps = ceil(steps * (coverAngle / CIRCLEANGLES)); // 23
+		int outSteps = steps - inSteps; // 77
+		// Start at the top:
+		double startAng = 270;
 		// Begin with the inner (pie) shape:
 		if (!inShape)
 		{
-			double angStep = coverAngle / inSteps;
-			double ang = startAng - coverAngle*0.5;
+			double angStep = coverAngle / (inSteps - 1);
+			// initial offset should be half of the cover angle
+			// to the left:
+			double ang = startAng - halfAngle; //230
 			inShape = New("Shape2D");
 			// anchor point at the center:
 			inShape.PushVertex((0,0));
 			inShape.PushCoord((0,0));
-			for (int i = 0; i < inSteps; i++)
+			for (int i = 1; i <= inSteps; i++)
 			{
 				double c = cos(ang);
 				double s = sin(ang);
@@ -1538,14 +1676,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				inShape.PushCoord((0,0));
 				ang += angStep;
 			}
-			int maxSegments = inSteps;
-			// start with 1 because point 0 is the center
-			// and is already accounted for:
-			for (int i = 1; i < maxSegments; i++)
+			for (int i = 1; i < inSteps; i++)
 			{
 				int next = i+1;
-				if (next > maxSegments)
-					next -= maxSegments;
+				if (next > inSteps)
+					next -= inSteps;
 				inShape.PushTriangle(0, i, next);
 			}
 		}
@@ -1553,14 +1688,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (!outShape)
 		{
 			// Move in the opposite direction:
-			double angStep = (CIRCLEANGLES - coverAngle) / outSteps;
+			double angStep = (CIRCLEANGLES - coverAngle) / (outSteps - 1);
 			// And start at the end of the previous shape:
-			double ang = startAng + coverAngle*0.5;
+			double ang = startAng + halfAngle;
 			outShape = New("Shape2D");
-
+			// first point:
 			outShape.PushVertex((0,0));
 			outShape.PushCoord((0,0));
-			for (int i = 0; i < outSteps; i++)
+			for (int i = 1; i <= outSteps; i++)
 			{
 				double c = cos(ang);
 				double s = sin(ang);
@@ -1568,12 +1703,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				outShape.PushCoord((0,0));
 				ang += angStep;
 			}
-			int maxSegments = outSteps;
-			for (int i = 1; i < maxSegments; i++)
+			for (int i = 1; i < outSteps; i++)
 			{
 				int next = i+1;
-				if (next > maxSegments)
-					next -= maxSegments;
+				if (next > outSteps)
+					next -= outSteps;
 				outShape.PushTriangle(0, i, next);
 			}
 		}
