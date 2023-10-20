@@ -262,6 +262,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (!handler)
 			handler = JGPUFH_HudDataHandler(EventHandler.Find("JGPUFH_HudDataHandler"));
 
+		if (!c_BackColor)
+			c_BackColor = CVar.GetCVar('jgphud_BackColor', CPlayer);
+		if (!c_BackAlpha)
+			c_BackAlpha = CVar.GetCVar('jgphud_BackAlpha', CPlayer);
+
 		if (!c_aspectscale)
 			c_aspectscale = CVar.GetCvar('hud_aspectscale', CPlayer);
 		if (!c_crosshairScale)
@@ -511,6 +516,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			c_BackAlpha = CVar.GetCVar('jgphud_BackAlpha', CPlayer);
 			
 		int a = 255 * c_BackAlpha.GetFloat();
+		int a = 255 * Clamp(c_BackAlpha.GetFloat(), 0., 1.);
 		color col = c_BackColor.GetInt();
 
 		return color(a, col.r, col.g, col.b);
