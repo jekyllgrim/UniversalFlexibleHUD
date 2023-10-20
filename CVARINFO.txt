@@ -65,12 +65,11 @@ user nosave int jgphud_InvBarX = 0;
 user nosave int jgphud_InvBarY = 32;
 
 user nosave bool jgphud_DrawEnemyHitMarkers = true;
-user nosave int jgphud_DrawReticleBars = 2;
+user nosave int jgphud_DrawReticleBars = 1;
 user nosave bool jgphud_ReticleBarsText = true;
-user nosave int jgphud_ReticleBarsCoverAngle = 80;
-user nosave int jgphud_ReticleBarsSize = 15;
+user nosave int jgphud_ReticleBarsSize = 28;
 user nosave int jgphud_ReticleBarsHealthArmor = 1;
 user nosave int jgphud_ReticleBarsAmmo = 3;
-user nosave int jgphud_ReticleBarsEnemy = 2;
+user nosave int jgphud_ReticleBarsEnemy = 4;
 user nosave float jgphud_ReticleBarsAlpha = 0.6;
 user nosave float jgphud_ReticleBarsWidth = 0.1;
