@@ -397,8 +397,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			c_ReticleBarsAlpha = CVar.GetCvar('jgphud_ReticleBarsAlpha', CPlayer);
 		if (!c_ReticleBarsSize)
 			c_ReticleBarsSize = CVar.GetCvar('jgphud_ReticleBarsSize', CPlayer);
-		if (!c_ReticleBarsCoverAngle)
-			c_ReticleBarsCoverAngle = CVar.GetCvar('jgphud_ReticleBarsCoverAngle', CPlayer);
 		if (!c_ReticleBarsHealthArmor)
 			c_ReticleBarsHealthArmor = CVar.GetCvar('jgphud_ReticleBarsHealthArmor', CPlayer);
 		if (!c_ReticleBarsAmmo)
@@ -415,7 +413,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	// values are always aimed inward, and negative values cannot
 	// take the element outside the screen.
 	// If 'real' is true, returns real screen coordinates multiplied
-	// but hudscale, rather than StatusBar coordinates.
 	// by hudscale, rather than StatusBar coordinates.
 	vector2 AdjustElementPos(vector2 pos, int flags, vector2 size, vector2 ofs = (0,0), bool real = false)
 	{
@@ -436,14 +433,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			size.y *= hudscale.y;
 		}
 
-		if ((flags & DI_SCREEN_HCENTER) == DI_SCREEN_HCENTER)
 		bool hCenter = ((flags & DI_SCREEN_HCENTER) == DI_SCREEN_HCENTER);
 		bool vCenter = ((flags & DI_SCREEN_VCENTER) == DI_SCREEN_VCENTER);
 		if (hCenter)
 		{
 			pos.x += -size.x*0.5 + screenSize.x * 0.5;
 		}
-		if ((flags & DI_SCREEN_VCENTER) == DI_SCREEN_VCENTER)
 		if (vCenter)
 		{
 			pos.y += -size.y*0.5 + screenSize.y * 0.5;
@@ -451,21 +446,16 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 		if ((flags & DI_SCREEN_CENTER) != DI_SCREEN_CENTER)
 		{
-			if ((flags & DI_SCREEN_TOP) == DI_SCREEN_TOP)
 			if ((flags & DI_SCREEN_BOTTOM) == DI_SCREEN_BOTTOM)
 			{
-				if (ofs.y < 0)
 				pos.y += -size.y + screenSize.y;
 				if (ofs.y > 0)
 					ofs.y = -abs(ofs.y);
 				else
 					ofs.y = 0;
 			}
-			if ((flags & DI_SCREEN_LEFT) == DI_SCREEN_LEFT)
 			else if ((flags & DI_SCREEN_TOP) == DI_SCREEN_TOP && !hCenter && !vCenter)
 			{
-				if (ofs.x < 0)
-					ofs.x = 0;
 				if (ofs.y < 0)
 					ofs.y = 0;
 			}
@@ -477,16 +467,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 					ofs.x = -abs(ofs.x);
 				else
 					ofs.x = 0;
-			}		
-			if ((flags & DI_SCREEN_BOTTOM) == DI_SCREEN_BOTTOM)
 			}	
 			else if ((flags & DI_SCREEN_LEFT) == DI_SCREEN_LEFT && !hCenter && !vCenter)
 			{
-				pos.y += -size.y + screenSize.y;
-				if (ofs.y > 0)
-					ofs.y = -abs(ofs.y);
-				else
-					ofs.y = 0;
 				if (ofs.x < 0)
 					ofs.x = 0;
 			}
@@ -509,12 +492,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	color GetBaseplateColor()
 	{
-		if (!c_BackColor)
-			c_BackColor = CVar.GetCVar('jgphud_BackColor', CPlayer);
-		if (!c_BackAlpha)
-			c_BackAlpha = CVar.GetCVar('jgphud_BackAlpha', CPlayer);
-			
-		int a = 255 * c_BackAlpha.GetFloat();
 		int a = 255 * Clamp(c_BackAlpha.GetFloat(), 0., 1.);
 		color col = c_BackColor.GetInt();
 
