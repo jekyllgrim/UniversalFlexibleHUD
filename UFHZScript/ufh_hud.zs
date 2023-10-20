@@ -74,7 +74,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	CVar c_DrawEnemyHitMarkers;
 	CVar c_DrawReticleBars;
-	CVar c_ReticleBarsCoverAngle;
 	CVar c_ReticleBarsHealthArmor;
 	CVar c_ReticleBarsAmmo;
 	CVar c_ReticleBarsEnemy;
@@ -1395,7 +1394,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (c_DrawReticleBars.GetInt() <= DM_NONE)
 			return;
 		
-		double coverAngle = BARCOVERANGLE;//Clamp(c_ReticleBarsCoverAngle.GetInt(), 10, 90);
 		if (!lookTC)
 		{
 			let ti = ThinkerIterator.Create("JGPHUD_LookTargetController");
