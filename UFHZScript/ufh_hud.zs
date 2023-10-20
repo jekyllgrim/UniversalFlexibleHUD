@@ -44,9 +44,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	CVar c_DamageMarkersFadeTime;
 
 	CVar c_drawWeaponSlots;
-	CVar c_weaponSlotPos;
-	CVar c_weaponSlotX;
-	CVar c_weaponSlotY;
+	CVar c_WeaponSlotsAlign;
+	CVar c_WeaponSlotsPos;
+	CVar c_WeaponSlotsX;
+	CVar c_WeaponSlotsY;
 
 	CVar c_drawPowerups;
 	CVar c_PowerupsPos;
@@ -133,10 +134,16 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	Shape2DTransform reticleMarkerTransform;
 	
 	// Weapon slots
-	array <JGPUFH_WeaponSlotData> weaponSlotData;
+	array <JGPUFHc_WeaponSlotsData> weaponSlotData;
 	const SLOTSDISPLAYDELAY = TICRATE * 2;
 	int slotsDisplayTime;
 	Weapon prevReadyWeapon;
+	enum EWeapSlotsAlign
+	{
+		WA_HORIZONTAL,
+		WA_VERTICAL,
+		WA_VERTICALINV,
+	}
 
 	// Minimap
 	const MAPSCALEFACTOR = 8.;
@@ -327,12 +334,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 		if (!c_drawWeaponSlots)
 			c_drawWeaponSlots = CVar.GetCvar('jgphud_DrawWeaponSlots', CPlayer);
-		if (!c_weaponSlotPos)
-			c_weaponSlotPos = CVar.GetCvar('jgphud_WeaponSlotPos', CPlayer);
-		if (!c_weaponSlotX)
-			c_weaponSlotX = CVar.GetCvar('jgphud_WeaponSlotX', CPlayer);
-		if (!c_weaponSlotY)
-			c_weaponSlotY = CVar.GetCvar('jgphud_WeaponSlotY', CPlayer);
+		if (!c_WeaponSlotsAlign)
+			c_WeaponSlotsAlign = CVar.GetCvar('jgphud_WeaponSlotsAlign', CPlayer);
+		if (!c_WeaponSlotsPos)
+			c_WeaponSlotsPos = CVar.GetCvar('jgphud_WeaponSlotsPos', CPlayer);
+		if (!c_WeaponSlotsX)
+			c_WeaponSlotsX = CVar.GetCvar('jgphud_WeaponSlotsX', CPlayer);
+		if (!c_WeaponSlotsY)
+			c_WeaponSlotsY = CVar.GetCvar('jgphud_WeaponSlotsY', CPlayer);
 
 		if (!c_drawPowerups)
 			c_drawPowerups = CVar.GetCvar('jgphud_DrawPowerups', CPlayer);
@@ -1738,7 +1747,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				class<Weapon> weap = wslots.GetWeapon(sn, s);
 				if (weap)
 				{
-					let wsd = JGPUFH_WeaponSlotData.Create(sn, s, weap);
+					let wsd = JGPUFHc_WeaponSlotsData.Create(sn, s, weap);
 					if (wsd)
 					{
 						weaponSlotData.Push(wsd);
@@ -1773,12 +1782,13 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (c_drawWeaponSlots.GetInt() <= DM_NONE)
 			return;
 
-		if (c_drawWeaponSlots.GetInt()  == DM_AUTOHIDE && slotsDisplayTime <= 0)
+		if (c_drawWeaponSlots.GetInt() == DM_AUTOHIDE && slotsDisplayTime <= 0)
 			return;
 		
 		// Always run to make sure the slot data
 		// is properly set up:
 		GetWeaponSlots();
+
 
 		int totalSlots;
 		int maxSlotID = 1;
@@ -1800,10 +1810,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			}
 		}
 
-		int flags = SetScreenFlags(c_weaponSlotPos.GetInt());
-		bool vertical = (flags & DI_SCREEN_CENTER != DI_SCREEN_CENTER) && ((flags & DI_SCREEN_LEFT_CENTER == DI_SCREEN_LEFT_CENTER) || (flags & DI_SCREEN_RIGHT_CENTER == DI_SCREEN_RIGHT_CENTER));
-		bool rightEdge = vertical && (flags & DI_SCREEN_RIGHT_CENTER == DI_SCREEN_RIGHT_CENTER);
-		vector2 ofs = ( c_weaponSlotX.GetInt(), c_weaponSlotY.GetInt() );
+		int flags = SetScreenFlags(c_WeaponSlotsPos.GetInt());
+		int alignment = c_WeaponSlotsAlign.GetInt();
+		bool vertical = (alignment != WA_HORIZONTAL);
+		bool rightEdge = vertical && (flags & DI_SCREEN_RIGHT == DI_SCREEN_RIGHT);
+		vector2 ofs = ( c_WeaponSlotsX.GetInt(), c_WeaponSlotsY.GetInt() );
 		double indent = 2;
 		double horMul = vertical ? maxSlotID : totalSlots;
 		double vertMul = vertical ? totalSlots : maxSlotID;
@@ -1814,7 +1825,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		{
 			if (rightEdge)
 				pos.x += box.x + indent;
-			pos.y += height - box.y;
+			if (alignment == WA_VERTICALINV)
+				pos.y += height - box.y;
 		}
 
 		vector2 wpos = pos;
@@ -1828,30 +1840,33 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				if (!weap)
 					continue;
 
-				// Move the box horizontally if this is the first weapon in
+				// Move the box to the next slot this is the first weapon in
 				// this slot but not the very first slot:
 				if (wsd.slotIndex == 0 && i > 0)
 				{
+					// move up/down if it's vertical:
 					if (vertical)
 					{
-						wpos.y -= (box.x*0.5 + indent*2);
+						double stepy = (box.x*0.5 + indent*2) * (alignment == WA_VERTICALINV ? -1.0 : 1.0);
+						wpos.y += stepy;
 					}
+					// otherwise move to the right:
 					else
 					{
 						wpos.x += (box.x + indent);
 					}
 				}
-				// Move the box vertically multiplied per index
-				// (first index is 0 so it won't move the box):
+				// Move the box to the next index (multiplied by index;
+				// since first index is 0 it won't move the box)
+				// If it's vertical, move the box sideways:
 				if (vertical)
 				{
-					double ofsx = (box.x + indent) * wsd.slotIndex;
-					if (rightEdge)
-					{
-						ofsx *= -1;
-					}
-					wpos.x = pos.x + ofsx;
+					// If it's at the right edge, move the box to the right
+					// instead of to the left:
+					double stepx = (box.x + indent) * wsd.slotIndex * (rightedge ? -1.0 : 1.0);
+					wpos.x = pos.x + stepx;
 				}
+				// Otherwise move it down:
 				else
 				{
 					wpos.y = pos.y + (box.y + indent) * wsd.slotIndex;
@@ -1861,9 +1876,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				int fntCol = Font.CR_Untranslated;
 				// Compare this weapon to readyweapon and pendingweapon:
 				Weapon rweap = Weapon(CPlayer.readyweapon);
-				// MUST explicitly cast it as Weapon, because otherwise
-				// for some weird reason pendingweapon returns 'Object'
-				// when checked in UI scope:
+				// MUST explicitly cast it as Weapon, otherwise the pointer
+				// won't be properly null-checked:
 				Weapon pweap = Weapon(CPlayer.pendingweapon);
 				// If the weapon in question is selected or being
 				// selected, invert the colors of the box:
@@ -2644,15 +2658,15 @@ class JGPUFH_PowerupData play
 
 // A simple container that saves a weapon class,
 // its slot number and slot index:
-class JGPUFH_WeaponSlotData ui
+class JGPUFHc_WeaponSlotsData ui
 {
 	int slot;
 	int slotIndex;
 	class<Weapon> weaponClass;
 
-	static JGPUFH_WeaponSlotData Create(int slot, int slotIndex, class<Weapon> weaponClass)
+	static JGPUFHc_WeaponSlotsData Create(int slot, int slotIndex, class<Weapon> weaponClass)
 	{
-		let wsd = JGPUFH_WeaponSlotData(New("JGPUFH_WeaponSlotData"));
+		let wsd = JGPUFHc_WeaponSlotsData(New("JGPUFHc_WeaponSlotsData"));
 		if (wsd)
 		{
 			wsd.slot = slot;
@@ -2681,6 +2695,10 @@ class JGPUFH_DamageMarkerData ui
 	}
 }
 
+// Since LineTrace (for some reason) is only play-scoped,
+// a separate play-scoped thinker is needed per each
+// player so that they could call LineTrace and detect
+// if the player is looking at any enemy:
 class JGPHUD_LookTargetController : Thinker
 {
 	PlayerPawn pp;

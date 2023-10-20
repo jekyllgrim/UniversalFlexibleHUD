@@ -107,11 +107,12 @@ OptionMenu "JGPHUD_WeaponSlots"
 	StaticText "$JGPHUD_WEAPSLOTS_TITLE", yellow
 	StaticText ""
 	Option "$JGPHUD_WEAPSLOTS_ENABLE", "jgphud_DrawWeaponSlots", "HideAutohideShow"
-	Option "$JGPHUD_ELEMENT_POS", "jgphud_WeaponSlotPos", "ElementScreenPos", "jgphud_drawWeaponSlots"
+	Option "$JGPHUD_WEAPSLOTS_ALIGNMENT", "jgphud_WeaponSlotsAlign", "WeaponSlotsAlignment", "jgphud_DrawWeaponSlots"
+	Option "$JGPHUD_ELEMENT_POS", "jgphud_WeaponSlotsPos", "ElementScreenPos", "jgphud_drawWeaponSlots"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_WeaponSlotsX", -160, 160, 2, 0, "jgphud_drawWeaponSlots"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_WeaponSlotsY", -100, 100, 2, 0, "jgphud_drawWeaponSlots"
 	StaticText ""
-	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawWeaponSlots:jgphud_WeaponSlotPos:jgphud_WeaponSlotsX:jgphud_WeaponSlotsY"
+	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawWeaponSlots:jgphud_WeaponSlotsPos:jgphud_WeaponSlotsX:jgphud_WeaponSlotsY"
 }
 
 OptionMenu "JGPHUD_InvBar"
@@ -187,13 +188,25 @@ OptionMenu "JGPHUD_CrosshairOptions"
 	StaticText ""
 	Option "$JGPHUD_CROSSHAIR_HITMARKERS", "jgphud_DrawEnemyHitMarkers", "OnOff"
 	StaticText ""
+	StaticText "$JGPHUD_CROSSHAIR_BARS_ENABLE", yellow
+	StaticText ""
 	Option "$JGPHUD_CROSSHAIR_BARS_ENABLE", "jgphud_DrawReticleBars", "HideAutohideShow"
 	Slider "$JGPHUD_CROSSHAIR_BARS_SIZE", "jgphud_ReticleBarsSize", 1, 200, 2, 0, "jgphud_DrawReticleBars"
 	Slider "$JGPHUD_CROSSHAIR_BARS_ALPHA", "jgphud_ReticleBarsAlpha", 0.0, 1.0, 0.1, 1, "jgphud_DrawReticleBars"
 	Slider "$JGPHUD_CROSSHAIR_BARS_WIDTH", "jgphud_ReticleBarsWidth", 0.0, 0.5, 0.01, 2, "jgphud_DrawReticleBars"
 	Option "$JGPHUD_CROSSHAIR_BARS_TEXT", "jgphud_ReticleBarsText", "OnOff", "jgphud_DrawReticleBars"
 	StaticText ""
-	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawEnemyHitMarkers:jgphud_DrawReticleBars:jgphud_ReticleBarsSize:jgphud_ReticleBarsAlpha:jgphud_ReticleBarsWidth:jgphud_ReticleBarsText"
+	Option "$JGPHUD_CROSSHAIR_BARS_HP", "jgphud_ReticleBarsHealthArmor", "ReticleBars", "jgphud_DrawReticleBars"
+	Option "$JGPHUD_CROSSHAIR_BARS_AMMO", "jgphud_ReticleBarsAmmo", "ReticleBars", "jgphud_DrawReticleBars"
+	Option "$JGPHUD_CROSSHAIR_BARS_ENEMYHP", "jgphud_ReticleBarsEnemy", "ReticleBars", "jgphud_DrawReticleBars"
+	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawEnemyHitMarkers:jgphud_DrawReticleBars:jgphud_ReticleBarsSize:jgphud_ReticleBarsAlpha:jgphud_ReticleBarsWidth:jgphud_ReticleBarsText:jgphud_ReticleBarsHealthArmor:jgphud_ReticleBarsAmmo:jgphud_ReticleBarsEnemy"
+}
+
+OptionValue "WeaponSlotsAlignment"
+{
+	0, "$JGPHUD_WEAPSLOTS_ALIGNMENT_H"
+	1, "$JGPHUD_WEAPSLOTS_ALIGNMENT_V"
+	2, "$JGPHUD_WEAPSLOTS_ALIGNMENT_VINV"
 }
 
 OptionValue "MainBars"
@@ -201,6 +214,15 @@ OptionValue "MainBars"
 	0, "$OPTVAL_OFF"
 	1, "$JGPHUD_MAINBARS_OPT_NUMBERS"
 	2, "$JGPHUD_MAINBARS_OPT_BARS"
+}
+
+OptionValue "ReticleBars"
+{
+	0, "$OPTVAL_OFF"
+	1, "$JGPHUD_CROSSHAIR_BARS_POS_L"
+	2, "$JGPHUD_CROSSHAIR_BARS_POS_T"
+	3, "$JGPHUD_CROSSHAIR_BARS_POS_R"
+	4, "$JGPHUD_CROSSHAIR_BARS_POS_B"
 }
 
 OptionValue "ElementScreenPos"
