@@ -412,6 +412,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	// take the element outside the screen.
 	// If 'real' is true, returns real screen coordinates multiplied
 	// but hudscale, rather than StatusBar coordinates.
+	// by hudscale, rather than StatusBar coordinates.
 	vector2 AdjustElementPos(vector2 pos, int flags, vector2 size, vector2 ofs = (0,0), bool real = false)
 	{
 		vector2 screenSize = (0,0);
@@ -432,10 +433,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 
 		if ((flags & DI_SCREEN_HCENTER) == DI_SCREEN_HCENTER)
+		bool hCenter = ((flags & DI_SCREEN_HCENTER) == DI_SCREEN_HCENTER);
+		bool vCenter = ((flags & DI_SCREEN_VCENTER) == DI_SCREEN_VCENTER);
+		if (hCenter)
 		{
 			pos.x += -size.x*0.5 + screenSize.x * 0.5;
 		}
 		if ((flags & DI_SCREEN_VCENTER) == DI_SCREEN_VCENTER)
+		if (vCenter)
 		{
 			pos.y += -size.y*0.5 + screenSize.y * 0.5;
 		}
@@ -443,14 +448,22 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if ((flags & DI_SCREEN_CENTER) != DI_SCREEN_CENTER)
 		{
 			if ((flags & DI_SCREEN_TOP) == DI_SCREEN_TOP)
+			if ((flags & DI_SCREEN_BOTTOM) == DI_SCREEN_BOTTOM)
 			{
 				if (ofs.y < 0)
+				pos.y += -size.y + screenSize.y;
+				if (ofs.y > 0)
+					ofs.y = -abs(ofs.y);
+				else
 					ofs.y = 0;
 			}
 			if ((flags & DI_SCREEN_LEFT) == DI_SCREEN_LEFT)
+			else if ((flags & DI_SCREEN_TOP) == DI_SCREEN_TOP && !hCenter && !vCenter)
 			{
 				if (ofs.x < 0)
 					ofs.x = 0;
+				if (ofs.y < 0)
+					ofs.y = 0;
 			}
 
 			if ((flags & DI_SCREEN_RIGHT) == DI_SCREEN_RIGHT)
@@ -462,12 +475,16 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 					ofs.x = 0;
 			}		
 			if ((flags & DI_SCREEN_BOTTOM) == DI_SCREEN_BOTTOM)
+			}	
+			else if ((flags & DI_SCREEN_LEFT) == DI_SCREEN_LEFT && !hCenter && !vCenter)
 			{
 				pos.y += -size.y + screenSize.y;
 				if (ofs.y > 0)
 					ofs.y = -abs(ofs.y);
 				else
 					ofs.y = 0;
+				if (ofs.x < 0)
+					ofs.x = 0;
 			}
 		}
 		if (real)
