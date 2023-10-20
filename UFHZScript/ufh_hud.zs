@@ -1371,6 +1371,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (c_DrawReticleBars.GetInt() <= DM_NONE)
 			return;
 		
+		double coverAngle = BARCOVERANGLE;
 		if (!lookTC)
 		{
 			let ti = ThinkerIterator.Create("JGPHUD_LookTargetController");
