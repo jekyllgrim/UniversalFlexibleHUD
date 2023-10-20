@@ -1487,7 +1487,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
 			Screen.DrawShapeFill(color(0,0,0), 1, roundBarsGenMask);
 			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
-			double fadeAlph = LinearMap(lookTC.targetTimer, 0, JGPHUD_LookTargetController.TARGETDISPLAYTIME / 2, 0.0, 1.0, true);
 			double fadeAlph = LinearMap(lookTC.targetTimer, 0, JGPHUD_LookTargetController.TARGETDISPLAYTIME / 2, 0.0, alpha, true);
 			valueFrac = LinearMap(health, 0, maxhealth, 1.0, 0.0, true);
 			DrawCircleSegmentShape(color(60,160,60), screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
