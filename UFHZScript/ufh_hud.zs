@@ -1382,19 +1382,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			return;
 		
 		double coverAngle = BARCOVERANGLE;
-		if (!lookTC)
+		if (!lookTC && handler)
 		{
-			let ti = ThinkerIterator.Create("JGPHUD_LookTargetController");
-			Thinker th;
-			while (th = JGPHUD_LookTargetController(ti.Next()))
-			{
-				let ltc = JGPHUD_LookTargetController(th);
-				if (ltc && ltc.pp && ltc.pp == CPlayer.mo)
-				{
-					lookTC = ltc;
-					break;
-				}
-			}
+			lookTC = handler.lookControllers[CPlayer.mo.PlayerNumber()];
 		}
 
 		// This is the general mask that cuts out the inner part
@@ -2789,6 +2779,7 @@ class JGPUFH_HudDataHandler : EventHandler
 	ui JGPUFH_FlexibleHUD hud;
 	array <JGPUFH_PowerupData> powerupData;
 	transient CVar c_ScreenReddenFactor;
+	JGPHUD_LookTargetController lookControllers[MAXPLAYERS];
 
 	bool IsVoodooDoll(PlayerPawn mo)
 	{
@@ -2875,22 +2866,21 @@ class JGPUFH_HudDataHandler : EventHandler
 		}
 	}
 
-	override void WorldLoaded(worldEvent e)
+	override void PlayerSpawned(playerEvent e)
 	{
-		for (int i = 0; i < MAXPLAYERS; i++)
+		int i = e.PlayerNumber;
+		if (!PlayerInGame[i])
+			return;
+		PlayerInfo player = players[i];
+		PlayerPawn pmo = player.mo;
+		if (pmo && !IsVoodooDoll(pmo))
 		{
-			if (!PlayerInGame[i])
-				continue;
-			PlayerInfo player = players[i];
-			let pmo = PlayerPawn(player.mo);
-			if (pmo && !IsVoodooDoll(pmo))
+			let ltc = New("JGPHUD_LookTargetController");
+			if (ltc)
 			{
-				let ltc = New("JGPHUD_LookTargetController");
-				if (ltc)
-				{
-					console.printf("Initializing LookTargetController for player #%d", pmo.PlayerNumber());
-					ltc.pp = pmo;
-				}
+				console.printf("Initializing LookTargetController for player #%d", pmo.PlayerNumber());
+				ltc.pp = pmo;
+				lookControllers[i] = ltc;
 			}
 		}
 	}
