@@ -151,6 +151,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	Shape2D minimapShape_Circle;
 	Shape2D minimapShape_Arrow;
 	Shape2DTransform minimapTransform;
+	enum EMinimapDisplayModes
+	{
+		MD_NONE,
+		MD_MAPONLY,
+		MD_RADAR,
+	}
 
 	// See DrawInventoryBar():
 	const ITEMBARICONSIZE = 28;
@@ -1455,7 +1461,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// Font position and scale setup:
 		HUDFont hfnt = numHUDFont;
 		Font fnt = hfnt.mFont;
-		// We need to do a lot here. The text strings, if show, have to be shown
+		// We need to do a lot here. The text strings, if shown, have to be shown
 		// in specific places, depending on where the bar is located (left, top,
 		// right, bottom), and also whether it's an inner bar or an outer bar.
 		// So, we need two sets of positions and two sets of flags (for inner 
@@ -1958,17 +1964,18 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
+	// This draws a minimap with an optional map information block below.
 	// The minimap is a pretty annoying bit. Aside from potentially causing
 	// performance issues, it also has  to be drawn fully using Screen
 	// methods because StatusBar doesn't have anything like shapes and
 	// line drawing.
 	void DrawMinimap()
 	{
-		// Don't draw any of this if the map is active:
+		// Don't draw any of this if the automap is open:
 		if (autoMapActive)
 			return;
 
-		bool drawMinimap = c_drawMinimap.GetBool();
+		bool drawMinimap = c_drawMinimap.GetInt() >= MD_MAPONLY;
 		double size = c_MinimapSize.GetFloat();
 		// Almost everything has to be multiplied by hudscale.x
 		// so that it matches the general HUD scale regarldess
@@ -2057,7 +2064,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				minimapShape_Circle.PushCoord((0,0));
 				ang += angStep;
 			}
-			for (int i = 1; i <= steps; ++i)
+			for (int i = 1; i <= steps; i++)
 			{
 				int next = i+1;
 				if (next > steps)
@@ -2123,24 +2130,18 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			vector2 lp2 = ln.v2.p;
 			vector2 p1 = (lp1 - diff) * mapZoom * hudscale.x;
 			vector2 p2 = (lp2 - diff) * mapZoom * hudscale.x;
-			// Rotate and mirror horizontally, so that the top
-			// of the minimap is pointing where the player
-			// is facing:
-			p1 = Actor.RotateVector(p1, playerAngle);
-			p2 = Actor.RotateVector(p2, playerAngle);
-			p1.x *= -1;
-			p2.x *= -1;
-			// Offset the vertices around the center
-			// of the map (NOT player position):
-			p1 += (size, size)*0.5;
-			p2 += (size, size)*0.5;
+
+			p1 = AlignPosToMap(p1, playerAngle, size);
+			p2 = AlignPosToMap(p2, playerAngle, size);
+
+
 			// Don't draw the lines that are 
 			// completely out of the mask area:
 			if (abs(p1.x) > size && abs(p1.y) > size && abs(p2.x) > size && abs(p2.y) > size)
 				continue;
-			// One-sided lines are thicker and opaque:
 			double thickness = 1;
 			color col = color(128, 0, 255, 0);
+			// One-sided lines are thicker and opaque:
 			if (!(ln.flags & Line.ML_TWOSIDED))
 			{
 				thickness = 2;
@@ -2152,34 +2153,88 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			}
 			Screen.DrawThickLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, thickness, col, col.a);
 		}
-		// Red arrow at the center:
+
+
+		// White arrow at the center represeing the player:
 		if (!minimapShape_Arrow)
 		{
 			minimapShape_Arrow = new("Shape2D");
-			minimapShape_Arrow.Pushvertex((0, 0));
-			minimapShape_Arrow.Pushvertex((0, -1));
-			minimapShape_Arrow.Pushvertex((-0.5,0.5));
-			minimapShape_Arrow.Pushvertex((0.5,0.5));
-			minimapShape_Arrow.PushCoord((0,0));
+			minimapShape_Arrow.Pushvertex((0, -0.8));
+			minimapShape_Arrow.Pushvertex((-0.5, 0.5));
+			minimapShape_Arrow.Pushvertex((0.5, 0.5));
 			minimapShape_Arrow.PushCoord((0,0));
 			minimapShape_Arrow.PushCoord((0,0));
 			minimapShape_Arrow.PushCoord((0,0));
 			minimapShape_Arrow.PushTriangle(0, 1, 2);
-			minimapShape_Arrow.PushTriangle(0, 1, 3);
 		}
+
+		// Draw enemy positions on the minimap
+		// if the CVAR allows that:
+		if (c_drawMinimap.GetInt() == MD_RADAR)
+		{
+			DrawEnemyRadar(pos, size, mapZoom, minimapShape_Arrow);
+		}
+
 		minimapTransform.Clear();
 		minimapTransform.Scale((3.2, 3.2) * hudscale.x);
 		minimapTransform.Translate(pos + (size*0.5,size*0.5));
 		minimapShape_Arrow.SetTransform(minimapTransform);
-		Screen.DrawShapeFill(color(0,0,255), 1.0, minimapShape_Arrow);
+		Screen.DrawShapeFill(color(255,255,255), 1.0, minimapShape_Arrow);
 		
 		// Disable the mask:
 		Screen.EnableStencil(false);
 		Screen.ClearStencil();
 	}
 
+
+	void DrawEnemyRadar(vector2 pos, double size, double zoom, Shape2D marker)
+	{
+		if (!minimapShape_Arrow || !minimapTransform)
+			return;
+
+		vector2 hudscale = GetHudScale();
+		double playerAngle = -(CPlayer.mo.angle + 90);
+		vector2 ppos = CPlayer.mo.pos.xy;
+		vector2 diff = Level.Vec2Diff((0,0), ppos);
+		
+		double distance = ((size / zoom) / MAPSCALEFACTOR) * 1.5;
+		let it = BlockThingsIterator.Create(CPlayer.mo, distance);
+		while (it.Next())
+		{
+			let thing = it.thing;
+			if (!thing.bISMONSTER || !(thing.bSHOOTABLE || thing.bVULNERABLE) || thing.health <= 0 || CPlayer.mo.Distance2D(thing) > distance)
+			{
+				continue;
+			}
+
+			vector2 ePos = (thing.pos.xy - diff) * zoom * hudscale.x;
+			ePos = AlignPosToMap(ePos, playerangle, size);
+			
+			minimapTransform.Clear();
+			minimapTransform.Scale((2, 2) * hudscale.x);
+			minimapTransform.Rotate(thing.angle*-1 - playerAngle - 90);
+			minimapTransform.Translate(pos + ePos);
+			minimapShape_Arrow.SetTransform(minimapTransform);
+			Screen.DrawShapeFill(color(0,0,255), 1.0, minimapShape_Arrow);
+		}
+	}
+
+	vector2 AlignPosToMap(vector2 vec, double angle, double mapSize)
+	{
+		// Rotate and mirror horizontally, so that the top
+		// of the minimap is pointing where the player
+		// is facing:
+		vec = Actor.RotateVector(vec, angle);
+		vec.x *= -1;
+		// Offset relative to the map center, not player
+		// position:
+		vec += (mapSize, mapSize)*0.5;
+		return vec;
+	}
+
+
 	// Draw map data (kills/secrets/items/time) below the
-	// minimap (even if the minimap isn't draw, it'll be
+	// minimap (even if the minimap isn't drawn, it'll be
 	// attached to the same position):
 	void DrawMapData(vector2 pos, int flags, double width, double scale = 1.0)
 	{
@@ -2412,7 +2467,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				{
 					kpos.x += iconsize + indent;
 				}
-				// Otherwise Reached the final column - 
+				// Otherwise reached the final column - 
 				// reset x pos and move y pos:
 				else
 				{

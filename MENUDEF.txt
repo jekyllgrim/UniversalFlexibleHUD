@@ -163,7 +163,7 @@ OptionMenu "JGPHUD_MapData"
 	StaticText "" // make space for the note
 	StaticText ""
 	StaticText ""
-	Option "$JGPHUD_MINIMAP_ENABLE", "jgphud_DrawMinimap", "OnOff"
+	Option "$JGPHUD_MINIMAP_ENABLE", "jgphud_DrawMinimap", "MinimapDisplay"
 	Slider "$JGPHUD_MINIMAP_SIZE", "jgphud_MinimapSize", 0, 128, 1, 0, "jgphud_DrawMinimap"
 	Option "$JGPHUD_MINIMAP_SHAPE", "jgphud_CircularMinimap", "MinimapShape", "jgphud_DrawMinimap"
 	Slider "$JGPHUD_MINIMAP_ZOOM", "jgphud_MinimapZoom", 0.15, 3.0, 0.05, 2, "jgphud_DrawMinimap"
@@ -200,6 +200,13 @@ OptionMenu "JGPHUD_CrosshairOptions"
 	Option "$JGPHUD_CROSSHAIR_BARS_AMMO", "jgphud_ReticleBarsAmmo", "ReticleBars", "jgphud_DrawReticleBars"
 	Option "$JGPHUD_CROSSHAIR_BARS_ENEMYHP", "jgphud_ReticleBarsEnemy", "ReticleBars", "jgphud_DrawReticleBars"
 	JGPHUDResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawEnemyHitMarkers:jgphud_DrawReticleBars:jgphud_ReticleBarsSize:jgphud_ReticleBarsAlpha:jgphud_ReticleBarsWidth:jgphud_ReticleBarsText:jgphud_ReticleBarsHealthArmor:jgphud_ReticleBarsAmmo:jgphud_ReticleBarsEnemy"
+}
+
+OptionValue "MinimapDisplay"
+{
+	0, "$OPTVAL_OFF"
+	1, "$JGPHUD_MINIMAP_MAPONLY"
+	2, "$JGPHUD_MINIMAP_RADAR"
 }
 
 OptionValue "WeaponSlotsAlignment"

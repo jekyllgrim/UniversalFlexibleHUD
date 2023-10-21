@@ -79,7 +79,9 @@ Show kill count,JGPHUD_MAPDATA_KILLS,Option in the Map Data options block,Пок
 Show secrets count,JGPHUD_MAPDATA_SECRETS,Option in the Map Data options block,Показывать секреты,Mostrar contagem de segredos,Anzahl der Geheimnisse anzeigen,Mostrar contador de secretos,Nombre de secrets
 Show items count,JGPHUD_MAPDATA_ITEMS,Option in the Map Data options block,Показывать предметы,Mostrar contagem de itens,Anzahl der Gegenstände anzeigen,Mostrar contador de objetos,Nombres d’objets
 Minimap,JGPHUD_MINIMAP_TITLE,Option block title,Мини-карта,Minimapa,Minikarte,Minimapa,Mini-carte
-Minimap display,JGPHUD_MINIMAP_ENABLE,Whether to draw the minimap,Показывать мини-карту,Mostrar minimapa,Minikarte anzeigen,Mostrar minimapa,Affichage de la mini-carte
+Minimap display,JGPHUD_MINIMAP_ENABLE,Whether to draw the minimap (off/only map/map and enemies),Отображение мини-карты,Mostrar minimapa,Minikarte anzeigen,Mostrar minimapa,Affichage de la mini-carte
+Minimap only,JGPHUD_MINIMAP_MAPONLY,Minimap display option,Только мини-карта,,,,
+Minimap and enemies,JGPHUD_MINIMAP_RADAR,Minimap display option,Мини-карта и враги,,,,
 Minimap size,JGPHUD_MINIMAP_SIZE,,Размер мини-карты,Tamanho do minimapa,Minikartengrösse,Tamaño del minimapa,Échelle de la mini-carte
 Minimap shape,JGPHUD_MINIMAP_SHAPE,,Форма мини-карты,Formato do minimapa,Minikartenform,Forma del minimapa,Forme de la mini-carte
 Circle,JGPHUD_MINIMAP_SHAPE_CIRCLE,possible minimap shape,Круг,Círculo,Kreis,Circular,Cercle
