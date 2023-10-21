@@ -434,6 +434,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			size.y *= hudscale.y;
 		}
 
+		// DI_SCREEN flags are weird and don't really adhere to the norms
+		// of what a bitfield should be. For instance, the TOP and LEFT
+		// flags checks will always return true unless other flags are
+		// explicitly excluded from the check. Hence, we have to do some
+		// caching first:
 		bool hCenter = ((flags & DI_SCREEN_HCENTER) == DI_SCREEN_HCENTER);
 		bool vCenter = ((flags & DI_SCREEN_VCENTER) == DI_SCREEN_VCENTER);
 		if (hCenter)
@@ -445,7 +450,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			pos.y += -size.y*0.5 + screenSize.y * 0.5;
 		}
 
-		if ((flags & DI_SCREEN_CENTER) != DI_SCREEN_CENTER)
+		// Do the rest only if it's not screen center:
+		if (!(hCenter && vCenter))
 		{
 			if ((flags & DI_SCREEN_BOTTOM) == DI_SCREEN_BOTTOM)
 			{
@@ -455,7 +461,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				else
 					ofs.y = 0;
 			}
-			else if ((flags & DI_SCREEN_TOP) == DI_SCREEN_TOP && !hCenter && !vCenter)
+			// This has to explicitly exclude all other flags:
+			else if ((flags & DI_SCREEN_TOP) == DI_SCREEN_TOP && !vCenter)
 			{
 				if (ofs.y < 0)
 					ofs.y = 0;
@@ -468,8 +475,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 					ofs.x = -abs(ofs.x);
 				else
 					ofs.x = 0;
-			}	
-			else if ((flags & DI_SCREEN_LEFT) == DI_SCREEN_LEFT && !hCenter && !vCenter)
+			}
+			// This has to explicitly exclude all other flags:
+			else if ((flags & DI_SCREEN_LEFT) == DI_SCREEN_LEFT && !hCenter)
 			{
 				if (ofs.x < 0)
 					ofs.x = 0;
