@@ -2176,7 +2176,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 
 		minimapTransform.Clear();
-		minimapTransform.Scale((3.2, 3.2) * hudscale.x);
+		double arrowSize = CPlayer.mo.radius * mapZoom * hudscale.x;
+		minimapTransform.Scale((arrowSize, arrowSize));
 		minimapTransform.Translate(pos + (size*0.5,size*0.5));
 		minimapShape_Arrow.SetTransform(minimapTransform);
 		Screen.DrawShapeFill(color(255,255,255), 1.0, minimapShape_Arrow);
@@ -2196,8 +2197,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		double playerAngle = -(CPlayer.mo.angle + 90);
 		vector2 ppos = CPlayer.mo.pos.xy;
 		vector2 diff = Level.Vec2Diff((0,0), ppos);
+		color friendColor = color(255,255,0); //BGR cyan
+		color foeColor = color(0,0,255); //BGR red
 		
-		double distance = ((size / zoom) / MAPSCALEFACTOR) * 1.5;
+		double distance = ((size / zoom) / MAPSCALEFACTOR) * 1.45;
 		let it = BlockThingsIterator.Create(CPlayer.mo, distance);
 		while (it.Next())
 		{
@@ -2207,15 +2210,18 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				continue;
 			}
 
+			color col = thing.IsHostile(CPLayer.mo) ? foeColor : friendColor;
+
 			vector2 ePos = (thing.pos.xy - diff) * zoom * hudscale.x;
 			ePos = AlignPosToMap(ePos, playerangle, size);
 			
 			minimapTransform.Clear();
-			minimapTransform.Scale((2, 2) * hudscale.x);
-			minimapTransform.Rotate(thing.angle*-1 - playerAngle - 90);
+			double markerSize = ((thing.radius) * zoom) * hudscale.x;
+			minimapTransform.Scale((markerSize,markerSize));
+			minimapTransform.Rotate(-thing.angle - playerAngle - 90);
 			minimapTransform.Translate(pos + ePos);
 			minimapShape_Arrow.SetTransform(minimapTransform);
-			Screen.DrawShapeFill(color(0,0,255), 1.0, minimapShape_Arrow);
+			Screen.DrawShapeFill(col, 1.0, minimapShape_Arrow);
 		}
 	}
 
