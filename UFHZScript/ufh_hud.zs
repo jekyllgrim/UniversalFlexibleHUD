@@ -235,14 +235,15 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	override void Draw(int state, double ticFrac)
 	{
+		// Cache CVars before anything else
+		// and unconditionally:
+		CacheCvars();
 		super.Draw(state, ticFrac);
 
 		if (state == HUD_None || state == HUD_AltHud)
 			return;
 		
 		BeginHUD();
-		CacheCvars(); //cache CVars before anything else
-
 		DrawHealthArmor();
 		DrawWeaponBlock();
 		DrawAllAmmo();
@@ -2245,7 +2246,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	override void DrawPowerups()
 	{
-		if (!c_drawPowerups.GetBool())
+		if (!c_drawPowerups && !c_drawPowerups.GetBool())
 			return;
 		if (!handler)
 			return;
