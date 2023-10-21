@@ -2246,7 +2246,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	override void DrawPowerups()
 	{
-		if (!c_drawPowerups && !c_drawPowerups.GetBool())
+		if (!c_drawPowerups || !c_drawPowerups.GetBool())
 			return;
 		if (!handler)
 			return;
