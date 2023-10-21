@@ -133,8 +133,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	Shape2DTransform reticleMarkerTransform;
 	
 	// Weapon slots
-	array <JGPUFHc_WeaponSlotsData> weaponSlotData;
+	const MAXWEAPONSLOTS = 10;
 	const SLOTSDISPLAYDELAY = TICRATE * 2;
+	array <JGPUFH_WeaponSlotData> weaponSlotData;
 	int slotsDisplayTime;
 	Weapon prevReadyWeapon;
 	enum EWeapSlotsAlign
@@ -1059,7 +1060,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		array <Ammo> ammoItems;
 		// Sort ammo by weapon slots, not by the order of
 		// receiving them!
-		for (int sn = 0; sn <= 10; sn++)
+		for (int sn = 0; sn <= MAXWEAPONSLOTS; sn++)
 		{
 			int size = wslots.SlotSize(sn);
 			if (size <= 0)
@@ -1742,25 +1743,26 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (!wslots)
 			return;
 
-		for (int i = 1; i <= 10; i++)
+		for (int i = 1; i <= MAXWEAPONSLOTS; i++)
 		{
 			// Slot 0 is the 10th slot:
-			int sn = i >= 10 ? 0 : i;
+			int sn = i >= MAXWEAPONSLOTS ? 0 : i;
 			int size = wslots.SlotSize(sn);
 			if (size <= 0)
 				continue;
 
+			let wsd = JGPUFH_WeaponSlotData.Create(sn);
 			for (int s = 0; s < size; s++)
 			{
 				class<Weapon> weap = wslots.GetWeapon(sn, s);
-				if (weap)
+				if (weap && wsd)
 				{
-					let wsd = JGPUFHc_WeaponSlotsData.Create(sn, s, weap);
-					if (wsd)
-					{
-						weaponSlotData.Push(wsd);
-					}
+					wsd.weapons.Push(weap);
 				}
+			}
+			if (wsd.weapons.Size() > 0)
+			{
+				weaponSlotData.Push(wsd);
 			}
 		}
 	}
@@ -1804,16 +1806,23 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		for (int i = 0; i < weaponSlotData.Size(); i++)
 		{
 			let wsd = weaponSlotData[i];
-			// Only account for weapons in inventory:
-			if (wsd && CPlayer.mo.FindInventory(wsd.weaponClass))
+			if (wsd)
 			{
-				if  (wsd.slotIndex == 0)
+				bool slotValid = false;
+				int slotIndexes = 0;
+				for (int id = 0; id < wsd.weapons.Size(); id++)
+				{
+					let foundweap = wsd.weapons[id];
+					if (foundweap && CPlayer.mo.CountInv(foundweap))
+					{
+						slotValid = true;
+						slotIndexes++;
+					}
+				}
+				if (slotValid)
 				{
 					totalSlots++;
-				}
-				else
-				{
-					maxSlotID = max(maxSlotID, wsd.slotIndex+1);
+					maxSlotID = max(maxSlotID, slotIndexes);
 				}
 			}
 		}
@@ -1837,93 +1846,125 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				pos.y += height - box.y;
 		}
 
+		// Now we're going to draw all weapons the player has,
+		// split into slots and indexes.
+		// By default slots are columns, indexes are rows,
+		// but with vertical alignment it's the opposite.
 		vector2 wpos = pos;
+		// 1 array of data per each slot. Iterate over array:
 		for (int i = 0; i < weaponSlotData.Size(); i++)
 		{
 			let wsd = weaponSlotData[i];
 			if (wsd)
 			{
-				// Only draw slots for weapons that the player actually has:
-				let weap = Weapon(CPlayer.mo.FindInventory(wsd.weaponClass));
-				if (!weap)
-					continue;
-
-				// Move the box to the next slot this is the first weapon in
-				// this slot but not the very first slot:
-				if (wsd.slotIndex == 0 && i > 0)
+				// Set to true if the player has at least one
+				// weapon in this slot:
+				bool slotValid = false;
+				// Iterate over all weapons in this slot:
+				for (int id = 0; id < wsd.weapons.Size(); id++)
 				{
-					// move up/down if it's vertical:
+					let w = wsd.weapons[id];
+					if (!w)
+						continue;
+					// Only draw slots for weapons that the player actually has:
+					let weap = Weapon(CPlayer.mo.FindInventory(w));
+					if (!weap || weap.amount <= 0)
+						continue;
+					
+					slotValid = true;
+					DrawOneWeaponSlot(weap, wpos, flags, box, wsd.slot);
+					
+					// Move the box to the next index
+					// If it's vertical, move the box sideways:
 					if (vertical)
 					{
+						// If it's at the right edge, move the box
+						// to the right instead of to the left:
+						double stepx = (box.x + indent) * (rightedge ? -1.0 : 1.0);
+						wpos.x += stepx;
+					}
+					// Otherwise move it down:
+					else
+					{
+						wpos.y += (box.y + indent);
+					}
+				}
+
+				// If this slot wasn't empty, move the box to the
+				// next weapon slot:
+				if (slotValid)
+				{
+					// Move up/down if it's vertical:
+					if (vertical)
+					{
+						// If inverted alignment is used, move it up:
 						double stepy = (box.x*0.5 + indent*2) * (alignment == WA_VERTICALINV ? -1.0 : 1.0);
 						wpos.y += stepy;
+						// and reset horizontally:
+						wpos.x = pos.x;
 					}
 					// otherwise move to the right:
 					else
 					{
 						wpos.x += (box.x + indent);
+						// and reset vertically:
+						wpos.y = pos.y;
 					}
 				}
-				// Move the box to the next index (multiplied by index;
-				// since first index is 0 it won't move the box)
-				// If it's vertical, move the box sideways:
-				if (vertical)
-				{
-					// If it's at the right edge, move the box to the right
-					// instead of to the left:
-					double stepx = (box.x + indent) * wsd.slotIndex * (rightedge ? -1.0 : 1.0);
-					wpos.x = pos.x + stepx;
-				}
-				// Otherwise move it down:
-				else
-				{
-					wpos.y = pos.y + (box.y + indent) * wsd.slotIndex;
-				}
-				
-				color col = GetBaseplateColor();
-				int fntCol = Font.CR_Untranslated;
-				// Compare this weapon to readyweapon and pendingweapon:
-				Weapon rweap = Weapon(CPlayer.readyweapon);
-				// MUST explicitly cast it as Weapon, otherwise the pointer
-				// won't be properly null-checked:
-				Weapon pweap = Weapon(CPlayer.pendingweapon);
-				// If the weapon in question is selected or being
-				// selected, invert the colors of the box:
-				if ((rweap == weap && !pweap) || pweap == weap)
-				{
-					col = color(200, 255 - col.r, 255 - col.g, 255 - col.b);
-					fntCol = Font.CR_Gold;
-				}
-				// fill the box color, then draw the weapon's icon:
-				Fill(col, wpos.x, wpos.y, box.x, box.y, flags);
-				DrawInventoryIcon(weap, wpos + box*0.5, flags|DI_ITEM_CENTER, boxsize: box);
-				
-				// draw small ammo bars at the bottom of the box:
-				double barheight = 0.5;
-				double barPosY = wpos.y + box.y - barheight;
-				Ammo am1 = weap.ammo1;
-				color amCol = color(255, 0, 255, 0); //ammo1 is green
-				color amCol2 = color(255, 255, 128, 0); //ammo2 is orange
-				if (am1)
-				{
-					double barWidth = LinearMap(am1.amount, 0, am1.maxamount, 0., box.x, true);
-					Fill(amCol, wpos.x, barPosY, barWidth, barheight, flags);
-					barPosY -= barHeight*2;
-				}
-				// Only draw the second bar if ammotype2 isn't the same
-				// as ammotype 1:
-				Ammo am2 = weap.ammo2;
-				if (am2 && am2 != am1)
-				{
-					double barWidth = LinearMap(am2.amount, 0, am2.maxamount, 0., box.x, true);
-					Fill(amCol2, wpos.x, barPosY, barWidth, barheight, flags);
-				}
-				
-				// draw slot number in the bottom right corner of the box:
-				double fy = mainHUDFont.mFont.GetHeight();
-				string slotNum = ""..wsd.slot;
-				DrawString(mainHUDFont, slotNum, (wpos.x+box.x, wpos.y+box.y-fy*0.5), flags|DI_TEXT_ALIGN_RIGHT, fntCol, 0.8, scale:(0.5, 0.5));
 			}
+		}
+	}
+
+	void DrawOneWeaponSlot(Weapon weap, vector2 pos, int flags, vector2 box, int slot = -1)
+	{
+		if (!weap)
+			return;
+		
+		color col = GetBaseplateColor();
+		int fntCol = Font.CR_Untranslated;
+		// Compare this weapon to readyweapon and pendingweapon:
+		Weapon rweap = Weapon(CPlayer.readyweapon);
+		// MUST explicitly cast it as Weapon, otherwise the pointer
+		// won't be properly null-checked:
+		Weapon pweap = Weapon(CPlayer.pendingweapon);
+		// If the weapon in question is selected or being
+		// selected, invert the colors of the box:
+		if ((rweap == weap && !pweap) || pweap == weap)
+		{
+			col = color(200, 255 - col.r, 255 - col.g, 255 - col.b);
+			fntCol = Font.CR_Gold;
+		}
+		// fill the box color, then draw the weapon's icon:
+		Fill(col, pos.x, pos.y, box.x, box.y, flags);
+		DrawInventoryIcon(weap, pos + box*0.5, flags|DI_ITEM_CENTER, boxsize: box);
+		
+		// draw small ammo bars at the bottom of the box:
+		double barheight = 0.5;
+		double barPosY = pos.y + box.y - barheight;
+		Ammo am1 = weap.ammo1;
+		color amCol = color(255, 0, 255, 0); //ammo1 is green
+		color amCol2 = color(255, 255, 128, 0); //ammo2 is orange
+		if (am1)
+		{
+			double barWidth = LinearMap(am1.amount, 0, am1.maxamount, 0., box.x, true);
+			Fill(amCol, pos.x, barPosY, barWidth, barheight, flags);
+			barPosY -= barHeight*2;
+		}
+		// Only draw the second bar if ammotype2 isn't the same
+		// as ammotype 1:
+		Ammo am2 = weap.ammo2;
+		if (am2 && am2 != am1)
+		{
+			double barWidth = LinearMap(am2.amount, 0, am2.maxamount, 0., box.x, true);
+			Fill(amCol2, pos.x, barPosY, barWidth, barheight, flags);
+		}
+		
+		// draw slot number in the bottom right corner of the box:
+		if (slot != -1)
+		{
+			double fy = mainHUDFont.mFont.GetHeight();
+			string slotNum = ""..slot;
+			DrawString(mainHUDFont, slotNum, (pos.x+box.x, pos.y+box.y-fy*0.5), flags|DI_TEXT_ALIGN_RIGHT, fntCol, 0.8, scale:(0.5, 0.5));
 		}
 	}
 
@@ -2666,20 +2707,16 @@ class JGPUFH_PowerupData play
 
 // A simple container that saves a weapon class,
 // its slot number and slot index:
-class JGPUFHc_WeaponSlotsData ui
+class JGPUFH_WeaponSlotData ui
 {
 	int slot;
-	int slotIndex;
-	class<Weapon> weaponClass;
+	array < class<Weapon> > weapons;
 
-	static JGPUFHc_WeaponSlotsData Create(int slot, int slotIndex, class<Weapon> weaponClass)
+	static JGPUFH_WeaponSlotData Create(int slot)
 	{
-		let wsd = JGPUFHc_WeaponSlotsData(New("JGPUFHc_WeaponSlotsData"));
-		if (wsd)
+		let wsd = JGPUFH_WeaponSlotData(New("JGPUFH_WeaponSlotData"));
 		{
 			wsd.slot = slot;
-			wsd.slotIndex = slotIndex;
-			wsd.weaponClass = weaponClass;
 		}
 		return wsd;
 	}
