@@ -2873,14 +2873,24 @@ class JGPUFH_HudDataHandler : EventHandler
 				powerupData.Push(pwd);
 			}
 		}
+	}
 
-		let pmo = PlayerPawn(e.thing);
-		if (pmo && !IsVoodooDoll(pmo))
+	override void WorldLoaded(worldEvent e)
+	{
+		for (int i = 0; i < MAXPLAYERS; i++)
 		{
-			let ltc = New("JGPHUD_LookTargetController");
-			if (ltc)
+			if (!PlayerInGame[i])
+				continue;
+			PlayerInfo player = players[i];
+			let pmo = PlayerPawn(player.mo);
+			if (pmo && !IsVoodooDoll(pmo))
 			{
-				ltc.pp = pmo;
+				let ltc = New("JGPHUD_LookTargetController");
+				if (ltc)
+				{
+					console.printf("Initializing LookTargetController for player #%d", pmo.PlayerNumber());
+					ltc.pp = pmo;
+				}
 			}
 		}
 	}
