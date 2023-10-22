@@ -6,6 +6,7 @@ Flat color,JGPHUD_GENERAL_BACKSTYLE_COLOR,Option for background appearance,Цв�
 Texture,JGPHUD_GENERAL_BACKSTYLE_TEXTURE,Option for background appearance,Текстура,Textura,Textur,,Texture
 HUD background color,JGPHUD_GENERAL_BACKCOL,General background color,Цвет фона,Cor de fundo,Hintergrundfarbe,Color de fondo,Couleur d’arrière-plan
 HUD background opacity,JGPHUD_GENERAL_BACKALPHA,General background opacity,Прозрачность фона,Opacidade,Hintergrunddeckkraft,Opacidad de fondo,Opacité de l’arrière-plan
+Size of icons,JGPHUD_GENERAL_ICONSIZE,"This is used for several different options: inventory bar, weapon slots, powerup display",Размер значков,,,,
 Position anchor point,JGPHUD_ELEMENT_POS,,Точка привязки элемента,Ponto da âncora,Ankerpunkt,Punto de anclaje,Point d’ancrage
 Top left,JGPHUD_POS_TOPLEFT,Anchor point for the HUD element on the screen,Верхний левый угол,Canto superior esquerdo,Oben links,Superior izquierda,Haut à gauche
 Top center,JGPHUD_POS_TOPCENTER,Anchor point for the HUD element on the screen,Середина верхней границы,Centro superior,Oben mitte,Superior centrado,Haut au centre
@@ -43,6 +44,7 @@ Horizontal,JGPHUD_WEAPSLOTS_ALIGNMENT_H,Weapon slots alignment option,По го�
 Vertical,JGPHUD_WEAPSLOTS_ALIGNMENT_V,"Weapon slots alignment option (vertical, first slot at the top)",По вертикали (сверху вниз),Vertical,Vertikal,,Vertical
 Vertical inverted,JGPHUD_WEAPSLOTS_ALIGNMENT_VINV,"Weapon slots alignment option (vertical, first slot at the bottom)",По вертикали (снизу вверх),Vertical invertido,Vertikal invertiert,,Vertical Inversé
 Powerup timers,JGPHUD_POWERUPS_TITLE,Title for the submenu,Таймеры power-up'ов,Temporizadores de powerup,Powerup-Timer,Contadores de powerups,Temps des powerups
+,,,,,,,
 Powerup timers display,JGPHUD_POWERUPS_ENABLE,Whether  to show visible timers (minutes and seconds) for currently active power-ups,Показывать таймеры power-up'ов,Mostrar temporizadores de powerup,Powerup-Timer anzeigen,Mostrar contadores de powerups,Affichage du temps des powerups
 Inventory bar,JGPHUD_INVBAR_TITLE,Title for the submenu,Полоска инвентаря,Barra de inventário,Inventarleiste,Barra de inventario,Barre d’inventaire
 Inventory bar display,JGPHUD_INVBAR_ENABLE,"Whether to show an inventory bar (where applicable, like Heretic, Hexen, Strife)",Показывать полосу инвентаря,Mostrar barra de inventário,Inventarleiste anzeigen,Mostrar barra de inventario,Affichage de la barre d’inventaire
@@ -61,7 +63,6 @@ usará el objeto de inmediato, de lo contrario, primero se
 seleccionará y luego se usará.","Si la barre d'inventaire est toujours affichée, le bouton
 ""Utiliser l'objet"" utilise instantanément l'objet. Sinon, la première
 pression sélectionnera l'objet, la seconde l'utilisera."
-Inventory bar icon size,JGPHUD_INVBAR_ICONSIZE,Size of icons in the inventory bar (absolute pixel value),Размер значков в полосе инвентаря,Tamanho do ícone dos itens,Icongrösse in der Inventarleiste,Tamaño de la barra de inventario,Taille des icônes de la barre d'inventaire
 "Note: Inventory bar will only appear in games/mods
 that have items that can be placed in inventory
 and used from it.",JGPHUD_INVBAR_NOTE,"Keep under 4 lines! Use real linebreaks (Ctrl-Enter) to add new lines, so that each line is under 60 characters","Внимание: полоса инвентаря отображается, только если

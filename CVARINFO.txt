@@ -34,12 +34,14 @@ user nosave int jgphud_KeysX = 70;
 user nosave int jgphud_KeysY = 2;
 
 user nosave int jgphud_DrawWeaponSlots = 2;
+user nosave int jgphud_WeaponSlotsSize = 16;
 user nosave int jgphud_WeaponSlotsAlign = 0;
 user nosave int jgphud_WeaponSlotsPos = 1;
 user nosave int jgphud_WeaponSlotsX = 0;
 user nosave int jgphud_WeaponSlotsY = 2;
 
 user nosave bool jgphud_DrawPowerups = true;
+user nosave int jgphud_PowerupsIconSize = 20;
 user nosave int jgphud_PowerupsPos = 2;
 user nosave int jgphud_PowerupsX = 2;
 user nosave int jgphud_PowerupsY = 2;
