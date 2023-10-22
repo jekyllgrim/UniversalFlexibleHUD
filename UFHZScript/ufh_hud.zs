@@ -4,83 +4,83 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	const CIRCLEANGLES = 360.0;
 
 	//See GetBaseplateColor():
-	CVar c_BackColor;
-	CVar c_BackAlpha;
+	transient CVar c_BackColor;
+	transient CVar c_BackAlpha;
 
-	CVar c_aspectscale;
-	CVar c_crosshairScale;
+	transient CVar c_aspectscale;
+	transient CVar c_crosshairScale;
 
-	CVar c_mainfont;
-	CVar c_smallfont;
-	CVar c_numberfont;
+	transient CVar c_mainfont;
+	transient CVar c_smallfont;
+	transient CVar c_numberfont;
 
-	CVar c_drawMainbars;
-	CVar c_MainBarsPos;
-	CVar c_MainBarsX;
-	CVar c_MainBarsY;
-	CVar c_DrawFace;
+	transient CVar c_drawMainbars;
+	transient CVar c_MainBarsPos;
+	transient CVar c_MainBarsX;
+	transient CVar c_MainBarsY;
+	transient CVar c_DrawFace;
 
-	CVar c_drawAmmoBlock;
-	CVar c_AmmoBlockPos;
-	CVar c_AmmoBlockX;
-	CVar c_AmmoBlockY;
-	CVar c_drawAmmoBar;
-	CVar c_DrawWeapon;
+	transient CVar c_drawAmmoBlock;
+	transient CVar c_AmmoBlockPos;
+	transient CVar c_AmmoBlockX;
+	transient CVar c_AmmoBlockY;
+	transient CVar c_drawAmmoBar;
+	transient CVar c_DrawWeapon;
 
-	CVar c_drawAllAmmo;
-	CVar c_AllAmmoPos;
-	CVar c_AllAmmoX;
-	CVar c_AllAmmoY;
+	transient CVar c_drawAllAmmo;
+	transient CVar c_AllAmmoPos;
+	transient CVar c_AllAmmoX;
+	transient CVar c_AllAmmoY;
 
-	CVar c_drawInvBar;
-	CVar c_AlwaysShowInvBar;
-	CVar c_InvBarIconSize;
-	CVar c_InvBarPos;
-	CVar c_InvBarX;
-	CVar c_InvBarY;
+	transient CVar c_drawInvBar;
+	transient CVar c_AlwaysShowInvBar;
+	transient CVar c_InvBarIconSize;
+	transient CVar c_InvBarPos;
+	transient CVar c_InvBarX;
+	transient CVar c_InvBarY;
 	
-	CVar c_drawDamageMarkers;
-	CVar c_DamageMarkersAlpha;
-	CVar c_DamageMarkersFadeTime;
+	transient CVar c_drawDamageMarkers;
+	transient CVar c_DamageMarkersAlpha;
+	transient CVar c_DamageMarkersFadeTime;
 
-	CVar c_drawWeaponSlots;
-	CVar c_WeaponSlotsAlign;
-	CVar c_WeaponSlotsPos;
-	CVar c_WeaponSlotsX;
-	CVar c_WeaponSlotsY;
+	transient CVar c_drawWeaponSlots;
+	transient CVar c_WeaponSlotsAlign;
+	transient CVar c_WeaponSlotsPos;
+	transient CVar c_WeaponSlotsX;
+	transient CVar c_WeaponSlotsY;
 
-	CVar c_drawPowerups;
-	CVar c_PowerupsPos;
-	CVar c_PowerupsX;
-	CVar c_PowerupsY;
+	transient CVar c_drawPowerups;
+	transient CVar c_PowerupsPos;
+	transient CVar c_PowerupsX;
+	transient CVar c_PowerupsY;
 
-	CVar c_drawKeys;
-	CVar c_KeysPos;
-	CVar c_KeysX;
-	CVar c_KeysY;
+	transient CVar c_drawKeys;
+	transient CVar c_KeysPos;
+	transient CVar c_KeysX;
+	transient CVar c_KeysY;
 
-	CVar c_drawMinimap;
-	CVar c_CircularMinimap;
-	CVar c_minimapSize;
-	CVar c_minimapPos;
-	CVar c_minimapPosX;
-	CVar c_minimapPosY;
-	CVar c_minimapZoom;
+	transient CVar c_drawMinimap;
+	transient CVar c_CircularMinimap;
+	transient CVar c_minimapSize;
+	transient CVar c_minimapPos;
+	transient CVar c_minimapPosX;
+	transient CVar c_minimapPosY;
+	transient CVar c_minimapZoom;
 
-	CVar c_DrawKills;
-	CVar c_DrawItems;
-	CVar c_DrawSecrets;
-	CVar c_DrawTime;
+	transient CVar c_DrawKills;
+	transient CVar c_DrawItems;
+	transient CVar c_DrawSecrets;
+	transient CVar c_DrawTime;
 
-	CVar c_DrawEnemyHitMarkers;
-	CVar c_DrawReticleBars;
-	CVar c_ReticleBarsHealthArmor;
-	CVar c_ReticleBarsAmmo;
-	CVar c_ReticleBarsEnemy;
-	CVar c_ReticleBarsText;
-	CVar c_ReticleBarsAlpha;
-	CVar c_ReticleBarsSize;
-	CVar c_ReticleBarsWidth;
+	transient CVar c_DrawEnemyHitMarkers;
+	transient CVar c_DrawReticleBars;
+	transient CVar c_ReticleBarsHealthArmor;
+	transient CVar c_ReticleBarsAmmo;
+	transient CVar c_ReticleBarsEnemy;
+	transient CVar c_ReticleBarsText;
+	transient CVar c_ReticleBarsAlpha;
+	transient CVar c_ReticleBarsSize;
+	transient CVar c_ReticleBarsWidth;
 
 	HUDFont mainHUDFont;
 	HUDFont smallHUDFont;
