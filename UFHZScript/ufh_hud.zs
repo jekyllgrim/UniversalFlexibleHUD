@@ -193,6 +193,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	}
 	enum EReticleBarPos
 	{
+		RB_NONE,
 		RB_LEFT,
 		RB_TOP,
 		RB_RIGHT,
