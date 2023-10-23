@@ -836,28 +836,18 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		vector2 iconPos = (pos.x + indent + iconsize * 0.5, pos.y + height*0.75);
 
 		// Draw health cross shape (instead of drawing a health item):
-		double crossWidth = 2;
-		double crossLength = 8;
+		double crossWidth = 4;
+		double crossLength = 10;
 		vector2 crossPos = iconPos;
-		int crossIndent = 1;
-		Fill(color(255,132,40,40), 
-			crossPos.x - crossLength*0.5 - crossIndent, 
-			crossPos.y - crossLength*0.5 - crossIndent,
-			crossLength + crossIndent*2,
-			crossLength + crossIndent*2,
-			barFlags);
-		Fill(color(255,200,200,200), 
-			crossPos.x - crossWidth*0.5, 
-			crossPos.y - crossLength*0.5,
-			crossWidth,
-			crossLength,
-			barFlags);
-		Fill(color(255,200,200,200), 
-			crossPos.x - crossLength*0.5,
-			crossPos.y - crossWidth*0.5, 
-			crossLength,
-			crossWidth,
-			barFlags);
+		color crossCol = color(255,0,0,0);
+		Fill(crossCol, crossPos.x - crossWidth*0.5,  crossPos.y - crossLength*0.5, crossWidth, crossLength, barFlags);
+		Fill(crossCol, crossPos.x - crossLength*0.5, crossPos.y - crossWidth*0.5, crossLength, crossWidth, barFlags);
+		
+		crossWidth -= 3;
+		crossLength -= 3;
+		crossCol = color(255,255,255,255);
+		Fill(crossCol, crossPos.x - crossWidth*0.5, crossPos.y - crossLength*0.5, crossWidth, crossLength, barFlags);
+		Fill(crossCol, crossPos.x - crossLength*0.5, crossPos.y - crossWidth*0.5,  crossLength, crossWidth, barFlags);
 		
 		// Calculate bar width (it should be indented deeper
 		// from the edges and offset from the icon):
