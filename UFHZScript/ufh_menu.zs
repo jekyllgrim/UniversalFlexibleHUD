@@ -1,4 +1,5 @@
 class OptionMenuItemJGPHUDResetCCMD : OptionMenuItemSubmenu
+class OptionMenuItemUFHResetCCMD : OptionMenuItemSubmenu
 {
 	private array <String> ccmds;
 
