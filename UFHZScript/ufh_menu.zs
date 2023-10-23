@@ -2,7 +2,7 @@ class OptionMenuItemJGPHUDResetCCMD : OptionMenuItemSubmenu
 {
 	private array <String> ccmds;
 
-	OptionMenuItemJGPHUDResetCCMD Init(String label, string commands, bool centered = false)
+	OptionMenuItemUFHResetCCMD Init(String label, string commands, bool centered = false)
 	{
 		Super.Init(label, '', 0, centered);
 		commands.Split(ccmds, ":");
