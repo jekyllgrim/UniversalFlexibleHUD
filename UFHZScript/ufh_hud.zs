@@ -565,10 +565,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				box.x = box.y * texaspect;
 				// How many instances of the texture would fit WHOLLY
 				// in the specified box:
-				int steps = width / box.x;
+				int steps = ceil(width / box.x);
 				// Modify width slightly so that the textures will fit
 				// in the box without clipping mid-texture:
 				box.x = width / steps;
+				
 				// Draw the texture the necessary number of times:
 				for (int i = 0; i < steps; i++)
 				{
@@ -582,7 +583,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			{
 				box.x = width;
 				box.y = box.x / texaspect;
-				int steps = height / box.y;
+				int steps = ceil(height / box.y);
 				box.y = height / steps;
 				for (int i = 0; i < steps; i++)
 				{
