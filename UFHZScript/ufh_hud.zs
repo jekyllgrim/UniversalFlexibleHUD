@@ -528,14 +528,17 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		color col = color(a, c.r, c.g, c.b);
 
 		TextureID tex;
+		tex.SetInvalid();
 		if (!c_BackStyle.GetBool())
 		{
 			string texname = c_BackTexture.GetString();
-			tex = TexMan.CheckForTexture(texname);
-			if (!tex.isValid())
+			if (texname != STR_INVALID)
 			{
-				c_BackTexture.SetString(STR_INVALID);
-				tex.SetNull();
+				tex = TexMan.CheckForTexture(texname);
+				if (!tex.IsValid())
+				{
+					c_BackTexture.SetString(STR_INVALID);
+				}
 			}
 		}
 
