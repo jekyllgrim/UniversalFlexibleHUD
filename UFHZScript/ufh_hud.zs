@@ -3,9 +3,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	const ASPECTSCALE = 1.2;
 	const CIRCLEANGLES = 360.0;
 
-	//See GetBaseplateColor():
+	//See GetHUDBackground():
 	transient CVar c_BackColor;
 	transient CVar c_BackAlpha;
+	transient CVar c_BackTexture;
+	transient CVar c_BackStyle;
 
 	transient CVar c_aspectscale;
 	transient CVar c_crosshairScale;
@@ -275,6 +277,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			c_BackColor = CVar.GetCVar('jgphud_BackColor', CPlayer);
 		if (!c_BackAlpha)
 			c_BackAlpha = CVar.GetCVar('jgphud_BackAlpha', CPlayer);
+		if (!c_BackStyle)
+			c_BackStyle = CVar.GetCVar('jgphud_BackStyle', CPlayer);
+		if (!c_BackTexture)
+			c_BackTexture = CVar.GetCVar('jgphud_BackTexture', CPlayer);
 
 		if (!c_aspectscale)
 			c_aspectscale = CVar.GetCvar('hud_aspectscale', CPlayer);
@@ -512,12 +518,83 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		return ScreenFlags[val];
 	}
 
-	color GetBaseplateColor()
+	color, TextureID, double GetHUDBackground()
 	{
-		int a = 255 * Clamp(c_BackAlpha.GetFloat(), 0., 1.);
-		color col = c_BackColor.GetInt();
+		double alpha = Clamp(c_BackAlpha.GetFloat(), 0., 1.);
 
-		return color(a, col.r, col.g, col.b);
+		int a = 255 * alpha;
+		color c = c_BackColor.GetInt();
+		color col = color(a, c.r, c.g, c.b);
+
+		string texname = c_BackTexture.GetString();
+		TextureID tex = TexMan.CheckForTexture(texname);
+		if (!tex.isValid())
+		{
+			tex.SetNull();
+		}
+
+		return color(a, col.r, col.g, col.b), tex, alpha;
+	}
+
+	void BackgroundFill(double xPos, double yPos, double width, double height, int flags, color fillcol = color(0,0,0,0))
+	{
+		color col;
+		TextureID tex;
+		double alpha;
+		[col, tex, alpha] = GetHUDBackground();
+		if (fillcol.a != 0)
+		{
+			col = fillcol;
+		}
+		
+		if (!c_BackStyle.GetBool() && tex && tex.IsValid())
+		{
+			flags |= DI_ITEM_LEFT_TOP|DI_FORCEFILL;
+			color texCol = fillcol.a == 0 ? 0xffffffff : fillcol;
+			vector2 pos = (xPos, yPos);
+			vector2 box = (width, height);
+			// Get texture size and aspect ratio:
+			vector2 size = TexMan.GetScaledSize(tex);
+			double texaspect = size.x / size.y;
+			// If the bos is wider than it is tall:
+			if (width >= height)
+			{
+				// Stretch the texture to the box's height vertically:
+				box.y = height;
+				// Modify its width relatively:
+				box.x = box.y * texaspect;
+				// How many instances of the texture would fit WHOLLY
+				// in the specified box:
+				int steps = width / box.x;
+				// Modify width slightly so that the textures will fit
+				// in the box without clipping mid-texture:
+				box.x = width / steps;
+				// Draw the texture the necessary number of times:
+				for (int i = 0; i < steps; i++)
+				{
+					DrawTexture(tex, pos, flags, alpha, box, col: texCol);
+					pos.x += box.x;
+				}
+			}
+			// Otherwise do the same but vertically
+			// instead of horizontally:
+			else
+			{
+				box.x = width;
+				box.y = box.x / texaspect;
+				int steps = height / box.y;
+				box.y = height / steps;
+				for (int i = 0; i < steps; i++)
+				{
+					DrawTexture(tex, pos, flags, alpha, box, col: texCol);
+					pos.y += box.y;
+				}
+			}
+		}
+		else
+		{
+			Fill(col, xPos, yPos, width, height, flags);
+		}
 	}
 
 	// Draws a bar using Fill()
@@ -740,15 +817,15 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 		vector2 ofs = ( c_MainBarsX.GetInt(), c_MainBarsY.GetInt() );
 		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
-		int baseCol = GetBaseplateColor();
+		int baseCol = GetHUDBackground();
 		// bars background:
-		Fill(baseCol, pos.x, pos.y, mainBlockWidth, height, flags);
+		BackgroundFill(pos.x, pos.y, mainBlockWidth, height, flags);
 		// face background (draw separately because there's
 		// a small indent between this and the bars background):
 		if (drawFace)
 		{
 			vector2 facePos = (pos.x + mainBlockWidth + indent, pos.y);
-			Fill(baseCol, facePos.x, facePos.y, faceSize, faceSize, flags);
+			BackgroundFill(facePos.x, facePos.y, faceSize, faceSize, flags);
 			DrawTexture(GetMugShot(5), (facePos.x + faceSize*0.5, facePos.y + faceSize*0.5), flags|DI_ITEM_CENTER, box: (faceSize - 2, faceSize - 2));
 		}
 
@@ -984,7 +1061,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 		// Finally, adjust the position and draw fill:
 		vector2 pos = AdjustElementPos((0,0), flags, (size.x, size.y), ofs);
-		Fill(GetBaseplateColor(), pos.x, pos.y, size.x, size.y, flags);
+		BackgroundFill(pos.x, pos.y, size.x, size.y, flags);
 		
 		if (weapIconValid)
 		{
@@ -1059,7 +1136,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		let hfnt = mainHUDFont;
 		double fntScale = 0.6;
 		double fy = hfnt.mFont.GetHeight() * fntScale;
-		double width = iconsize + indent + mainHUDFont.mFont.StringWidth("000/000") * fntScale;
+		double width = iconsize + indent*2 + mainHUDFont.mFont.StringWidth("000/000") * fntScale;
 		double height;
 
 		// We'll iterate over ammo first to calculate the total
@@ -1924,7 +2001,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (!weap)
 			return;
 		
-		color col = GetBaseplateColor();
 		int fntCol = Font.CR_Untranslated;
 		// Compare this weapon to readyweapon and pendingweapon:
 		Weapon rweap = Weapon(CPlayer.readyweapon);
@@ -1935,15 +2011,23 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// selected, invert the colors of the box:
 		if ((rweap == weap && !pweap) || pweap == weap)
 		{
-			col = color(200, 255 - col.r, 255 - col.g, 255 - col.b);
-			fntCol = Font.CR_Gold;
+			fntCol = Font.CR_Red;
+			color col = GetHUDBackground();
+			// Clamp the alpha, so it's not too low:
+			int a = Clamp(col.a, 180, 255);
+			// Do not use texture fill for this block,
+			// since it's not possible to easily
+			// invert colors of a texture:
+			Fill(color(a, 255 - col.r, 255 - col.g, 255 - col.b), pos.x, pos.y, box.x, box.y, flags);
 		}
-		// fill the box color, then draw the weapon's icon:
-		Fill(col, pos.x, pos.y, box.x, box.y, flags);
+		else
+		{
+			BackgroundFill(pos.x, pos.y, box.x, box.y, flags);
+		}
 		DrawInventoryIcon(weap, pos + box*0.5, flags|DI_ITEM_CENTER, boxsize: box);
 		
 		// draw small ammo bars at the bottom of the box:
-		double barheight = 0.5;
+		double barheight = box.y * 0.05;
 		double barPosY = pos.y + box.y - barheight;
 		Ammo am1 = weap.ammo1;
 		color amCol = color(255, 0, 255, 0); //ammo1 is green
@@ -1952,7 +2036,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		{
 			double barWidth = LinearMap(am1.amount, 0, am1.maxamount, 0., box.x, true);
 			Fill(amCol, pos.x, barPosY, barWidth, barheight, flags);
-			barPosY -= barHeight*2;
+			barPosY -= barHeight*1.2;
 		}
 		// Only draw the second bar if ammotype2 isn't the same
 		// as ammotype 1:
@@ -2098,7 +2182,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		shapeToUse.SetTransform(minimapTransform);
 
 		// background:
-		Color baseCol = GetBaseplateColor();
+		Color baseCol = GetHUDBackground();
 		double edgeThickness = 1 * hudscale.x;
 		
 		// Fill the shape with the outline color
@@ -2457,7 +2541,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		height = (iconsize + indent) * rows;
 
 		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
-		Fill(GetBaseplateColor(), pos.x, pos.y, width, height, flags);
+		BackgroundFill(pos.x, pos.y, width, height, flags);
 
 		pos += (iconsize*0.5+indent, iconsize*0.5+indent);
 		vector2 kpos = pos;
@@ -2845,7 +2929,6 @@ class JGPHUD_LookTargetController : Thinker
 
 class JGPUFH_HudDataHandler : EventHandler
 {
-	ui JGPUFH_FlexibleHUD hud;
 	array <JGPUFH_PowerupData> powerupData;
 	transient CVar c_ScreenReddenFactor;
 	JGPHUD_LookTargetController lookControllers[MAXPLAYERS];
@@ -2958,15 +3041,17 @@ class JGPUFH_HudDataHandler : EventHandler
 	{
 		if (!e.isManual)
 		{
-			if (!hud)
-				hud = JGPUFH_FlexibleHUD(StatusBar);
-			if(e.name == "PlayerWasAttacked")
+			let hud = JGPUFH_FlexibleHUD(StatusBar);
+			if (hud)
 			{
-				hud.UpdateAttacker(e.args[0]);
-			}
-			if (e.name == "PlayerHitMonster")
-			{
-				hud.RefreshReticleHitMarker();
+				if(e.name == "PlayerWasAttacked")
+				{
+					hud.UpdateAttacker(e.args[0]);
+				}
+				if (e.name == "PlayerHitMonster")
+				{
+					hud.RefreshReticleHitMarker();
+				}
 			}
 		}
 	}

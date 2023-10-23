@@ -1,19 +1,19 @@
 default,identifier,remarks,ru,pt,de,esm,fr
 FlexiHUD settings,JGPHUD_SETTINGS_TITLE,"FlexiHUD is the mod's name, do not localize",Настройки FlexiHUD,Configurações do FlexiHUD,FlexiHUD Einstellungen,Configuración de FlexiHUD,Configuration de FlexiHud
 General,JGPHUD_GENERAL_TITLE,Title for the general options,Общее,Geral,Allgemein,General,General
-HUD background style,JGPHUD_GENERAL_BACKSTYLE,General appearance of the background: either a flat color or a texture,Стиль фона,Estilo do fundo,Hintergrundstil,,Style d'arrière-plan de l’ATH
-Flat color,JGPHUD_GENERAL_BACKSTYLE_COLOR,Option for background appearance,Цветовая заливка,Cor sólida,Füllfarbe,,Couleur uniforme
-Texture,JGPHUD_GENERAL_BACKSTYLE_TEXTURE,Option for background appearance,Текстура,Textura,Textur,,Texture
+HUD background style,JGPHUD_GENERAL_BACKSTYLE,General appearance of the background: either a flat color or a texture,Стиль фона,Estilo do fundo,Hintergrundstil,Estilo de fondo,Style d'arrière-plan de l’ATH
+Flat color,JGPHUD_GENERAL_BACKSTYLE_COLOR,Option for background appearance,Цветовая заливка,Cor sólida,Füllfarbe,Color sólido,Couleur uniforme
+Texture,JGPHUD_GENERAL_BACKSTYLE_TEXTURE,Option for background appearance,Текстура,Textura,Textur,Texturizado,Texture
 HUD background color,JGPHUD_GENERAL_BACKCOL,General background color,Цвет фона,Cor de fundo,Hintergrundfarbe,Color de fondo,Couleur d’arrière-plan
 HUD background opacity,JGPHUD_GENERAL_BACKALPHA,General background opacity,Прозрачность фона,Opacidade,Hintergrunddeckkraft,Opacidad de fondo,Opacité de l’arrière-plan
-Size of icons,JGPHUD_GENERAL_ICONSIZE,"This is used for several different options: inventory bar, weapon slots, powerup display",Размер значков,,,,
-Position anchor point,JGPHUD_ELEMENT_POS,,Точка привязки элемента,Ponto da âncora,Ankerpunkt,Punto de anclaje,Point d’ancrage
+Size of icons,JGPHUD_GENERAL_ICONSIZE,"This is used for several different options: inventory bar, weapon slots, powerup display",Размер значков,Tamanho dos ícones,,Tamaño de los iconos,
+Position anchor point,JGPHUD_ELEMENT_POS,Lets the player choose the anchor point on the screen for the specified HUD element,Точка привязки элемента,Ponto da âncora,Ankerpunkt,Punto de anclaje,Point d’ancrage
 Top left,JGPHUD_POS_TOPLEFT,Anchor point for the HUD element on the screen,Верхний левый угол,Canto superior esquerdo,Oben links,Superior izquierda,Haut à gauche
 Top center,JGPHUD_POS_TOPCENTER,Anchor point for the HUD element on the screen,Середина верхней границы,Centro superior,Oben mitte,Superior centrado,Haut au centre
 Top right,JGPHUD_POS_TOPRIGHT,Anchor point for the HUD element on the screen,Верхний правый угол,Canto superior direito,Oben rechts,Superior derecha,Haut à droite
-Left center,JGPHUD_POS_LEFTCENTER,Anchor point for the HUD element on the screen,Середина левого края,Esquerda do centro,Mitte links,Centro izquierda,Centre à gauche
+Left center,JGPHUD_POS_LEFTCENTER,Anchor point for the HUD element on the screen,Середина левой границы,Esquerda do centro,Mitte links,Centro izquierda,Centre à gauche
 Center,JGPHUD_POS_CENTER,Anchor point for the HUD element on the screen,Центр экрана,Centro,Mitte,Centrado,Centre
-Right center,JGPHUD_POS_RIGHTCENTER,Anchor point for the HUD element on the screen,Середина правого края,Centro direito,Mitte rechts,Centro derecha,Centre à droite
+Right center,JGPHUD_POS_RIGHTCENTER,Anchor point for the HUD element on the screen,Середина правой границы,Centro direito,Mitte rechts,Centro derecha,Centre à droite
 Bottom left,JGPHUD_POS_BOTTOMLEFT,Anchor point for the HUD element on the screen,Нижний левый угол,Canto inferior esquerdo,Unten links,Inferior izquierda,Bas à gauche
 Bottom center,JGPHUD_POS_BOTTOMCENTER,Anchor point for the HUD element on the screen,Середина нижней границы,Centro inferior,Unten mitte,Inferior centrado,Bas au centre
 Bottom right,JGPHUD_POS_BOTTOMRIGHT,Anchor point for the HUD element on the screen,Нижний правый угол,Canto inferior direito,Unten rechts,Inferior derecha,Bas à droite
@@ -39,10 +39,10 @@ Keys,JGPHUD_KEYS_TITLE,,Ключи,Chaves,Schlüssel,Llaves,Clés
 Keys display,JGPHUD_KEYS_ENABLE,Whether to show keys on the HUD,Показывать ключи,Mostrar chaves,Schlüssel anzeigen,Mostrar llaves,Affichage des clés
 Weapon slots,JGPHUD_WEAPSLOTS_TITLE,,Ячейки оружия,Ícones de arma,Waffenplätze,Slots de armas,Emplacements d'armes
 Weapon slots display,JGPHUD_WEAPSLOTS_ENABLE,Whether to show weapon slots on the HUD,Показывать ячейки оружия,Mostrar ícones de arma,Waffenplätze anzeigen,Mostrar slots de armas,Affichage des emplacements d'armes
-Weapon slots alignment,JGPHUD_WEAPSLOTS_ALIGNMENT,How the slots are aligned (vertically or horizontally),Порядок ячеек оружия,Alinhamento dos ícones de arma,Waffenplatzanordnung,,Alignement des emplacements d’armes
-Horizontal,JGPHUD_WEAPSLOTS_ALIGNMENT_H,Weapon slots alignment option,По горизонтали,Horizontal,Horizontal,,Horizontal
-Vertical,JGPHUD_WEAPSLOTS_ALIGNMENT_V,"Weapon slots alignment option (vertical, first slot at the top)",По вертикали (сверху вниз),Vertical,Vertikal,,Vertical
-Vertical inverted,JGPHUD_WEAPSLOTS_ALIGNMENT_VINV,"Weapon slots alignment option (vertical, first slot at the bottom)",По вертикали (снизу вверх),Vertical invertido,Vertikal invertiert,,Vertical Inversé
+Weapon slots alignment,JGPHUD_WEAPSLOTS_ALIGNMENT,How the slots are aligned (vertically or horizontally),Порядок ячеек оружия,Alinhamento dos ícones de arma,Waffenplatzanordnung,Alineamiento de slots,Alignement des emplacements d’armes
+Horizontal,JGPHUD_WEAPSLOTS_ALIGNMENT_H,Weapon slots alignment option,По горизонтали,Horizontal,Horizontal,Horizontal,Horizontal
+Vertical,JGPHUD_WEAPSLOTS_ALIGNMENT_V,"Weapon slots alignment option (vertical, first slot at the top)",По вертикали (сверху вниз),Vertical,Vertikal,Vertical,Vertical
+Vertical inverted,JGPHUD_WEAPSLOTS_ALIGNMENT_VINV,"Weapon slots alignment option (vertical, first slot at the bottom)",По вертикали (снизу вверх),Vertical invertido,Vertikal invertiert,Vertical invertido,Vertical Inversé
 Powerup timers,JGPHUD_POWERUPS_TITLE,Title for the submenu,Таймеры power-up'ов,Temporizadores de powerup,Powerup-Timer,Contadores de powerups,Temps des powerups
 ,,,,,,,
 Powerup timers display,JGPHUD_POWERUPS_ENABLE,Whether  to show visible timers (minutes and seconds) for currently active power-ups,Показывать таймеры power-up'ов,Mostrar temporizadores de powerup,Powerup-Timer anzeigen,Mostrar contadores de powerups,Affichage du temps des powerups
@@ -81,8 +81,8 @@ Show secrets count,JGPHUD_MAPDATA_SECRETS,Option in the Map Data options block,�
 Show items count,JGPHUD_MAPDATA_ITEMS,Option in the Map Data options block,Показывать предметы,Mostrar contagem de itens,Anzahl der Gegenstände anzeigen,Mostrar contador de objetos,Nombres d’objets
 Minimap,JGPHUD_MINIMAP_TITLE,Option block title,Мини-карта,Minimapa,Minikarte,Minimapa,Mini-carte
 Minimap display,JGPHUD_MINIMAP_ENABLE,Whether to draw the minimap (off/only map/map and enemies),Отображение мини-карты,Mostrar minimapa,Minikarte anzeigen,Mostrar minimapa,Affichage de la mini-carte
-Minimap only,JGPHUD_MINIMAP_MAPONLY,Minimap display option,Только мини-карта,,,,
-Minimap and enemies,JGPHUD_MINIMAP_RADAR,Minimap display option,Мини-карта и враги,,,,
+Minimap only,JGPHUD_MINIMAP_MAPONLY,Minimap display option,Только мини-карта,Apenas minimapa,,Solo minimapa,
+Minimap and enemies,JGPHUD_MINIMAP_RADAR,Minimap display option,Мини-карта и враги,Minimapa e inimigos,,Minimapa y enemigos,
 Minimap size,JGPHUD_MINIMAP_SIZE,,Размер мини-карты,Tamanho do minimapa,Minikartengrösse,Tamaño del minimapa,Échelle de la mini-carte
 Minimap shape,JGPHUD_MINIMAP_SHAPE,,Форма мини-карты,Formato do minimapa,Minikartenform,Forma del minimapa,Forme de la mini-carte
 Circle,JGPHUD_MINIMAP_SHAPE_CIRCLE,possible minimap shape,Круг,Círculo,Kreis,Circular,Cercle
@@ -110,10 +110,16 @@ Show always,JGPHUD_CROSSHAIR_BARS_ALWAYS,Option for the bars around the crosshai
 Auto-hide after a delay,JGPHUD_CROSSHAIR_BARS_AUTOHIDE,Option for the bars around the crosshair,Скрывать через некоторое время,Desaparecer depois de um tempo,Nach einer Weile automatisch ausblenden,Desvanecer cuando los valores no cambien,Masquage automatique après un délai
 Show enemy health next to crosshair,JGPHUD_CROSSHAIR_ENEMYHEALTH,(Possible future option) Show a curved bar above the crosshair depicting the health of the enemy you're looking at,Показывать здоровье текущего противника,Mostrar vida do inimigo perto da retícula,Gegnergesundheit am Fadenkreuz anzeigen,Mostrar vida de los enemigos,Montrer la santé des ennemis près du réticule
 Bars background,JGPHUD_CROSSHAIR_BARS_BKG,(Possible future option) Whether to draw a dark background behind the health/armor/ammo bars around the crosshair,Фон индикаторов,Fundo das barras,Leistenhintergrund,Mostrar fondo para las barras,Arrière-plan des barres
-Health and armor bar,JGPHUD_CROSSHAIR_BARS_HP,Health/armor bar next to the crosshair (off/left/top/right/bottom),Индикатор здоровья/брони,Barra de vida e armadura,Gesundheit und Rüstung,,Barre de santé et d’armure
-Ammo bar,JGPHUD_CROSSHAIR_BARS_AMMO,Ammo bar next to the crosshair (off/left/top/right/bottom),Индикатор патронов,Barra de munição,Munition,,Barre de munition
-Enemy health bar,JGPHUD_CROSSHAIR_BARS_ENEMYHP,Enemy health bar next to the crosshair (off/left/top/right/bottom),Индикатор здоровья врага,Barra de vida do inimigo,Gegnergesundheit,,Barre de santé des ennemis
-Left,JGPHUD_CROSSHAIR_BARS_POS_L,To the left of the crosshair,Слева,À esquerda,Links,,Gauche
-Top,JGPHUD_CROSSHAIR_BARS_POS_T,Above the crosshair,Вверху,Acima,Oben,,Haut
-Right,JGPHUD_CROSSHAIR_BARS_POS_R,To the right of the crosshair,Справа,À direita,Rechts,,Droite
-Bottom,JGPHUD_CROSSHAIR_BARS_POS_B,Below the crosshair,Внизу,Abaixo ,Unten,,Bas
+Health and armor bar,JGPHUD_CROSSHAIR_BARS_HP,Health/armor bar next to the crosshair (off/left/top/right/bottom),Индикатор здоровья/брони,Barra de vida e armadura,Gesundheit und Rüstung,Barra de vida y armadura,Barre de santé et d’armure
+Ammo bar,JGPHUD_CROSSHAIR_BARS_AMMO,Ammo bar next to the crosshair (off/left/top/right/bottom),Индикатор патронов,Barra de munição,Munition,Barra de municiones,Barre de munition
+Enemy health bar,JGPHUD_CROSSHAIR_BARS_ENEMYHP,Enemy health bar next to the crosshair (off/left/top/right/bottom),Индикатор здоровья врага,Barra de vida do inimigo,Gegnergesundheit,Barra de vida de enemigos,Barre de santé des ennemis
+Left,JGPHUD_CROSSHAIR_BARS_POS_L,To the left of the crosshair,Слева,À esquerda,Links,Izquierda,Gauche
+Top,JGPHUD_CROSSHAIR_BARS_POS_T,Above the crosshair,Вверху,Acima,Oben,Arriba,Haut
+Right,JGPHUD_CROSSHAIR_BARS_POS_R,To the right of the crosshair,Справа,À direita,Rechts,Derecha,Droite
+Bottom,JGPHUD_CROSSHAIR_BARS_POS_B,Below the crosshair,Внизу,Abaixo ,Unten,Abajo,Bas
+Texture name,JGPHUD_GENERAL_BACKSTYLE_TEXNAME,"If the background mode is set to ""Texture"", this option will let the player input the name of the texture",Название текстуры,Nome da textura,,,
+"Enter the name of the desired texture here. It has to be
+a texture that actually exists in the current game/mod.",JGPHUD_GENERAL_BACKSTYLE_TEXNAME_NOTE,"Keep under 3 lines
+Use physical linebreaks (alt-Enter)","Укажите название текстуры. Эта текстура должна
+существовать в текущей игре/текущем моде.","Insira o nome da textura aqui. Necessita ser uma
+textura que existe no jogo ou mod.",,,

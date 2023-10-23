@@ -3,7 +3,9 @@ user nosave string jgphud_smallfont = "Confont";
 user nosave string jgphud_numberfont = "IndexFont";
 
 user nosave color jgphud_BackColor = "433515";
+user nosave bool jgphud_BackStyle = true;
 user nosave float jgphud_BackAlpha = 0.5;
+user nosave string jgphud_BackTexture = "FLOOR3_3";
 
 user nosave float jgphud_ScreenReddenFactor = 1.0;
 user nosave bool jgphud_DrawDamageMarkers = true;
@@ -67,8 +69,8 @@ user nosave int jgphud_InvBarX = 0;
 user nosave int jgphud_InvBarY = 32;
 
 user nosave bool jgphud_DrawEnemyHitMarkers = true;
-user nosave int jgphud_DrawReticleBars = 1;
-user nosave bool jgphud_ReticleBarsText = true;
+user nosave int jgphud_DrawReticleBars = 2;
+user nosave bool jgphud_ReticleBarsText = false;
 user nosave int jgphud_ReticleBarsSize = 18;
 user nosave int jgphud_ReticleBarsHealthArmor = 1;
 user nosave int jgphud_ReticleBarsAmmo = 3;
