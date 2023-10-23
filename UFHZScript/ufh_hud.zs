@@ -2,6 +2,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 {
 	const ASPECTSCALE = 1.2;
 	const CIRCLEANGLES = 360.0;
+	const STR_INVALID = "<invalid>";
 
 	//See GetHUDBackground():
 	transient CVar c_BackColor;
@@ -91,7 +92,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	HUDFont numHUDFont;
 
 	JGPUFH_HudDataHandler handler;
-	JGPHUD_LookTargetController lookTC;
 
 	// see SetScreenFlags():
 	static const int ScreenFlags[] =
@@ -168,6 +168,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	double invbarCycleOfs;
 
 	// See DrawReticleBars():
+	JGPHUD_LookTargetController lookTC;
 	Shape2D roundBars;
 	Shape2D roundBarsAngMask;
 	Shape2D roundBarsInnerMask;
@@ -526,11 +527,16 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		color c = c_BackColor.GetInt();
 		color col = color(a, c.r, c.g, c.b);
 
-		string texname = c_BackTexture.GetString();
-		TextureID tex = TexMan.CheckForTexture(texname);
-		if (!tex.isValid())
+		TextureID tex;
+		if (!c_BackStyle.GetBool())
 		{
-			tex.SetNull();
+			string texname = c_BackTexture.GetString();
+			tex = TexMan.CheckForTexture(texname);
+			if (!tex.isValid())
+			{
+				c_BackTexture.SetString(STR_INVALID);
+				tex.SetNull();
+			}
 		}
 
 		return color(a, col.r, col.g, col.b), tex, alpha;
