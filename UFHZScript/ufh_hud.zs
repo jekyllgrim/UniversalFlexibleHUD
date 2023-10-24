@@ -512,6 +512,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		return pos;
 	}
 
+	vector2 ScaleToBox(TextureID tex, double squareSize)
+	{
+		vector2 size = TexMan.GetScaledSize(tex);
+		double longside = max(size.x, size.y);
+		double s = squareSize / longSide;
+		return (s,s);
+	}
+
 	// A CVar value should be passed here to return appropriate flags:
 	int SetScreenFlags(int val)
 	{
