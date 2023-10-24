@@ -2300,7 +2300,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		color friendColor = color(255,255,0); //BGR cyan
 		color foeColor = color(0,0,255); //BGR red
 		
-		double distance = ((size / zoom) / MAPSCALEFACTOR) * 1.45;
+		double distance = ((size / zoom) / MAPSCALEFACTOR) * 1.43; //account for square shapes
 		let it = BlockThingsIterator.Create(CPlayer.mo, distance);
 		while (it.Next())
 		{
@@ -2740,10 +2740,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			TextureID icon = GetIcon(item, 0);
 			// Scale the icons to fit into the box (but without breaking their
 			// aspect ratio):
-			vector2 size = TexMan.GetscaledSize(icon);
-			double longside = max(size.x, size.y);
-			double scaleToBoxFac = boxSize / longSide;
-			DrawInventoryIcon(item, itemPos, flags|DI_ITEM_CENTER, alph, boxsize:(boxSize, boxSize), scale:(scaleToBoxFac,scaleToBoxFac));
+			DrawTexture(icon, itemPos, flags|DI_ITEM_CENTER, alph, scale:ScaleToBox(icon, boxSize));
 			DrawString(numHUDFont, ""..item.amount, itemPos + (boxsize*0.5, boxsize*0.5 - fy), flags|DI_TEXT_ALIGN_RIGHT, Font.CR_Gold, alpha: alph, scale:(fntscale, fntscale));
 			// If the bar is not visible, stop here:
 			if (!IsInventoryBarVisible() && !c_AlwaysShowInvBar.GetBool())
