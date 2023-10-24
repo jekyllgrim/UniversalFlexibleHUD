@@ -2262,16 +2262,25 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			if (abs(p1.x) > size && abs(p1.y) > size && abs(p2.x) > size && abs(p2.y) > size)
 				continue;
 			double thickness = 1;
-			color col = color(128, lineCol.r, lineCol.g, lineCol.b);
-			if (ln.activation & SPAC_PlayerActivate)
+			color col = GetLockColor(ln);
+			if (col != -1)
 			{
-				col = color(255, intLineCol.r, intLineCol.g, intLineCol.b);
+				thickness = 4;
+				col = color(255, col.r, col.g, col.b);
 			}
-			// One-sided lines are thicker and opaque:
-			if (!(ln.flags & Line.ML_TWOSIDED))
+			else
 			{
-				thickness = 2;
-				col = color(col.a * 2, col.r, col.g, col.b);
+				col = color(128, lineCol.r, lineCol.g, lineCol.b);
+				if (ln.activation & SPAC_PlayerActivate)
+				{
+					col = color(255, intLineCol.r, intLineCol.g, intLineCol.b);
+				}
+				// One-sided lines are thicker and opaque:
+				if (!(ln.flags & Line.ML_TWOSIDED))
+				{
+					thickness = 2;
+					col = color(col.a * 2, col.r, col.g, col.b);
+				}
 			}
 			Screen.DrawThickLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, thickness, col, col.a);
 		}
@@ -2310,6 +2319,79 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		Screen.ClearStencil();
 	}
 
+	color GetLockColor(Line l)
+	{
+		int lock = l.locknumber;
+		// special-specific locks:
+		if (!lock)
+		{
+			switch (l.special)
+			{
+			case FS_Execute:
+				lock = l.Args[2];
+				break;
+			case Door_LockedRaise:
+			case Door_Animated:
+				lock = l.Args[3];
+				break;
+			case ACS_LockedExecute:
+			case ACS_LockedExecuteDoor:
+			case Generic_Door:
+				lock = l.Args[4];
+				break;
+			}
+		}
+		if (!lock)
+			return -1;
+		color col;
+		if (GameInfo.GameType == GAME_Hexen || GameInfo.GameType == GAME_Strife)
+		{
+			col = color(0, 255, 255);
+		}
+		else 
+		{
+			switch (lock)
+			{
+				default:
+					col = color(0, 255, 0);
+					break;
+				case 1: //red card (green key in Heretic)
+					if (GameInfo.GameType == GAME_Heretic)
+					{
+						col = color(0,255,0);
+						break;
+					}
+				case 4: //red skull
+				case 129: //any red (green key in Heretic)
+					if (GameInfo.GameType == GAME_Heretic)
+					{
+						col = color(0,255,0);
+						break;
+					}
+				case 132: //red card or skull
+					col = color(255,0,0);
+					break;
+				case 2: //blue card
+				case 5: //blue skull
+				case 130: //any blue
+				case 133: //blue card or skull
+					col = color(0,0,255);
+					break;
+				case 3: //yellow card
+				case 6: //yellow skull
+				case 131: //any yellow
+				case 134: //yellow card or skull
+					col = color(255,255,0);
+					break;
+				case 228: //any key
+				case 229: //one of each color (red, yellow and blue)
+				case 101: //all keys
+					col = color(255,255,255);
+					break;
+			}
+		}			
+		return col;
+	}
 
 	void DrawEnemyRadar(vector2 pos, double size, double zoom, Shape2D marker)
 	{
