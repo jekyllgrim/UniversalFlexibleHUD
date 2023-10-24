@@ -6,7 +6,7 @@ Flat color,JGPHUD_GENERAL_BACKSTYLE_COLOR,Option for background appearance,Цв�
 Texture,JGPHUD_GENERAL_BACKSTYLE_TEXTURE,Option for background appearance,Текстура,Textura,Textur,Texturizado,Texture
 HUD background color,JGPHUD_GENERAL_BACKCOL,General background color,Цвет фона,Cor de fundo,Hintergrundfarbe,Color de fondo,Couleur d’arrière-plan
 HUD background opacity,JGPHUD_GENERAL_BACKALPHA,General background opacity,Прозрачность фона,Opacidade,Hintergrunddeckkraft,Opacidad de fondo,Opacité de l’arrière-plan
-Size of icons,JGPHUD_GENERAL_ICONSIZE,"This is used for several different options: inventory bar, weapon slots, powerup display",Размер значков,Tamanho dos ícones,,Tamaño de los iconos,
+Size of icons,JGPHUD_GENERAL_ICONSIZE,"This is used for several different options: inventory bar, weapon slots, powerup display",Размер значков,Tamanho dos ícones,Icongrösse,Tamaño de los iconos,Taille des icones
 Position anchor point,JGPHUD_ELEMENT_POS,Lets the player choose the anchor point on the screen for the specified HUD element,Точка привязки элемента,Ponto da âncora,Ankerpunkt,Punto de anclaje,Point d’ancrage
 Top left,JGPHUD_POS_TOPLEFT,Anchor point for the HUD element on the screen,Верхний левый угол,Canto superior esquerdo,Oben links,Superior izquierda,Haut à gauche
 Top center,JGPHUD_POS_TOPCENTER,Anchor point for the HUD element on the screen,Середина верхней границы,Centro superior,Oben mitte,Superior centrado,Haut au centre
@@ -81,8 +81,8 @@ Show secrets count,JGPHUD_MAPDATA_SECRETS,Option in the Map Data options block,�
 Show items count,JGPHUD_MAPDATA_ITEMS,Option in the Map Data options block,Показывать предметы,Mostrar contagem de itens,Anzahl der Gegenstände anzeigen,Mostrar contador de objetos,Nombres d’objets
 Minimap,JGPHUD_MINIMAP_TITLE,Option block title,Мини-карта,Minimapa,Minikarte,Minimapa,Mini-carte
 Minimap display,JGPHUD_MINIMAP_ENABLE,Whether to draw the minimap (off/only map/map and enemies),Отображение мини-карты,Mostrar minimapa,Minikarte anzeigen,Mostrar minimapa,Affichage de la mini-carte
-Minimap only,JGPHUD_MINIMAP_MAPONLY,Minimap display option,Только мини-карта,Apenas minimapa,,Solo minimapa,
-Minimap and enemies,JGPHUD_MINIMAP_RADAR,Minimap display option,Мини-карта и враги,Minimapa e inimigos,,Minimapa y enemigos,
+Minimap only,JGPHUD_MINIMAP_MAPONLY,Minimap display option,Только мини-карта,Apenas minimapa,Nur Minikarte,Solo minimapa,Mini-carte seulement
+Minimap and enemies,JGPHUD_MINIMAP_RADAR,Minimap display option,Мини-карта и враги,Minimapa e inimigos,Minikarte und Gegner,Minimapa y enemigos,Mini-carte et ennemies
 Minimap size,JGPHUD_MINIMAP_SIZE,,Размер мини-карты,Tamanho do minimapa,Minikartengrösse,Tamaño del minimapa,Échelle de la mini-carte
 Minimap shape,JGPHUD_MINIMAP_SHAPE,,Форма мини-карты,Formato do minimapa,Minikartenform,Forma del minimapa,Forme de la mini-carte
 Circle,JGPHUD_MINIMAP_SHAPE_CIRCLE,possible minimap shape,Круг,Círculo,Kreis,Circular,Cercle
@@ -117,9 +117,13 @@ Left,JGPHUD_CROSSHAIR_BARS_POS_L,To the left of the crosshair,Слева,À esqu
 Top,JGPHUD_CROSSHAIR_BARS_POS_T,Above the crosshair,Вверху,Acima,Oben,Arriba,Haut
 Right,JGPHUD_CROSSHAIR_BARS_POS_R,To the right of the crosshair,Справа,À direita,Rechts,Derecha,Droite
 Bottom,JGPHUD_CROSSHAIR_BARS_POS_B,Below the crosshair,Внизу,Abaixo ,Unten,Abajo,Bas
-Texture name,JGPHUD_GENERAL_BACKSTYLE_TEXNAME,"If the background mode is set to ""Texture"", this option will let the player input the name of the texture",Название текстуры,Nome da textura,,,
+Texture name,JGPHUD_GENERAL_BACKSTYLE_TEXNAME,"If the background mode is set to ""Texture"", this option will let the player input the name of the texture",Название текстуры,Nome da textura,Texturname,Nombre de la textura,Nom de texture
 "Enter the name of the desired texture here. It has to be
 a texture that actually exists in the current game/mod.",JGPHUD_GENERAL_BACKSTYLE_TEXNAME_NOTE,"Keep under 3 lines
 Use physical linebreaks (alt-Enter)","Укажите название текстуры. Эта текстура должна
 существовать в текущей игре/текущем моде.","Insira o nome da textura aqui. Necessita ser uma
-textura que existe no jogo ou mod.",,,
+textura que existe no jogo ou mod.","Trage den Namen der gewünschten Textur ein.
+Die Textur muss im derzeitigen Spiel/Mod existieren.","Escribe el nombre de la textura. La
+textura debe existir en el juego o mod
+actual.","Entrer le nom de la texture désirée ici. Cela doit être une
+texture qui existe actuellement dans le jeu/mod actuel."
