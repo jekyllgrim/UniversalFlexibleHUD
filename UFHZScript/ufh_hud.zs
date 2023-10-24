@@ -2058,9 +2058,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// draw slot number in the bottom right corner of the box:
 		if (slot != -1)
 		{
-			double fy = mainHUDFont.mFont.GetHeight();
+			double fs = 0.4;
 			string slotNum = ""..slot;
-			DrawString(mainHUDFont, slotNum, (pos.x+box.x, pos.y+box.y-fy*0.5), flags|DI_TEXT_ALIGN_RIGHT, fntCol, 0.8, scale:(0.5, 0.5));
+			DrawString(mainHUDFont, slotNum, (pos.x+box.x, pos.y), flags|DI_TEXT_ALIGN_RIGHT, fntCol, 0.8, scale:(fs, fs));
 		}
 	}
 
