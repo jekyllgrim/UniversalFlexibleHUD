@@ -175,6 +175,13 @@ OptionMenu "JGPHUD_MapData"
 	Slider "$JGPHUD_MINIMAP_SIZE", "jgphud_MinimapSize", 0, 128, 1, 0, "jgphud_DrawMinimap"
 	Option "$JGPHUD_MINIMAP_SHAPE", "jgphud_CircularMinimap", "MinimapShape", "jgphud_DrawMinimap"
 	Slider "$JGPHUD_MINIMAP_ZOOM", "jgphud_MinimapZoom", 0.15, 3.0, 0.05, 2, "jgphud_DrawMinimap"
+	StaticText "$AUTOMAPMNU_SETCUSTOMCOLORS", yellow
+	ColorPicker "$MAPCOLORMNU_BACKCOLOR", "jpghud_MinimapBackColor"
+	ColorPicker "$JGPHUD_MINIMAP_COLOR_LINES", "jgphud_MinimapLineColor"
+	ColorPicker "$JGPHUD_MINIMAP_COLOR_INTLINES", "jgphud_MinimapIntLineColor"
+	ColorPicker "$MAPCOLORMNU_YOURCOLOR", "jgphud_MinimapYouColor"
+	ColorPicker "$MAPCOLORMNU_MONSTERCOLOR", "jgphud_MinimapMonsterColor"
+	ColorPicker "$MAPCOLORMNU_FRIENDCOLOR", "jgphud_MinimapFriendColor"
 	StaticText ""
 	StaticText "$JGPHUD_MAPDATA_TITLE", yellow
 	Option "$JGPHUD_MAPDATA_KILLS", "jgphud_DrawKills", "OnOff"

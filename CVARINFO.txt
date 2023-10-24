@@ -55,6 +55,12 @@ user nosave int jgphud_MinimapPos = 3;
 user nosave int jgphud_MinimapPosX = 2;
 user nosave int jgphud_MinimapPosY = 0;
 user nosave float jgphud_MinimapZoom = 0.7;
+user nosave color jpghud_MinimapBackColor = "000000";
+user nosave color jgphud_MinimapLineColor = "80FF80";
+user nosave color jgphud_MinimapIntLineColor = "FFFFFF";
+user nosave color jgphud_MinimapYouColor = "FFFFFF";
+user nosave color jgphud_MinimapMonsterColor = "FF0000";
+user nosave color jgphud_MinimapFriendColor = "00FFFF";
 
 user nosave bool jgphud_DrawKills = true;
 user nosave bool jgphud_DrawItems = true;

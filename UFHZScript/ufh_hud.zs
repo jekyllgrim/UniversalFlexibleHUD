@@ -71,6 +71,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	transient CVar c_minimapPosX;
 	transient CVar c_minimapPosY;
 	transient CVar c_minimapZoom;
+	transient CVar c_minimapBackColor;
+	transient CVar c_minimapLineColor;
+	transient CVar c_minimapIntLineColor;
+	transient CVar c_minimapYouColor;
+	transient CVar c_minimapMonsterColor;
+	transient CVar c_minimapFriendColor;
 
 	transient CVar c_DrawKills;
 	transient CVar c_DrawItems;
@@ -400,6 +406,18 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			c_minimapPosY = CVar.GetCvar('jgphud_MinimapPosY', CPlayer);
 		if (!c_minimapZoom)
 			c_minimapZoom = CVar.GetCvar('jgphud_MinimapZoom', CPlayer);
+		if (!c_minimapBackColor)
+			c_minimapBackColor = CVar.GetCvar('jpghud_MinimapBackColor', CPlayer);
+		if (!c_minimapLineColor)
+			c_minimapLineColor = CVar.GetCvar('jgphud_MinimapLineColor', CPlayer);
+		if (!c_minimapIntLineColor)
+			c_minimapIntLineColor = CVar.GetCvar('jgphud_MinimapIntLineColor', CPlayer);
+		if (!c_minimapYouColor)
+			c_minimapYouColor = CVar.GetCvar('jgphud_MinimapYouColor', CPlayer);
+		if (!c_minimapMonsterColor)
+			c_minimapMonsterColor = CVar.GetCvar('jgphud_MinimapMonsterColor', CPlayer);
+		if (!c_minimapFriendColor)
+			c_minimapFriendColor = CVar.GetCvar('jgphud_MinimapFriendColor', CPlayer);
 
 		if (!c_DrawKills)
 			c_DrawKills = CVar.GetCvar('jgphud_DrawKills', CPlayer);
@@ -2207,7 +2225,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		minimapTransform.Scale((size-edgeThickness,size-edgeThickness) * shapeFac);
 		minimapTransform.Translate(pos + shapeOfs);
 		shapeToUse.SetTransform(minimapTransform);
-		Screen.DrawShapeFill(color(255,0,0,0), 1.0, shapeToUse);
+		// Draw background:
+		color backCol = c_minimapBackColor.GetInt();
+		Screen.DrawShapeFill(color(255, backCol.b, backCol.g, backCol.r), 1.0, shapeToUse);
 
 		// Apply mask
 		// It's applied after outline and background scaling, 
@@ -2218,6 +2238,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		Screen.DrawShapeFill(color(0,0,0,0), 0.0, shapeToUse);
 		Screen.SetStencil(1, SOP_Keep, SF_AllOn);
 		
+		color lineCol = c_minimapLineColor.GetInt();
+		color intLineCol = c_MinimapIntLineColor.GetInt();
 		for (int i = 0; i < Level.Lines.Size(); i++)
 		{
 			Line ln = Level.Lines[i];
@@ -2240,16 +2262,16 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			if (abs(p1.x) > size && abs(p1.y) > size && abs(p2.x) > size && abs(p2.y) > size)
 				continue;
 			double thickness = 1;
-			color col = color(128, 0, 255, 0);
+			color col = color(128, lineCol.r, lineCol.g, lineCol.b);
+			if (ln.activation & SPAC_PlayerActivate)
+			{
+				col = color(255, intLineCol.r, intLineCol.g, intLineCol.b);
+			}
 			// One-sided lines are thicker and opaque:
 			if (!(ln.flags & Line.ML_TWOSIDED))
 			{
 				thickness = 2;
 				col = color(col.a * 2, col.r, col.g, col.b);
-			}
-			if (ln.activation & SPAC_PlayerActivate)
-			{
-				col = color(255, 255, 255, 255);
 			}
 			Screen.DrawThickLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, thickness, col, col.a);
 		}
@@ -2280,7 +2302,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		minimapTransform.Scale((arrowSize, arrowSize));
 		minimapTransform.Translate(pos + (size*0.5,size*0.5));
 		minimapShape_Arrow.SetTransform(minimapTransform);
-		Screen.DrawShapeFill(color(255,255,255), 1.0, minimapShape_Arrow);
+		color youColor = c_minimapYouColor.GetInt();
+		Screen.DrawShapeFill(color(youColor.b, youColor.g, youColor.r), 1.0, minimapShape_Arrow);
 		
 		// Disable the mask:
 		Screen.EnableStencil(false);
@@ -2297,8 +2320,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		double playerAngle = -(CPlayer.mo.angle + 90);
 		vector2 ppos = CPlayer.mo.pos.xy;
 		vector2 diff = Level.Vec2Diff((0,0), ppos);
-		color friendColor = color(255,255,0); //BGR cyan
-		color foeColor = color(0,0,255); //BGR red
+		color foeColor = c_minimapMonsterColor.GetInt();
+		color friendColor = c_minimapFriendColor.GetInt();
 		
 		double distance = ((size / zoom) / MAPSCALEFACTOR) * 1.43; //account for square shapes
 		let it = BlockThingsIterator.Create(CPlayer.mo, distance);
@@ -2309,7 +2332,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			{
 				continue;
 			}
-
 			color col = thing.IsHostile(CPLayer.mo) ? foeColor : friendColor;
 
 			vector2 ePos = (thing.pos.xy - diff) * zoom * hudscale.x;
@@ -2325,7 +2347,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			minimapTransform.Rotate(-thing.angle - playerAngle - 90);
 			minimapTransform.Translate(pos + ePos);
 			minimapShape_Arrow.SetTransform(minimapTransform);
-			Screen.DrawShapeFill(col, alpha, minimapShape_Arrow);
+			Screen.DrawShapeFill(color(col.b, col.g, col.r), alpha, minimapShape_Arrow);
 		}
 	}
 

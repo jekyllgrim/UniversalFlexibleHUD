@@ -88,6 +88,8 @@ Minimap shape,JGPHUD_MINIMAP_SHAPE,,Форма мини-карты,Formato do mi
 Circle,JGPHUD_MINIMAP_SHAPE_CIRCLE,possible minimap shape,Круг,Círculo,Kreis,Circular,Cercle
 Square,JGPHUD_MINIMAP_SHAPE_SQUARE,possible minimap shape,Квадрат,Quadrado,Quadrat,Cuadrada,Carré
 Minimap zoom,JGPHUD_MINIMAP_ZOOM,minimap zoom value,Приближение мини-карты,Zoom do minimapa,Minikartenzoom,Zoom del minimapa,Zoom de la mini-carte
+Lines,JGPHUD_MINIMAP_COLOR_LINES,color for regular minimap lines,Линии,,,,
+Interactive lines,JGPHUD_MINIMAP_COLOR_INTLINES,"color for interactive minimap lines (activateable by pressing Use, but not requiring a key, because locked lines will have a lock color)",Интерактивные линии,,,,
 "Note: The minimap may cause performance issues on maps
 with complex geometry, especially at low zoom values.",JGPHUD_MINIMAP_NOTE,"Keep under 4 lines! Use real linebreaks (Ctrl-Enter) to add new lines, so that each line is under 60 characters","Внимание: мини-карта может негативно влиять на
 производительность игры, особенно на картах со сложной
@@ -123,7 +125,6 @@ a texture that actually exists in the current game/mod.",JGPHUD_GENERAL_BACKSTYL
 Use physical linebreaks (alt-Enter)","Укажите название текстуры. Эта текстура должна
 существовать в текущей игре/текущем моде.","Insira o nome da textura aqui. Necessita ser uma
 textura que existe no jogo ou mod.","Trage den Namen der gewünschten Textur ein.
-Die Textur muss im derzeitigen Spiel/Mod existieren.","Escribe el nombre de la textura. La
-textura debe existir en el juego o mod
-actual.","Entrer le nom de la texture désirée ici. Cela doit être une
+Die Textur muss im derzeitigen Spiel/Mod existieren.","Escribe el nombre de la textura. La textura
+debe existir en el juego o mod actual.","Entrer le nom de la texture désirée ici. Cela doit être une
 texture qui existe actuellement dans le jeu/mod actuel."
