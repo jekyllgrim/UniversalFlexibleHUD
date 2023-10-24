@@ -2009,7 +2009,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (!weap)
 			return;
 		
-		int fntCol = Font.CR_Untranslated;
+		int fntCol = Font.CR_White;
 		// Compare this weapon to readyweapon and pendingweapon:
 		Weapon rweap = Weapon(CPlayer.readyweapon);
 		// MUST explicitly cast it as Weapon, otherwise the pointer
@@ -2019,7 +2019,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// selected, invert the colors of the box:
 		if ((rweap == weap && !pweap) || pweap == weap)
 		{
-			fntCol = Font.CR_Red;
+			fntCol = Font.CR_Gold;
 			color col = GetHUDBackground();
 			// Clamp the alpha, so it's not too low:
 			int a = Clamp(col.a, 180, 255);
