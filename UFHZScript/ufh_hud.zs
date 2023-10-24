@@ -2306,6 +2306,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 			vector2 ePos = (thing.pos.xy - diff) * zoom * hudscale.x;
 			ePos = AlignPosToMap(ePos, playerangle, size);
+
+			// scale alpha with vertical distance:
+			double vdiff = abs(CPlayer.mo.pos.z - thing.pos.z);
+			double alpha = LinearMap(vdiff, 0, 512, 1.0, 0.1, true);
 			
 			minimapTransform.Clear();
 			double markerSize = ((thing.radius) * zoom) * hudscale.x;
@@ -2313,7 +2317,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			minimapTransform.Rotate(-thing.angle - playerAngle - 90);
 			minimapTransform.Translate(pos + ePos);
 			minimapShape_Arrow.SetTransform(minimapTransform);
-			Screen.DrawShapeFill(col, 1.0, minimapShape_Arrow);
+			Screen.DrawShapeFill(col, alpha, minimapShape_Arrow);
 		}
 	}
 
