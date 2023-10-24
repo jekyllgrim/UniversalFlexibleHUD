@@ -2464,7 +2464,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		double iconSize = Clamp(c_PowerupsIconSize.GetInt(), 2, 100);
 		int indent = 0;
 		HUDFont fnt = smallHUDFont;
-		double textScale = 0.5;
+		double textScale = iconSize * 0.025;
 		double fy = fnt.mFont.GetHeight() * textScale;
 		double width = iconSize + indent;
 		double height = (iconsize + indent) * powerNum + indent;
@@ -2486,7 +2486,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			let pow = Powerup(CPlayer.mo.FindInventory(pwd.powerupType));
 			if (pow)
 			{
-				DrawTexture(pwd.icon, (pos.x + iconSize*0.5, pos.y), flags|DI_ITEM_CENTER, box:(iconSize, iconSize));
+				DrawTexture(pwd.icon, (pos.x + iconSize*0.5, pos.y), flags|DI_ITEM_CENTER, scale:ScaleToBox(pwd.icon, iconSize), style:pwd.renderStyle);
 				// Account for infinite flight in singleplayer:
 				if (!multiplayer && pow is 'PowerFlight' && Level.infinite_flight)
 				{
@@ -2847,14 +2847,16 @@ class JGPUFH_PowerupData play
 {
 	TextureID icon;
 	class<Inventory> powerupType;
+	int renderStyle;
 
-	static JGPUFH_PowerupData Create(TextureID icon, class<Inventory> powerupType)
+	static JGPUFH_PowerupData Create(TextureID icon, class<Inventory> powerupType, int renderStyle)
 	{
 		let pwd = JGPUFH_PowerupData(New("JGPUFH_PowerupData"));
 		if (pwd)
 		{
 			pwd.icon = icon;
 			pwd.powerupType = powerupType;
+			pwd.renderStyle = renderStyle;
 		}
 		return pwd;
 	}
@@ -3024,7 +3026,7 @@ class JGPUFH_HudDataHandler : EventHandler
 			// In case of success, store it:
 			if (icon.isValid())
 			{
-				pwd = JGPUFH_PowerupData.Create(icon, pwrCls);
+				pwd = JGPUFH_PowerupData.Create(icon, pwrCls, pwrg.GetRenderstyle());
 				powerupData.Push(pwd);
 			}
 		}
