@@ -12,6 +12,7 @@ AddOptionMenu "OptionsMenuSimple" before "CustomizeControls"
 OptionMenu "JGPHUD_Settings"
 {
 	Title "$JGPHUD_SETTINGS_TITLE"
+	StaticText "FlexiHUD v1.1.0", blue
 
 	StaticText ""
 	StaticText "$JGPHUD_GENERAL_TITLE", yellow
@@ -118,7 +119,7 @@ OptionMenu "JGPHUD_WeaponSlots"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_WeaponSlotsX", -160, 160, 2, 0, "jgphud_drawWeaponSlots"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_WeaponSlotsY", -100, 100, 2, 0, "jgphud_drawWeaponSlots"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawWeaponSlots:jgphud_WeaponSlotsAlign:jgphud_WeaponSlotsPos:jgphud_WeaponSlotsX:jgphud_WeaponSlotsY"
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawWeaponSlots:jgphud_WeaponSlotsAlign:jgphud_WeaponSlotsSize:jgphud_WeaponSlotsPos:jgphud_WeaponSlotsX:jgphud_WeaponSlotsY"
 }
 
 OptionMenu "JGPHUD_InvBar"
