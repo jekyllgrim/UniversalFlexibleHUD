@@ -2509,14 +2509,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			s_left = String.Format("\cG%s", StringTable.Localize("$TXT_IMTIME"));
 			int h,m,s;
 			[h,m,s] = TicsToHours(level.time);
-			if (h > 0)
-			{
-				s_right = String.Format("\cD%d:%d:%d", h, m, s);
-			}
-			else
-			{
-				s_right = String.Format("\cD%d:%d", m, s);
-			}
+			s_right = String.Format("\cD%d:%02d:%02d", h, m, s);
 			DrawMapDataElement(s_left, s_right, hfnt, pos, flags, width, scale);
 		}
 	}
@@ -2602,11 +2595,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				[h,m,s] = TicsToHours(pow.EffectTics);
 				if (h > 0)
 				{
-					s_time = String.Format("%d:%d:%d", h, m, s);
+					s_time = String.Format("%d:%02d:%02d", h, m, s);
 				}
 				else
 				{
-					s_time = String.Format("%d:%d", m, s);
+					s_time = String.Format("%d:%02d", m, s);
 				}
 				DrawString(fnt, s_time, pos + (textOfs, -fy*0.5), flags|DI_TEXT_ALIGN_LEFT, alpha: pow.isBlinking() ? 0.5 : 1.0, scale:(textscale,textscale));
 				pos.y += iconSize + indent;
