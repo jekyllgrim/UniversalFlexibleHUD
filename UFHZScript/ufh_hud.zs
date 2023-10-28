@@ -2430,6 +2430,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				mapLines.Push(ln);
 			}
 		}
+	}
 
 	// Determine if the line should be visible in the minimap:
 	bool IsLineVisible(Line ln)
