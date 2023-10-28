@@ -237,6 +237,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	override void Init()
 	{
 		super.Init();
+		// Cache CVars before anything else:
+		CacheCvars();
+
 		smallHUDFont = HUDFont.Create(newConsoleFont);
 		Font fnt = "Confont";
 		mainHUDFont = HUDFont.Create(fnt);
@@ -258,9 +261,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	override void Draw(int state, double ticFrac)
 	{
-		// Cache CVars before anything else
-		// and unconditionally:
-		CacheCvars();
 		super.Draw(state, ticFrac);
 
 		if (state == HUD_None || state == HUD_AltHud)
