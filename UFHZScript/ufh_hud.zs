@@ -94,6 +94,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	transient CVar c_ReticleBarsSize;
 	transient CVar c_ReticleBarsWidth;
 
+	transient CVar c_drawCustomItems;
+	transient CVar c_CustomItemsIconSize;
+	transient CVar c_CustomItemsPos;
+	transient CVar c_CustomItemsX;
+	transient CVar c_CustomItemsY;
+
 	HUDFont mainHUDFont;
 	HUDFont smallHUDFont;
 	HUDFont numHUDFont;
@@ -172,12 +178,15 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		MD_RADAR,
 	}
 
-	// See DrawInventoryBar():
+	// DrawInventoryBar():
 	const ITEMBARICONSIZE = 28;
 	Inventory prevInvSel;
 	double invbarCycleOfs;
 
-	// See DrawReticleBars():
+	// DrawCustomItems():	
+	array < class<Inventory> > customItems;
+
+	// DrawReticleBars():
 	JGPUFH_LookTargetController lookTC;
 	Shape2D roundBars;
 	Shape2D roundBarsAngMask;
@@ -246,6 +255,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		numHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
 		
 		GetLockData();
+		GetCustomItemsList();
 	}
 
 	override void Tick()
@@ -287,6 +297,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		DrawDamageMarkers();
 		DrawReticleHitMarker();
 		DrawReticleBars();
+		DrawCustomItems();
 	}
 
 	void CacheCvars()
@@ -460,6 +471,17 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			c_ReticleBarsEnemy = CVar.GetCvar('jgphud_ReticleBarsEnemy', CPlayer);
 		if (!c_ReticleBarsWidth)
 			c_ReticleBarsWidth = CVar.GetCvar('jgphud_ReticleBarsWidth', CPlayer);
+			
+		if (!c_drawCustomItems)
+			c_drawCustomItems = CVar.GetCvar('jgphud_DrawCustomItems', CPlayer);
+		if (!c_CustomItemsIconSize)
+			c_CustomItemsIconSize = CVar.GetCvar('jgphud_CustomItemsIconSize', CPlayer);
+		if (!c_CustomItemsPos)
+			c_CustomItemsPos = CVar.GetCvar('jgphud_CustomItemsPos', CPlayer);
+		if (!c_CustomItemsX)
+			c_CustomItemsX = CVar.GetCvar('jgphud_CustomItemsX', CPlayer);
+		if (!c_CustomItemsY)
+			c_CustomItemsY = CVar.GetCvar('jgphud_CustomItemsY', CPlayer);
 	}
 
 	// Adjusts position of the element so that it never ends up
@@ -561,6 +583,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		return ScreenFlags[val];
 	}
 
+	// Returns the color (or texture, is available)
+	// and the alpha for the background fill:
 	color, TextureID, double GetHUDBackground()
 	{
 		double alpha = Clamp(c_BackAlpha.GetFloat(), 0., 1.);
@@ -571,6 +595,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 		TextureID tex;
 		tex.SetInvalid();
+		// Check if the player set a texture to be used for
+		// the background via the jgphud_BackTexture CVAR:
 		if (!c_BackStyle.GetBool())
 		{
 			string texname = c_BackTexture.GetString();
@@ -587,6 +613,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		return color(a, col.r, col.g, col.b), tex, alpha;
 	}
 
+	// Draws a flat background fill or a texture fill,
+	// if a valid texture was set by the player
+	// via the jgphud_BackTexture CVAR:
 	void BackgroundFill(double xPos, double yPos, double width, double height, int flags, color fillcol = color(0,0,0,0))
 	{
 		color col;
@@ -598,54 +627,55 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			col = fillcol;
 		}
 		
-		if (!c_BackStyle.GetBool() && tex && tex.IsValid())
-		{
-			flags |= DI_ITEM_LEFT_TOP|DI_FORCEFILL;
-			color texCol = fillcol.a == 0 ? 0xffffffff : fillcol;
-			vector2 pos = (xPos, yPos);
-			vector2 box = (width, height);
-			// Get texture size and aspect ratio:
-			vector2 size = TexMan.GetScaledSize(tex);
-			double texaspect = size.x / size.y;
-			// If the bos is wider than it is tall:
-			if (width >= height)
-			{
-				// Stretch the texture to the box's height vertically:
-				box.y = height;
-				// Modify its width relatively:
-				box.x = box.y * texaspect;
-				// How many instances of the texture would fit WHOLLY
-				// in the specified box:
-				int steps = Clamp(width / box.x, 1, 1000);
-				// Modify width slightly so that the textures will fit
-				// in the box without clipping mid-texture:
-				box.x = width / steps;
-				
-				// Draw the texture the necessary number of times:
-				for (int i = 0; i < steps; i++)
-				{
-					DrawTexture(tex, pos, flags, alpha, box, col: texCol);
-					pos.x += box.x;
-				}
-			}
-			// Otherwise do the same but vertically
-			// instead of horizontally:
-			else
-			{
-				box.x = width;
-				box.y = box.x / texaspect;
-				int steps = Clamp(height / box.y, 1, 1000);
-				box.y = height / steps;
-				for (int i = 0; i < steps; i++)
-				{
-					DrawTexture(tex, pos, flags, alpha, box, col: texCol);
-					pos.y += box.y;
-				}
-			}
-		}
-		else
+		// Draw flat color fill:
+		if (c_BackStyle.GetBool() || !tex || tex.IsValid())
 		{
 			Fill(col, xPos, yPos, width, height, flags);
+			return;
+		}
+
+		// Otherwise draw a texture, tiled and slightly scaled:
+		flags |= DI_ITEM_LEFT_TOP|DI_FORCEFILL;
+		color texCol = fillcol.a == 0 ? 0xffffffff : fillcol;
+		vector2 pos = (xPos, yPos);
+		vector2 box = (width, height);
+		// Get texture size and aspect ratio:
+		vector2 size = TexMan.GetScaledSize(tex);
+		double texaspect = size.x / size.y;
+		// If the bos is wider than it is tall:
+		if (width >= height)
+		{
+			// Stretch the texture to the box's height vertically:
+			box.y = height;
+			// Modify its width relatively:
+			box.x = box.y * texaspect;
+			// How many instances of the texture would fit WHOLLY
+			// in the specified box:
+			int steps = Clamp(width / box.x, 1, 1000);
+			// Modify width slightly so that the textures will fit
+			// in the box without clipping mid-texture:
+			box.x = width / steps;
+			
+			// Draw the texture the necessary number of times:
+			for (int i = 0; i < steps; i++)
+			{
+				DrawTexture(tex, pos, flags, alpha, box, col: texCol);
+				pos.x += box.x;
+			}
+		}
+		// Otherwise do the same but vertically
+		// instead of horizontally:
+		else
+		{
+			box.x = width;
+			box.y = box.x / texaspect;
+			int steps = Clamp(height / box.y, 1, 1000);
+			box.y = height / steps;
+			for (int i = 0; i < steps; i++)
+			{
+				DrawTexture(tex, pos, flags, alpha, box, col: texCol);
+				pos.y += box.y;
+			}
 		}
 	}
 
@@ -1252,6 +1282,112 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			DrawInventoryIcon(am, pos + (iconSize*0.5,iconSize*0.5), flags|DI_ITEM_CENTER, boxsize:(iconSize, iconSize));
 			DrawString(hfnt, String.Format("%3d/%3d", am.amount, am.maxamount), pos + (iconSize + indent, iconsize*0.5 -fy*0.5), flags|DI_TEXT_ALIGN_LEFT, translation: GetPercentageFontColor(am.amount, am.maxamount), scale:(fntScale,fntScale));
 			pos.y += max(fy, iconsize) + indent;
+		}
+	}
+
+	// Draws a list of custom items from the ITEMINFO lump:
+	void DrawCustomItems()
+	{
+		if (!c_DrawCustomItems.GetBool())
+			return;
+
+		int itemNum;
+		for (int i = 0; i < customItems.Size(); i++)
+		{
+			let item = customItems[i];
+			if (item && CPlayer.mo.FindInventory(item))
+			{
+				itemNum++;
+			}
+		}
+		if (itemNum <= 0)
+			return;
+
+		double iconSize = Clamp(c_CustomItemsIconSize.GetFloat(), 4, 64);
+		int indent = 1;
+		int flags = SetScreenFlags(c_CustomItemsPos.GetInt());
+		vector2 ofs = ( c_CustomItemsX.GetInt(), c_CustomItemsY.GetInt() );
+		let hfnt = smallHUDFont;
+		double fntScale = iconSize * 0.025;
+		double fy = hfnt.mFont.GetHeight() * fntScale;
+		double width = iconsize + indent*4 + hfnt.mFont.StringWidth("000/000") * fntScale;
+		double height = itemNum * (iconsize + indent);
+
+		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
+		BackGroundFill(pos.x, pos.y, width, height, flags);
+
+		for (int i = 0; i < customItems.Size(); i++)
+		{
+			let it = customItems[i];
+			if (!it)
+				continue;
+			let item = CPlayer.mo.FindInventory(it);
+			if (!item)
+				continue;
+			DrawInventoryIcon(item, pos + (iconSize*0.5,iconSize*0.5), flags|DI_ITEM_CENTER, scale:ScaleToBox(item.icon, iconSize));
+			DrawString(hfnt, String.Format("%3d/%3d", item.amount, item.maxamount), pos + (iconSize + indent, iconsize*0.5 -fy*0.5), flags|DI_TEXT_ALIGN_LEFT, translation: GetPercentageFontColor(item.amount, item.maxamount), scale:(fntScale,fntScale));
+			pos.y += max(fy, iconsize) + indent;
+		}
+	}
+
+	void GetCustomItemsList()
+	{
+		int cl = Wads.FindLump("ITEMINFO");
+		while (cl != -1)
+		{
+			string lumpData = Wads.ReadLump(cl);
+			//lumpData = lumpData.MakeLower();
+			// strip comments:
+			int commentPos = lumpData.IndexOf("//");
+			while (commentpos >= 0)
+			{
+				int lineEnd = lumpData.IndexOf("\n", commentPos) - 1;
+				lumpData.Remove(commentPos, lineEnd - commentPos);
+				commentPos = lumpData.IndexOf("//");
+			}
+			commentPos = lumpData.IndexOf("/*");
+			while (commentpos >= 0)
+			{
+				int lineEnd = lumpData.IndexOf("*/", commentPos) - 1;
+				lumpData.Remove(commentPos, lineEnd - commentPos);
+				commentPos = lumpData.IndexOf("/*");
+			}
+			// Strip tabs, spaces and carriage returns:
+			lumpData.Replace("\t", "");
+			lumpData.Replace("\r", "");
+			lumpData.Replace(" ", "");
+			// Unite duplicate linebreaks, if any:
+			while (lumpData.IndexOf("\n\n") >= 0)
+			{
+				lumpData.Replace("\n\n", "\n");
+			}
+			int searchPos = 0;
+			int fileEnd = lumpdata.Length();
+			while (searchPos >= 0 && searchPos < fileEnd)
+			{
+				int lineEnd = lumpData.IndexOf("\n", searchPos);
+				if (lineEnd < 0)
+					lineEnd = fileEnd;
+				if (lineEnd == searchPos)
+				{
+					searchPos++;
+					continue;
+				}
+				string clsname = lumpData.Mid(searchPos, lineEnd - searchPos);
+				if (jgphud_debug)
+					Console.Printf("\cDITEMINFO\c- Possible class name: [%s]", clsname);
+				class<Inventory> cls = clsname;
+				if (cls)
+				{
+					if (jgphud_debug)
+						Console.Printf("\cDITEMINFO\c- \cDFound item [%s]", cls.GetClassName());
+					customItems.Push(cls);
+				}
+				if (jgphud_debug)
+					Console.Printf("\cDITEMINFO\c- Searchpos %d | line end %d | file end %d", searchPos, lineEnd, fileEnd);
+				searchPos = lineEnd + 1;
+			}
+			cl = Wads.FindLump("ITEMINFO", cl+1);
 		}
 	}
 
@@ -2331,6 +2467,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	void UpdateMinimapLines()
 	{
+		if (level.time % 5 != 0)
+			return;
 		mapLines.Clear();
 		vector2 hudscale = GetHudScale();
 		double radius = GetMinimapSize() * hudscale.x;
@@ -2473,7 +2611,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 					col = color(col.a * 2, col.r, col.g, col.b);
 				}
 			}
-			Screen.DrawThickLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, thickness, col, col.a);
+			if (thickness <= 1)
+				Screen.DrawLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, col, col.a);
+			else
+				Screen.DrawThickLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, thickness, col, col.a);
 		}
 	}
 
@@ -2711,7 +2852,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 		int flags = SetScreenFlags(c_PowerupsPos.GetInt());
 		vector2 ofs = ( c_PowerupsX.GetInt(), c_PowerupsY.GetInt() );
-		double iconSize = Clamp(c_PowerupsIconSize.GetInt(), 2, 100);
+		double iconSize = Clamp(c_PowerupsIconSize.GetInt(), 4, 100);
 		int indent = 0;
 		HUDFont fnt = smallHUDFont;
 		double textScale = iconSize * 0.025;

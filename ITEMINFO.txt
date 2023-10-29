@@ -1,0 +1,9 @@
+// You can use this lump to add names of custom item or ammo classes,
+// so that they will be drawn in a special block of the HUD.
+// Can be used for mod compatibility.
+
+// Add one class name per line.
+// Do not use tabs or spaces.
+// Do not use special characters, only add class names.
+
+SomeTestItem

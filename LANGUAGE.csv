@@ -88,12 +88,12 @@ Minimap shape,JGPHUD_MINIMAP_SHAPE,,Форма мини-карты,Formato do mi
 Circle,JGPHUD_MINIMAP_SHAPE_CIRCLE,possible minimap shape,Круг,Círculo,Kreis,Circular,Cercle
 Square,JGPHUD_MINIMAP_SHAPE_SQUARE,possible minimap shape,Квадрат,Quadrado,Quadrat,Cuadrada,Carré
 Minimap zoom,JGPHUD_MINIMAP_ZOOM,minimap zoom value,Приближение мини-карты,Zoom do minimapa,Minikartenzoom,Zoom del minimapa,Zoom de la mini-carte
-Lines,JGPHUD_MINIMAP_COLOR_LINES,color for regular minimap lines,Линии,,,,
-Interactive lines,JGPHUD_MINIMAP_COLOR_INTLINES,"color for interactive minimap lines (activateable by pressing Use, but not requiring a key, because locked lines will have a lock color)",Интерактивные линии,,,,
+Lines,JGPHUD_MINIMAP_COLOR_LINES,color for regular minimap lines,Линии,Linhas,Linien,,Lignes
+Interactive lines,JGPHUD_MINIMAP_COLOR_INTLINES,"color for interactive minimap lines (activateable by pressing Use, but not requiring a key, because locked lines will have a lock color)",Интерактивные линии,Linhas usáveis,Auslöserlinien,,Lignes interactives
 "Note: The minimap may cause performance issues on maps
-with complex geometry, especially at low zoom values.",JGPHUD_MINIMAP_NOTE,"Keep under 4 lines! Use real linebreaks (Ctrl-Enter) to add new lines, so that each line is under 60 characters","Внимание: мини-карта может негативно влиять на
-производительность игры, особенно на картах со сложной
-геометрией и при низком приближении.","Obs.: O minimapa pode causar problemas de
+with complex geometry, especially at low zoom values.",JGPHUD_MINIMAP_NOTE,"Keep under 4 lines! Use real linebreaks (Ctrl-Enter) to add new lines, so that each line is under 60 characters","Если мини-карта вызывает проблемы с производительностью
+на сложных картах, попробуйте увеличить приближение
+и/или снизить частоту обновления мини-карты.","Obs.: O minimapa pode causar problemas de
 desempenho em mapas complexos.","Beachte: Minikarte kann Leistungseinbrüche auf Karten mit
 komplexer Geometrie verursachen, insbesondere bei
 niedrigem Zoom.","Nota: el minimapa puede causar pérdida de cuadros en
@@ -101,6 +101,7 @@ mapas complejos, especialmente con bajo zoom.","Remarque : la minimap peut entra
 performance sur les cartes à géométrie complexe, en
 particulier lorsque le zoom est faible. à géométrie
 complexe, en particulier lorsque le zoom est faible."
+Draw undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,Determines whether the minimap will draw all lines or only the ones the player has seen (like the default automap),Показывать еще не обнаруженные линии,,,,
 Crosshair options,JGPHUD_CROSSHAIR_TITLE,Title for various crosshair options,Настройки прицела,Opções de retícula,Fadenkreuzoptionen,Opciones de la mirilla,Options des réticules
 Draw enemy hit markers around crosshair,JGPHUD_CROSSHAIR_HITMARKERS,Small angled cross marker around the crosshair when a player's attack hits an enemy.,Индикаторы попадания по врагам вокруг прицела,Mostrar marcadores de acerto ao redor da retícula,Trefferanzeige am Fadenkreuz,Mostrar marcadores de daño contra enemigos,Dessiner les marqueurs de coups de l'ennemi autour du réticule
 Health/armor/ammo bars around crosshair,JGPHUD_CROSSHAIR_BARS_ENABLE,Curved bars around the crosshair in the style of HL2,Индикаторы здоровья/брони/патронов вокруг прицела,Barra de vida/armadura/munição ao redor da retícula,Gesundheits-/Rüstungs-/Munitionsanzeige am Fadenkreuz,Barras de vida/armadura/munición en la mirilla,Barre de santé/armure/munitions autour du réticule
@@ -128,3 +129,10 @@ textura que existe no jogo ou mod.","Trage den Namen der gewünschten Textur ein
 Die Textur muss im derzeitigen Spiel/Mod existieren.","Escribe el nombre de la textura. La textura
 debe existir en el juego o mod actual.","Entrer le nom de la texture désirée ici. Cela doit être une
 texture qui existe actuellement dans le jeu/mod actuel."
+Custom items,JGPHUD_CustomItems_TITLE,"Menu title
+""Custom"" is used in the sense ""defined by the user""",Пользовательские предметы,,,,
+Draw custom items,JGPHUD_CustomItems_ENABLE,Whether to draw custom items (they can be specified by the user in the ITEMINFO lump for greater compatibility),Показывать пользовательские предметы,,,,
+"This special element can draw item classes
+specified in the ITEMINFO lump.",JGPHUD_CustomItems_NOTE,"Keep under 3 lines
+Use physical linebreaks (alt-Enter)","Этот блок показывает предметы, добавленные через
+файл ITEMINFO.",,,,
