@@ -1129,16 +1129,18 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		int barwidth = size.x - indent*2;
 		// and the ammo bar pos:
 		vector2 ammoBarPos = ammoTextPos + (-barwidth*0.5, ammoTextHeight + indent);
+		int segments;
 
 		// Uses only 1 ammo type - draw as calculated:
-		if ((am1 && !am2) || (!am1 && am2))
+		if ((am1 && !am2) || (!am1 && am2) || (am1 == am2))
 		{
 			Ammo am = am1 ? am1 : am2;
 			DrawInventoryIcon(am, ammo1pos, flags|DI_ITEM_CENTER, boxSize: ammoIconBox);
 			DrawString(mainHUDFont, ""..am.amount, ammoTextPos, flags|DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am.amount, am.maxamount));
 			if (drawAmmobar)
 			{
-				DrawFlatColorBar(ammoBarPos, am.amount, am.maxamount, GetAmmoColor(am), barwidth: barwidth, barheight: ammoBarHeight, segments: am.maxamount / 10, flags: flags);
+				segments = am.maxamount <= 20 ? am.maxamount : Clamp(am.maxamount / 10.0, 20, 50);
+				DrawFlatColorBar(ammoBarPos, am.amount, am.maxamount, GetAmmoColor(am), barwidth: barwidth, barheight: ammoBarHeight, segments: segments, flags: flags);
 			}
 		}
 		// Uses 2 ammo types:
@@ -1157,9 +1159,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			DrawString(mainHUDFont, ""..am2amt, (ammo2pos.x, ammoTextPos.y), flags|DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am2.amount, am2.maxamount));
 			if (drawAmmobar)
 			{
-				DrawFlatColorBar(ammoBarPos, am1.amount, am1.maxamount, GetAmmoColor(am1), barwidth: barwidth, barheight: ammoBarHeight, segments: am1.maxamount / 20, flags: flags);
+				segments = am1.maxamount <= 10 ? am1.maxamount : Clamp(am1.maxamount / 20.0, 10, 25);
+				DrawFlatColorBar(ammoBarPos, am1.amount, am1.maxamount, GetAmmoColor(am1), barwidth: barwidth, barheight: ammoBarHeight, segments: segments, flags: flags);
+
 				ammoBarPos.x = ammo2Pos.x - barWidth*0.5;
-				DrawFlatColorBar(ammoBarPos, am2.amount, am2.maxamount, GetAmmoColor(am2), barwidth: barwidth, barheight: ammoBarHeight, segments: am2.maxamount / 20, flags: flags);
+				segments = am2.maxamount <= 10 ? am2.maxamount : Clamp(am2.maxamount / 20.0, 10, 25);
+				DrawFlatColorBar(ammoBarPos, am2.amount, am2.maxamount, GetAmmoColor(am2), barwidth: barwidth, barheight: ammoBarHeight, segments: segments, flags: flags);
 			}
 		}
 	}
