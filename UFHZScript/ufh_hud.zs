@@ -1202,33 +1202,36 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			{
 				// Get the weapon in the slot and the index:
 				class<Weapon> weap = wslots.GetWeapon(sn, s);
-				if (weap)
+				if (!weap)
+					continue;
+				// To get the ammo, we need to read the defaults of
+				// the weapon (and cast them as class<Weapon>):
+				let defWeap = GetDefaultByType((class<Weapon>)(weap));
+				Ammo am;
+				// Don't forget to only draw ammo if the player
+				// actually has it in inventory:
+				if (defWeap.ammotype1)
 				{
-					// To get the ammo, we need to read the defaults of
-					// the weapon (and cast them as class<Weapon>):
-					let defWeap = GetDefaultByType((class<Weapon>)(weap));
-					Ammo am;
-					// Don't forget to only draw ammo if the player
-					// actually has it in inventory:
-					if (defWeap.ammotype1)
+					am = Ammo(CPlayer.mo.FindInventory(defWeap.ammotype1));
+					if (am && ammoItems.Find(am) == ammoItems.Size())
 					{
-						am = Ammo(CPlayer.mo.FindInventory(defWeap.ammotype1));
-						if (am && ammoItems.Find(am) == ammoItems.Size())
-						{
+						TextureID icon = GetIcon(am, 0);
+						if (icon.IsValid())
 							ammoItems.Push(am);
-							height += iconsize + indent;
-						}
+						height += iconsize + indent;
 					}
-					// And draw second ammo only if it's not the same
-					// as primary ammo:
-					if (defWeap.ammotype2 && defWeap.ammotype2 != defWeap.ammotype1)
+				}
+				// And draw second ammo only if it's not the same
+				// as primary ammo:
+				if (defWeap.ammotype2 && defWeap.ammotype2 != defWeap.ammotype1)
+				{
+					am = Ammo(CPlayer.mo.FindInventory(defWeap.ammotype2));
+					if (am && ammoItems.Find(am) == ammoItems.Size())
 					{
-						am = Ammo(CPlayer.mo.FindInventory(defWeap.ammotype2));
-						if (am && ammoItems.Find(am) == ammoItems.Size())
-						{
+						TextureID icon = GetIcon(am, 0);
+						if (icon.IsValid())
 							ammoItems.Push(am);
-							height += iconsize + indent;
-						}
+						height += iconsize + indent;
 					}
 				}
 			}
