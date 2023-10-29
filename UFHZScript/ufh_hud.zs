@@ -159,6 +159,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	// Minimap
 	array <Line> mapLines;
 	array <Actor> radarMonsters;
+	array <JGPUFH_LockData> lockdata;
 	const MAPSCALEFACTOR = 8.;
 	Shape2D minimapShape_Square;
 	Shape2D minimapShape_Circle;
@@ -177,7 +178,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	double invbarCycleOfs;
 
 	// See DrawReticleBars():
-	JGPHUD_LookTargetController lookTC;
+	JGPUFH_LookTargetController lookTC;
 	Shape2D roundBars;
 	Shape2D roundBarsAngMask;
 	Shape2D roundBarsInnerMask;
@@ -243,6 +244,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		mainHUDFont = HUDFont.Create(fnt);
 		fnt = "IndexFont";
 		numHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
+		
+		GetLockData();
 	}
 
 	override void Tick()
@@ -255,6 +258,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		UpdateReticleBars();
 		UpdateMinimapLines();
 		UpdateEnemyRadar();
+	}
+
+	// Obtain mapcolor strings from LOCKDEFS:
+	void GetLockData()
+	{
+		JGPUFH_LockData.GetLockData(lockdata);
 	}
 
 	override void Draw(int state, double ticFrac)
@@ -1610,7 +1619,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
 			Screen.DrawShapeFill(color(0,0,0), 1, genRoundMask);
 			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
-			double fadeAlph = LinearMap(lookTC.targetTimer, 0, JGPHUD_LookTargetController.TARGETDISPLAYTIME / 2, 0.0, alpha, true);
+			double fadeAlph = LinearMap(lookTC.targetTimer, 0, JGPUFH_LookTargetController.TARGETDISPLAYTIME / 2, 0.0, alpha, true);
 			valueFrac = LinearMap(health, 0, maxhealth, 1.0, 0.0, true);
 			DrawCircleSegmentShape(color(60,160,60), screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
 			if (drawBarText)
@@ -2484,54 +2493,26 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 		if (!lock)
 			return -1;
-		color col;
-		if (GameInfo.GameType == GAME_Hexen || GameInfo.GameType == GAME_Strife)
+		
+		int gametype = GameInfo.GameType;
+		for (int i = 0; i < lockdata.Size(); i++)
 		{
-			col = color(0, 255, 255);
-		}
-		else 
-		{
-			switch (lock)
+			let ld = lockdata[i];
+			if (ld && ld.lockNumber == lock && ld.gametype == gametype)
 			{
-				default:
-					col = color(0, 255, 0);
-					break;
-				case 1: //red card (green key in Heretic)
-					if (GameInfo.GameType == GAME_Heretic)
-					{
-						col = color(0,255,0);
-						break;
-					}
-				case 4: //red skull
-				case 129: //any red (green key in Heretic)
-					if (GameInfo.GameType == GAME_Heretic)
-					{
-						col = color(0,255,0);
-						break;
-					}
-				case 132: //red card or skull
-					col = color(255,0,0);
-					break;
-				case 2: //blue card
-				case 5: //blue skull
-				case 130: //any blue
-				case 133: //blue card or skull
-					col = color(0,0,255);
-					break;
-				case 3: //yellow card
-				case 6: //yellow skull
-				case 131: //any yellow
-				case 134: //yellow card or skull
-					col = color(255,255,0);
-					break;
-				case 228: //any key
-				case 229: //one of each color (red, yellow and blue)
-				case 101: //all keys
-					col = color(255,255,255);
-					break;
+				return ld.lockcolor;
 			}
-		}			
-		return col;
+		}
+		for (int i = 0; i < lockdata.Size(); i++)
+		{
+			let ld = lockdata[i];
+			if (ld && ld.lockNumber == lock)
+			{
+				return ld.lockcolor;
+			}
+		}
+
+		return color(0,255,255);
 	}
 
 	void UpdateEnemyRadar()
@@ -2707,7 +2688,16 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (!handler)
 			return;
 
-		int powerNum = handler.powerupData.Size();
+		// Calculate height of the block:
+		int powerNum;
+		for (int i = 0; i < handler.powerupData.Size(); i++)
+		{
+			let pwd = handler.powerupData[i];
+			if (pwd && CPlayer.mo.FindInventory(pwd.powerupType))
+			{
+				powerNum++;
+			}
+		}
 		if (powerNum <= 0)
 			return;
 
@@ -2730,7 +2720,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			flags |= DI_TEXT_ALIGN_RIGHT;
 			textOfs = -1;
 		}
-		for (int i = 0; i < powerNum; i++)
+		for (int i = 0; i < handler.powerupData.Size(); i++)
 		{
 			let pwd = handler.powerupData[i];
 			if (!pwd)
@@ -3092,109 +3082,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	}
 }
 
-class JGPUFH_PowerupData play
-{
-	TextureID icon;
-	class<Inventory> powerupType;
-	int renderStyle;
-
-	static JGPUFH_PowerupData Create(TextureID icon, class<Inventory> powerupType, int renderStyle)
-	{
-		let pwd = JGPUFH_PowerupData(New("JGPUFH_PowerupData"));
-		if (pwd)
-		{
-			pwd.icon = icon;
-			pwd.powerupType = powerupType;
-			pwd.renderStyle = renderStyle;
-		}
-		return pwd;
-	}
-}
-
-// A simple container that saves a weapon class,
-// its slot number and slot index:
-class JGPUFH_WeaponSlotData ui
-{
-	int slot;
-	array < class<Weapon> > weapons;
-
-	static JGPUFH_WeaponSlotData Create(int slot)
-	{
-		let wsd = JGPUFH_WeaponSlotData(New("JGPUFH_WeaponSlotData"));
-		{
-			wsd.slot = slot;
-		}
-		return wsd;
-	}
-}
-
-// Stores current angle and alpha for incoming damage markers:
-class JGPUFH_DamageMarkerData ui
-{
-	double angle;
-	double alpha;
-
-	static JGPUFH_DamageMarkerData Create(double angle)
-	{
-		let hmd = JGPUFH_DamageMarkerData(New("JGPUFH_DamageMarkerData"));
-		if (hmd)
-		{
-			hmd.angle = angle;
-			hmd.alpha = Cvar.GetCvar("jgphud_DamageMarkersAlpha", players[consoleplayer]).GetFloat();
-		}
-		return hmd;
-	}
-}
-
-// Since LineTrace (for some reason) is only play-scoped,
-// a separate play-scoped thinker is needed per each
-// player so that they could call LineTrace and detect
-// if the player is looking at any enemy:
-class JGPHUD_LookTargetController : Thinker
-{
-	PlayerPawn pp;
-	Actor looktarget;
-	int targetTimer;
-	const TARGETDISPLAYTIME = TICRATE;
-
-	override void Tick()
-	{
-		if (!pp)
-		{
-			Destroy();
-			return;
-		}
-		FLineTraceData lt;
-		pp.LineTrace(pp.angle, 2048, pp.pitch, offsetz: pp.height * 0.5 - pp.floorclip + pp.AttackZOffset*pp.player.crouchFactor, data:lt);
-		if (lt.HitType == TRACE_HitActor)
-		{
-			let ha = lt.HitActor;
-			if (ha && ha.bISMONSTER && ha.bSHOOTABLE && ha.health > 0)
-			{
-				looktarget = ha;
-				targetTimer = TARGETDISPLAYTIME;
-			}
-		}
-		if (looktarget && looktarget.health <= 0)
-		{
-			looktarget = null;
-		}
-		if (targetTimer > 0)
-		{
-			targetTimer--;
-			if (targetTimer == 0)
-			{
-				looktarget = null;
-			}
-		}
-	}
-}
-
 class JGPUFH_HudDataHandler : EventHandler
 {
 	array <JGPUFH_PowerupData> powerupData;
 	transient CVar c_ScreenReddenFactor;
-	JGPHUD_LookTargetController lookControllers[MAXPLAYERS];
+	JGPUFH_LookTargetController lookControllers[MAXPLAYERS];
 
 	bool IsVoodooDoll(PlayerPawn mo)
 	{
@@ -3242,42 +3134,7 @@ class JGPUFH_HudDataHandler : EventHandler
 		let pwrg = PowerupGiver(e.thing);
 		if (pwrg)
 		{
-			// Get its powerupType field:
-			let pwr = GetDefaultByType((class<Inventory>)(pwrg.powerupType));
-			if (!pwr)
-				return;
-			
-			// Check if that powerupType has a proper icon;
-			// if so, we're good, so abort:
-			TextureID icon = pwr.Icon;
-			if (icon.isValid() && TexMan.GetName(icon) != 'TNT1A0')
-				return;
-
-			// Check if that powerup was already processed:
-			JGPUFH_PowerupData pwd;
-			let pwrCls = pwr.GetClass();
-			for (int i = 0; i < powerupData.Size(); i++)
-			{
-				pwd = powerupData[i];
-				if (pwd && pwd.powerupType == pwrCls)
-					return;
-			}
-			
-			// Try getting the icon for the powerup from its
-			// PowerupGiver:
-			icon = pwrg.icon;
-			// If that didn't work, record the PowerupGiver's
-			// spawn sprite as that powerup's icon:
-			if (!icon.isValid() || TexMan.GetName(icon) == 'TNT1A0')
-			{
-				icon = pwrg.spawnState.GetSpriteTexture(0);
-			}
-			// In case of success, store it:
-			if (icon.isValid())
-			{
-				pwd = JGPUFH_PowerupData.Create(icon, pwrCls, pwrg.GetRenderstyle());
-				powerupData.Push(pwd);
-			}
+			JGPUFH_PowerupData.CreatePowerupIcon(pwrg, powerupData);
 		}
 	}
 
@@ -3290,10 +3147,10 @@ class JGPUFH_HudDataHandler : EventHandler
 		PlayerPawn pmo = player.mo;
 		if (pmo && !IsVoodooDoll(pmo))
 		{
-			let ltc = New("JGPHUD_LookTargetController");
+			let ltc = New("JGPUFH_LookTargetController");
 			if (ltc)
 			{
-				//console.printf("Initializing LookTargetController for player #%d", pmo.PlayerNumber());
+				//Console.PrintF("Initializing LookTargetController for player #%d", pmo.PlayerNumber());
 				ltc.pp = pmo;
 				lookControllers[i] = ltc;
 			}
