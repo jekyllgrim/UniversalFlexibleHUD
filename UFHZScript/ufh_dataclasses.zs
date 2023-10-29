@@ -25,7 +25,7 @@ class JGPUFH_PowerupData play
 			return;
 
 		if (jgphud_debug)
-			Console.Printf("Trying to find icon for %s", pwr.GetClassName());
+			Console.Printf("\cHPOWERUPDATA\c- Trying to find icon for %s", pwr.GetClassName());
 		// Check if that powerup was already processed:
 		JGPUFH_PowerupData pwd;
 		let pwrCls = pwr.GetClass();
@@ -35,7 +35,7 @@ class JGPUFH_PowerupData play
 			if (pwd && pwd.powerupType == pwrCls)
 			{
 				if (jgphud_debug)
-					Console.Printf("Powerup %s already processed; aborting", pwrCls.GetClassName());
+					Console.Printf("\cHPOWERUPDATA\c- Powerup %s already processed; aborting", pwrCls.GetClassName());
 				return;
 			}
 		}
@@ -46,7 +46,7 @@ class JGPUFH_PowerupData play
 		if (icon.isValid() && TexMan.GetName(icon) != 'TNT1A0')
 		{
 			if (jgphud_debug)
-				Console.Printf("Powerup %s already has icon: %s", pwr.GetClassName(), TexMan.GetName(icon));
+				Console.Printf("\cHPOWERUPDATA\c- Powerup %s already has icon: %s", pwr.GetClassName(), TexMan.GetName(icon));
 			pwd = JGPUFH_PowerupData.Create(icon, pwrCls, pwrg.GetRenderstyle());
 			powerupData.Push(pwd);
 			return;
@@ -65,7 +65,7 @@ class JGPUFH_PowerupData play
 		if (icon.isValid())
 		{
 			if (jgphud_debug)
-				Console.Printf("Powerup %s now has a new icon: %s", pwr.GetClassName(), TexMan.GetName(icon));
+				Console.Printf("\cHPOWERUPDATA\c- \cDPowerup %s now has a new icon: %s", pwr.GetClassName(), TexMan.GetName(icon));
 			pwd = JGPUFH_PowerupData.Create(icon, pwrCls, pwrg.GetRenderstyle());
 			powerupData.Push(pwd);
 		}
@@ -200,7 +200,7 @@ class JGPUFH_LockData ui
 				lumpData.Remove(commentPos, lineEnd - commentPos);
 				commentPos = lumpData.IndexOf("/*");
 			}
-			// Strip tabs, end-of-line code, "clearlocks",
+			// Strip tabs, carraige returns, "clearlocks",
 			// add linebreaks before "{" and "}":
 			lumpData.Replace("\t", "");
 			lumpData.Replace("\r", "");
@@ -229,7 +229,7 @@ class JGPUFH_LockData ui
 			while (searchPos >= 0 && searchPos < fileEndPos)
 			{
 				if (jgphud_debug)
-					Console.PrintF("Found '%s' at %d", lumpData.Mid(searchPos, lockStrLength), searchPos);
+					Console.PrintF("\cFLOCKDEFS\c- Found '%s' at %d", lumpData.Mid(searchPos, lockStrLength), searchPos);
 
 				// Move search position forward by the length of the "lock " string:
 				searchPos += lockStrLength;
@@ -282,7 +282,7 @@ class JGPUFH_LockData ui
 				string lockNum = lumpData.Mid(searchPos, spacePos - searchPos);
 				
 				if (jgphud_debug)
-					Console.Printf("Found lock number [%s] Game: [%s]", lockNum, lockgame);
+					Console.Printf("\cFLOCKDEFS\c- Found lock number [%s] Game: [%s]", lockNum, lockgame);
 
 				// Move search position to the space/linebreak:
 				searchPos = spacePos;
@@ -305,7 +305,7 @@ class JGPUFH_LockData ui
 				// related to the current lock:
 				
 				if (jgphud_debug)
-					Console.Printf("Looking for mapcolor. Searchpos %d, colorpos %d, blockEnd %d", searchpos, colorPos, blockEnd);
+					Console.Printf("\cFLOCKDEFS\c- Looking for mapcolor. Searchpos %d, colorpos %d, blockEnd %d", searchpos, colorPos, blockEnd);
 				if (colorPos > searchPos && colorPos < blockEnd)
 				{
 					// Move to the position after "mapcolor ":
@@ -343,7 +343,7 @@ class JGPUFH_LockData ui
 						lockdata.Push(ld);
 
 						if (jgphud_debug)
-							Console.Printf("Cached lock. No: [%d], color: (%d,%d,%d), gametype: %d (%s)", ld.lockNumber, ld.lockColor.r, ld.lockColor.g, ld.lockColor.b, ld.gametype, lockgame);
+							Console.Printf("\cFLOCKDEFS\c- \cDCached lock. No: [%d], color: (%d,%d,%d), gametype: %d (%s)", ld.lockNumber, ld.lockColor.r, ld.lockColor.g, ld.lockColor.b, ld.gametype, lockgame);
 					}
 				}
 				searchPos = blockEnd;
