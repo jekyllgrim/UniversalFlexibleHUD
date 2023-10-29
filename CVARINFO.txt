@@ -1,7 +1,3 @@
-user nosave string jgphud_mainfont = "BigUpper";
-user nosave string jgphud_smallfont = "Confont";
-user nosave string jgphud_numberfont = "IndexFont";
-
 user nosave color jgphud_BackColor = "433515";
 user nosave bool jgphud_BackStyle = true;
 user nosave float jgphud_BackAlpha = 0.5;
