@@ -82,3 +82,10 @@ user nosave int jgphud_ReticleBarsAmmo = 3;
 user nosave int jgphud_ReticleBarsEnemy = 4;
 user nosave float jgphud_ReticleBarsAlpha = 0.7;
 user nosave float jgphud_ReticleBarsWidth = 0.1;
+
+user nosave bool jgphud_DrawCustomItems = true;
+user nosave int jgphud_CustomItemsIconSize = 12;
+user nosave int jgphud_CustomItemsPos = 7;
+user nosave int jgphud_CustomItemsX = -140;
+user nosave int jgphud_CustomItemsY = 2;
+
