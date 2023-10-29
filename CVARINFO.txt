@@ -1,3 +1,5 @@
+server bool jgphud_debug = false;
+
 user nosave color jgphud_BackColor = "433515";
 user nosave bool jgphud_BackStyle = true;
 user nosave float jgphud_BackAlpha = 0.5;
