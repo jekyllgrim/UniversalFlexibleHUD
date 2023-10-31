@@ -2422,7 +2422,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		Screen.SetStencil(1, SOP_Keep, SF_AllOn);
 		
 		// Draw the minimap lines:
-		DrawMinimapLines(pos, diff, playerAngle, size, hudscale.x, mapZoom);
+		if (drawmap)
+		{
+			DrawMinimapLines(pos, diff, playerAngle, size, hudscale.x, mapZoom);
+		}
 
 		// White arrow at the center represeing the player:
 		if (!minimapShape_Arrow)
