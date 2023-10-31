@@ -2256,6 +2256,17 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
+	bool, bool ShouldDrawMinimap()
+	{
+		if (!c_drawMinimap)
+			return false, false;
+		if (gamestate != GS_LEVEL)
+			return false, false;
+		if (autoMapActive)
+			return false, false;
+		return c_drawMinimap.GetInt() >= MD_MAPONLY, c_drawMinimap.GetInt() >= MD_RADAR;
+	}
+
 	// This draws a minimap with an optional map information block below.
 	// The minimap is a pretty annoying bit. Aside from potentially causing
 	// performance issues, it also has  to be drawn fully using Screen
@@ -2263,11 +2274,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	// line drawing.
 	void DrawMinimap()
 	{
-		// Don't draw any of this if the automap is open:
-		if (autoMapActive)
-			return;
+		bool drawMap, drawRadar;
+		[drawMap, drawRadar] = ShouldDrawMinimap();
 
-		bool drawMinimap = c_drawMinimap.GetInt() >= MD_MAPONLY;
 		double size = GetMinimapSize();
 		// Almost everything has to be multiplied by hudscale.x
 		// so that it matches the general HUD scale regarldess
@@ -2286,7 +2295,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// Draw map data below the minimap
 		// (or above it if it's at the bottom of the screen):
 		vector2 msize = (64, 0);
-		if (drawMinimap)
+		if (drawMap)
 		{
 			msize = (max(size, 44), size); //going under 44 pixels looks too bad scaling-wise
 		}
@@ -2305,7 +2314,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		DrawMapData(mapDataPos, flags, msize.x, 0.35);
 		
 		// If the actual minimap is disabled, stop here:
-		if (!drawMinimap)
+		if (!drawMap)
 			return;
 
 		size *= hudscale.x;
@@ -2430,7 +2439,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 		// Draw enemy positions on the minimap
 		// if the CVAR allows that:
-		if (c_drawMinimap.GetInt() == MD_RADAR)
+		if (drawRadar)
 		{
 			DrawEnemyRadar(pos, diff, playerAngle, size, hudscale.x, mapZoom);
 		}
@@ -2481,13 +2490,18 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	void UpdateMinimapLines()
 	{
+		if (!ShouldDrawMinimap())
+		{
+			mapLines.Clear();
+			return;
+		}
 		PlayerPawn pmo = CPlayer.mo;
 		if (!pmo)
 		{
 			mapLines.Clear();
 			return;
 		}
-		//if (!Level || Level.totaltime % 5 != 0)
+		//if (!Level || Level.totaltime % 35 != 0)
 		//	return;
 		mapLines.Clear();
 		vector2 hudscale = GetHudScale();
@@ -2686,6 +2700,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	void UpdateEnemyRadar()
 	{
+		if (!ShouldDrawMinimap())
+		{
+			radarMonsters.Clear();
+			return;
+		}
 		PlayerPawn pmo = CPlayer.mo;
 		if (!pmo)
 		{
