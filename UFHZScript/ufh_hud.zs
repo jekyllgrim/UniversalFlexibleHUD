@@ -235,7 +235,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	double LinearMap(double val, double source_min, double source_max, double out_min, double out_max, bool clampIt = false) 
 	{
-		double d = (val - source_min) * (out_max - out_min) / (source_max - source_min) + out_min;
+		double sourceDiff = (source_max - source_min);
+		if (sourceDiff == 0)
+			sourceDiff = 1;
+		double d = (val - source_min) * (out_max - out_min) / sourceDiff + out_min;
 		if (clampit) 
 		{
 			double truemax = out_max > out_min ? out_max : out_min;
@@ -1483,7 +1486,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	{
 		if (reticleMarkerAlpha > 0)
 		{
-			reticleMarkerAlpha -= (reticleMarkerScale > 0) ? 0.05 : 0.15;
+			reticleMarkerAlpha -= (reticleMarkerScale > 0) ? 0.075 : 0.15;
 		}
 		if (reticleMarkerScale > 0)
 		{
@@ -1664,6 +1667,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	{
 		if (c_DrawReticleBars.GetInt() <= DM_NONE)
 			return;
+		// Element alpha:
+		double alpha = Clamp(c_ReticleBarsAlpha.GetFloat(), 0.0, 1.0);
+		if (alpha <= 0)
+			return;
+		// Autoide
+		bool autoHide = c_DrawReticleBars.GetInt() == DM_AUTOHIDE;
+		// Should draw text?
+		bool drawBarText = c_ReticleBarsText.GetBool();
 		
 		double coverAngle = BARCOVERANGLE;
 		if (!lookTC && handler)
@@ -1729,12 +1740,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		genRoundMaskTransfOuter.Clear();
 		genRoundMaskTransfOuter.Scale((secondaryMaskSize, secondaryMaskSize));
 		genRoundMaskTransfOuter.Translate(screenCenter);
-		// Autoide
-		bool autoHide = c_DrawReticleBars.GetInt() == DM_AUTOHIDE;
-		// Should draw text?
-		bool drawBarText = c_ReticleBarsText.GetBool();
-		// Element alpha:
-		double alpha = Clamp(c_ReticleBarsAlpha.GetFloat(), 0.0, 1.0);
 		
 		// Font position and scale setup:
 		HUDFont hfnt = numHUDFont;
