@@ -147,6 +147,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	// Hit (reticle) markers:
 	Shape2D reticleHitMarker;
 	double reticleMarkerAlpha;
+	double reticleMarkerScale;
 	Shape2DTransform reticleMarkerTransform;
 	
 	// Weapon slots
@@ -1469,16 +1470,24 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
-	void RefreshReticleHitMarker()
+	void RefreshReticleHitMarker(bool killed = true)
 	{
 		reticleMarkerAlpha = 1.0;
+		if (killed)
+		{
+			reticleMarkerScale = 1;
+		}
 	}
 
 	void UpdateReticleHitMarker()
 	{
 		if (reticleMarkerAlpha > 0)
 		{
-			reticleMarkerAlpha -= 0.15;
+			reticleMarkerAlpha -= (reticleMarkerScale > 0) ? 0.05 : 0.15;
+		}
+		if (reticleMarkerScale > 0)
+		{
+			reticleMarkerScale -= 0.1;
 		}
 	}
 
@@ -1527,7 +1536,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				reticleMarkerTransform = new("Shape2DTransform");
 			// Factor in the crosshair size but up to a point
 			// as to not make these too small:
-			double size = 15 * max(c_crosshairScale.GetFloat(), 0.3);
+			double size = (15 + 15 * reticleMarkerScale) * max(c_crosshairScale.GetFloat(), 0.3);
 			reticleMarkerTransform.Clear();
 			reticleMarkerTransform.Scale((size, size) * hudscale.x);
 			reticleMarkerTransform.Translate(screenCenter);
@@ -3282,7 +3291,7 @@ class JGPUFH_HudDataHandler : EventHandler
 			pmo = PlayerPawn(e.thing.target);
 			if (pmo)
 			{
-				EventHandler.SendInterfaceEvent(pmo.PlayerNumber(), "PlayerHitMonster");
+				EventHandler.SendInterfaceEvent(pmo.PlayerNumber(), "PlayerHitMonster", e.thing.health <= 0);
 			}
 		}
 	}
@@ -3331,7 +3340,7 @@ class JGPUFH_HudDataHandler : EventHandler
 				}
 				if (e.name == "PlayerHitMonster")
 				{
-					hud.RefreshReticleHitMarker();
+					hud.RefreshReticleHitMarker(e.args[0]);
 				}
 			}
 		}
