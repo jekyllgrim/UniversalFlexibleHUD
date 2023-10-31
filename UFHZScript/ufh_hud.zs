@@ -2467,7 +2467,13 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	void UpdateMinimapLines()
 	{
-		if (level.time % 5 != 0)
+		PlayerPawn pmo = CPlayer.mo;
+		if (!pmo)
+		{
+			mapLines.Clear();
+			return;
+		}
+		if (level.totaltime % 5 != 0)
 			return;
 		mapLines.Clear();
 		vector2 hudscale = GetHudScale();
@@ -2476,7 +2482,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		bool b; double distFac;
 		[b, distFac] = IsMinimapCircular();
 		double distance = ((radius) / zoom) * distFac; //account for square shapes
-		let it = BlockLinesIterator.Create(CPlayer.mo, distance);
+		let it = BlockLinesIterator.Create(pmo, distance);
 		while (it.Next())
 		{
 			Line ln = it.curLine;
@@ -2666,6 +2672,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	void UpdateEnemyRadar()
 	{
+		PlayerPawn pmo = CPlayer.mo;
+		if (!pmo)
+		{
+			radarMonsters.Clear();
+			return;
+		}
 		radarMonsters.Clear();
 		vector2 hudscale = GetHudScale();
 		double radius = GetMinimapSize() * hudscale.x;
@@ -2673,11 +2685,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		bool b; double distFac;
 		[b, distFac] = IsMinimapCircular();
 		double distance = ((radius) / zoom) * distFac; //account for square shapes
-		let it = BlockThingsIterator.Create(CPlayer.mo, distance);
+		let it = BlockThingsIterator.Create(pmo, distance);
 		while (it.Next())
 		{
 			let thing = it.thing;
-			if (!thing.bISMONSTER || !(thing.bSHOOTABLE || thing.bVULNERABLE) || thing.health <= 0 || CPlayer.mo.Distance2DSquared(thing) > distance*distance)
+			if (!thing.bISMONSTER || !(thing.bSHOOTABLE || thing.bVULNERABLE) || thing.health <= 0 || pmo.Distance2DSquared(thing) > distance*distance)
 			{
 				continue;
 			}
