@@ -2482,8 +2482,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			mapLines.Clear();
 			return;
 		}
-		if (level.totaltime % 5 != 0)
-			return;
+		//if (!Level || Level.totaltime % 5 != 0)
+		//	return;
 		mapLines.Clear();
 		vector2 hudscale = GetHudScale();
 		double radius = GetMinimapSize() * hudscale.x;
