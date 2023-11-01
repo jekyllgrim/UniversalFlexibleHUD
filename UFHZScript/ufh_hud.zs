@@ -2256,15 +2256,44 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
+	// Checks if the minimap should be drawn. Has two returns:
+	// 1. whether to draw the minimap at all
+	// 2. whether to draw enemy radar on top
 	bool, bool ShouldDrawMinimap()
 	{
+		// Cache the CVar if it hasn't been cached yet:
 		if (!c_drawMinimap)
-			return false, false;
-		if (gamestate != GS_LEVEL)
-			return false, false;
-		if (autoMapActive)
-			return false, false;
-		return c_drawMinimap.GetInt() >= MD_MAPONLY, c_drawMinimap.GetInt() >= MD_RADAR;
+			c_drawMinimap = CVar.GetCvar('jgphud_DrawMinimap', CPlayer);
+		// Check CVar values:
+		bool drawmap = c_drawMinimap.GetInt() >= MD_MAPONLY;
+		bool drawradar = c_drawMinimap.GetInt() >= MD_RADAR;
+		// Don't draw if PlayerPawn is invalid:
+		if (drawmap && !CPlayer.mo)
+			drawmap = false;
+		// Don't draw if automap is open:
+		if (drawmap && autoMapActive)
+			drawmap = false;
+		// Don't draw if the handler tells us that
+		// the world has been unloaded (this prevents
+		// possible crashes on tally/intermission
+		// screens when moving to the next map):
+		if (!handler || handler.levelUnloaded)
+			drawmap = false;
+		// Just as a safety check, don't draw if
+		// not in a level (this probably will never
+		// be actually checked):
+		if (drawmap && gamestate != GS_LEVEL)
+			drawmap = false;
+		// If map shouldn't be drawn, radar shouldn't
+		// be drawn either. Also, clera lines and
+		// monsters arrays:
+		if (!drawmap)
+		{
+			drawradar = false;
+			mapLines.Clear();
+			radarMonsters.Clear();
+		}
+		return drawmap, drawradar;
 	}
 
 	// This draws a minimap with an optional map information block below.
@@ -2422,10 +2451,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		Screen.SetStencil(1, SOP_Keep, SF_AllOn);
 		
 		// Draw the minimap lines:
-		if (drawmap)
-		{
-			DrawMinimapLines(pos, diff, playerAngle, size, hudscale.x, mapZoom);
-		}
+		DrawMinimapLines(pos, diff, playerAngle, size, hudscale.x, mapZoom);
 
 		// White arrow at the center represeing the player:
 		if (!minimapShape_Arrow)
@@ -2495,17 +2521,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	{
 		if (!ShouldDrawMinimap())
 		{
-			mapLines.Clear();
 			return;
 		}
-		PlayerPawn pmo = CPlayer.mo;
-		if (!pmo)
-		{
-			mapLines.Clear();
+		// We don't need to update the lines every tic.
+		// Every 10 tics is enough:
+		if (!Level || Level.maptime % 10 != 0)
 			return;
-		}
-		//if (!Level || Level.totaltime % 35 != 0)
-		//	return;
 		mapLines.Clear();
 		vector2 hudscale = GetHudScale();
 		double radius = GetMinimapSize() * hudscale.x;
@@ -2513,7 +2534,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		bool b; double distFac;
 		[b, distFac] = IsMinimapCircular();
 		double distance = ((radius) / zoom) * distFac; //account for square shapes
-		let it = BlockLinesIterator.Create(pmo, distance);
+		let it = BlockLinesIterator.Create(CPlayer.mo, distance);
 		while (it.Next())
 		{
 			Line ln = it.curLine;
@@ -2705,13 +2726,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	{
 		if (!ShouldDrawMinimap())
 		{
-			radarMonsters.Clear();
-			return;
-		}
-		PlayerPawn pmo = CPlayer.mo;
-		if (!pmo)
-		{
-			radarMonsters.Clear();
 			return;
 		}
 		radarMonsters.Clear();
@@ -2721,11 +2735,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		bool b; double distFac;
 		[b, distFac] = IsMinimapCircular();
 		double distance = ((radius) / zoom) * distFac; //account for square shapes
-		let it = BlockThingsIterator.Create(pmo, distance);
+		let it = BlockThingsIterator.Create(CPlayer.mo, distance);
 		while (it.Next())
 		{
 			let thing = it.thing;
-			if (!thing.bISMONSTER || !(thing.bSHOOTABLE || thing.bVULNERABLE) || thing.health <= 0 || pmo.Distance2DSquared(thing) > distance*distance)
+			if (!thing.bISMONSTER || !(thing.bSHOOTABLE || thing.bVULNERABLE) || thing.health <= 0 || CPlayer.mo.Distance2DSquared(thing) > distance*distance)
 			{
 				continue;
 			}
@@ -3282,28 +3296,47 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 class JGPUFH_HudDataHandler : EventHandler
 {
 	array <JGPUFH_PowerupData> powerupData;
-	transient CVar c_ScreenReddenFactor;
 	JGPUFH_LookTargetController lookControllers[MAXPLAYERS];
+	bool levelUnloaded;
 
 	bool IsVoodooDoll(PlayerPawn mo)
 	{
 		return !mo.player || !mo.player.mo || mo.player.mo != mo;
 	}
 
+	// This field only really has one purpose: it's checked
+	// in ShouldDrawMinimap() to make sure the level is still
+	// valid and loaded. If this isn't done, the array of
+	// linedefs obtained with BlockLinesIterator may not be
+	// properly garbage-collected upon level unload (e.g.
+	// when moving from stats/intermission to next map),
+	// and DrawMinimapLines() may still try to iterate over
+	// it, resulting in a null abort or sometimes even a
+	// hard crash:
+	override void WorldUnloaded(worldEvent e)
+	{
+		levelUnloaded = true;
+	}
+
 	override void WorldThingDamaged(worldEvent e)
 	{
 		let pmo = PlayerPawn(e.thing);
-		if (pmo)
+		// Handle damage markers:
+		if (pmo && pmo.player && pmo.player == players[consoleplayer])
 		{
-			if (!c_ScreenReddenFactor)
-				c_ScreenReddenFactor = CVar.GetCvar('jgphud_ScreenReddenFactor', pmo.player);
-			pmo.player.damageCount *= c_ScreenReddenFactor.GetFloat();
+			// Modify player's red screen tint based on
+			// the value of the CVAR:
+			CVar fac = CVar.GetCvar('jgphud_ScreenReddenFactor', pmo.player);
+			pmo.player.damageCount *= fac.GetFloat();
 
+			// Damage came from an attacker:
 			let attacker = e.inflictor ? e.inflictor : e.damageSource;
 			if (attacker)
 			{
 				EventHandler.SendInterfaceEvent(pmo.PlayerNumber(), "PlayerWasAttacked", Actor.DeltaAngle(pmo.AngleTo(attacker), pmo.angle));
 			}
+			// Damage came from the world - draw a circle
+			// of damage markers:
 			else
 			{
 				for (int i = 0; i <= 360; i += 30)
@@ -3313,6 +3346,7 @@ class JGPUFH_HudDataHandler : EventHandler
 			}
 		}
 
+		// Player hit a monster:
 		if (e.thing.bSHOOTABLE && e.thing.bISMONSTER && e.thing.target)
 		{
 			pmo = PlayerPawn(e.thing.target);
@@ -3356,19 +3390,18 @@ class JGPUFH_HudDataHandler : EventHandler
 
 	override void InterfaceProcess(consoleEvent e)
 	{
-		if (!e.isManual)
+		if (e.isManual)
+			return;
+		let hud = JGPUFH_FlexibleHUD(StatusBar);
+		if (hud)
 		{
-			let hud = JGPUFH_FlexibleHUD(StatusBar);
-			if (hud)
+			if(e.name == "PlayerWasAttacked")
 			{
-				if(e.name == "PlayerWasAttacked")
-				{
-					hud.UpdateAttacker(e.args[0]);
-				}
-				if (e.name == "PlayerHitMonster")
-				{
-					hud.RefreshReticleHitMarker(e.args[0]);
-				}
+				hud.UpdateAttacker(e.args[0]);
+			}
+			if (e.name == "PlayerHitMonster")
+			{
+				hud.RefreshReticleHitMarker(e.args[0]);
 			}
 		}
 	}
