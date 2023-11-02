@@ -17,9 +17,11 @@ class JGPUFH_PowerupData play
 		return pwd;
 	}
 
+	// The weird hack that is meant to give icons to powerups
+	// that have no icons defined (like the Doom powerups):
 	static void CreatePowerupIcon(PowerupGiver pwrg, out array <JGPUFH_PowerupData> powerupData)
 	{
-		// Get its powerupType field:
+		// Get PowerupGiver's powerupType field:
 		let pwr = GetDefaultByType((class<Inventory>)(pwrg.powerupType));
 		if (!pwr)
 			return;
@@ -92,8 +94,8 @@ class JGPUFH_WeaponSlotData ui
 // Stores current angle and alpha for incoming damage markers:
 class JGPUFH_DamageMarkerData ui
 {
-	double angle;
 	double alpha;
+	double angle;
 
 	static JGPUFH_DamageMarkerData Create(double angle)
 	{

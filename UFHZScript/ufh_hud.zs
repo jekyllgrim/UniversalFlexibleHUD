@@ -3344,6 +3344,35 @@ class JGPUFH_HudDataHandler : EventHandler
 	{
 		return !mo.player || !mo.player.mo || mo.player.mo != mo;
 	}
+	
+	override void WorldThingSpawned(worldEvent e)
+	{
+		// A wild PowerupGiver spawns!
+		let pwrg = PowerupGiver(e.thing);
+		if (pwrg)
+		{
+			JGPUFH_PowerupData.CreatePowerupIcon(pwrg, powerupData);
+		}
+	}
+
+	override void PlayerSpawned(playerEvent e)
+	{
+		int i = e.PlayerNumber;
+		if (!PlayerInGame[i])
+			return;
+		PlayerInfo player = players[i];
+		PlayerPawn pmo = player.mo;
+		if (pmo && !IsVoodooDoll(pmo))
+		{
+			let ltc = New("JGPUFH_LookTargetController");
+			if (ltc)
+			{
+				//Console.PrintF("Initializing LookTargetController for player #%d", pmo.PlayerNumber());
+				ltc.pp = pmo;
+				lookControllers[i] = ltc;
+			}
+		}
+	}
 
 	// This field only really has one purpose: it's checked
 	// in ShouldDrawMinimap() to make sure the level is still
@@ -3394,37 +3423,6 @@ class JGPUFH_HudDataHandler : EventHandler
 			if (pmo)
 			{
 				EventHandler.SendInterfaceEvent(pmo.PlayerNumber(), "PlayerHitMonster", e.thing.health <= 0);
-			}
-		}
-	}
-
-	// The weird hack that is meant to give icons to powerups
-	// that have no icons defined (like the Doom powerups):
-	override void WorldThingSpawned(worldEvent e)
-	{
-		// A wild PowerupGiver spawns!
-		let pwrg = PowerupGiver(e.thing);
-		if (pwrg)
-		{
-			JGPUFH_PowerupData.CreatePowerupIcon(pwrg, powerupData);
-		}
-	}
-
-	override void PlayerSpawned(playerEvent e)
-	{
-		int i = e.PlayerNumber;
-		if (!PlayerInGame[i])
-			return;
-		PlayerInfo player = players[i];
-		PlayerPawn pmo = player.mo;
-		if (pmo && !IsVoodooDoll(pmo))
-		{
-			let ltc = New("JGPUFH_LookTargetController");
-			if (ltc)
-			{
-				//Console.PrintF("Initializing LookTargetController for player #%d", pmo.PlayerNumber());
-				ltc.pp = pmo;
-				lookControllers[i] = ltc;
 			}
 		}
 	}
