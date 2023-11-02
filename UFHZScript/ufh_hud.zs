@@ -961,7 +961,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 		else
 		{
-			DrawString(mainHUDFont, String.Format("%3d", health), (barPosX, iconPos.y - fy*0.5), translation:GetPercentageFontColor(health,maxhealth));
+			DrawString(mainHUDFont, String.Format("%3d", health), (barPosX, iconPos.y - fy*0.5), flags, translation:GetPercentageFontColor(health,maxhealth));
 		}
 		
 		// Draw armor bar:
@@ -1066,7 +1066,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			}
 			else
 			{
-				DrawString(mainHUDFont, String.Format("%3d", armAmount), (barPosX, iconPos.y - fy*0.5), translation:cFntCol);
+				DrawString(mainHUDFont, String.Format("%3d", armAmount), (barPosX, iconPos.y - fy*0.5), flags, translation:cFntCol);
 			}
 		}
 	}
