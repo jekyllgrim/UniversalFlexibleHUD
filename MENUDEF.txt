@@ -87,12 +87,13 @@ OptionMenu "JGPHUD_AllAmmo"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_ALLAMMO_TITLE", yellow
 	StaticText ""
-	Option "$JGPHUD_ALLAMMO_ENABLE", "jgphud_DrawAllAmmo", "OnOff"
+	Option "$JGPHUD_ALLAMMO_ENABLE", "jgphud_DrawAllAmmo", "AllAmmoOptions"
+	Option "$JGPHUD_ALLAMMO_SHOWDEPLETED", "jgphud_AllAmmoShowDepleted", "OnOff", "jgphud_drawAllAmmo"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_AllAmmoPos", "ElementScreenPos", "jgphud_drawAllAmmo"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_AllAmmoX", -160, 160, 2, 0, "jgphud_drawAllAmmo"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_AllAmmoY", -100, 100, 2, 0, "jgphud_drawAllAmmo"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawAllAmmo:jgphud_AllAmmoPos:jgphud_AllAmmoX:jgphud_AllAmmoY"
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawAllAmmo:jgphud_AllAmmoShowDepleted:jgphud_AllAmmoPos:jgphud_AllAmmoX:jgphud_AllAmmoY"
 }
 
 OptionMenu "JGPHUD_Keys"
@@ -240,6 +241,13 @@ OptionValue "BackgroundStyles"
 {
 	0, "$JGPHUD_GENERAL_BACKSTYLE_TEXTURE"
 	1, "$JGPHUD_GENERAL_BACKSTYLE_COLOR"
+}
+
+OptionValue "AllAmmoOptions"
+{
+	0, "$OPTVAL_OFF"
+	1, "$JGPHUD_ALLAMMO_OWNEDWEAPONS"
+	3, "$JGPHUD_ALLAMMO_ALLWEAPONS"
 }
 
 OptionValue "MinimapDisplay"

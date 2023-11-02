@@ -31,6 +31,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	transient CVar c_DrawWeapon;
 
 	transient CVar c_drawAllAmmo;
+	transient CVar c_AllAmmoShowDepleted;
 	transient CVar c_AllAmmoPos;
 	transient CVar c_AllAmmoX;
 	transient CVar c_AllAmmoY;
@@ -143,7 +144,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	{
 		AA_None,
 		AA_OwnedWeapons,
-		AA_AllNonZero,
 		AA_All,
 	}
 
@@ -377,6 +377,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 		if (!c_drawAllAmmo)
 			c_drawAllAmmo = CVar.GetCvar('jgphud_DrawAllAmmo', CPlayer);
+		if (!c_AllAmmoShowDepleted)
+			c_AllAmmoShowDepleted = CVar.GetCvar('jgphud_AllAmmoShowDepleted', CPlayer);
 		if (!c_AllAmmoPos)
 			c_AllAmmoPos = CVar.GetCvar('jgphud_AllAmmoPos', CPlayer);
 		if (!c_AllAmmoX)
@@ -1264,7 +1266,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				if (defWeap.ammotype1)
 				{
 					am = Ammo(CPlayer.mo.FindInventory(defWeap.ammotype1));
-					if (CanDrawAmmo(am, mode, ammoItems))
+					if (CanDrawAmmo(am, ammoItems))
 					{
 						height += iconsize + indent;
 					}
@@ -1274,7 +1276,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				if (defWeap.ammotype2 && defWeap.ammotype2 != defWeap.ammotype1)
 				{
 					am = Ammo(CPlayer.mo.FindInventory(defWeap.ammotype2));
-					if (CanDrawAmmo(am, mode, ammoItems))
+					if (CanDrawAmmo(am, ammoItems))
 					{
 						height += iconsize + indent;
 					}
@@ -1315,12 +1317,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
-	bool CanDrawAmmo(Ammo am, int mode, out array <Ammo> ammoItems)
+	bool CanDrawAmmo(Ammo am, out array <Ammo> ammoItems)
 	{
 		if (!am)
 			return false;
 		
-		if (mode == AA_AllNonZero && am.amount <= 0)
+		if (!c_AllAmmoShowDepleted.GetBool() && am.amount <= 0)
 			return false;
 		
 		if (ammoItems.Find(am) != ammoItems.Size())
