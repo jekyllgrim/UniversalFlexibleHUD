@@ -641,7 +641,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 		
 		// Draw flat color fill:
-		if (c_BackStyle.GetBool() || !tex || tex.IsValid())
+		if (c_BackStyle.GetBool() || !tex || !tex.IsValid())
 		{
 			Fill(col, xPos, yPos, width, height, flags);
 			return;
