@@ -1286,14 +1286,18 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 		// Finally, draw the ammo:
 		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
+		// Get current HUD background color
+		// and current weapon's ammo:
 		color col = GetHUDBackground();
+		Ammo a1, a2;
+		[a1, a2] = GetCurrentAmmo();
 		for (int i = 0; i < ammoItems.Size(); i++)
 		{			
 			Ammo am = ammoItems[i];
 			if (!am)
 				continue;
-			Ammo a1, a2;
-			[a1, a2] = GetCurrentAmmo();
+			// Draw color fill behind the ammo if it matches
+			// the currently used weapon:
 			if (am == a1 || am == a2)
 			{
 				Fill(color(128, 255 - col.r, 255 - col.g, 255 - col.b), pos.x, pos.y, width, iconSize, flags);
