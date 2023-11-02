@@ -138,6 +138,15 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	TextureID hexenArmorIcons[WEAKEST_HEXEN_ARMOR_PIECE+1];
 	bool hexenArmorSetupDone;
 
+	// All ammo display:
+	enum EAllAmmoDisplay
+	{
+		AA_None,
+		AA_OwnedWeapons,
+		AA_AllNonZero,
+		AA_All,
+	}
+
 	// Damage markers:
 	Shape2D dmgMarker;
 	Shape2DTransform dmgMarkerTransf;
@@ -1207,7 +1216,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	// akin to althud:
 	void DrawAllAmmo()
 	{
-		if (!c_drawAllAmmo.GetBool())
+		int mode = c_drawAllAmmo.GetInt();
+		if (mode <= AA_None)
 			return;
 
 		double iconSize = 6;
@@ -1243,6 +1253,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				class<Weapon> weap = wslots.GetWeapon(sn, s);
 				if (!weap)
 					continue;
+				if (mode == AA_OwnedWeapons && !CPlayer.mo.FindInventory(weap))
+					continue;
 				// To get the ammo, we need to read the defaults of
 				// the weapon (and cast them as class<Weapon>):
 				let defWeap = GetDefaultByType((class<Weapon>)(weap));
@@ -1252,11 +1264,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				if (defWeap.ammotype1)
 				{
 					am = Ammo(CPlayer.mo.FindInventory(defWeap.ammotype1));
-					if (am && ammoItems.Find(am) == ammoItems.Size())
+					if (CanDrawAmmo(am, mode, ammoItems))
 					{
-						TextureID icon = GetIcon(am, 0);
-						if (icon.IsValid())
-							ammoItems.Push(am);
 						height += iconsize + indent;
 					}
 				}
@@ -1265,11 +1274,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				if (defWeap.ammotype2 && defWeap.ammotype2 != defWeap.ammotype1)
 				{
 					am = Ammo(CPlayer.mo.FindInventory(defWeap.ammotype2));
-					if (am && ammoItems.Find(am) == ammoItems.Size())
+					if (CanDrawAmmo(am, mode, ammoItems))
 					{
-						TextureID icon = GetIcon(am, 0);
-						if (icon.IsValid())
-							ammoItems.Push(am);
 						height += iconsize + indent;
 					}
 				}
@@ -1280,13 +1286,48 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 		// Finally, draw the ammo:
 		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
+		color col = GetHUDBackground();
 		for (int i = 0; i < ammoItems.Size(); i++)
-		{
+		{			
 			Ammo am = ammoItems[i];
+			if (!am)
+				continue;
+			Ammo a1, a2;
+			[a1, a2] = GetCurrentAmmo();
+			if (am == a1 || am == a2)
+			{
+				Fill(color(128, 255 - col.r, 255 - col.g, 255 - col.b), pos.x, pos.y, width, iconSize, flags);
+			}
+			// Draw ammo:
 			DrawInventoryIcon(am, pos + (iconSize*0.5,iconSize*0.5), flags|DI_ITEM_CENTER, boxsize:(iconSize, iconSize));
-			DrawString(hfnt, String.Format("%3d/%3d", am.amount, am.maxamount), pos + (iconSize + indent, iconsize*0.5 -fy*0.5), flags|DI_TEXT_ALIGN_LEFT, translation: GetPercentageFontColor(am.amount, am.maxamount), scale:(fntScale,fntScale));
+			DrawString(hfnt, 
+				String.Format("%3d\cJ/\c-%3d", am.amount, am.maxamount), 
+				pos + (iconSize + indent, iconsize*0.5 -fy*0.5), 
+				flags|DI_TEXT_ALIGN_LEFT, 
+				translation: GetPercentageFontColor(am.amount, am.maxamount), 
+				scale:(fntScale,fntScale)
+			);
 			pos.y += max(fy, iconsize) + indent;
 		}
+	}
+
+	bool CanDrawAmmo(Ammo am, int mode, out array <Ammo> ammoItems)
+	{
+		if (!am)
+			return false;
+		
+		if (mode == AA_AllNonZero && am.amount <= 0)
+			return false;
+		
+		if (ammoItems.Find(am) != ammoItems.Size())
+			return false;
+
+		TextureID icon = GetIcon(am, 0);
+		if (!icon.IsValid())
+			return false;
+
+		ammoItems.Push(am);
+		return true;
 	}
 
 	// Draws a list of custom items from the ITEMINFO lump:

@@ -34,7 +34,10 @@ Current ammo display,JGPHUD_AMMOBLOCK_ENABLE,Whether current ammo is displayed,�
 Display weapon icon,JGPHUD_AMMOBLOCK_SHOWWEAP,Whether selected weapon icon is displayed,Показывать значок текущего оружия,Mostrar ícone de arma,Aktuelle Waffe anzeigen,Mostrar icono del arma,Affichage des icônes d’armes
 Display ammo bar,JGPHUD_AMMOBLOCK_SHOWAMMOBAR,"Whether a gauge for the ammo is displayed. If this is false, only the number will be shown.",Показывать шкалу остатка патронов,Mostrar barra de munição,Munitionsleiste anzeigen,Mostrar barra de munición,Affichage de la barre de munitions
 All ammo,JGPHUD_ALLAMMO_TITLE,,Общий боезапас,Munição no inventário,Gesamte Munition,Todas las municiones,Toutes les munitions
-All ammo display,JGPHUD_ALLAMMO_ENABLE,Whether to display a block with all ammo currently in the player's inventory (not just for the selected weapon),Показывать общий боезапас,Mostrar munição no inventário,Gesamte Munition anzeigen,Mostrar todas las municiones,Affichage de toutes les munitions
+Display all ammo,JGPHUD_ALLAMMO_ENABLE,"Whether to display a block with all ammo currently in the player's inventory (not just for the selected weapon). Can be set to either ""Off"" or to one of several options below.",Показывать общий боезапас,Mostrar munição no inventário,Gesamte Munition anzeigen,Mostrar todas las municiones,Affichage de toutes les munitions
+Only for the weapons you have,JGPHUD_ALLAMMO_OWNEDWEAPONS,All Ammo block option: only draw ammo icons/amounts for the weapons the player has in their inventory,Только для оружия в инвентаре,,,,
+All non-depleted ammo,JGPHUD_ALLAMMO_ALLNONZERO,All Ammo block option: draw all ammo types as long as you have more than 0 ammo of that type.,Все неизрасходованные патроны,,,,
+All ammo types,JGPHUD_ALLAMMO_ALL,"All Ammo block option: draw ammo for all ammo classes that exist in your inventory, even if the amount is 0 or if you have no weapons that can use that ammo (like AltHud)",Все существующие виды патронов,,,,
 Keys,JGPHUD_KEYS_TITLE,,Ключи,Chaves,Schlüssel,Llaves,Clés
 Keys display,JGPHUD_KEYS_ENABLE,Whether to show keys on the HUD,Показывать ключи,Mostrar chaves,Schlüssel anzeigen,Mostrar llaves,Affichage des clés
 Weapon slots,JGPHUD_WEAPSLOTS_TITLE,,Ячейки оружия,Ícones de arma,Waffenplätze,Slots de armas,Emplacements d'armes
@@ -101,7 +104,7 @@ mapas complejos, especialmente con bajo zoom.","Remarque : la minimap peut entra
 performance sur les cartes à géométrie complexe, en
 particulier lorsque le zoom est faible. à géométrie
 complexe, en particulier lorsque le zoom est faible."
-Draw undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,Determines whether the minimap will draw all lines or only the ones the player has seen (like the default automap),Показывать еще не обнаруженные линии,,,,
+Display undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,Determines whether the minimap will draw all lines or only the ones the player has seen (like the default automap),Показывать еще не обнаруженные линии,Mostrar linhas não descobertas,Unentdeckte Linien zeichnen,,Montrer lignes non découvertes
 Crosshair options,JGPHUD_CROSSHAIR_TITLE,Title for various crosshair options,Настройки прицела,Opções de retícula,Fadenkreuzoptionen,Opciones de la mirilla,Options des réticules
 Draw enemy hit markers around crosshair,JGPHUD_CROSSHAIR_HITMARKERS,Small angled cross marker around the crosshair when a player's attack hits an enemy.,Индикаторы попадания по врагам вокруг прицела,Mostrar marcadores de acerto ao redor da retícula,Trefferanzeige am Fadenkreuz,Mostrar marcadores de daño contra enemigos,Dessiner les marqueurs de coups de l'ennemi autour du réticule
 Health/armor/ammo bars around crosshair,JGPHUD_CROSSHAIR_BARS_ENABLE,Curved bars around the crosshair in the style of HL2,Индикаторы здоровья/брони/патронов вокруг прицела,Barra de vida/armadura/munição ao redor da retícula,Gesundheits-/Rüstungs-/Munitionsanzeige am Fadenkreuz,Barras de vida/armadura/munición en la mirilla,Barre de santé/armure/munitions autour du réticule
@@ -130,9 +133,12 @@ Die Textur muss im derzeitigen Spiel/Mod existieren.","Escribe el nombre de la t
 debe existir en el juego o mod actual.","Entrer le nom de la texture désirée ici. Cela doit être une
 texture qui existe actuellement dans le jeu/mod actuel."
 Custom items,JGPHUD_CustomItems_TITLE,"Menu title
-""Custom"" is used in the sense ""defined by the user""",Пользовательские предметы,,,,
-Draw custom items,JGPHUD_CustomItems_ENABLE,Whether to draw custom items (they can be specified by the user in the ITEMINFO lump for greater compatibility),Показывать пользовательские предметы,,,,
+""Custom"" is used in the sense ""defined by the user""",Пользовательские предметы,Ítens personalizados,Eigene Gegenstände,,Objets personnalisés
+Display custom items,JGPHUD_CustomItems_ENABLE,Whether to draw custom items (they can be specified by the user in the ITEMINFO lump for greater compatibility),Показывать пользовательские предметы,Mostrar ítens personalizados,Eigene Gegenstände anzeigen,,Montrer objets customisés
 "This special element can draw item classes
 specified in the ITEMINFO lump.",JGPHUD_CustomItems_NOTE,"Keep under 3 lines
 Use physical linebreaks (alt-Enter)","Этот блок показывает предметы, добавленные через
-файл ITEMINFO.",,,,
+файл ITEMINFO.","Este elemento especial pode mostrar classes
+de ítens especificadas no arquivo ITEMINFO.","Dieses spezielle Element kann Gegenstandklassen
+anzeigen, die im ITEMINFO lump spezifiziert sind.",,"Cet élément spécial peut montrer des classes
+d'objets spécifiées dans le bloc ITEMINFO."
