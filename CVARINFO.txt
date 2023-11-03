@@ -23,7 +23,8 @@ user nosave int jgphud_AmmoBlockY = 2;
 user nosave bool jgphud_DrawAmmoBar = true;
 user nosave bool jgphud_DrawWeapon = true;
 
-user nosave bool jgphud_DrawAllAmmo = true;
+user nosave int jgphud_DrawAllAmmo = 1;
+user nosave bool jgphud_AllAmmoShowDepleted = false;
 user nosave int jgphud_AllAmmoPos = 5;
 user nosave int jgphud_AllAmmoX = 2;
 user nosave int jgphud_AllAmmoY = 0;
