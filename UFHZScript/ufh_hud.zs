@@ -1255,34 +1255,25 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				class<Weapon> weap = wslots.GetWeapon(sn, s);
 				if (!weap)
 					continue;
-				if (mode == AA_OwnedWeapons && !CPlayer.mo.FindInventory(weap))
-					continue;
-				// To get the ammo, we need to read the defaults of
-				// the weapon (and cast them as class<Weapon>):
-				let defWeap = GetDefaultByType((class<Weapon>)(weap));
-				Ammo am;
-				// Don't forget to only draw ammo if the player
-				// actually has it in inventory:
-				if (defWeap.ammotype1)
-				{
-					am = Ammo(CPlayer.mo.FindInventory(defWeap.ammotype1));
-					if (CanDrawAmmo(am, ammoItems))
-					{
-						height += iconsize + indent;
-					}
-				}
-				// And draw second ammo only if it's not the same
-				// as primary ammo:
-				if (defWeap.ammotype2 && defWeap.ammotype2 != defWeap.ammotype1)
-				{
-					am = Ammo(CPlayer.mo.FindInventory(defWeap.ammotype2));
-					if (CanDrawAmmo(am, ammoItems))
-					{
-						height += iconsize + indent;
-					}
-				}
+				int added = AddWeaponAmmoToList(weap, ammoItems, mode);
+				height += (iconsize + indent) * added;
 			}
 		}
+
+		// Now add ammo for weapons that are not bound to any
+		// slots, if any exist in player's inventory:
+		for (let item = CPlayer.mo.Inv; item; item = item.Inv)
+		{
+			if (!item)
+				continue;
+			if (item is 'Weapon')
+			{
+				class<Weapon> weap = (class<Weapon>)(item.GetClass());
+				int added = AddWeaponAmmoToList(weap, ammoItems, mode);
+				height += (iconsize + indent) * added;
+			}
+		}
+
 		if (ammoItems.Size() <= 0)
 			return;
 
@@ -1317,23 +1308,68 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
-	bool CanDrawAmmo(Ammo am, out array <Ammo> ammoItems)
+	// Adds pointers to ammotypes in the player's inventory
+	// used by the specified weapon class in the specified
+	// array, and returns how many classes have been added:
+	int AddWeaponAmmoToList(class<Weapon> weap, out array <Ammo> ammoItems, int mode = AA_All)
 	{
-		if (!am)
-			return false;
-		
-		if (!c_AllAmmoShowDepleted.GetBool() && am.amount <= 0)
-			return false;
-		
-		if (ammoItems.Find(am) != ammoItems.Size())
-			return false;
+		class<Ammo> am1, am2;
+		// Depending on player's settings, they may want to see
+		// ammo for all weapons, even if they don't currently
+		// have that weapon. However, first we'll always try
+		// to read ammo off the weapon in their inventory,
+		// because ammotype1/ammotype2 fields are directly
+		// writable, and some mods may change weapon's ammo types
+		// on the fly:
+		let ownedWeap = Weapon(CPlayer.mo.FindInventory(weap));
+		// The player has that weapon:
+		if (ownedWeap)
+		{
+			am1 = ownedWeap.ammoType1;
+			am2 = ownedWeap.ammoType2;
+		}
+		// The player doesn't have that weapon:
+		else
+		{
+			// If they don't want to see ammo for weapons they
+			// don't have, stop here:
+			if (mode == AA_OwnedWeapons)
+				return 0;
+			// Otherwise get the weapon's defaults and read
+			// ammo types from that:
+			let defWeap = GetDefaultByType((class<Weapon>)(weap));
+			if (!defWeap)
+				return 0;
+			am1 = defWeap.ammoType1;
+			am2 = defWeap.ammoType2;
+		}
+		// If ammo types are not defined, stop here:
+		if (!am1 && !am2)
+			return 0;
 
-		TextureID icon = GetIcon(am, 0);
-		if (!icon.IsValid())
-			return false;
-
-		ammoItems.Push(am);
-		return true;
+		// Iterate over both ammo types:
+		Ammo am;
+		int added;
+		for (int i = 0; i < 2; i++)
+		{
+			// Obviously, ammo can only be displayed if the player
+			// has an instance of it in their inventory (even if
+			// its amount is 0 and/or they don't have a weapon
+			// that can use said ammo):
+			am = Ammo(CPlayer.mo.FindInventory(i == 0 ? am1 : am2));
+			if (!am)
+				continue;
+			if (!c_AllAmmoShowDepleted.GetBool() && am.amount <= 0)
+				continue;
+			if (ammoItems.Find(am) != ammoItems.Size())
+				continue;
+			TextureID icon = GetIcon(am, 0);
+			if (!icon.IsValid())
+				continue;
+			added++;
+			ammoItems.Push(am);
+		}
+		return added;
 	}
 
 	// Draws a list of custom items from the ITEMINFO lump:
