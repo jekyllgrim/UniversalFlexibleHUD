@@ -3406,11 +3406,11 @@ class JGPUFH_HudDataHandler : EventHandler
 		PlayerPawn pmo = player.mo;
 		if (pmo && !IsVoodooDoll(pmo))
 		{
-			let ltc = New("JGPUFH_LookTargetController");
+			let ltc = JGPUFH_LookTargetController.Create(pmo);
 			if (ltc)
 			{
-				//Console.PrintF("Initializing LookTargetController for player #%d", pmo.PlayerNumber());
-				ltc.pp = pmo;
+				if (jgphud_debug)
+					Console.PrintF("Initializing \cDLookTargetController\c- for player #%d", i);
 				lookControllers[i] = ltc;
 			}
 		}

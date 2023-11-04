@@ -115,10 +115,20 @@ class JGPUFH_DamageMarkerData ui
 // if the player is looking at any enemy:
 class JGPUFH_LookTargetController : Thinker
 {
-	PlayerPawn pp;
+	protected PlayerPawn pp;
 	Actor looktarget;
 	int targetTimer;
 	const TARGETDISPLAYTIME = TICRATE;
+
+	static JGPUFH_LookTargetController Create(PlayerPawn pp)
+	{
+		let ltc = New("JGPUFH_LookTargetController");
+		if (ltc)
+		{
+			ltc.pp = pp;
+		}
+		return ltc;
+	}
 
 	override void Tick()
 	{
@@ -127,6 +137,9 @@ class JGPUFH_LookTargetController : Thinker
 			Destroy();
 			return;
 		}
+		if (!pp.player || pp.health <= 0)
+			return;
+		
 		FLineTraceData lt;
 		pp.LineTrace(pp.angle, 2048, pp.pitch, offsetz: pp.height * 0.5 - pp.floorclip + pp.AttackZOffset*pp.player.crouchFactor, data:lt);
 		if (lt.HitType == TRACE_HitActor)
