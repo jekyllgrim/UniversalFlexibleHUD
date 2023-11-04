@@ -91,21 +91,136 @@ class JGPUFH_WeaponSlotData ui
 	}
 }
 
-// Stores current angle and alpha for incoming damage markers:
-class JGPUFH_DamageMarkerData ui
+// Damage markers have to be handled in play scope,
+// because the markers needs to be angled towards
+// the attacker, and actor pointers can't be transferred
+// from play scope to UI scope. So, this thinker will
+// create and update damage markers:
+class JGPUFH_DmgMarkerController : Thinker
 {
-	double alpha;
-	double angle;
+	array <JGPUFH_DmgMarker> markers;
+	protected PlayerInfo player;
+	protected CVar c_DamageMarkersAlpha;
+	protected CVar c_DamageMarkersFadeTime;
 
-	static JGPUFH_DamageMarkerData Create(double angle)
+	static JGPUFH_DmgMarkerController Create(PlayerInfo player)
 	{
-		let hmd = JGPUFH_DamageMarkerData(New("JGPUFH_DamageMarkerData"));
+		let hmd = New("JGPUFH_DmgMarkerController");
 		if (hmd)
 		{
-			hmd.angle = angle;
-			hmd.alpha = Cvar.GetCvar("jgphud_DamageMarkersAlpha", players[consoleplayer]).GetFloat();
+			hmd.player = player;
+			hmd.c_DamageMarkersFadeTime = CVar.GetCvar('jgphud_DamageMarkersFadeTime', player);
+			hmd.c_DamageMarkersAlpha = Cvar.GetCvar("jgphud_DamageMarkersAlpha", player);
 		}
 		return hmd;
+	}
+
+	clearscope PlayerInfo GetPlayer()
+	{
+		return player;
+	}
+
+	// Creates a new marker:
+	void AddMarker(Actor attacker, double angle = 0, int damage = 0)
+	{
+		if (!player)
+			return;
+		PlayerPawn ppawn = player.mo;
+		if (!ppawn)
+			return;
+		
+		// If the marker for this attacker already exists,
+		// update its alpha and add damage:
+		if (attacker)
+		{			
+			for (int i = markers.Size() - 1; i >= 0; i--)
+			{
+				let dm = JGPUFH_DmgMarker(markers[i]);
+				if (dm && dm.attacker == attacker)
+				{
+					dm.alpha = c_DamageMarkersAlpha.GetFloat();
+					dm.damage += damage;
+					return;
+				}
+			}
+		}
+
+		// Otherwise make a new marker:
+		let dm = JGPUFH_DmgMarker.Create(ppawn, attacker, angle, c_DamageMarkersAlpha.GetFloat(), damage);
+		if (dm)
+		{
+			markers.Push(dm);
+		}
+	}
+
+	// Update alpha of all markers:
+	override void Tick()
+	{
+		for (int i = markers.Size() - 1; i >= 0; i--)
+		{
+			let dm = JGPUFH_DmgMarker(markers[i]);
+			if (!dm)
+				continue;
+
+			dm.Update(c_DamageMarkersAlpha.GetFloat() / (c_DamageMarkersFadeTime.GetFloat() * TICRATE));
+			if (dm.alpha <= 0)
+			{
+				dm.Destroy();
+				markers.Delete(i);
+			}
+		}
+	}
+}
+
+// This container stores the marker's alpha,
+// attacker, angle and the PlayerPawn the
+// marker is attached to:
+class JGPUFH_DmgMarker play
+{
+	protected PlayerPawn ppawn;
+	Actor attacker;
+	double alpha;
+	double angle;
+	int damage;
+
+	// Attacker is optional. The marker can be just explicitly
+	// angled instead of having an attacker, because markers
+	// can be used to react to environmental damage:
+	static JGPUFH_DmgMarker Create(PlayerPawn ppawn, Actor attacker = null, double angle = 0, double alpha = 1.0, int damage = 0)
+	{
+		let dm = New("JGPUFH_DmgMarker");
+		if (dm)
+		{
+			dm.attacker = attacker;
+			dm.angle = angle;
+			dm.ppawn = ppawn;
+			dm.alpha = alpha;
+			dm.damage = damage;
+		}
+		return dm;
+	}
+
+	void Update(double alphaStep = 0.0)
+	{
+		alpha -= alphaStep;
+		// This is done here mainly for cases when attacked was
+		// initially valid but then became null (e.g. it was a
+		// projectile that disappeared) before the marker itself
+		// faded out. When that happens, we need it to point
+		// at the last remembered position
+		if (attacker && ppawn)
+		{
+			angle = Actor.DeltaAngle(ppawn.AngleTo(attacker), ppawn.angle);
+		}
+	}
+
+	clearscope double GetAngle()
+	{
+		if (attacker && ppawn)
+		{
+			return Actor.DeltaAngle(ppawn.AngleTo(attacker), ppawn.angle);
+		}
+		return angle;
 	}
 }
 

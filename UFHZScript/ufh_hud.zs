@@ -44,8 +44,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	transient CVar c_InvBarY;
 	
 	transient CVar c_drawDamageMarkers;
-	transient CVar c_DamageMarkersAlpha;
-	transient CVar c_DamageMarkersFadeTime;
 
 	transient CVar c_drawWeaponSlots;
 	transient CVar c_WeaponSlotsSize;
@@ -150,8 +148,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	// Damage markers:
 	Shape2D dmgMarker;
 	Shape2DTransform dmgMarkerTransf;
-	array <JGPUFH_DamageMarkerData> dmgMrkData;
-	Actor prevAttacker;
+	JGPUFH_DmgMarkerController dmgMarkerController;
+	TextureID dmgMarkerTex;
 
 	// Hit (reticle) markers:
 	Shape2D reticleHitMarker;
@@ -274,7 +272,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	override void Tick()
 	{
 		super.Tick();
-		UpdateDamageMarkers();
 		UpdateReticleHitMarker();
 		UpdateWeaponSlots();
 		UpdateInventoryBar();
@@ -299,6 +296,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			return;
 		
 		BeginHUD();
+		DrawDamageMarkers();
 		DrawHealthArmor();
 		DrawWeaponBlock();
 		DrawAllAmmo();
@@ -307,7 +305,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		DrawPowerups();
 		DrawKeys();
 		DrawInventoryBar();
-		DrawDamageMarkers();
 		DrawReticleHitMarker();
 		DrawReticleBars();
 		DrawCustomItems();
@@ -365,10 +362,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 		if (!c_drawDamageMarkers)
 			c_drawDamageMarkers = CVar.GetCvar('jgphud_DrawDamageMarkers', CPlayer);
-		if (!c_DamageMarkersAlpha)
-			c_DamageMarkersAlpha = CVar.GetCvar('jgphud_DamageMarkersAlpha', CPlayer);
-		if (!c_DamageMarkersFadeTime)
-			c_DamageMarkersFadeTime = CVar.GetCvar('jgphud_DamageMarkersFadeTime', CPlayer);
 		if (!c_DrawEnemyHitMarkers)
 			c_DrawEnemyHitMarkers = CVar.GetCvar('jgphud_DrawEnemyHitMarkers', CPlayer);
 
@@ -1478,40 +1471,34 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
-	// Called by event handler when the player is damaged:
-	void UpdateAttacker(double angle)
-	{
-		let hmd = JGPUFH_DamageMarkerData.Create(angle);
-		if (hmd)
-		{
-			dmgMrkData.Push(hmd);
-		}
-	}
-
 	// Draws directional incoming damage markers:
-	void DrawDamageMarkers(double size = 80)
+	void DrawDamageMarkers(double size = 120)
 	{
 		if (!c_drawDamageMarkers.GetBool())
 			return;
 
-		// Create a simple long and narrow trapezium shape:
+		if (!GetDamageMarkerController())
+			return;
+
+		// Create a rectangular shape:
 		if (!dmgMarker)
 		{
 			dmgMarker = new("Shape2D");
 
-			vector2 p = (-0.1, -1);
+			vector2 p = (-0.055, -1);
 			dmgMarker.Pushvertex(p);
-			dmgMarker.PushCoord((0,0));
-			p.x*= -1;
+			p.x *= -1;
 			dmgMarker.Pushvertex(p);
-			dmgMarker.PushCoord((0,0));
-			p.x *= -0.4;
-			p.y = -0.55;
+			p.x *= -1;
+			p.y = -0.5;
 			dmgMarker.Pushvertex(p);
-			dmgMarker.PushCoord((0,0));
-			p.x*= -1;
+			p.x *= -1;
 			dmgMarker.Pushvertex(p);
+
 			dmgMarker.PushCoord((0,0));
+			dmgMarker.PushCoord((1,0));
+			dmgMarker.PushCoord((0,1));
+			dmgMarker.PushCoord((1,1));
 
 			dmgMarker.PushTriangle(0, 1, 2);
 			dmgMarker.PushTriangle(1, 2, 3);
@@ -1521,39 +1508,48 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		vector2 hudscale = GetHudScale();
 		if (!dmgMarkerTransf)
 			dmgMarkerTransf = new("Shape2DTransform");
+		// Cache the texture:
+		if (!dmgMarkerTex || !dmgMarkerTex.IsValid())
+			dmgMarkerTex = TexMan.CheckForTexture('JGPUFH_DMGMARKER');
 		// Draw the shape for each damage marker data
 		// in the previously built array:
-		for (int i = dmgMrkData.Size() - 1; i >= 0; i--)
+		for (int i = dmgMarkerController.markers.Size() - 1; i >= 0; i--)
 		{
-			let hmd = JGPUFH_DamageMarkerData(dmgMrkData[i]);
-			if (!hmd)
+			let dm = dmgMarkerController.markers[i];
+			if (!dm)
 				continue;
 			
+			// Vary width based on the amount of received damage:
+			double width = LinearMap(dm.damage, 0, 50, size*0.2, size, true);
 			dmgMarkerTransf.Clear();
-			dmgMarkerTransf.Scale((size, size) * hudscale.x);
-			dmgMarkerTransf.Rotate(hmd.angle);
+			dmgMarkerTransf.Scale((width, size) * hudscale.x);
+			dmgMarkerTransf.Rotate(dm.GetAngle());
 			dmgMarkerTransf.Translate((Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5));
 			dmgMarker.SetTransform(dmgMarkerTransf);
-			Screen.DrawShapeFill(color(0, 0, 255), hmd.alpha, dmgMarker);
+			Screen.DrawShape(dmgMarkerTex, false, 
+				dmgMarker, 
+				DTA_LegacyRenderStyle, STYLE_Add, 
+				DTA_Alpha, dm.alpha
+			);
 		}
 	}
 
-	// Fade out damage markers:
-	void UpdateDamageMarkers()
+	bool GetDamageMarkerController()
 	{
-		for (int i = dmgMrkData.Size() - 1; i >= 0; i--)
+		if (dmgMarkerController)
+			return true;
+		
+		ThinkerIterator ti = ThinkerIterator.Create('JGPUFH_DmgMarkerController');
+		JGPUFH_DmgMarkerController th;
+		while (th = JGPUFH_DmgMarkerController(ti.Next()))
 		{
-			let hmd = JGPUFH_DamageMarkerData(dmgMrkData[i]);
-			if (!hmd)
-				continue;
-
-			hmd.alpha -= c_DamageMarkersAlpha.GetFloat() / (c_DamageMarkersFadeTime.GetFloat() * TICRATE);
-			if (hmd.alpha <= 0)
+			if (th && th.GetPlayer() == CPlayer)
 			{
-				hmd.Destroy();
-				dmgMrkData.Delete(i);
+				dmgMarkerController = th;
+				return true;
 			}
 		}
+		return false;
 	}
 
 	void RefreshReticleHitMarker(bool killed = true)
@@ -3380,6 +3376,7 @@ class JGPUFH_HudDataHandler : EventHandler
 {
 	array <JGPUFH_PowerupData> powerupData;
 	JGPUFH_LookTargetController lookControllers[MAXPLAYERS];
+	JGPUFH_DmgMarkerController dmgMarkerControllers[MAXPLAYERS];
 	bool levelUnloaded;
 
 	bool IsVoodooDoll(PlayerPawn mo)
@@ -3413,6 +3410,14 @@ class JGPUFH_HudDataHandler : EventHandler
 					Console.PrintF("Initializing \cDLookTargetController\c- for player #%d", i);
 				lookControllers[i] = ltc;
 			}
+
+			let dmc = JGPUFH_DmgMarkerController.Create(player);
+			if (dmc)
+			{
+				if (jgphud_debug)
+					Console.PrintF("Initializing \cDDmgMarkerController\c- for player #%d", i);
+				dmgMarkerControllers[i] = dmc;
+			}
 		}
 	}
 
@@ -3434,7 +3439,7 @@ class JGPUFH_HudDataHandler : EventHandler
 	{
 		let pmo = PlayerPawn(e.thing);
 		// Handle damage markers:
-		if (pmo && pmo.player && pmo.player == players[consoleplayer])
+		if (pmo && pmo.player)
 		{
 			// Modify player's red screen tint based on
 			// the value of the CVAR:
@@ -3442,18 +3447,26 @@ class JGPUFH_HudDataHandler : EventHandler
 			pmo.player.damageCount *= fac.GetFloat();
 
 			// Damage came from an attacker:
-			let attacker = e.inflictor ? e.inflictor : e.damageSource;
-			if (attacker)
+			int pn = pmo.PlayerNumber();
+			let dmc = dmgMarkerControllers[pn];
+			if (dmc)
 			{
-				EventHandler.SendInterfaceEvent(pmo.PlayerNumber(), "PlayerWasAttacked", Actor.DeltaAngle(pmo.AngleTo(attacker), pmo.angle));
-			}
-			// Damage came from the world - draw a circle
-			// of damage markers:
-			else
-			{
-				for (int i = 0; i <= 360; i += 30)
+				int damage = e.Damage;
+				// If self damage, point to the inflictor (projectile)
+				// instead of the source:
+				Actor attacker = e.damageSource == pmo ? e.inflictor : e.damageSource;
+				if (attacker)
 				{
-					EventHandler.SendInterfaceEvent(pmo.PlayerNumber(), "PlayerWasAttacked", i, 0);
+					dmc.AddMarker(attacker, 0, damage);
+				}
+				// Damage came from the world - draw a circle
+				// of damage markers:
+				else
+				{
+					for (int i = 0; i <= 360; i += 30)
+					{
+						dmc.AddMarker(null, i, damage);
+					}
 				}
 			}
 		}
@@ -3476,10 +3489,6 @@ class JGPUFH_HudDataHandler : EventHandler
 		let hud = JGPUFH_FlexibleHUD(StatusBar);
 		if (hud)
 		{
-			if(e.name == "PlayerWasAttacked")
-			{
-				hud.UpdateAttacker(e.args[0]);
-			}
 			if (e.name == "PlayerHitMonster")
 			{
 				hud.RefreshReticleHitMarker(e.args[0]);
