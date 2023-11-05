@@ -122,14 +122,19 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	};
 
 	// Health/armor bars CVAR values:
+	LinearValueInterpolator healthIntr;
+	LinearValueInterpolator armorIntr;
 	enum EDrawBars
 	{
 		DB_NONE,
 		DB_DRAWNUMBERS,
 		DB_DRAWBARS,
 	}
+	double healthAmount;
+	double healthMaxAmount;
 	double armAmount;
 	double armMaxamount;
+	bool hasHexenArmor;
 	color armorColor;
 	
 	// Hexen armor data:
@@ -272,6 +277,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	override void Tick()
 	{
 		super.Tick();
+		UpdateInterpolators();
 		UpdateReticleHitMarker();
 		UpdateWeaponSlots();
 		UpdateInventoryBar();
@@ -296,6 +302,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			return;
 		
 		BeginHUD();
+		UpdateHealthArmor();
 		DrawDamageMarkers();
 		DrawHealthArmor();
 		DrawWeaponBlock();
@@ -308,188 +315,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		DrawReticleHitMarker();
 		DrawReticleBars();
 		DrawCustomItems();
-	}
-
-	void CacheCvars()
-	{
-		if (!handler)
-			handler = JGPUFH_HudDataHandler(EventHandler.Find("JGPUFH_HudDataHandler"));
-
-		if (!c_BackColor)
-			c_BackColor = CVar.GetCVar('jgphud_BackColor', CPlayer);
-		if (!c_BackAlpha)
-			c_BackAlpha = CVar.GetCVar('jgphud_BackAlpha', CPlayer);
-		if (!c_BackStyle)
-			c_BackStyle = CVar.GetCVar('jgphud_BackStyle', CPlayer);
-		if (!c_BackTexture)
-			c_BackTexture = CVar.GetCVar('jgphud_BackTexture', CPlayer);
-
-		if (!c_aspectscale)
-			c_aspectscale = CVar.GetCvar('hud_aspectscale', CPlayer);
-		if (!c_crosshairScale)
-			c_crosshairScale = CVar.GetCvar('CrosshairScale', CPlayer);
-
-		if (!c_mainfont)
-			c_mainfont = CVar.GetCvar('jgphud_mainfont', CPlayer);
-		if (!c_smallfont)
-			c_smallfont = CVar.GetCvar('jgphud_smallfont', CPlayer);
-		if (!c_numberfont)
-			c_numberfont = CVar.GetCvar('jgphud_numberfont', CPlayer);
-
-		if (!c_drawMainbars)
-			c_drawMainbars = CVar.GetCvar('jgphud_DrawMainbars', CPlayer);
-		if (!c_MainBarsPos)
-			c_MainBarsPos = CVar.GetCvar('jgphud_MainBarsPos', CPlayer);
-		if (!c_MainBarsX)
-			c_MainBarsX = CVar.GetCvar('jgphud_MainBarsX', CPlayer);
-		if (!c_MainBarsY)
-			c_MainBarsY = CVar.GetCvar('jgphud_MainBarsY', CPlayer);
-		if (!c_DrawFace)
-			c_DrawFace = CVar.GetCvar('jgphud_Drawface', CPlayer);
-
-		if (!c_drawAmmoBlock)
-			c_drawAmmoBlock = CVar.GetCvar('jgphud_DrawAmmoBlock', CPlayer);
-		if (!c_AmmoBlockPos)
-			c_AmmoBlockPos = CVar.GetCvar('jgphud_AmmoBlockPos', CPlayer);
-		if (!c_AmmoBlockX)
-			c_AmmoBlockX = CVar.GetCvar('jgphud_AmmoBlockX', CPlayer);
-		if (!c_AmmoBlockY)
-			c_AmmoBlockY = CVar.GetCvar('jgphud_AmmoBlockY', CPlayer);
-		if (!c_DrawAmmoBar)
-			c_DrawAmmoBar = CVar.GetCvar('jgphud_DrawAmmoBar', CPlayer);
-		if (!c_DrawWeapon)
-			c_DrawWeapon = CVar.GetCvar('jgphud_DrawWeapon', CPlayer);
-
-		if (!c_drawDamageMarkers)
-			c_drawDamageMarkers = CVar.GetCvar('jgphud_DrawDamageMarkers', CPlayer);
-		if (!c_DrawEnemyHitMarkers)
-			c_DrawEnemyHitMarkers = CVar.GetCvar('jgphud_DrawEnemyHitMarkers', CPlayer);
-
-		if (!c_drawAmmoBar)
-			c_drawAmmoBar = CVar.GetCvar('jgphud_DrawAmmoBar', CPlayer);
-
-		if (!c_drawAllAmmo)
-			c_drawAllAmmo = CVar.GetCvar('jgphud_DrawAllAmmo', CPlayer);
-		if (!c_AllAmmoShowDepleted)
-			c_AllAmmoShowDepleted = CVar.GetCvar('jgphud_AllAmmoShowDepleted', CPlayer);
-		if (!c_AllAmmoPos)
-			c_AllAmmoPos = CVar.GetCvar('jgphud_AllAmmoPos', CPlayer);
-		if (!c_AllAmmoX)
-			c_AllAmmoX = CVar.GetCvar('jgphud_AllAmmoX', CPlayer);
-		if (!c_AllAmmoY)
-			c_AllAmmoY = CVar.GetCvar('jgphud_AllAmmoY', CPlayer);
-
-		if (!c_drawInvBar)
-			c_drawInvBar = CVar.GetCvar('jgphud_DrawInvBar', CPlayer);
-		if (!c_AlwaysShowInvBar)
-			c_AlwaysShowInvBar = CVar.GetCvar('jgphud_AlwaysShowInvBar', CPlayer);
-		if (!c_InvBarIconSize)
-			c_InvBarIconSize = CVar.GetCvar('jgphud_InvBarIconSize', CPlayer);
-		if (!c_InvBarPos)
-			c_InvBarPos = CVar.GetCvar('jgphud_InvBarPos', CPlayer);
-		if (!c_InvBarX)
-			c_InvBarX = CVar.GetCvar('jgphud_InvBarX', CPlayer);
-		if (!c_InvBarY)
-			c_InvBarY = CVar.GetCvar('jgphud_InvBarY', CPlayer);
-
-		if (!c_drawWeaponSlots)
-			c_drawWeaponSlots = CVar.GetCvar('jgphud_DrawWeaponSlots', CPlayer);
-		if (!c_WeaponSlotsSize)
-			c_WeaponSlotsSize = CVar.GetCvar('jgphud_WeaponSlotsSize', CPlayer);
-		if (!c_WeaponSlotsAlign)
-			c_WeaponSlotsAlign = CVar.GetCvar('jgphud_WeaponSlotsAlign', CPlayer);
-		if (!c_WeaponSlotsPos)
-			c_WeaponSlotsPos = CVar.GetCvar('jgphud_WeaponSlotsPos', CPlayer);
-		if (!c_WeaponSlotsX)
-			c_WeaponSlotsX = CVar.GetCvar('jgphud_WeaponSlotsX', CPlayer);
-		if (!c_WeaponSlotsY)
-			c_WeaponSlotsY = CVar.GetCvar('jgphud_WeaponSlotsY', CPlayer);
-
-		if (!c_drawPowerups)
-			c_drawPowerups = CVar.GetCvar('jgphud_DrawPowerups', CPlayer);
-		if (!c_PowerupsIconSize)
-			c_PowerupsIconSize = CVar.GetCvar('jgphud_PowerupsIconSize', CPlayer);
-		if (!c_PowerupsPos)
-			c_PowerupsPos = CVar.GetCvar('jgphud_PowerupsPos', CPlayer);
-		if (!c_PowerupsX)
-			c_PowerupsX = CVar.GetCvar('jgphud_PowerupsX', CPlayer);
-		if (!c_PowerupsY)
-			c_PowerupsY = CVar.GetCvar('jgphud_PowerupsY', CPlayer);
-
-		if (!c_drawKeys)
-			c_drawKeys = CVar.GetCvar('jgphud_DrawKeys', CPlayer);
-		if (!c_KeysPos)
-			c_KeysPos = CVar.GetCvar('jgphud_KeysPos', CPlayer);
-		if (!c_KeysX)
-			c_KeysX = CVar.GetCvar('jgphud_KeysX', CPlayer);
-		if (!c_KeysY)
-			c_KeysY = CVar.GetCvar('jgphud_KeysY', CPlayer);
-
-		if (!c_drawMinimap)
-			c_drawMinimap = CVar.GetCvar('jgphud_DrawMinimap', CPlayer);
-		if (!c_CircularMinimap)
-			c_CircularMinimap = CVar.GetCvar('jgphud_CircularMinimap', CPlayer);
-		if (!c_minimapSize)
-			c_minimapSize = CVar.GetCvar('jgphud_MinimapSize', CPlayer);
-		if (!c_minimapPos)
-			c_minimapPos = CVar.GetCvar('jgphud_MinimapPos', CPlayer);
-		if (!c_minimapPosX)
-			c_minimapPosX = CVar.GetCvar('jgphud_MinimapPosX', CPlayer);
-		if (!c_minimapPosY)
-			c_minimapPosY = CVar.GetCvar('jgphud_MinimapPosY', CPlayer);
-		if (!c_minimapZoom)
-			c_minimapZoom = CVar.GetCvar('jgphud_MinimapZoom', CPlayer);
-		if (!c_minimapDrawUnseen)
-			c_minimapDrawUnseen = CVar.GetCvar('jgphud_MinimapDrawUnseen', CPlayer);
-		if (!c_minimapBackColor)
-			c_minimapBackColor = CVar.GetCvar('jpghud_MinimapBackColor', CPlayer);
-		if (!c_minimapLineColor)
-			c_minimapLineColor = CVar.GetCvar('jgphud_MinimapLineColor', CPlayer);
-		if (!c_minimapIntLineColor)
-			c_minimapIntLineColor = CVar.GetCvar('jgphud_MinimapIntLineColor', CPlayer);
-		if (!c_minimapYouColor)
-			c_minimapYouColor = CVar.GetCvar('jgphud_MinimapYouColor', CPlayer);
-		if (!c_minimapMonsterColor)
-			c_minimapMonsterColor = CVar.GetCvar('jgphud_MinimapMonsterColor', CPlayer);
-		if (!c_minimapFriendColor)
-			c_minimapFriendColor = CVar.GetCvar('jgphud_MinimapFriendColor', CPlayer);
-
-		if (!c_DrawKills)
-			c_DrawKills = CVar.GetCvar('jgphud_DrawKills', CPlayer);
-		if (!c_DrawItems)
-			c_DrawItems = CVar.GetCvar('jgphud_DrawItems', CPlayer);
-		if (!c_DrawSecrets)
-			c_DrawSecrets = CVar.GetCvar('jgphud_DrawSecrets', CPlayer);
-		if (!c_DrawTime)
-			c_DrawTime = CVar.GetCvar('jgphud_DrawTime', CPlayer);
-
-		if (!c_DrawReticleBars)
-			c_DrawReticleBars = CVar.GetCvar('jgphud_DrawReticleBars', CPlayer);
-		if (!c_ReticleBarsText)
-			c_ReticleBarsText = CVar.GetCvar('jgphud_ReticleBarsText', CPlayer);
-		if (!c_ReticleBarsAlpha)
-			c_ReticleBarsAlpha = CVar.GetCvar('jgphud_ReticleBarsAlpha', CPlayer);
-		if (!c_ReticleBarsSize)
-			c_ReticleBarsSize = CVar.GetCvar('jgphud_ReticleBarsSize', CPlayer);
-		if (!c_ReticleBarsHealthArmor)
-			c_ReticleBarsHealthArmor = CVar.GetCvar('jgphud_ReticleBarsHealthArmor', CPlayer);
-		if (!c_ReticleBarsAmmo)
-			c_ReticleBarsAmmo = CVar.GetCvar('jgphud_ReticleBarsAmmo', CPlayer);
-		if (!c_ReticleBarsEnemy)
-			c_ReticleBarsEnemy = CVar.GetCvar('jgphud_ReticleBarsEnemy', CPlayer);
-		if (!c_ReticleBarsWidth)
-			c_ReticleBarsWidth = CVar.GetCvar('jgphud_ReticleBarsWidth', CPlayer);
-			
-		if (!c_drawCustomItems)
-			c_drawCustomItems = CVar.GetCvar('jgphud_DrawCustomItems', CPlayer);
-		if (!c_CustomItemsIconSize)
-			c_CustomItemsIconSize = CVar.GetCvar('jgphud_CustomItemsIconSize', CPlayer);
-		if (!c_CustomItemsPos)
-			c_CustomItemsPos = CVar.GetCvar('jgphud_CustomItemsPos', CPlayer);
-		if (!c_CustomItemsX)
-			c_CustomItemsX = CVar.GetCvar('jgphud_CustomItemsX', CPlayer);
-		if (!c_CustomItemsY)
-			c_CustomItemsY = CVar.GetCvar('jgphud_CustomItemsY', CPlayer);
 	}
 
 	// Adjusts position of the element so that it never ends up
@@ -877,6 +702,74 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
+	void UpdateInterpolators()
+	{
+		if (healthIntr)
+			healthIntr.Update(CPlayer.mo.health);
+		if (armorIntr)
+			armorIntr.Update(armAmount);
+	}
+
+	double GetHealthInterpolated()
+	{
+		if (!healthIntr)
+			healthIntr = LinearValueInterpolator.Create(healthMaxAmount, 1);
+		return healthIntr.GetValue();
+	}
+
+	double GetArmorInterpolated()
+	{
+		if (!armorIntr)
+			armorIntr = LinearValueInterpolator.Create(armMaxAmount, 1);
+		return armorIntr.GetValue();
+	}
+
+	// This is meant to be called unconditionally
+	// to get health and armor values, so that
+	// they can be checked by other functions.
+	// Moved here because obtaining armor amount
+	// is a multi-step process, so it's easier
+	// to do separately:
+	void UpdateHealthArmor()
+	{
+		if (!CPlayer.mo)
+			return;
+
+		healthAmount = CPlayer.mo.health;
+		healthMaxAmount = CPlayer.mo.GetMaxHealth(true);
+
+		// Check if armor exists and is above 0
+		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
+		let hexarm = HexenArmor(CPlayer.mo.FindInventory("HexenArmor"));
+		armMaxamount = 100;
+		hasHexenArmor = false;
+		int r,g,b;
+		if (barm)
+		{
+			armAmount = barm.amount;
+			armMaxAmount = barm.maxamount;
+			[r,g,b] = GetArmorColor(barm.savePercent);
+			armorColor = color(r, g, b);
+		}
+		if (hexArm)
+		{
+			double hexArmAmount;
+			for (int i = 0; i < hexArm.Slots.Size(); i++)
+			{
+				hexArmAmount += hexArm.Slots[i];
+			}
+			if (hexArmAmount > 0)
+			{
+				SetupHexenArmorIcons();
+				hasHexenArmor = true;
+				armAmount = hexArmAmount;
+				armMaxAmount = 80;
+				[r,g,b] = GetArmorColor(barm.savePercent);
+				armorColor = color(r, g, b);
+			}
+		}
+	}
+
 	void DrawHealthArmor(double height = 28, double width = 120)
 	{
 		int drawThis = c_drawMainbars.GetInt();
@@ -952,7 +845,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			cRed = LinearMap(health, 0, maxhealth, 160, 0, true);
 			cGreen = LinearMap(health, 0, maxhealth, 0, 160, true);
 			cBlue = LinearMap(health, maxhealth, maxhealth * 2, 0, 160, true);
-			DrawFlatColorBar((barPosX, iconPos.y), health, maxhealth, color(255, cRed, cGreen, cBlue), "", valueColor: Font.CR_White, barwidth:barWidth, barheight: 10, flags:barFlags);
+			DrawFlatColorBar((barPosX, iconPos.y), GetHealthInterpolated(), maxhealth, color(200, 255, 255, 255), barwidth:barWidth, barheight: 10, flags:barFlags);
+			DrawFlatColorBar((barPosX, iconPos.y), health, maxhealth, color(255, cRed, cGreen, cBlue), "", valueColor: Font.CR_White, barwidth:barWidth, barheight: 10, backColor: color(0,0,0,0), flags:barFlags);
 		}
 		else
 		{
@@ -963,34 +857,16 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// Check if armor exists and is above 0
 		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
 		let hexarm = HexenArmor(CPlayer.mo.FindInventory("HexenArmor"));
-		armMaxamount = 100;
 		TextureID armTex;
 		double armTexSize = 12;
-		bool hasHexenArmor = false;
-		if (barm)
+		if (!hasHexenArmor && barm)
 		{
-			armAmount = barm.amount;
-			armMaxAmount = barm.maxamount;
 			[cRed, cGreen, cBlue, cFntCol] = GetArmorColor(barm.savePercent);
-			armorColor = color(cRed, cGreen, cBlue); //store for crosshair bars
 			armTex = barm.icon;
 		}
-		if (hexArm)
+		if (hasHexenArmor && hexArm)
 		{
-			double hexArmAmount;
-			for (int i = 0; i < hexArm.Slots.Size(); i++)
-			{
-				hexArmAmount += hexArm.Slots[i];
-			}
-			if (hexArmAmount > 0)
-			{
-				SetupHexenArmorIcons();
-				hasHexenArmor = true;
-				armAmount = hexArmAmount;
-				armMaxAmount = 80;
-				[cRed, cGreen, cBlue, cFntCol] = GetArmorColor(hexArmAmount / armMaxAmount);
-				armorColor = color(cRed, cGreen, cBlue); //store for crosshair bars
-			}
+			[cRed, cGreen, cBlue, cFntCol] = GetArmorColor(armAmount / armMaxAmount);
 		}
 
 		if (armAmount > 0)
@@ -1000,9 +876,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			// uses Hexen armor:
 			if (hasHexenArmor)
 			{
-				//Console.PrintF("HexArmSlots| 0: %.1f | 1: %.2f | 2: %.2f | 3: %.2f | 4: %.2f", hexArm.Slots[0], hexArm.Slots[1], hexArm.Slots[2], hexArm.Slots[3], hexArm.Slots[4]);
-				// Build an array of icons from the previously set up array
-				// (see SetupHexenArmorIcons()):
+				// Build an array of icons from the array previously
+				// set up by SetupHexenArmorIcons():
 				array <TextureID> hArmTex;
 				for (int i = WEAKEST_HEXEN_ARMOR_PIECE; i >= 0; i--)
 				{
@@ -1057,7 +932,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 			if (drawbars)
 			{
-				DrawFlatColorBar((barPosX, iconPos.y), armAmount, armMaxamount, color(255, cRed, cGreen, cBlue), ap, valueColor: Font.CR_White, barwidth:barWidth, barheight: 6, segments: barm.maxamount / 10, flags:barFlags);
+				DrawFlatColorBar((barPosX, iconPos.y), GetArmorInterpolated(), armMaxamount, color(200, 255, 255, 255), barwidth:barWidth, barheight: 6, segments: barm.maxamount / 10, flags:barFlags);
+				DrawFlatColorBar((barPosX, iconPos.y), armAmount, armMaxamount, color(255, cRed, cGreen, cBlue), ap, valueColor: Font.CR_White, barwidth:barWidth, barheight: 6, backColor: color(0,0,0,0), segments: barm.maxamount / 10, flags:barFlags);
 			}
 			else
 			{
@@ -3369,6 +3245,188 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			lastgood = lastgood.NextInv();
 		}
 		return lastgood;
+	}
+
+	void CacheCvars()
+	{
+		if (!handler)
+			handler = JGPUFH_HudDataHandler(EventHandler.Find("JGPUFH_HudDataHandler"));
+
+		if (!c_BackColor)
+			c_BackColor = CVar.GetCVar('jgphud_BackColor', CPlayer);
+		if (!c_BackAlpha)
+			c_BackAlpha = CVar.GetCVar('jgphud_BackAlpha', CPlayer);
+		if (!c_BackStyle)
+			c_BackStyle = CVar.GetCVar('jgphud_BackStyle', CPlayer);
+		if (!c_BackTexture)
+			c_BackTexture = CVar.GetCVar('jgphud_BackTexture', CPlayer);
+
+		if (!c_aspectscale)
+			c_aspectscale = CVar.GetCvar('hud_aspectscale', CPlayer);
+		if (!c_crosshairScale)
+			c_crosshairScale = CVar.GetCvar('CrosshairScale', CPlayer);
+
+		if (!c_mainfont)
+			c_mainfont = CVar.GetCvar('jgphud_mainfont', CPlayer);
+		if (!c_smallfont)
+			c_smallfont = CVar.GetCvar('jgphud_smallfont', CPlayer);
+		if (!c_numberfont)
+			c_numberfont = CVar.GetCvar('jgphud_numberfont', CPlayer);
+
+		if (!c_drawMainbars)
+			c_drawMainbars = CVar.GetCvar('jgphud_DrawMainbars', CPlayer);
+		if (!c_MainBarsPos)
+			c_MainBarsPos = CVar.GetCvar('jgphud_MainBarsPos', CPlayer);
+		if (!c_MainBarsX)
+			c_MainBarsX = CVar.GetCvar('jgphud_MainBarsX', CPlayer);
+		if (!c_MainBarsY)
+			c_MainBarsY = CVar.GetCvar('jgphud_MainBarsY', CPlayer);
+		if (!c_DrawFace)
+			c_DrawFace = CVar.GetCvar('jgphud_Drawface', CPlayer);
+
+		if (!c_drawAmmoBlock)
+			c_drawAmmoBlock = CVar.GetCvar('jgphud_DrawAmmoBlock', CPlayer);
+		if (!c_AmmoBlockPos)
+			c_AmmoBlockPos = CVar.GetCvar('jgphud_AmmoBlockPos', CPlayer);
+		if (!c_AmmoBlockX)
+			c_AmmoBlockX = CVar.GetCvar('jgphud_AmmoBlockX', CPlayer);
+		if (!c_AmmoBlockY)
+			c_AmmoBlockY = CVar.GetCvar('jgphud_AmmoBlockY', CPlayer);
+		if (!c_DrawAmmoBar)
+			c_DrawAmmoBar = CVar.GetCvar('jgphud_DrawAmmoBar', CPlayer);
+		if (!c_DrawWeapon)
+			c_DrawWeapon = CVar.GetCvar('jgphud_DrawWeapon', CPlayer);
+
+		if (!c_drawDamageMarkers)
+			c_drawDamageMarkers = CVar.GetCvar('jgphud_DrawDamageMarkers', CPlayer);
+		if (!c_DrawEnemyHitMarkers)
+			c_DrawEnemyHitMarkers = CVar.GetCvar('jgphud_DrawEnemyHitMarkers', CPlayer);
+
+		if (!c_drawAmmoBar)
+			c_drawAmmoBar = CVar.GetCvar('jgphud_DrawAmmoBar', CPlayer);
+
+		if (!c_drawAllAmmo)
+			c_drawAllAmmo = CVar.GetCvar('jgphud_DrawAllAmmo', CPlayer);
+		if (!c_AllAmmoShowDepleted)
+			c_AllAmmoShowDepleted = CVar.GetCvar('jgphud_AllAmmoShowDepleted', CPlayer);
+		if (!c_AllAmmoPos)
+			c_AllAmmoPos = CVar.GetCvar('jgphud_AllAmmoPos', CPlayer);
+		if (!c_AllAmmoX)
+			c_AllAmmoX = CVar.GetCvar('jgphud_AllAmmoX', CPlayer);
+		if (!c_AllAmmoY)
+			c_AllAmmoY = CVar.GetCvar('jgphud_AllAmmoY', CPlayer);
+
+		if (!c_drawInvBar)
+			c_drawInvBar = CVar.GetCvar('jgphud_DrawInvBar', CPlayer);
+		if (!c_AlwaysShowInvBar)
+			c_AlwaysShowInvBar = CVar.GetCvar('jgphud_AlwaysShowInvBar', CPlayer);
+		if (!c_InvBarIconSize)
+			c_InvBarIconSize = CVar.GetCvar('jgphud_InvBarIconSize', CPlayer);
+		if (!c_InvBarPos)
+			c_InvBarPos = CVar.GetCvar('jgphud_InvBarPos', CPlayer);
+		if (!c_InvBarX)
+			c_InvBarX = CVar.GetCvar('jgphud_InvBarX', CPlayer);
+		if (!c_InvBarY)
+			c_InvBarY = CVar.GetCvar('jgphud_InvBarY', CPlayer);
+
+		if (!c_drawWeaponSlots)
+			c_drawWeaponSlots = CVar.GetCvar('jgphud_DrawWeaponSlots', CPlayer);
+		if (!c_WeaponSlotsSize)
+			c_WeaponSlotsSize = CVar.GetCvar('jgphud_WeaponSlotsSize', CPlayer);
+		if (!c_WeaponSlotsAlign)
+			c_WeaponSlotsAlign = CVar.GetCvar('jgphud_WeaponSlotsAlign', CPlayer);
+		if (!c_WeaponSlotsPos)
+			c_WeaponSlotsPos = CVar.GetCvar('jgphud_WeaponSlotsPos', CPlayer);
+		if (!c_WeaponSlotsX)
+			c_WeaponSlotsX = CVar.GetCvar('jgphud_WeaponSlotsX', CPlayer);
+		if (!c_WeaponSlotsY)
+			c_WeaponSlotsY = CVar.GetCvar('jgphud_WeaponSlotsY', CPlayer);
+
+		if (!c_drawPowerups)
+			c_drawPowerups = CVar.GetCvar('jgphud_DrawPowerups', CPlayer);
+		if (!c_PowerupsIconSize)
+			c_PowerupsIconSize = CVar.GetCvar('jgphud_PowerupsIconSize', CPlayer);
+		if (!c_PowerupsPos)
+			c_PowerupsPos = CVar.GetCvar('jgphud_PowerupsPos', CPlayer);
+		if (!c_PowerupsX)
+			c_PowerupsX = CVar.GetCvar('jgphud_PowerupsX', CPlayer);
+		if (!c_PowerupsY)
+			c_PowerupsY = CVar.GetCvar('jgphud_PowerupsY', CPlayer);
+
+		if (!c_drawKeys)
+			c_drawKeys = CVar.GetCvar('jgphud_DrawKeys', CPlayer);
+		if (!c_KeysPos)
+			c_KeysPos = CVar.GetCvar('jgphud_KeysPos', CPlayer);
+		if (!c_KeysX)
+			c_KeysX = CVar.GetCvar('jgphud_KeysX', CPlayer);
+		if (!c_KeysY)
+			c_KeysY = CVar.GetCvar('jgphud_KeysY', CPlayer);
+
+		if (!c_drawMinimap)
+			c_drawMinimap = CVar.GetCvar('jgphud_DrawMinimap', CPlayer);
+		if (!c_CircularMinimap)
+			c_CircularMinimap = CVar.GetCvar('jgphud_CircularMinimap', CPlayer);
+		if (!c_minimapSize)
+			c_minimapSize = CVar.GetCvar('jgphud_MinimapSize', CPlayer);
+		if (!c_minimapPos)
+			c_minimapPos = CVar.GetCvar('jgphud_MinimapPos', CPlayer);
+		if (!c_minimapPosX)
+			c_minimapPosX = CVar.GetCvar('jgphud_MinimapPosX', CPlayer);
+		if (!c_minimapPosY)
+			c_minimapPosY = CVar.GetCvar('jgphud_MinimapPosY', CPlayer);
+		if (!c_minimapZoom)
+			c_minimapZoom = CVar.GetCvar('jgphud_MinimapZoom', CPlayer);
+		if (!c_minimapDrawUnseen)
+			c_minimapDrawUnseen = CVar.GetCvar('jgphud_MinimapDrawUnseen', CPlayer);
+		if (!c_minimapBackColor)
+			c_minimapBackColor = CVar.GetCvar('jpghud_MinimapBackColor', CPlayer);
+		if (!c_minimapLineColor)
+			c_minimapLineColor = CVar.GetCvar('jgphud_MinimapLineColor', CPlayer);
+		if (!c_minimapIntLineColor)
+			c_minimapIntLineColor = CVar.GetCvar('jgphud_MinimapIntLineColor', CPlayer);
+		if (!c_minimapYouColor)
+			c_minimapYouColor = CVar.GetCvar('jgphud_MinimapYouColor', CPlayer);
+		if (!c_minimapMonsterColor)
+			c_minimapMonsterColor = CVar.GetCvar('jgphud_MinimapMonsterColor', CPlayer);
+		if (!c_minimapFriendColor)
+			c_minimapFriendColor = CVar.GetCvar('jgphud_MinimapFriendColor', CPlayer);
+
+		if (!c_DrawKills)
+			c_DrawKills = CVar.GetCvar('jgphud_DrawKills', CPlayer);
+		if (!c_DrawItems)
+			c_DrawItems = CVar.GetCvar('jgphud_DrawItems', CPlayer);
+		if (!c_DrawSecrets)
+			c_DrawSecrets = CVar.GetCvar('jgphud_DrawSecrets', CPlayer);
+		if (!c_DrawTime)
+			c_DrawTime = CVar.GetCvar('jgphud_DrawTime', CPlayer);
+
+		if (!c_DrawReticleBars)
+			c_DrawReticleBars = CVar.GetCvar('jgphud_DrawReticleBars', CPlayer);
+		if (!c_ReticleBarsText)
+			c_ReticleBarsText = CVar.GetCvar('jgphud_ReticleBarsText', CPlayer);
+		if (!c_ReticleBarsAlpha)
+			c_ReticleBarsAlpha = CVar.GetCvar('jgphud_ReticleBarsAlpha', CPlayer);
+		if (!c_ReticleBarsSize)
+			c_ReticleBarsSize = CVar.GetCvar('jgphud_ReticleBarsSize', CPlayer);
+		if (!c_ReticleBarsHealthArmor)
+			c_ReticleBarsHealthArmor = CVar.GetCvar('jgphud_ReticleBarsHealthArmor', CPlayer);
+		if (!c_ReticleBarsAmmo)
+			c_ReticleBarsAmmo = CVar.GetCvar('jgphud_ReticleBarsAmmo', CPlayer);
+		if (!c_ReticleBarsEnemy)
+			c_ReticleBarsEnemy = CVar.GetCvar('jgphud_ReticleBarsEnemy', CPlayer);
+		if (!c_ReticleBarsWidth)
+			c_ReticleBarsWidth = CVar.GetCvar('jgphud_ReticleBarsWidth', CPlayer);
+			
+		if (!c_drawCustomItems)
+			c_drawCustomItems = CVar.GetCvar('jgphud_DrawCustomItems', CPlayer);
+		if (!c_CustomItemsIconSize)
+			c_CustomItemsIconSize = CVar.GetCvar('jgphud_CustomItemsIconSize', CPlayer);
+		if (!c_CustomItemsPos)
+			c_CustomItemsPos = CVar.GetCvar('jgphud_CustomItemsPos', CPlayer);
+		if (!c_CustomItemsX)
+			c_CustomItemsX = CVar.GetCvar('jgphud_CustomItemsX', CPlayer);
+		if (!c_CustomItemsY)
+			c_CustomItemsY = CVar.GetCvar('jgphud_CustomItemsY', CPlayer);
 	}
 }
 
