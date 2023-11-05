@@ -100,8 +100,8 @@ class JGPUFH_DmgMarkerController : Thinker
 {
 	array <JGPUFH_DmgMarker> markers;
 	protected PlayerInfo player;
-	protected CVar c_DamageMarkersAlpha;
-	protected CVar c_DamageMarkersFadeTime;
+	protected transient CVar c_DamageMarkersAlpha;
+	protected transient CVar c_DamageMarkersFadeTime;
 
 	static JGPUFH_DmgMarkerController Create(PlayerInfo player)
 	{
@@ -109,8 +109,6 @@ class JGPUFH_DmgMarkerController : Thinker
 		if (hmd)
 		{
 			hmd.player = player;
-			hmd.c_DamageMarkersFadeTime = CVar.GetCvar('jgphud_DamageMarkersFadeTime', player);
-			hmd.c_DamageMarkersAlpha = Cvar.GetCvar("jgphud_DamageMarkersAlpha", player);
 		}
 		return hmd;
 	}
@@ -132,7 +130,9 @@ class JGPUFH_DmgMarkerController : Thinker
 		// If the marker for this attacker already exists,
 		// update its alpha and add damage:
 		if (attacker)
-		{			
+		{
+			if (!c_DamageMarkersAlpha)
+				c_DamageMarkersAlpha = Cvar.GetCvar("jgphud_DamageMarkersAlpha", player);
 			for (int i = markers.Size() - 1; i >= 0; i--)
 			{
 				let dm = JGPUFH_DmgMarker(markers[i]);
@@ -156,6 +156,10 @@ class JGPUFH_DmgMarkerController : Thinker
 	// Update alpha of all markers:
 	override void Tick()
 	{
+		if (!c_DamageMarkersFadeTime)
+			c_DamageMarkersFadeTime = CVar.GetCvar('jgphud_DamageMarkersFadeTime', player);
+		if (!c_DamageMarkersAlpha)
+			c_DamageMarkersAlpha = Cvar.GetCvar("jgphud_DamageMarkersAlpha", player);
 		for (int i = markers.Size() - 1; i >= 0; i--)
 		{
 			let dm = JGPUFH_DmgMarker(markers[i]);
