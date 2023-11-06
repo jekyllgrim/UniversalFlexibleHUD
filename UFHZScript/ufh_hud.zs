@@ -1875,7 +1875,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		roundBarsTransform.Clear();
 		// Increase the size slightly just to make sure it doesn't
 		// leave any stray pixels at the edge of the bar:
-		roundBarsTransform.Scale((size, size));
+		roundBarsTransform.Scale((size, size)*1.05);
 		roundBarsTransform.Rotate(angle + ofsMaskAngle);
 		roundBarsTransform.Translate(pos);
 		roundBarsAngMask.SetTransform(roundBarsTransform);
@@ -1890,6 +1890,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		roundBars.SetTransform(roundBarsTransform);
 		color colBGR = color(col.b, col.g, col.r);
 		Screen.DrawShapeFill(colBGR, alpha, roundBars);
+		if (frac >= 0.8)
+		{
+			double alphaSineFac = 0.5 + 0.5 * sin(360.0 * level.maptime / TICRATE*0.75);
+			Screen.DrawShapeFill(color(0,0,255), alpha * alphaSineFac * 0.5, roundBars);
+		}
 		// disable mask:
 		Screen.EnableStencil(false);
 		Screen.ClearStencil();
