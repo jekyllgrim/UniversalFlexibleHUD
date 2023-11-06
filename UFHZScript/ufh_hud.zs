@@ -2029,12 +2029,13 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (c_drawWeaponSlots.GetInt() == DM_AUTOHIDE && slotsDisplayTime <= 0)
 			return;
 		
-		int iconWidth = Clamp(c_WeaponSlotsSize.GetInt(), 4, 100);
-		vector2 box = (iconWidth, iconWidth * 0.625);
 		// Always run to make sure the slot data
 		// is properly set up:
 		GetWeaponSlots();
 
+		int iconWidth = Clamp(c_WeaponSlotsSize.GetInt(), 4, 100);
+		vector2 box = (iconWidth, iconWidth * 0.625);
+		double indent = iconWidth * 0.1;
 
 		int totalSlots;
 		int maxSlotID = 1;
@@ -2067,8 +2068,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		int alignment = c_WeaponSlotsAlign.GetInt();
 		bool vertical = (alignment != WA_HORIZONTAL);
 		bool rightEdge = vertical && (flags & DI_SCREEN_RIGHT == DI_SCREEN_RIGHT);
+		bool bottom = (flags & DI_SCREEN_BOTTOM == DI_SCREEN_BOTTOM);
 		vector2 ofs = ( c_WeaponSlotsX.GetInt(), c_WeaponSlotsY.GetInt() );
-		double indent = 2;
 		double horMul = vertical ? maxSlotID : totalSlots;
 		double vertMul = vertical ? totalSlots : maxSlotID;
 		double width = (box.x + indent) * horMul - indent; //we don't need indent at the end
@@ -2080,6 +2081,22 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				pos.x += box.x + indent;
 			if (alignment == WA_VERTICALINV)
 				pos.y += height - box.y;
+		}
+		else if (bottom)
+		{
+			pos.y += box.y + indent*1.5;
+		}
+		// The box needs to be slightly adjusted for vertical
+		// alignment. I'm not ENTIRELY sure where x1.5 comes
+		// from, but at this point I simply know that it works
+		// and I'll use that:
+		if (alignment == WA_VERTICALINV && !bottom)
+		{
+			pos.y -= indent*1.5;
+		}
+		else if (alignment == WA_VERTICAL && bottom)
+		{
+			pos.y += indent*1.5;
 		}
 
 		// Now we're going to draw all weapons the player has,
@@ -2119,10 +2136,13 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 						double stepx = (box.x + indent) * (rightedge ? -1.0 : 1.0);
 						wpos.x += stepx;
 					}
-					// Otherwise move it down:
+					// Otherwise move the box vertically:
 					else
 					{
-						wpos.y += (box.y + indent);
+						// If it's at the bottom, move the box
+						// upward instead of downward:
+						double stepy = (box.y + indent) * (bottom ? -1.0 : 1.0);
+						wpos.y += stepy;
 					}
 				}
 
@@ -2207,7 +2227,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		{
 			double fs = 0.4;
 			string slotNum = ""..slot;
-			DrawString(mainHUDFont, slotNum, (pos.x+box.x, pos.y), flags|DI_TEXT_ALIGN_RIGHT, fntCol, 0.8, scale:(fs, fs));
+			DrawString(mainHUDFont, slotNum, (pos.x+box.x*0.95, pos.y), flags|DI_TEXT_ALIGN_RIGHT, fntCol, 0.8, scale:(fs, fs));
 		}
 	}
 
@@ -2295,7 +2315,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		{
 			mapDataPos.y /= ASPECTSCALE;
 		}
-		DrawMapData(mapDataPos, flags, msize.x, 0.35);
+		DrawMapData(mapDataPos, flags, msize.x, 0.5);
 		
 		// If the actual minimap is disabled, stop here:
 		if (!drawMap)
