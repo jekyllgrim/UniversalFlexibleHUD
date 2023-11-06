@@ -1,9 +1,9 @@
-AddOptionMenu "OptionsMenu" before "CustomizeControls" 
+AddOptionMenu "OptionsMenu"
 {
 	Submenu "$JGPHUD_SETTINGS_TITLE", "JGPHUD_Settings"
 }
 
-AddOptionMenu "OptionsMenuSimple" before "CustomizeControls" 
+AddOptionMenu "OptionsMenuSimple"
 {
 	Submenu "$JGPHUD_SETTINGS_TITLE", "JGPHUD_Settings"
 	StaticText ""
@@ -12,7 +12,7 @@ AddOptionMenu "OptionsMenuSimple" before "CustomizeControls"
 OptionMenu "JGPHUD_Settings"
 {
 	Title "$JGPHUD_SETTINGS_TITLE"
-	StaticText "FlexiHUD v1.1.0", blue
+	StaticText "FlexiHUD v2.0.0", blue
 
 	StaticText ""
 	StaticText "$JGPHUD_GENERAL_TITLE", yellow
@@ -234,6 +234,7 @@ OptionMenu "JGPHUD_CrosshairOptions"
 	Option "$JGPHUD_CROSSHAIR_BARS_HP", "jgphud_ReticleBarsHealthArmor", "ReticleBars", "jgphud_DrawReticleBars"
 	Option "$JGPHUD_CROSSHAIR_BARS_AMMO", "jgphud_ReticleBarsAmmo", "ReticleBars", "jgphud_DrawReticleBars"
 	Option "$JGPHUD_CROSSHAIR_BARS_ENEMYHP", "jgphud_ReticleBarsEnemy", "ReticleBars", "jgphud_DrawReticleBars"
+	StaticText ""
 	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawEnemyHitMarkers:jgphud_DrawReticleBars:jgphud_ReticleBarsSize:jgphud_ReticleBarsAlpha:jgphud_ReticleBarsWidth:jgphud_ReticleBarsText:jgphud_ReticleBarsHealthArmor:jgphud_ReticleBarsAmmo:jgphud_ReticleBarsEnemy"
 }
 
