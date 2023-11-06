@@ -1894,7 +1894,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// is under 20%:
 		if (frac >= 0.8)
 		{
-			double alphaSineFac = 0.5 + 0.5 * sin(360.0 * level.maptime / TICRATE*0.75);
+			double alphaSineFac = 0.5 + 0.5 * sin(360.0 * level.maptime / TICRATE);
 			Screen.DrawShapeFill(color(255,255,255), alpha * alphaSineFac * 0.5, roundBars);
 		}
 		// disable mask:
