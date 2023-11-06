@@ -24,7 +24,7 @@ Classic screen reddening multiplier,JGPHUD_DMGMARKERS_SCREENTINT,"This lets the 
 Directional incoming damage markers,JGPHUD_DMGMARKERS_ENABLE,"Directional damage markers are shown on the HUD, pointing to the enemy that just attacked the player",Направленные индикаторы входящего урона,Marcadores de dano direcionais,Richtungsmarker für ankommenden Schaden,Marcador de daño direccional,Marqueurs directionnels de dégâts entrants
 Maximum damage marker opacity,JGPHUD_DMGMARKERS_MAXALPHA,,Прозрачность индикаторов входящего урона,Opacidade máxima do marcador de dano,Markerdeckkraft für Maximalschaden,Opacidad máxima de marcadores,Opacité maximale du marqueur de dégâts
 Damage marker fade-out time (seconds),JGPHUD_DMGMARKERS_FADEOUTTIME,,Время исчезновения индикаторов урона (сек.),Tempo de desvanecimento do marcador de dano (segundos),Ausblendzeit für Schadensmarker (Sekunden),Desvanecimiento de marcadores (segundos),Temps d'évanouissement du marqueur de dommage (secondes)
-"Health, armor and mugshot",JGPHUD_MAINBARS_TITLE,,"Здоровье, броня и лицо персонажа","Vida, armadura e face do personagem","Gesundheit, Rüstung und Gesicht",Vida y armadura,Santé et armure
+"Health, armor and mugshot",JGPHUD_MAINBARS_TITLE,,"Здоровье, броня и лицо персонажа","Vida, armadura e face do personagem","Gesundheit, Rüstung und Gesicht",Vida y armadura,"Santé, armure et visage"
 Health and armor display,JGPHUD_MAINBARS_ENABLE,Whether health/armor is displayed,Отображение здоровья и брони,Exibir barras de vida e armadura,Gesundheit und Rüstung anzeigen,Mostrar vida y armadura,Affichage de santé et d’armure
 Mugshot display (if exists),JGPHUD_MAINBARS_SHOWFACE,Whether mugshot is displayed,Показывать лицо персонажа (при наличии),Mostrar face do personagem (se existe),Gesicht anzeigen (falls vorhanden),Mostrar cara de jugador (si existe),Affichage du visage (si existant)
 Numbers,JGPHUD_MAINBARS_OPT_NUMBERS,Option for how health/armor is displayed: numbers or bars,Цифры,Números,Nummern,Numérico,Nombres
@@ -35,11 +35,11 @@ Display weapon icon,JGPHUD_AMMOBLOCK_SHOWWEAP,Whether selected weapon icon is di
 Display ammo bar,JGPHUD_AMMOBLOCK_SHOWAMMOBAR,"Whether a gauge for the ammo is displayed. If this is false, only the number will be shown.",Показывать шкалу остатка патронов,Mostrar barra de munição,Munitionsleiste anzeigen,Mostrar barra de munición,Affichage de la barre de munitions
 All ammo,JGPHUD_ALLAMMO_TITLE,,Общий боезапас,Munição no inventário,Gesamte Munition,Todas las municiones,Toutes les munitions
 Display all ammo,JGPHUD_ALLAMMO_ENABLE,Whether to display a separate block with all ammo currently in the player's inventory.  Has several options,Показывать общий боезапас,Mostrar munição no inventário,Gesamte Munition anzeigen,Mostrar todas las municiones,Affichage de toutes les munitions
-For the weapons you have,JGPHUD_ALLAMMO_OWNEDWEAPONS,All Ammo block option: only draw ammo icons/amounts for the weapons the player has in their inventory,Только для оружия в инвентаре,,Nur für mitgeführte Waffen,,
-For all weapons in the game,JGPHUD_ALLAMMO_ALLWEAPONS,All Ammo block options: draw ammo for all weapons that exist in the current game,Для всех видов оружия в игре,,,,
-Show depleted ammo,JGPHUD_ALLAMMO_SHOWDEPLETED,Whether to show the ammo you've run out of in the All Ammo block (On/Off),,,,,
-All non-depleted ammo,JGPHUD_ALLAMMO_ALLNONZERO,NO LONGER USED,Все неизрасходованные патроны,,Nur vorhandene Munition,,
-All ammo types,JGPHUD_ALLAMMO_ALL,NO LONGER USED,Все существующие виды патронов,,Alle Munitionstypen,,
+For the weapons you have,JGPHUD_ALLAMMO_OWNEDWEAPONS,All Ammo block option: only draw ammo icons/amounts for the weapons the player has in their inventory,Только для оружия в инвентаре,Pour les armes que vous avez,Nur für mitgeführte Waffen,Para armas en posesión,Pour les armes que vous avez
+For all weapons in the game,JGPHUD_ALLAMMO_ALLWEAPONS,All Ammo block options: draw ammo for all weapons that exist in the current game,Для всех видов оружия в игре,Pour toutes les armes du je,Für alle Waffen im Spiel,Para todas las armas,Pour toutes les armes du jeu
+Show depleted ammo,JGPHUD_ALLAMMO_SHOWDEPLETED,Whether to show the ammo you've run out of in the All Ammo block (On/Off),Показывать израсходованные патроны,Afficher les munitions épuisées,Verbrauchte Munition anzeigen,Mostrar municiones vacias,Afficher les munitions épuisées
+All non-depleted ammo,JGPHUD_ALLAMMO_ALLNONZERO,NO LONGER USED,Все неизрасходованные патроны,,,,
+All ammo types,JGPHUD_ALLAMMO_ALL,NO LONGER USED,Все существующие виды патронов,,,,
 Keys,JGPHUD_KEYS_TITLE,,Ключи,Chaves,Schlüssel,Llaves,Clés
 Keys display,JGPHUD_KEYS_ENABLE,Whether to show keys on the HUD,Показывать ключи,Mostrar chaves,Schlüssel anzeigen,Mostrar llaves,Affichage des clés
 Weapon slots,JGPHUD_WEAPSLOTS_TITLE,,Ячейки оружия,Ícones de arma,Waffenplätze,Slots de armas,Emplacements d'armes
@@ -79,6 +79,7 @@ aktiviert werden können.","Nota: la barra solo aparecerá en juegos y mods que
 contengan objetos de inventario utilizables.","Remarque : la barre d'inventaire n'apparaît que dans les
 jeux/mods dont les objets peuvent être placés dans
 l'inventaire et être utilisés à partir de celui-ci."
+Minimap and map data,JGPHUD_MAPDATA_GEN_TITLE,General title for the submenu that contains minimap and map data settings,Мини-карта и данные об уровне,Minimapa e dados do mapa,Minikarte und Kartendaten,Minimapa y datos,Mini-carte et données de la carte
 Map data display,JGPHUD_MAPDATA_TITLE,This is a title for a block of options that determine what kind of extra data about the current map is drawn on the HUD,Данные об уровне,Dados do mapa,Kartendaten,Datos del mapa,Affichage des données de la carte
 Show map time,JGPHUD_MAPDATA_TIME,Option in the Map Data options block,Показывать время уровня,Mostrar tempo do mapa,Kartenzeit anzeigen,Mostrar tiempo,Temps de la carte
 Show kill count,JGPHUD_MAPDATA_KILLS,Option in the Map Data options block,Показывать убийства,Mostrar contagem de vitimas,Anzahl der Abschüsse anzeigen,Mostrar enemigos muertos,Nombre de morts
@@ -93,8 +94,8 @@ Minimap shape,JGPHUD_MINIMAP_SHAPE,,Форма мини-карты,Formato do mi
 Circle,JGPHUD_MINIMAP_SHAPE_CIRCLE,possible minimap shape,Круг,Círculo,Kreis,Circular,Cercle
 Square,JGPHUD_MINIMAP_SHAPE_SQUARE,possible minimap shape,Квадрат,Quadrado,Quadrat,Cuadrada,Carré
 Minimap zoom,JGPHUD_MINIMAP_ZOOM,minimap zoom value,Приближение мини-карты,Zoom do minimapa,Minikartenzoom,Zoom del minimapa,Zoom de la mini-carte
-Lines,JGPHUD_MINIMAP_COLOR_LINES,color for regular minimap lines,Линии,Linhas,Linien,,Lignes
-Interactive lines,JGPHUD_MINIMAP_COLOR_INTLINES,"color for interactive minimap lines (activateable by pressing Use, but not requiring a key, because locked lines will have a lock color)",Интерактивные линии,Linhas usáveis,Auslöserlinien,,Lignes interactives
+Lines,JGPHUD_MINIMAP_COLOR_LINES,color for regular minimap lines,Линии,Linhas,Linien,Lineas,Lignes
+Interactive lines,JGPHUD_MINIMAP_COLOR_INTLINES,"color for interactive minimap lines (activateable by pressing Use, but not requiring a key, because locked lines will have a lock color)",Интерактивные линии,Linhas usáveis,Auslöserlinien,Lineas interactivas,Lignes interactives
 "Note: The minimap may cause performance issues on maps
 with complex geometry, especially at low zoom values.",JGPHUD_MINIMAP_NOTE,"Keep under 4 lines! Use real linebreaks (Ctrl-Enter) to add new lines, so that each line is under 60 characters","Если мини-карта вызывает проблемы с производительностью
 на сложных картах, попробуйте увеличить приближение
@@ -106,7 +107,7 @@ mapas complejos, especialmente con bajo zoom.","Remarque : la minimap peut entra
 performance sur les cartes à géométrie complexe, en
 particulier lorsque le zoom est faible. à géométrie
 complexe, en particulier lorsque le zoom est faible."
-Display undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,Determines whether the minimap will draw all lines or only the ones the player has seen (like the default automap),Показывать еще не обнаруженные линии,Mostrar linhas não descobertas,Unentdeckte Linien zeichnen,,Montrer lignes non découvertes
+Display undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,Determines whether the minimap will draw all lines or only the ones the player has seen (like the default automap),Показывать еще не обнаруженные линии,Mostrar linhas não descobertas,Unentdeckte Linien zeichnen,Mostrar lineas no descubiertas,Montrer lignes non découvertes
 Crosshair options,JGPHUD_CROSSHAIR_TITLE,Title for various crosshair options,Настройки прицела,Opções de retícula,Fadenkreuzoptionen,Opciones de la mirilla,Options des réticules
 Draw enemy hit markers around crosshair,JGPHUD_CROSSHAIR_HITMARKERS,Small angled cross marker around the crosshair when a player's attack hits an enemy.,Индикаторы попадания по врагам вокруг прицела,Mostrar marcadores de acerto ao redor da retícula,Trefferanzeige am Fadenkreuz,Mostrar marcadores de daño contra enemigos,Dessiner les marqueurs de coups de l'ennemi autour du réticule
 Health/armor/ammo bars around crosshair,JGPHUD_CROSSHAIR_BARS_ENABLE,Curved bars around the crosshair in the style of HL2,Индикаторы здоровья/брони/патронов вокруг прицела,Barra de vida/armadura/munição ao redor da retícula,Gesundheits-/Rüstungs-/Munitionsanzeige am Fadenkreuz,Barras de vida/armadura/munición en la mirilla,Barre de santé/armure/munitions autour du réticule
@@ -135,12 +136,13 @@ Die Textur muss im derzeitigen Spiel/Mod existieren.","Escribe el nombre de la t
 debe existir en el juego o mod actual.","Entrer le nom de la texture désirée ici. Cela doit être une
 texture qui existe actuellement dans le jeu/mod actuel."
 Custom items,JGPHUD_CustomItems_TITLE,"Menu title
-""Custom"" is used in the sense ""defined by the user""",Пользовательские предметы,Ítens personalizados,Eigene Gegenstände,,Objets personnalisés
-Display custom items,JGPHUD_CustomItems_ENABLE,Whether to draw custom items (they can be specified by the user in the ITEMINFO lump for greater compatibility),Показывать пользовательские предметы,Mostrar ítens personalizados,Eigene Gegenstände anzeigen,,Montrer objets customisés
+""Custom"" is used in the sense ""defined by the user""",Пользовательские предметы,Ítens personalizados,Eigene Gegenstände,Items personalizados,Objets personnalisés
+Display custom items,JGPHUD_CustomItems_ENABLE,Whether to draw custom items (they can be specified by the user in the ITEMINFO lump for greater compatibility),Показывать пользовательские предметы,Mostrar ítens personalizados,Eigene Gegenstände anzeigen,Mostrar items personalizados,Montrer objets customisés
 "This special element can draw item classes
 specified in the ITEMINFO lump.",JGPHUD_CustomItems_NOTE,"Keep under 3 lines
 Use physical linebreaks (alt-Enter)","Этот блок показывает предметы, добавленные через
 файл ITEMINFO.","Este elemento especial pode mostrar classes
 de ítens especificadas no arquivo ITEMINFO.","Dieses spezielle Element kann Gegenstandklassen
-anzeigen, die im ITEMINFO lump spezifiziert sind.",,"Cet élément spécial peut montrer des classes
+anzeigen, die im ITEMINFO lump spezifiziert sind.","Este elemento especial puede mostrar clases
+personalizadas de items definidas en ITEMINFO.","Cet élément spécial peut montrer des classes
 d'objets spécifiées dans le bloc ITEMINFO."
