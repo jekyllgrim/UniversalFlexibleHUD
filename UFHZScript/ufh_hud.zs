@@ -1890,10 +1890,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		roundBars.SetTransform(roundBarsTransform);
 		color colBGR = color(col.b, col.g, col.r);
 		Screen.DrawShapeFill(colBGR, alpha, roundBars);
+		// Flash with a 50% white pulse if the value
+		// is under 20%:
 		if (frac >= 0.8)
 		{
 			double alphaSineFac = 0.5 + 0.5 * sin(360.0 * level.maptime / TICRATE*0.75);
-			Screen.DrawShapeFill(color(0,0,255), alpha * alphaSineFac * 0.5, roundBars);
+			Screen.DrawShapeFill(color(255,255,255), alpha * alphaSineFac * 0.5, roundBars);
 		}
 		// disable mask:
 		Screen.EnableStencil(false);
