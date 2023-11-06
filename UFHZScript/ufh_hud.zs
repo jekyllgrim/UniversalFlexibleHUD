@@ -2774,7 +2774,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	// attached to the same position):
 	void DrawMapData(vector2 pos, int flags, double width, double scale = 1.0)
 	{
-		HUDFont hfnt = smallHUDFont;
+		HUDFont hfnt = mainHUDFont;
 		Font fnt = hfnt.mFont;
 		let fy = fnt.GetHeight() * scale;
 
