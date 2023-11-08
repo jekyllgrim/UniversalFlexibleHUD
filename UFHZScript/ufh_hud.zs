@@ -2040,9 +2040,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// is properly set up:
 		GetWeaponSlots();
 
-		int iconWidth = Clamp(c_WeaponSlotsSize.GetInt(), 4, 100);
+		double iconWidth = Clamp(c_WeaponSlotsSize.GetInt(), 4, 100);
 		vector2 box = (iconWidth, iconWidth * 0.625);
-		double indent = iconWidth * 0.1;
+		double indent = iconWidth * 0.05;
 
 		int totalSlots;
 		int maxSlotID = 1;
@@ -2071,39 +2071,43 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			}
 		}
 
+		// Get the positioning flags first:
 		int flags = SetScreenFlags(c_WeaponSlotsPos.GetInt());
+
+		// Figure out alignment and width/height
+		// based on it:
 		int alignment = c_WeaponSlotsAlign.GetInt();
 		bool vertical = (alignment != WA_HORIZONTAL);
 		bool rightEdge = vertical && (flags & DI_SCREEN_RIGHT == DI_SCREEN_RIGHT);
 		bool bottom = (flags & DI_SCREEN_BOTTOM == DI_SCREEN_BOTTOM);
-		vector2 ofs = ( c_WeaponSlotsX.GetInt(), c_WeaponSlotsY.GetInt() );
 		double horMul = vertical ? maxSlotID : totalSlots;
 		double vertMul = vertical ? totalSlots : maxSlotID;
 		double width = (box.x + indent) * horMul - indent; //we don't need indent at the end
 		double height = (box.y + indent) * vertMul - indent; //ditto
+
+		// Handle positioning as usual:
+		vector2 ofs = ( c_WeaponSlotsX.GetInt(), c_WeaponSlotsY.GetInt() );
 		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
+
 		if (vertical)
 		{
+			// If it's vertical and at the right edge,
+			// move the initial position to the rightmost
+			// index, since indexes will go to the left:
 			if (rightEdge)
-				pos.x += box.x + indent;
+				pos.x += width - box.x;
+			// And if it's inverted, move it to the position
+			// of thje lowest slot:
 			if (alignment == WA_VERTICALINV)
 				pos.y += height - box.y;
 		}
+
+		// For horizontal position, if it's at the bottom,
+		// move it to the lowest index, since indexes
+		// will go up:
 		else if (bottom)
 		{
-			pos.y += box.y + indent*1.5;
-		}
-		// The box needs to be slightly adjusted for vertical
-		// alignment. I'm not ENTIRELY sure where x1.5 comes
-		// from, but at this point I simply know that it works
-		// and I'll use that:
-		if (alignment == WA_VERTICALINV && !bottom)
-		{
-			pos.y -= indent*1.5;
-		}
-		else if (alignment == WA_VERTICAL && bottom)
-		{
-			pos.y += indent*1.5;
+			pos.y += height - box.y;
 		}
 
 		// Now we're going to draw all weapons the player has,
@@ -2161,7 +2165,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 					if (vertical)
 					{
 						// If inverted alignment is used, move it up:
-						double stepy = (box.x*0.5 + indent*2) * (alignment == WA_VERTICALINV ? -1.0 : 1.0);
+						double stepy = (box.y + indent) * (alignment == WA_VERTICALINV ? -1.0 : 1.0);
 						wpos.y += stepy;
 						// and reset horizontally:
 						wpos.x = pos.x;
