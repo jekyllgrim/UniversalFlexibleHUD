@@ -1802,7 +1802,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		[angle, fntPosIn, fntPosOut, fntFlagsIn, fntFlagsOut] = GetReticleBarsPos(c_ReticleBarsAmmo.GetInt(), fontOfsIn, fontOfsOut, fy);
 		if (angle != RB_DONTDRAW)
 		{
-			color amCol = GetAmmoColor(am2);
+			color amCol = GetAmmoColor(am1);
 			// Ammo 1 (inner):
 			if (am1)
 			{
@@ -1827,6 +1827,11 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			// Ammo 2 (outer):
 			if (am2 && am2 != am1)
 			{
+				color amCol2 = GetAmmoColor(am2);
+				if (amCol2 == amCol)
+				{
+					amCol2 = color(int(amCol.r*0.7), int(amCol.g*0.7), int(amCol.b*0.7));
+				}
 				if (CanDrawReticleBar(RB_AMMO2))
 				{
 					genRoundMask.SetTransform(genRoundMaskTransfOuter);
@@ -1836,7 +1841,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 					Screen.DrawShapeFill(color(0,0,0), 1, genRoundMask);
 					Screen.SetStencil(0, SOP_Keep, SF_AllOn);
 					valueFrac = LinearMap(am2.amount, 0, am2.maxAmount, 1.0, 0.0, true);
-					DrawCircleSegmentShape(color(amCol.a, int(amCol.r*0.7),int(amCol.g*0.7),int(amCol.b*0.7)), screenCenter, secondarySize, steps, angle, coverAngle, valueFrac, fadeAlph);
+					DrawCircleSegmentShape(amCol2, screenCenter, secondarySize, steps, angle, coverAngle, valueFrac, fadeAlph);
 					if (drawBarText)
 					{
 						DrawString(hfnt, String.Format("%d", am2.amount), fntPosOut, fntFlagsOut, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
