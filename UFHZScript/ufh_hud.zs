@@ -1295,23 +1295,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			//lumpData = lumpData.MakeLower();
 			// strip comments:
 			int commentPos = lumpData.IndexOf("//");
-			while (commentpos >= 0)
-			{
-				int lineEnd = lumpData.IndexOf("\n", commentPos) - 1;
-				lumpData.Remove(commentPos, lineEnd - commentPos);
-				commentPos = lumpData.IndexOf("//");
-			}
-			commentPos = lumpData.IndexOf("/*");
-			while (commentpos >= 0)
-			{
-				int lineEnd = lumpData.IndexOf("*/", commentPos) - 1;
-				lumpData.Remove(commentPos, lineEnd - commentPos);
-				commentPos = lumpData.IndexOf("/*");
-			}
-			// Strip tabs, spaces and carriage returns:
-			lumpData.Replace("\t", "");
-			lumpData.Replace("\r", "");
-			lumpData.Replace(" ", "");
+			lumpdata = JGPUFH_StringMan.RemoveComments(lumpdata);
+			lumpData = JGPUFH_StringMan.CleanWhiteSpace(lumpdata, true);
+			if (jgphud_debug)
+				Console.Printf("\cDITEMINFO\c- Full contents (cleaned): [%s]", lumpData);
 			// Unite duplicate linebreaks, if any:
 			while (lumpData.IndexOf("\n\n") >= 0)
 			{
@@ -1332,13 +1319,15 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				string clsname = lumpData.Mid(searchPos, lineEnd - searchPos);
 				if (jgphud_debug)
 					Console.Printf("\cDITEMINFO\c- Possible class name: [%s]", clsname);
-				class<Inventory> cls = clsname;
+				class<Actor> cls = clsname;
 				if (cls)
 				{
 					if (jgphud_debug)
 						Console.Printf("\cDITEMINFO\c- \cDFound item [%s]", cls.GetClassName());
 					customItems.Push(cls);
 				}
+				else
+					Console.Printf("\cDITEMINFO\c- \cGWARNING: \cD%s\cG is not a valid item name", clsname);
 				if (jgphud_debug)
 					Console.Printf("\cDITEMINFO\c- Searchpos %d | line end %d | file end %d", searchPos, lineEnd, fileEnd);
 				searchPos = lineEnd + 1;

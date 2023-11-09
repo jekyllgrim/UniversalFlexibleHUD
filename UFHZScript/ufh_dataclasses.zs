@@ -385,40 +385,9 @@ class JGPUFH_LockData ui
 			string lumpData = Wads.ReadLump(cl);
 			lumpData = lumpData.MakeLower();
 			// strip comments:
-			int commentPos = lumpData.IndexOf("//");
-			while (commentpos >= 0)
-			{
-				int lineEnd = lumpData.IndexOf("\n", commentPos) - 1;
-				lumpData.Remove(commentPos, lineEnd - commentPos);
-				commentPos = lumpData.IndexOf("//");
-			}
-			commentPos = lumpData.IndexOf("/*");
-			while (commentpos >= 0)
-			{
-				int lineEnd = lumpData.IndexOf("*/", commentPos) - 1;
-				lumpData.Remove(commentPos, lineEnd - commentPos);
-				commentPos = lumpData.IndexOf("/*");
-			}
-			// Strip tabs, carraige returns, "clearlocks",
-			// add linebreaks before "{" and "}":
-			lumpData.Replace("\t", "");
-			lumpData.Replace("\r", "");
+			lumpdata = JGPUFH_StringMan.RemoveComments(lumpdata);
 			lumpData.Replace("clearlocks", "");
-			lumpData.Replace("{", "\n{");
-			lumpData.Replace("}", "\n}");
-			// Unite duplicate linebreaks, if any:
-			while (lumpData.IndexOf("\n\n") >= 0)
-			{
-				lumpData.Replace("\n\n", "\n");
-			}
-			// Unite duplicate spaces, if any:
-			while (lumpData.IndexOf("  ") >= 0)
-			{
-				lumpData.Replace("  ", " ");
-			}
-			// Remove spaces next to linebreaks:
-			lumpData.Replace("\n ", "\n");
-			lumpData.Replace(" \n", "\n");
+			lumpData = JGPUFH_StringMan.CleanWhiteSpace(lumpdata);
 			//Console.Printf("lumpdata: %s", lumpdata);
 			// Record the end of the file:
 			int fileEndPos = lumpdata.Length() - 1;
