@@ -285,6 +285,71 @@ class JGPUFH_LookTargetController : Thinker
 	}
 }
 
+class JGPUFH_StringMan
+{
+	static clearscope string CleanWhiteSpace(string workstring, bool removeSpaces = false)
+	{
+		// Strip tabs, carraige returns, "clearlocks",
+		// add linebreaks before "{" and "}":
+		workstring.Replace("\t", "");
+		workstring.Replace("\r", "");
+		workstring.Replace("{", "\n{");
+		workstring.Replace("}", "\n}");
+		// Clean possible bad bytes at the very end of
+		// the string, because ReadLump returns an
+		// incorrect '0' byte at the end of ReadLump
+		// in 4.10:
+		int len = workstring.Length();
+		if (workstring.ByteAt(len - 1) == 0)
+		{
+			workstring = workstring.Left(len -1);
+		}
+		// Unite duplicate linebreaks, if any:
+		while (workstring.IndexOf("\n\n") >= 0)
+		{
+			workstring.Replace("\n\n", "\n");
+		}
+		// Remove all spaces, if removeSpaces is true:
+		if (removeSpaces)
+		{
+			workstring.Replace(" ", "");
+		}
+		// Otherwise clean spaces:
+		else
+		{
+			// Unite duplicate spaces, if any:
+			while (workstring.IndexOf("  ") >= 0)
+			{
+				workstring.Replace("  ", " ");
+			}
+			// Remove spaces next to linebreaks:
+			workstring.Replace("\n ", "\n");
+			workstring.Replace(" \n", "\n");
+		}
+		return workstring;
+	}
+
+	static clearscope string RemoveComments(string workstring)
+	{
+		int commentPos = workstring.IndexOf("//");
+		while (commentpos >= 0)
+		{
+			int lineEnd = workstring.IndexOf("\n", commentPos) - 1;
+			workstring.Remove(commentPos, lineEnd - commentPos);
+			commentPos = workstring.IndexOf("//");
+		}
+		commentPos = workstring.IndexOf("/*");
+		while (commentpos >= 0)
+		{
+			int lineEnd = workstring.IndexOf("*/", commentPos) - 1;
+			workstring.Remove(commentPos, lineEnd - commentPos);
+			commentPos = workstring.IndexOf("/*");
+		}
+		return workstring;
+	}
+}
+
+
 class JGPUFH_LockData ui
 {
 	int lockNumber;
