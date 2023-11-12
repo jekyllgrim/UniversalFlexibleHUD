@@ -31,8 +31,8 @@ Horizontal offset,JGPHUD_ELEMENT_OFSX,General option (every HUD element can be o
 Vertical offset,JGPHUD_ELEMENT_OFSY,General option (every HUD element can be offset from their anchor point with this),Вертикальный сдвиг элемента,Deslocamento vertical,Vertikaler Versatz,Desplazamiento vertical,Décalage Vertical
 Incoming damage display,JGPHUD_DMGMARKERS_TITLE,Title for the damage display settings,Индикаторы получаемого урона,Marcadores de dano,Ankommender Schaden,Marcador de daño,Affichage des dommages entrants
 Classic screen reddening multiplier,JGPHUD_DMGMARKERS_SCREENTINT,"This lets the player change the multiplier for the classic red screen tint when they take damage. If they prefer to only rely on damage markers as a damage indicator, they may choose to reduce this to 0.",Степень покраснения экрана при получении урона,Envermelhação clássica da tela,Multiplikator für klassische Bildschirmrötung,Enrojecimiento clásico,Multiplicateur de rougissement de l'écran classique
-Directional incoming damage markers,JGPHUD_DMGMARKERS_ENABLE,"Directional damage markers are shown on the HUD, pointing to the enemy that just attacked the player",Направленные индикаторы входящего урона,Marcadores de dano direcionais,Richtungsmarker für ankommenden Schaden,Marcador de daño direccional,Marqueurs directionnels de dégâts entrants
-Maximum damage marker opacity,JGPHUD_DMGMARKERS_MAXALPHA,,Прозрачность индикаторов входящего урона,Opacidade máxima do marcador de dano,Markerdeckkraft für Maximalschaden,Opacidad máxima de marcadores,Opacité maximale du marqueur de dégâts
+Directional incoming damage markers,JGPHUD_DMGMARKERS_ENABLE,"Directional damage markers are shown on the HUD, pointing to the enemy that just attacked the player",Направленные индикаторы получаемого урона,Marcadores de dano direcionais,Richtungsmarker für ankommenden Schaden,Marcador de daño direccional,Marqueurs directionnels de dégâts entrants
+Maximum damage marker opacity,JGPHUD_DMGMARKERS_MAXALPHA,,Прозрачность индикаторов получаемого урона,Opacidade máxima do marcador de dano,Markerdeckkraft für Maximalschaden,Opacidad máxima de marcadores,Opacité maximale du marqueur de dégâts
 Damage marker fade-out time (seconds),JGPHUD_DMGMARKERS_FADEOUTTIME,,Время исчезновения индикаторов урона (сек.),Tempo de desvanecimento do marcador de dano (segundos),Ausblendzeit für Schadensmarker (Sekunden),Desvanecimiento de marcadores (segundos),Temps d'évanouissement du marqueur de dommage (secondes)
 "Health, armor and mugshot",JGPHUD_MAINBARS_TITLE,,"Здоровье, броня и лицо персонажа","Vida, armadura e face do personagem","Gesundheit, Rüstung und Gesicht",Vida y armadura,"Santé, armure et visage"
 Health and armor display,JGPHUD_MAINBARS_ENABLE,Whether health/armor is displayed,Отображение здоровья и брони,Exibir barras de vida e armadura,Gesundheit und Rüstung anzeigen,Mostrar vida y armadura,Affichage de santé et d’armure
@@ -58,16 +58,16 @@ Weapon slots alignment,JGPHUD_WEAPSLOTS_ALIGNMENT,How the slots are aligned (ver
 Horizontal,JGPHUD_WEAPSLOTS_ALIGNMENT_H,Weapon slots alignment option,По горизонтали,Horizontal,Horizontal,Horizontal,Horizontal
 Vertical,JGPHUD_WEAPSLOTS_ALIGNMENT_V,"Weapon slots alignment option (vertical, first slot at the top)",По вертикали (сверху вниз),Vertical,Vertikal,Vertical,Vertical
 Vertical inverted,JGPHUD_WEAPSLOTS_ALIGNMENT_VINV,"Weapon slots alignment option (vertical, first slot at the bottom)",По вертикали (снизу вверх),Vertical invertido,Vertikal invertiert,Vertical invertido,Vertical Inversé
-Powerup timers,JGPHUD_POWERUPS_TITLE,Title for the submenu,Таймеры power-up'ов,Temporizadores de powerup,Powerup-Timer,Contadores de powerups,Temps des powerups
+Powerup timers,JGPHUD_POWERUPS_TITLE,Title for the submenu,Таймеры бонусов,Temporizadores de powerup,Powerup-Timer,Contadores de powerups,Temps des powerups
 ,,,,,,,
-Powerup timers display,JGPHUD_POWERUPS_ENABLE,Whether  to show visible timers (minutes and seconds) for currently active power-ups,Показывать таймеры power-up'ов,Mostrar temporizadores de powerup,Powerup-Timer anzeigen,Mostrar contadores de powerups,Affichage du temps des powerups
+Powerup timers display,JGPHUD_POWERUPS_ENABLE,Whether  to show visible timers (minutes and seconds) for currently active power-ups,Показывать таймеры бонусов,Mostrar temporizadores de powerup,Powerup-Timer anzeigen,Mostrar contadores de powerups,Affichage du temps des powerups
 Inventory bar,JGPHUD_INVBAR_TITLE,Title for the submenu,Полоска инвентаря,Barra de inventário,Inventarleiste,Barra de inventario,Barre d’inventaire
 Inventory bar display,JGPHUD_INVBAR_ENABLE,"Whether to show an inventory bar (where applicable, like Heretic, Hexen, Strife)",Показывать полосу инвентаря,Mostrar barra de inventário,Inventarleiste anzeigen,Mostrar barra de inventario,Affichage de la barre d’inventaire
 Always show full inventory bar,JGPHUD_INVBAR_ENABLEALWAYS,"If this is false, inventory bar will auto-hide after 2 seconds and only the currently selected item will be shown.",Не скрывать полосу инвентаря,Sempre mostrar barra de inventário,Immer ganze Inventarleiste anzeigen,Siempre mostrar todo el inventario,Toujours afficher la barre d'inventaire complète
 "If inventory bar is always shown, ""Use Item"" button will
 instantly use the item. If not, first press will select the
-item, second press will use it.",JGPHUD_INVBAR_ENABLEALWAYS_NOTE,"Keep under 4 lines! Use real linebreaks (Ctrl-Enter) to add new lines, so that each line is under 60 characters","Если полоса инвентаря всегда включена, кнопка ""Использовать
-предмет"" сразу использует его. В противном случае первое
+item, second press will use it.",JGPHUD_INVBAR_ENABLEALWAYS_NOTE,"Keep under 4 lines! Use real linebreaks (Ctrl-Enter) to add new lines, so that each line is under 60 characters","Если полоса инвентаря всегда включена, кнопка «Использовать
+предмет» сразу использует его. В противном случае первое
 нажатие выбирает предмет, а второе использует.","Se a barra de inventário estiver sempre mostrando, o botão
 ""Usar item"" funciona instantâneamente, caso contrário,
 pressionar uma vez selecionará o item, e a segunda vez irá usa-lo.","""Gegenstand aktivieren"" aktiviert Gegenstände sofort,
@@ -117,7 +117,7 @@ mapas complejos, especialmente con bajo zoom.","Remarque : la minimap peut entra
 performance sur les cartes à géométrie complexe, en
 particulier lorsque le zoom est faible. à géométrie
 complexe, en particulier lorsque le zoom est faible."
-Display undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,Determines whether the minimap will draw all lines or only the ones the player has seen (like the default automap),Показывать еще не обнаруженные линии,Mostrar linhas não descobertas,Unentdeckte Linien zeichnen,Mostrar lineas no descubiertas,Montrer lignes non découvertes
+Display undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,Determines whether the minimap will draw all lines or only the ones the player has seen (like the default automap),Показывать ещё не обнаруженные линии,Mostrar linhas não descobertas,Unentdeckte Linien zeichnen,Mostrar lineas no descubiertas,Montrer lignes non découvertes
 Crosshair options,JGPHUD_CROSSHAIR_TITLE,Title for various crosshair options,Настройки прицела,Opções de retícula,Fadenkreuzoptionen,Opciones de la mirilla,Options des réticules
 Draw enemy hit markers around crosshair,JGPHUD_CROSSHAIR_HITMARKERS,Small angled cross marker around the crosshair when a player's attack hits an enemy.,Индикаторы попадания по врагам вокруг прицела,Mostrar marcadores de acerto ao redor da retícula,Trefferanzeige am Fadenkreuz,Mostrar marcadores de daño contra enemigos,Dessiner les marqueurs de coups de l'ennemi autour du réticule
 Health/armor/ammo bars around crosshair,JGPHUD_CROSSHAIR_BARS_ENABLE,Curved bars around the crosshair in the style of HL2,Индикаторы здоровья/брони/патронов вокруг прицела,Barra de vida/armadura/munição ao redor da retícula,Gesundheits-/Rüstungs-/Munitionsanzeige am Fadenkreuz,Barras de vida/armadura/munición en la mirilla,Barre de santé/armure/munitions autour du réticule
