@@ -24,7 +24,7 @@ OptionMenu "JGPHUD_Settings"
 	StaticText "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME_NOTE", gray
 	StaticText ""
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_BackStyle:jgphud_BackTexture:jgphud_BackColor:jgphud_BackAlpha"
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_BackStyle:jgphud_BackTexture:jgphud_BackColor:jgphud_BackAlpha", 1
 
 	StaticText ""
 	SubMenu "$JGPHUD_MAINBARS_TITLE", "JGPHUD_MainBars"
@@ -38,6 +38,9 @@ OptionMenu "JGPHUD_Settings"
 	SubMenu "$JGPHUD_CROSSHAIR_TITLE", "JGPHUD_CrosshairOptions"
 	SubMenu "$JGPHUD_MAPDATA_TITLE", "JGPHUD_MapData"
 	SubMenu "$JGPHUD_CustomItems_TITLE", "JGPHUD_CustomItems"
+	
+	StaticText ""
+	UFHResetALLCCMD "$JGPHUD_GENERAL_RESETALL", 1
 }
 
 OptionMenu "JGPHUD_DamageMarkers"
@@ -50,7 +53,7 @@ OptionMenu "JGPHUD_DamageMarkers"
 	Slider "$JGPHUD_DMGMARKERS_MAXALPHA", "jgphud_DamageMarkersAlpha", 0.0, 1.0, 0.1, 1, "jgphud_drawDamageMarkers"
 	Slider "$JGPHUD_DMGMARKERS_FADEOUTTIME", "jgphud_DamageMarkersFadeTime", 0.05, 5.0, 0.05, 2, "jgphud_drawDamageMarkers"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_ScreenReddenFactor:jgphud_drawDamageMarkers:jgphud_DamageMarkersAlpha:jgphud_DamageMarkersFadeTime"
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_ScreenReddenFactor:jgphud_drawDamageMarkers:jgphud_DamageMarkersAlpha:jgphud_DamageMarkersFadeTime", 1
 }
 
 OptionMenu "JGPHUD_MainBars"
@@ -61,10 +64,11 @@ OptionMenu "JGPHUD_MainBars"
 	Option "$JGPHUD_MAINBARS_ENABLE", "jgphud_DrawMainbars", "MainBars"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_MainBarsPos", "ElementScreenPos", "jgphud_DrawMainbars"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_MainBarsX", -160, 160, 2, 0, "jgphud_DrawMainbars"
+	StaticTextSwitchable "pos x 0", "pos x not 0", "jgphud_MainBarsX"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_MainBarsY", -100, 100, 2, 0, "jgphud_DrawMainbars"
 	Option "$JGPHUD_MAINBARS_SHOWFACE", "jgphud_DrawFace", "OnOff", "jgphud_DrawMainbars"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawMainbars:jgphud_MainBarsPos:jgphud_MainBarsX:jgphud_MainBarsY:jgphud_DrawFace"
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawMainbars:jgphud_MainBarsPos:jgphud_MainBarsX:jgphud_MainBarsY:jgphud_DrawFace", 1
 }
 
 OptionMenu "JGPHUD_AmmoBlock"
@@ -79,7 +83,7 @@ OptionMenu "JGPHUD_AmmoBlock"
 	Option "$JGPHUD_AMMOBLOCK_SHOWWEAP", "jgphud_DrawWeapon", "OnOff", "jgphud_DrawAmmoBlock"
 	Option "$JGPHUD_AMMOBLOCK_SHOWAMMOBAR", "jgphud_DrawAmmoBar", "OnOff", "jgphud_DrawAmmoBlock"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawAmmoBlock:jgphud_AmmoBlockPos:jgphud_AmmoBlockX:jgphud_AmmoBlockY:jgphud_DrawWeapon:jgphud_DrawAmmoBar"
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawAmmoBlock:jgphud_AmmoBlockPos:jgphud_AmmoBlockX:jgphud_AmmoBlockY:jgphud_DrawWeapon:jgphud_DrawAmmoBar", 1
 }
 
 OptionMenu "JGPHUD_AllAmmo"
@@ -93,7 +97,7 @@ OptionMenu "JGPHUD_AllAmmo"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_AllAmmoX", -160, 160, 2, 0, "jgphud_drawAllAmmo"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_AllAmmoY", -100, 100, 2, 0, "jgphud_drawAllAmmo"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawAllAmmo:jgphud_AllAmmoShowDepleted:jgphud_AllAmmoPos:jgphud_AllAmmoX:jgphud_AllAmmoY"
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawAllAmmo:jgphud_AllAmmoShowDepleted:jgphud_AllAmmoPos:jgphud_AllAmmoX:jgphud_AllAmmoY", 1
 }
 
 OptionMenu "JGPHUD_Keys"
@@ -106,7 +110,7 @@ OptionMenu "JGPHUD_Keys"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_KeysX", -160, 160, 2, 0, "jgphud_drawKeys"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_KeysY", -100, 100, 2, 0, "jgphud_drawKeys"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawKeys:jgphud_KeysPos:jgphud_KeysX:jgphud_KeysY"
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawKeys:jgphud_KeysPos:jgphud_KeysX:jgphud_KeysY", 1
 }
 
 OptionMenu "JGPHUD_WeaponSlots"
@@ -121,7 +125,7 @@ OptionMenu "JGPHUD_WeaponSlots"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_WeaponSlotsX", -160, 160, 2, 0, "jgphud_drawWeaponSlots"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_WeaponSlotsY", -100, 100, 2, 0, "jgphud_drawWeaponSlots"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawWeaponSlots:jgphud_WeaponSlotsAlign:jgphud_WeaponSlotsSize:jgphud_WeaponSlotsPos:jgphud_WeaponSlotsX:jgphud_WeaponSlotsY"
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawWeaponSlots:jgphud_WeaponSlotsAlign:jgphud_WeaponSlotsSize:jgphud_WeaponSlotsPos:jgphud_WeaponSlotsX:jgphud_WeaponSlotsY", 1
 }
 
 OptionMenu "JGPHUD_InvBar"
@@ -144,7 +148,7 @@ OptionMenu "JGPHUD_InvBar"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_InvBarX", -160, 160, 2, 0, "jgphud_drawInvBar"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_InvBarY", -100, 100, 2, 0, "jgphud_drawInvBar"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawInvBar:jgphud_AlwaysShowInvBar:jgphud_InvBarIconSize:jgphud_InvBarPos:jgphud_InvBarX:jgphud_InvBarY"
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawInvBar:jgphud_AlwaysShowInvBar:jgphud_InvBarIconSize:jgphud_InvBarPos:jgphud_InvBarX:jgphud_InvBarY", 1
 }
 
 OptionMenu "JGPHUD_Powerups"
@@ -158,7 +162,7 @@ OptionMenu "JGPHUD_Powerups"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_PowerupsX", -160, 160, 2, 0, "jgphud_drawPowerups"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_PowerupsY", -100, 100, 2, 0, "jgphud_drawPowerups"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawPowerups:jgphud_PowerupsPos:jgphud_PowerupsX:jgphud_PowerupsY"
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawPowerups:jgphud_PowerupsPos:jgphud_PowerupsX:jgphud_PowerupsY", 1
 }
 
 OptionMenu "JGPHUD_CustomItems"
@@ -175,7 +179,7 @@ OptionMenu "JGPHUD_CustomItems"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_CustomItemsX", -160, 160, 2, 0, "jgphud_drawCustomItems"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_CustomItemsY", -100, 100, 2, 0, "jgphud_drawCustomItems"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawCustomItems:jgphud_CustomItemsPos:jgphud_CustomItemsX:jgphud_CustomItemsY"
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawCustomItems:jgphud_CustomItemsPos:jgphud_CustomItemsX:jgphud_CustomItemsY", 1
 }
 
 OptionMenu "JGPHUD_MapData"
@@ -209,7 +213,7 @@ OptionMenu "JGPHUD_MapData"
 	Option "$JGPHUD_MAPDATA_SECRETS", "jgphud_DrawSecrets", "OnOff"
 	Option "$JGPHUD_MAPDATA_TIME", "jgphud_DrawTime", "OnOff"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawMinimap:jgphud_MinimapPos:jgphud_MinimapPosX:jgphud_MinimapPosY:jgphud_MinimapSize:jgphud_CircularMinimap:jgphud_MinimapZoom:jgphud_DrawKills:jgphud_DrawItems:jgphud_DrawSecrets:jgphud_DrawTime"
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawMinimap:jgphud_MinimapPos:jgphud_MinimapPosX:jgphud_MinimapPosY:jgphud_MinimapSize:jgphud_CircularMinimap:jgphud_MinimapZoom:jgphud_DrawKills:jgphud_DrawItems:jgphud_DrawSecrets:jgphud_DrawTime", 1
 }
 
 OptionMenu "JGPHUD_CrosshairOptions"
@@ -235,7 +239,7 @@ OptionMenu "JGPHUD_CrosshairOptions"
 	Option "$JGPHUD_CROSSHAIR_BARS_AMMO", "jgphud_ReticleBarsAmmo", "ReticleBars", "jgphud_DrawReticleBars"
 	Option "$JGPHUD_CROSSHAIR_BARS_ENEMYHP", "jgphud_ReticleBarsEnemy", "ReticleBars", "jgphud_DrawReticleBars"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawEnemyHitMarkers:jgphud_DrawReticleBars:jgphud_ReticleBarsSize:jgphud_ReticleBarsAlpha:jgphud_ReticleBarsWidth:jgphud_ReticleBarsText:jgphud_ReticleBarsHealthArmor:jgphud_ReticleBarsAmmo:jgphud_ReticleBarsEnemy"
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawEnemyHitMarkers:jgphud_DrawReticleBars:jgphud_ReticleBarsSize:jgphud_ReticleBarsAlpha:jgphud_ReticleBarsWidth:jgphud_ReticleBarsText:jgphud_ReticleBarsHealthArmor:jgphud_ReticleBarsAmmo:jgphud_ReticleBarsEnemy", 1
 }
 
 OptionValue "BackgroundStyles"
