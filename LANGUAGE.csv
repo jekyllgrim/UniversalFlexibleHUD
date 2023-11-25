@@ -16,7 +16,7 @@ Die Textur muss im derzeitigen Spiel/Mod existieren.","Escribe el nombre de la t
 debe existir en el juego o mod actual.","Entrer le nom de la texture désirée ici. Cela doit être une
 texture qui existe actuellement dans le jeu/mod actuel."
 Size of icons,JGPHUD_GENERAL_ICONSIZE,"This is used for several different options: inventory bar, weapon slots, powerup display",Размер значков,Tamanho dos ícones,Icongrösse,Tamaño de los iconos,Taille des icones
-Reset ALL FlexiHUD settings to default,JGPHUD_GENERAL_RESETALL,Label for a menu command that resets ALL console variables related to FlexiHUD to their default values,Сбросить ВСЕ настройки FlexiHUD,,,,
+Reset ALL FlexiHUD settings to default,JGPHUD_GENERAL_RESETALL,Label for a menu command that resets ALL console variables related to FlexiHUD to their default values,Сбросить ВСЕ настройки FlexiHUD,Restaurar TODAS as configurações aos padrões,ALLE FlexiHUD-Einstellungen auf Vorgaben zurücksetzen,Reiniciar todas las configuraciones por defecto,Réinitialiser TOUTES les configurations de FlexiHUD par défault
 Position anchor point,JGPHUD_ELEMENT_POS,Lets the player choose the anchor point on the screen for the specified HUD element,Точка привязки элемента,Ponto da âncora,Ankerpunkt,Punto de anclaje,Point d’ancrage
 Top left,JGPHUD_POS_TOPLEFT,Anchor point for the HUD element on the screen,Верхний левый угол,Canto superior esquerdo,Oben links,Superior izquierda,Haut à gauche
 Top center,JGPHUD_POS_TOPCENTER,Anchor point for the HUD element on the screen,Середина верхней границы,Centro superior,Oben mitte,Superior centrado,Haut au centre
@@ -31,8 +31,8 @@ Horizontal offset,JGPHUD_ELEMENT_OFSX,General option (every HUD element can be o
 Vertical offset,JGPHUD_ELEMENT_OFSY,General option (every HUD element can be offset from their anchor point with this),Вертикальный сдвиг элемента,Deslocamento vertical,Vertikaler Versatz,Desplazamiento vertical,Décalage Vertical
 Incoming damage display,JGPHUD_DMGMARKERS_TITLE,Title for the damage display settings,Индикаторы получаемого урона,Marcadores de dano,Ankommender Schaden,Marcador de daño,Affichage des dommages entrants
 Classic screen reddening multiplier,JGPHUD_DMGMARKERS_SCREENTINT,"This lets the player change the multiplier for the classic red screen tint when they take damage. If they prefer to only rely on damage markers as a damage indicator, they may choose to reduce this to 0.",Степень покраснения экрана при получении урона,Envermelhação clássica da tela,Multiplikator für klassische Bildschirmrötung,Enrojecimiento clásico,Multiplicateur de rougissement de l'écran classique
-Directional incoming damage markers,JGPHUD_DMGMARKERS_ENABLE,"Directional damage markers are shown on the HUD, pointing to the enemy that just attacked the player",Направленные индикаторы входящего урона,Marcadores de dano direcionais,Richtungsmarker für ankommenden Schaden,Marcador de daño direccional,Marqueurs directionnels de dégâts entrants
-Maximum damage marker opacity,JGPHUD_DMGMARKERS_MAXALPHA,,Прозрачность индикаторов входящего урона,Opacidade máxima do marcador de dano,Markerdeckkraft für Maximalschaden,Opacidad máxima de marcadores,Opacité maximale du marqueur de dégâts
+Directional incoming damage markers,JGPHUD_DMGMARKERS_ENABLE,"Directional damage markers are shown on the HUD, pointing to the enemy that just attacked the player",Направленные индикаторы получаемого урона,Marcadores de dano direcionais,Richtungsmarker für ankommenden Schaden,Marcador de daño direccional,Marqueurs directionnels de dégâts entrants
+Maximum damage marker opacity,JGPHUD_DMGMARKERS_MAXALPHA,,Прозрачность индикаторов получаемого урона,Opacidade máxima do marcador de dano,Markerdeckkraft für Maximalschaden,Opacidad máxima de marcadores,Opacité maximale du marqueur de dégâts
 Damage marker fade-out time (seconds),JGPHUD_DMGMARKERS_FADEOUTTIME,,Время исчезновения индикаторов урона (сек.),Tempo de desvanecimento do marcador de dano (segundos),Ausblendzeit für Schadensmarker (Sekunden),Desvanecimiento de marcadores (segundos),Temps d'évanouissement du marqueur de dommage (secondes)
 "Health, armor and mugshot",JGPHUD_MAINBARS_TITLE,,"Здоровье, броня и лицо персонажа","Vida, armadura e face do personagem","Gesundheit, Rüstung und Gesicht",Vida y armadura,"Santé, armure et visage"
 Health and armor display,JGPHUD_MAINBARS_ENABLE,Whether health/armor is displayed,Отображение здоровья и брони,Exibir barras de vida e armadura,Gesundheit und Rüstung anzeigen,Mostrar vida y armadura,Affichage de santé et d’armure
@@ -48,8 +48,6 @@ Display all ammo,JGPHUD_ALLAMMO_ENABLE,Whether to display a separate block with 
 For the weapons you have,JGPHUD_ALLAMMO_OWNEDWEAPONS,All Ammo block option: only draw ammo icons/amounts for the weapons the player has in their inventory,Только для оружия в инвентаре,Pour les armes que vous avez,Nur für mitgeführte Waffen,Para armas en posesión,Pour les armes que vous avez
 For all weapons in the game,JGPHUD_ALLAMMO_ALLWEAPONS,All Ammo block options: draw ammo for all weapons that exist in the current game,Для всех видов оружия в игре,Pour toutes les armes du je,Für alle Waffen im Spiel,Para todas las armas,Pour toutes les armes du jeu
 Show depleted ammo,JGPHUD_ALLAMMO_SHOWDEPLETED,Whether to show the ammo you've run out of in the All Ammo block (On/Off),Показывать израсходованные патроны,Afficher les munitions épuisées,Verbrauchte Munition anzeigen,Mostrar municiones vacias,Afficher les munitions épuisées
-All non-depleted ammo,JGPHUD_ALLAMMO_ALLNONZERO,NO LONGER USED,Все неизрасходованные патроны,,,,
-All ammo types,JGPHUD_ALLAMMO_ALL,NO LONGER USED,Все существующие виды патронов,,,,
 Keys,JGPHUD_KEYS_TITLE,,Ключи,Chaves,Schlüssel,Llaves,Clés
 Keys display,JGPHUD_KEYS_ENABLE,Whether to show keys on the HUD,Показывать ключи,Mostrar chaves,Schlüssel anzeigen,Mostrar llaves,Affichage des clés
 Weapon slots,JGPHUD_WEAPSLOTS_TITLE,,Ячейки оружия,Ícones de arma,Waffenplätze,Slots de armas,Emplacements d'armes
@@ -59,15 +57,14 @@ Horizontal,JGPHUD_WEAPSLOTS_ALIGNMENT_H,Weapon slots alignment option,По го�
 Vertical,JGPHUD_WEAPSLOTS_ALIGNMENT_V,"Weapon slots alignment option (vertical, first slot at the top)",По вертикали (сверху вниз),Vertical,Vertikal,Vertical,Vertical
 Vertical inverted,JGPHUD_WEAPSLOTS_ALIGNMENT_VINV,"Weapon slots alignment option (vertical, first slot at the bottom)",По вертикали (снизу вверх),Vertical invertido,Vertikal invertiert,Vertical invertido,Vertical Inversé
 Powerup timers,JGPHUD_POWERUPS_TITLE,Title for the submenu,Таймеры power-up'ов,Temporizadores de powerup,Powerup-Timer,Contadores de powerups,Temps des powerups
-,,,,,,,
 Powerup timers display,JGPHUD_POWERUPS_ENABLE,Whether  to show visible timers (minutes and seconds) for currently active power-ups,Показывать таймеры power-up'ов,Mostrar temporizadores de powerup,Powerup-Timer anzeigen,Mostrar contadores de powerups,Affichage du temps des powerups
 Inventory bar,JGPHUD_INVBAR_TITLE,Title for the submenu,Полоска инвентаря,Barra de inventário,Inventarleiste,Barra de inventario,Barre d’inventaire
 Inventory bar display,JGPHUD_INVBAR_ENABLE,"Whether to show an inventory bar (where applicable, like Heretic, Hexen, Strife)",Показывать полосу инвентаря,Mostrar barra de inventário,Inventarleiste anzeigen,Mostrar barra de inventario,Affichage de la barre d’inventaire
 Always show full inventory bar,JGPHUD_INVBAR_ENABLEALWAYS,"If this is false, inventory bar will auto-hide after 2 seconds and only the currently selected item will be shown.",Не скрывать полосу инвентаря,Sempre mostrar barra de inventário,Immer ganze Inventarleiste anzeigen,Siempre mostrar todo el inventario,Toujours afficher la barre d'inventaire complète
 "If inventory bar is always shown, ""Use Item"" button will
 instantly use the item. If not, first press will select the
-item, second press will use it.",JGPHUD_INVBAR_ENABLEALWAYS_NOTE,"Keep under 4 lines! Use real linebreaks (Ctrl-Enter) to add new lines, so that each line is under 60 characters","Если полоса инвентаря всегда включена, кнопка ""Использовать
-предмет"" сразу использует его. В противном случае первое
+item, second press will use it.",JGPHUD_INVBAR_ENABLEALWAYS_NOTE,"Keep under 4 lines! Use real linebreaks (Ctrl-Enter) to add new lines, so that each line is under 60 characters","Если полоса инвентаря всегда включена, кнопка «Использовать
+предмет» сразу использует его. В противном случае первое
 нажатие выбирает предмет, а второе использует.","Se a barra de inventário estiver sempre mostrando, o botão
 ""Usar item"" funciona instantâneamente, caso contrário,
 pressionar uma vez selecionará o item, e a segunda vez irá usa-lo.","""Gegenstand aktivieren"" aktiviert Gegenstände sofort,
@@ -107,9 +104,9 @@ Minimap zoom,JGPHUD_MINIMAP_ZOOM,minimap zoom value,Приближение ми�
 Lines,JGPHUD_MINIMAP_COLOR_LINES,color for regular minimap lines,Линии,Linhas,Linien,Lineas,Lignes
 Interactive lines,JGPHUD_MINIMAP_COLOR_INTLINES,"color for interactive minimap lines (activateable by pressing Use, but not requiring a key, because locked lines will have a lock color)",Интерактивные линии,Linhas usáveis,Auslöserlinien,Lineas interactivas,Lignes interactives
 "Note: The minimap may cause performance issues on maps
-with complex geometry, especially at low zoom values.",JGPHUD_MINIMAP_NOTE,"Keep under 4 lines! Use real linebreaks (Ctrl-Enter) to add new lines, so that each line is under 60 characters","Если мини-карта вызывает проблемы с производительностью
-на сложных картах, попробуйте увеличить приближение
-и/или снизить частоту обновления мини-карты.","Obs.: O minimapa pode causar problemas de
+with complex geometry, especially at low zoom values.",JGPHUD_MINIMAP_NOTE,"Keep under 4 lines! Use real linebreaks (Ctrl-Enter) to add new lines, so that each line is under 60 characters","Примечание: мини-карта может вызывать проблемы с
+производительностью на уровнях со сложной геометрией,
+особенно при низком приближении.","Obs.: O minimapa pode causar problemas de
 desempenho em mapas complexos.","Beachte: Minikarte kann Leistungseinbrüche auf Karten mit
 komplexer Geometrie verursachen, insbesondere bei
 niedrigem Zoom.","Nota: el minimapa puede causar pérdida de cuadros en
@@ -117,7 +114,7 @@ mapas complejos, especialmente con bajo zoom.","Remarque : la minimap peut entra
 performance sur les cartes à géométrie complexe, en
 particulier lorsque le zoom est faible. à géométrie
 complexe, en particulier lorsque le zoom est faible."
-Display undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,Determines whether the minimap will draw all lines or only the ones the player has seen (like the default automap),Показывать еще не обнаруженные линии,Mostrar linhas não descobertas,Unentdeckte Linien zeichnen,Mostrar lineas no descubiertas,Montrer lignes non découvertes
+Display undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,Determines whether the minimap will draw all lines or only the ones the player has seen (like the default automap),Показывать ещё не обнаруженные линии,Mostrar linhas não descobertas,Unentdeckte Linien zeichnen,Mostrar lineas no descubiertas,Montrer lignes non découvertes
 Crosshair options,JGPHUD_CROSSHAIR_TITLE,Title for various crosshair options,Настройки прицела,Opções de retícula,Fadenkreuzoptionen,Opciones de la mirilla,Options des réticules
 Draw enemy hit markers around crosshair,JGPHUD_CROSSHAIR_HITMARKERS,Small angled cross marker around the crosshair when a player's attack hits an enemy.,Индикаторы попадания по врагам вокруг прицела,Mostrar marcadores de acerto ao redor da retícula,Trefferanzeige am Fadenkreuz,Mostrar marcadores de daño contra enemigos,Dessiner les marqueurs de coups de l'ennemi autour du réticule
 Health/armor/ammo bars around crosshair,JGPHUD_CROSSHAIR_BARS_ENABLE,Curved bars around the crosshair in the style of HL2,Индикаторы здоровья/брони/патронов вокруг прицела,Barra de vida/armadura/munição ao redor da retícula,Gesundheits-/Rüstungs-/Munitionsanzeige am Fadenkreuz,Barras de vida/armadura/munición en la mirilla,Barre de santé/armure/munitions autour du réticule
