@@ -3249,7 +3249,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			return item.NextInv();
 		}
 		Inventory firstgood = item;
-		while (firstgood.PrevInv())
+		while (firstgood.owner && firstgood.owner == CPlayer.mo && firstgood.PrevInv())
 		{
 			firstgood = firstgood.PrevInv();
 		}
@@ -3265,7 +3265,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			return item.PrevInv();
 		}
 		Inventory lastgood = item;
-		while (lastgood.NextInv())
+		while (lastgood.owner && lastgood.owner == CPlayer.mo && lastgood.NextInv())
 		{
 			lastgood = lastgood.NextInv();
 		}
