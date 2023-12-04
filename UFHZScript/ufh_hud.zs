@@ -2470,14 +2470,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	// by the player. Also returns scaling factor for
 	// BlockThingsIterator/BlockLinesIterator distance checks,
 	// since those are circular and thus have to be multiplied
-	// by 1.43 to account for square corners:
+	// by 1.21 to account for square corners:
 	bool, double IsMinimapCircular()
 	{
 		if (!c_CircularMinimap)
 			return false, 1.0;
 		
 		bool b = c_CircularMinimap.GetBool();
-		double fac = b ? 1.0 : 1.43;
+		double fac = b ? 1.0 : 1.21;
 		return b, fac;
 	}
 
@@ -2509,7 +2509,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			return;
 		mapLines.Clear();
 		vector2 hudscale = GetHudScale();
-		double radius = GetMinimapSize() * hudscale.x;
+		double radius = GetMinimapSize() * 4;
 		double zoom = GetMinimapZoom();
 		bool b; double distFac;
 		[b, distFac] = IsMinimapCircular();
