@@ -2467,6 +2467,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		minimapShape_Arrow.SetTransform(minimapTransform);
 		color youColor = c_minimapYouColor.GetInt();
 		Screen.DrawShapeFill(color(youColor.b, youColor.g, youColor.r), 1.0, minimapShape_Arrow);
+
+		// not functional yet
+		//DrawMapMarkers(pos, diff, playerAngle, size, hudscale.x, mapZoom);
 		
 		// Disable the mask:
 		Screen.EnableStencil(false);
@@ -2773,6 +2776,43 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				color col = thing.IsHostile(CPLayer.mo) ? foeColor : friendColor;
 				Screen.DrawShapeFill(color(col.b, col.g, col.r), alpha, minimapShape_Arrow);
 			}
+		}
+	}
+
+	void DrawMapMarkers(vector2 pos, vector2 ofs, double angle, double radius, double scale = 1.0, double zoom = 1.0)
+	{
+		if (!handler)
+			return;
+
+		double distFac = IsMinimapCircular() ? 1.0 : SQUARERADIUSFAC;
+		double zoom = GetMinimapZoom();
+		double radius = GetMinimapSize() * 4;
+		double distance = ((radius) / zoom) * distFac; //account for square shapes
+		for (int i = 0; i < handler.mapMarkers.Size(); i++)
+		{
+			let thing = handler.mapMarkers[i];
+			if (!thing)
+				continue;
+			
+			if (!CPlayer.mo || CPlayer.mo.Distance2DSquared(thing) > distance*distance)
+				continue;
+
+			vector2 ePos = (thing.pos.xy - ofs) * zoom * scale;
+			ePos = AlignPosToMap(ePos, angle, radius);
+
+			// scale alpha with vertical distance:
+			double vdiff = abs(CPlayer.mo.pos.z - thing.pos.z);
+			double alpha = LinearMap(vdiff, 0, 512, 1.0, 0.1, true);
+			// determine marker size based on the CVAR
+			// (either scaled with zoom, or fixed):
+			double msize = Clamp(c_minimapMapMarkersSize.GetInt(), 0, 64);
+			double markerSize = (msize <= 0 ? thing.radius * zoom * thing.scale.x : msize) * scale;
+			TextureID tex = thing.curstate.GetSpriteTexture(0);
+			if (!tex || !tex.IsValid())
+				continue;
+			Console.Printf("drawing map marker texture %s for %s", TexMan.GetName(tex), thing.GetClassName());
+			vector2 mpos = pos + ePos;
+			Screen.DrawTexture(tex, false, mpos.x, mpos.y);
 		}
 	}
 
@@ -3480,6 +3520,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 class JGPUFH_HudDataHandler : EventHandler
 {
 	array <JGPUFH_PowerupData> powerupData;
+	array <MapMarker> mapMarkers;
 	JGPUFH_LookTargetController lookControllers[MAXPLAYERS];
 	JGPUFH_DmgMarkerController dmgMarkerControllers[MAXPLAYERS];
 	bool levelUnloaded;
@@ -3496,6 +3537,12 @@ class JGPUFH_HudDataHandler : EventHandler
 		if (pwrg)
 		{
 			JGPUFH_PowerupData.CreatePowerupIcon(pwrg, powerupData);
+		}
+
+		let mm = MapMarker(e.thing);
+		if (mm)
+		{
+			mapMarkers.Push(mm);
 		}
 	}
 
