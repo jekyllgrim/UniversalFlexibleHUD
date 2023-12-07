@@ -2775,9 +2775,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			}
 		}
 	}
-			
-		}
-	}
 
 	vector2 AlignPosToMap(vector2 vec, double angle, double mapSize)
 	{
