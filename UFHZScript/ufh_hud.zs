@@ -2776,13 +2776,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 			
-			minimapTransform.Clear();
-			double markerSize = ((thing.radius) * zoom) * scale;
-			minimapTransform.Scale((markerSize,markerSize));
-			minimapTransform.Rotate(-thing.angle - angle - 90);
-			minimapTransform.Translate(pos + ePos);
-			minimapShape_Arrow.SetTransform(minimapTransform);
-			Screen.DrawShapeFill(color(col.b, col.g, col.r), alpha, minimapShape_Arrow);
 		}
 	}
 
