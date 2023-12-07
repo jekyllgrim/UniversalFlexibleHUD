@@ -2,6 +2,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 {
 	const ASPECTSCALE = 1.2;
 	const CIRCLEANGLES = 360.0;
+	const SQUARERADIUSFAC = 1.43;
 	const STR_INVALID = "<invalid>";
 
 	//See GetHUDBackground():
@@ -71,6 +72,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	transient CVar c_minimapPosY;
 	transient CVar c_minimapZoom;
 	transient CVar c_minimapDrawUnseen;
+	transient CVar c_minimapDrawFloorDiff;
+	transient CVar c_minimapDrawCeilingDiff;
+	transient CVar c_MinimapMapMarkersSize;
 	transient CVar c_minimapBackColor;
 	transient CVar c_minimapLineColor;
 	transient CVar c_minimapIntLineColor;
@@ -2424,11 +2428,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// Apply mask
 		// It's applied after outline and background scaling, 
 		// so that the lines are maked within the outline:
-		Screen.EnableStencil(true);
-		Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
-		// shape is used for the mask (colors aren't needed):
-		Screen.DrawShapeFill(color(0,0,0,0), 0.0, shapeToUse);
-		Screen.SetStencil(1, SOP_Keep, SF_AllOn);
+		if (!jgphud_debugmap)
+		{
+			Screen.EnableStencil(true);
+			Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+			// shape is used for the mask (colors aren't needed):
+			Screen.DrawShapeFill(color(0,0,0,0), 0.0, shapeToUse);
+			Screen.SetStencil(1, SOP_Keep, SF_AllOn);
+		}
 		
 		// Draw the minimap lines:
 		DrawMinimapLines(pos, diff, playerAngle, size, hudscale.x, mapZoom);
@@ -2437,9 +2444,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (!minimapShape_Arrow)
 		{
 			minimapShape_Arrow = new("Shape2D");
-			minimapShape_Arrow.Pushvertex((0, -0.8));
-			minimapShape_Arrow.Pushvertex((-0.5, 0.5));
-			minimapShape_Arrow.Pushvertex((0.5, 0.5));
+			minimapShape_Arrow.Pushvertex((0, -1));
+			minimapShape_Arrow.Pushvertex((-1, 1));
+			minimapShape_Arrow.Pushvertex((1, 1));
 			minimapShape_Arrow.PushCoord((0,0));
 			minimapShape_Arrow.PushCoord((0,0));
 			minimapShape_Arrow.PushCoord((0,0));
@@ -2467,18 +2474,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	}
 
 	// Returns true if the minimap shape is set to circular
-	// by the player. Also returns scaling factor for
-	// BlockThingsIterator/BlockLinesIterator distance checks,
-	// since those are circular and thus have to be multiplied
-	// by 1.21 to account for square corners:
-	bool, double IsMinimapCircular()
+	// by the player:
+	bool IsMinimapCircular()
 	{
-		if (!c_CircularMinimap)
-			return false, 1.0;
-		
-		bool b = c_CircularMinimap.GetBool();
-		double fac = b ? 1.0 : 1.21;
-		return b, fac;
+		return (c_CircularMinimap && c_CircularMinimap.GetBool());
 	}
 
 	double GetMinimapZoom()
@@ -2508,11 +2507,9 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		if (!Level || Level.maptime % 10 != 0)
 			return;
 		mapLines.Clear();
-		vector2 hudscale = GetHudScale();
-		double radius = GetMinimapSize() * 4;
+		double distFac = IsMinimapCircular() ? 1.0 : SQUARERADIUSFAC;
 		double zoom = GetMinimapZoom();
-		bool b; double distFac;
-		[b, distFac] = IsMinimapCircular();
+		double radius = GetMinimapSize() * 4;
 		double distance = ((radius) / zoom) * distFac; //account for square shapes
 		let it = BlockLinesIterator.Create(CPlayer.mo, distance);
 		while (it.Next())
@@ -2538,7 +2535,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		
 		// If this line hasn't been seen yet, only draw
 		// it if the user set the specified CVAR to true:
-		if (!(ln.flags & Line.ML_MAPPED) && (!c_minimapDrawUnseen || !c_minimapDrawUnseen.GetBool()))
+		if (!(ln.flags & Line.ML_MAPPED) && (!c_minimapDrawUnseen || c_minimapDrawUnseen.GetFloat() <= 0))
 			return false;
 		
 		// Always draw one-sided lines:
@@ -2547,6 +2544,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		
 		// Otherwise it's a double-sided line. We need to
 		// do a series of extra checks.
+		
+		// Always draw lines that have a special attached:
+		if (ln.special)
+			return true;
 
 		// Draw it if it blocks everything or hitscans:
 		if (ln.flags & Line.ML_BLOCKEVERYTHING || ln.flags & Line.ML_BLOCKHITSCAN)
@@ -2586,11 +2587,16 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			return true;
 		}
 
-		// Draw if the adjacent sectors have difference in
-		// floor height or ceiling height:
+		// Check if the adjacent sectors have a difference
+		// in ceiling height. If there's difference and the
+		// relevant CVAR is true, draw them:
 		vector2 pos = ln.v1.p;
-		if (sf.floorplane.ZAtPoint(pos) != ff.floorplane.ZAtPoint(pos) || 
-			sf.ceilingplane.ZAtPoint(pos) != ff.ceilingplane.ZAtPoint(pos) )
+		if (sf.floorplane.ZAtPoint(pos) != ff.floorplane.ZAtPoint(pos) && (c_minimapDrawFloorDiff && c_minimapDrawFloorDiff.GetBool()))
+		{
+			return true;
+		}
+		// Same for floor height difference:
+		if (sf.ceilingplane.ZAtPoint(pos) != ff.ceilingplane.ZAtPoint(pos) && (c_minimapDrawCeilingDiff && c_minimapDrawCeilingDiff.GetBool()))
 		{
 			return true;
 		}
@@ -2623,36 +2629,40 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			p1 = AlignPosToMap(p1, angle, radius);
 			p2 = AlignPosToMap(p2, angle, radius);
 
-
-			// Don't draw the lines that are 
-			// completely out of the mask area:
-			if (abs(p1.x) > radius && abs(p1.y) > radius && abs(p2.x) > radius && abs(p2.y) > radius)
-				continue;
 			double thickness = 1;
 			color col = GetLockColor(ln);
+			int lineAlph = 255;
 			if (col != -1)
 			{
 				thickness = 4;
-				col = color(255, col.r, col.g, col.b);
+				col = color(col.r, col.g, col.b);
+			}
+			else if (ln.activation & SPAC_PlayerActivate)
+			{
+				col = color(intLineCol.r, intLineCol.g, intLineCol.b);
 			}
 			else
 			{
-				col = color(128, lineCol.r, lineCol.g, lineCol.b);
-				if (ln.activation & SPAC_PlayerActivate)
-				{
-					col = color(255, intLineCol.r, intLineCol.g, intLineCol.b);
-				}
+				col = color(lineCol.r, lineCol.g, lineCol.b);
 				// One-sided lines are thicker and opaque:
 				if (!(ln.flags & Line.ML_TWOSIDED))
 				{
 					thickness = 2;
-					col = color(col.a * 2, col.r, col.g, col.b);
+				}
+				else
+				{
+					lineAlph /= 2;
 				}
 			}
+			if (!(ln.flags & Line.ML_MAPPED))
+			{
+				lineAlph *= Clamp(c_minimapDrawUnseen.GetFloat(), 0., 1.);
+			}
+
 			if (thickness <= 1)
-				Screen.DrawLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, col, col.a);
+				Screen.DrawLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, col, lineAlph);
 			else
-				Screen.DrawThickLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, thickness, col, col.a);
+				Screen.DrawThickLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, thickness, col, lineAlph);
 		}
 	}
 
@@ -2709,22 +2719,18 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			return;
 		}
 		radarMonsters.Clear();
-		vector2 hudscale = GetHudScale();
-		double radius = GetMinimapSize() * hudscale.x;
+		double distFac = IsMinimapCircular() ? 1.0 : SQUARERADIUSFAC; //account for square shapes
 		double zoom = GetMinimapZoom();
-		bool b; double distFac;
-		[b, distFac] = IsMinimapCircular();
-		double distance = ((radius) / zoom) * distFac; //account for square shapes
+		double radius = GetMinimapSize() * 4;
+		double distance = ((radius) / zoom) * distFac;
 		let it = BlockThingsIterator.Create(CPlayer.mo, distance);
 		while (it.Next())
 		{
 			let thing = it.thing;
-			if (!thing.bISMONSTER || !(thing.bSHOOTABLE || thing.bVULNERABLE) || thing.health <= 0 || CPlayer.mo.Distance2DSquared(thing) > distance*distance)
+			if (thing.bISMONSTER && (thing.bSHOOTABLE || thing.bVULNERABLE) && thing.health > 0 && CPlayer.mo.Distance2DSquared(thing) <= distance*distance)
 			{
-				continue;
+				radarMonsters.Push(thing);
 			}
-
-			radarMonsters.Push(thing);
 		}
 	}
 
@@ -2741,14 +2747,34 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			if (!thing)
 				continue;
 
-			color col = thing.IsHostile(CPLayer.mo) ? foeColor : friendColor;
-
 			vector2 ePos = (thing.pos.xy - ofs) * zoom * scale;
 			ePos = AlignPosToMap(ePos, angle, radius);
 
 			// scale alpha with vertical distance:
 			double vdiff = abs(CPlayer.mo.pos.z - thing.pos.z);
 			double alpha = LinearMap(vdiff, 0, 512, 1.0, 0.1, true);
+			// determine marker size based on the CVAR
+			// (either scaled with zoom, or fixed):
+			double msize = Clamp(c_minimapMapMarkersSize.GetInt(), 0, 64);
+			double markerSize = (msize <= 0 ? thing.radius * zoom : msize) * scale;
+			if (thing is 'MapMarker' && thing.spawnstate)
+			{
+				vector2 mpos = pos + ePos;
+				Screen.DrawTexture(thing.spawnState.GetSpriteTexture(0), false, mpos.x, mpos.y);
+				Console.Printf("Drawing map marker for %s", thing.GetTag());
+			}
+			else
+			{
+				minimapTransform.Clear();
+				minimapTransform.Scale((markerSize,markerSize));
+				minimapTransform.Rotate(-thing.angle - angle - 90);
+				minimapTransform.Translate(pos + ePos);
+				minimapShape_Arrow.SetTransform(minimapTransform);
+				color col = thing.IsHostile(CPLayer.mo) ? foeColor : friendColor;
+				Screen.DrawShapeFill(color(col.b, col.g, col.r), alpha, minimapShape_Arrow);
+			}
+		}
+	}
 			
 			minimapTransform.Clear();
 			double markerSize = ((thing.radius) * zoom) * scale;
@@ -3403,6 +3429,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			c_minimapZoom = CVar.GetCvar('jgphud_MinimapZoom', CPlayer);
 		if (!c_minimapDrawUnseen)
 			c_minimapDrawUnseen = CVar.GetCvar('jgphud_MinimapDrawUnseen', CPlayer);
+		if (!c_minimapDrawFloorDiff)
+			c_minimapDrawFloorDiff = CVar.GetCvar('jgphud_MinimapDrawFloorDiff', CPlayer);
+		if (!c_minimapDrawCeilingDiff)
+			c_minimapDrawCeilingDiff = CVar.GetCvar('jgphud_MinimapDrawCeilingDiff', CPlayer);
+		if (!c_minimapMapMarkersSize)
+			c_minimapMapMarkersSize = CVar.GetCvar('jgphud_minimapMapMarkersSize', CPlayer);
 		if (!c_minimapBackColor)
 			c_minimapBackColor = CVar.GetCvar('jpghud_MinimapBackColor', CPlayer);
 		if (!c_minimapLineColor)
