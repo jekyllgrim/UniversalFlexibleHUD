@@ -767,7 +767,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				SetupHexenArmorIcons();
 				hasHexenArmor = true;
 				armAmount = hexArmAmount;
-				armMaxAmount = 80;
+				armMaxAmount = 100;
 				[r,g,b] = GetArmorColor(barm.savePercent);
 				armorColor = color(r, g, b);
 			}
