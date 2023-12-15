@@ -516,6 +516,20 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
+	void EnableMask(int ofs, Shape2D mask)
+	{
+		Screen.EnableStencil(true);
+		Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+		Screen.DrawShapeFill(color(0,0,0), 1, mask);
+		Screen.SetStencil(ofs, SOP_Keep, SF_AllOn);
+	}
+
+	void DisableMask()
+	{
+		Screen.EnableStencil(false);
+		Screen.ClearStencil();
+	}
+
 	// Draws a bar using Fill()
 	// If segments is above 0, will use multiple fills to create a segmented bar
 	void DrawFlatColorBar(vector2 pos, double curValue, double maxValue, color barColor, string leftText = "", string rightText = "", int valueColor = -1, double barwidth = 64, double barheight = 8, double indent = 0.6, color backColor = color(255, 0, 0, 0), double sparsity = 1, uint segments = 0, int flags = 0)
@@ -1721,10 +1735,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			int health = lt.health;
 			let ltDef = GetDefaultByType(lt.GetClass());
 			int maxhealth = max(lt.starthealth, lt.GetMaxHealth());
-			Screen.EnableStencil(true);
-			Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
-			Screen.DrawShapeFill(color(0,0,0), 1, genRoundMask);
-			Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+			EnableMask(0, genRoundMask);
 			double fadeAlph = LinearMap(lookTC.targetTimer, 0, JGPUFH_LookTargetController.TARGETDISPLAYTIME / 2, 0.0, alpha, true);
 			valueFrac = LinearMap(health, 0, maxhealth, 1.0, 0.0, true);
 			DrawCircleSegmentShape(color(60,160,60), screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
@@ -1734,9 +1745,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				DrawString(smallHUDFont, String.Format("%s", lt.GetTag()), fntPosOut, fntFlagsOut, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75) * s);
 				DrawString(hfnt, String.Format("%d", health), fntPosIn, fntFlagsIn, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
 			}
-			// Clear the general mask:
-			Screen.EnableStencil(false);
-			Screen.ClearStencil();
+			DisableMask();
 		}
 
 
@@ -1751,19 +1760,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			{
 				genRoundMask.SetTransform(genRoundMaskTransfInner);
 				double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RB_HEALTH], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
-				Screen.EnableStencil(true);
-				Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
-				Screen.DrawShapeFill(color(0,0,0), 1, genRoundMask);
-				Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+				EnableMask(0, genRoundMask);
 				valueFrac = LinearMap(health, 0, maxhealth, 1.0, 0.0, true);
 				DrawCircleSegmentShape(color(215,100,100), screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
 				if (drawBarText)
 				{
 					DrawString(hfnt, String.Format("%d", health), fntPosIn, fntFlagsIn, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
 				}
-				// Clear the general mask:
-				Screen.EnableStencil(false);
-				Screen.ClearStencil();
+				DisableMask();
 			}
 			// Armor bar (outer):
 			int armAmount = armAmount;
@@ -1772,18 +1776,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			{
 				genRoundMask.SetTransform(genRoundMaskTransfOuter);
 				double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RB_ARMOR], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
-				Screen.EnableStencil(true);
-				Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
-				Screen.DrawShapeFill(color(0,0,0), 1, genRoundMask);
-				Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+				EnableMask(0, genRoundMask);
 				valueFrac = LinearMap(armAmount, 0, armMaxAmount, 1.0, 0.0, true);
 				DrawCircleSegmentShape(color(armorColor.a, armorcolor.r+32, armorcolor.g+32, armorcolor.b+32), screenCenter, secondarySize, steps, angle, coverAngle, valueFrac, fadeAlph);
 				if (drawBarText)
 				{
 					DrawString(hfnt, String.Format("%d", armAmount), fntPosOut, fntFlagsOut, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
 				}
-				Screen.EnableStencil(false);
-				Screen.ClearStencil();
+				DisableMask();
 			}
 		}
 		
@@ -1803,18 +1803,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				{
 					genRoundMask.SetTransform(genRoundMaskTransfInner);
 					double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RB_AMMO1], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
-					Screen.EnableStencil(true);
-					Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
-					Screen.DrawShapeFill(color(0,0,0), 1, genRoundMask);
-					Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+					EnableMask(0, genRoundMask);
 					valueFrac = LinearMap(am1.amount, 0, am1.maxAmount, 1.0, 0.0, true);
 					DrawCircleSegmentShape(amCol, screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
 					if (drawBarText)
 					{
 						DrawString(hfnt, String.Format("%d", am1.amount), fntPosIn, fntFlagsIn, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
 					}
-					Screen.EnableStencil(false);
-					Screen.ClearStencil();
+					DisableMask();
 				}
 			}
 			// Ammo 2 (outer):
@@ -1829,10 +1825,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 				{
 					genRoundMask.SetTransform(genRoundMaskTransfOuter);
 					double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RB_AMMO2], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
-					Screen.EnableStencil(true);
-					Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
-					Screen.DrawShapeFill(color(0,0,0), 1, genRoundMask);
-					Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+					EnableMask(0, genRoundMask);
 					valueFrac = LinearMap(am2.amount, 0, am2.maxAmount, 1.0, 0.0, true);
 					DrawCircleSegmentShape(amCol2, screenCenter, secondarySize, steps, angle, coverAngle, valueFrac, fadeAlph);
 					if (drawBarText)
@@ -1861,9 +1854,6 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		roundBars.SetTransform(roundBarsTransform);
 		// Draw the black background:
 		Screen.DrawShapeFill(color(0,0,0), alpha, roundBars);
-		// enable mask:
-		Screen.EnableStencil(true);
-		Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
 		// draw mask shape:
 		// Angle the mask (flip the angle if it was negative,
 		// so it goes counter-clockwise instead of clockwise):
@@ -1878,8 +1868,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		roundBarsTransform.Translate(pos);
 		roundBarsAngMask.SetTransform(roundBarsTransform);
 		// set mask:
-		Screen.DrawShapeFill(color(0,0,0), 1.0, roundBarsAngMask);
-		Screen.SetStencil(0, SOP_Keep, SF_AllOn);
+		EnableMask(0, roundBarsAngMask);
 		// draw bar:
 		roundBarsTransform.Clear();
 		roundBarsTransform.Scale((size, size));
@@ -1895,9 +1884,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			double alphaSineFac = 0.5 + 0.5 * sin(360.0 * level.maptime / TICRATE);
 			Screen.DrawShapeFill(color(255,255,255), alpha * alphaSineFac * 0.5, roundBars);
 		}
-		// disable mask:
-		Screen.EnableStencil(false);
-		Screen.ClearStencil();
+		DisableMask();
 	}
 
 	void CreateCircleSegmentShapes(out Shape2D inShape, out Shape2D outShape, int steps, double coverAngle)
@@ -2430,11 +2417,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// so that the lines are maked within the outline:
 		if (!jgphud_debugmap)
 		{
-			Screen.EnableStencil(true);
-			Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
-			// shape is used for the mask (colors aren't needed):
-			Screen.DrawShapeFill(color(0,0,0,0), 0.0, shapeToUse);
-			Screen.SetStencil(1, SOP_Keep, SF_AllOn);
+			EnableMask(1, shapeToUse);
 		}
 		
 		// Draw the minimap lines:
@@ -2471,9 +2454,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// not functional yet
 		//DrawMapMarkers(pos, diff, playerAngle, size, hudscale.x, mapZoom);
 		
-		// Disable the mask:
-		Screen.EnableStencil(false);
-		Screen.ClearStencil();
+		DisableMask();
 	}
 
 	// Returns true if the minimap shape is set to circular
