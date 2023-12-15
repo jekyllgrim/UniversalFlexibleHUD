@@ -676,10 +676,10 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	// Cache existing icons for Hexen armor classes
 	// On the off chance somebody is crazy enough to
 	// create their own Hexen armor pickups...
-	// Hexen armor is split into four classes, 0 being the strongest,
-	// and 4 being the weakest  Classses 0-3 are pickups and have icons;
-	// while 4 is your natural ammo and you always have it.
-	// Since class 4 is not a pickup, we're not going to try and find
+	// Hexen armor is split into five tiers, 0 being the strongest,
+	// and 4 being the weakest  Tiers 0-3 are pickups and have associated items;
+	// while 4 is your natural armor and you always have it.
+	// Since tier 4 is not a pickup, we're not going to try and find
 	// the icon for it.
 	void SetupHexenArmorIcons()
 	{
@@ -2443,6 +2443,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			DrawEnemyRadar(pos, diff, playerAngle, size, hudscale.x, mapZoom);
 		}
 
+		// Draw the arrow representing the player:
 		minimapTransform.Clear();
 		double arrowSize = CPlayer.mo.radius * mapZoom * hudscale.x;
 		minimapTransform.Scale((arrowSize, arrowSize));
@@ -2902,7 +2903,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		}
 	}
 
-	// Draws the actual map element, consisting of a label
+	// Draws the actual map data element, consisting of the label
 	// (left), a colon, and the value (right):
 	void DrawMapDataElement(string str1, string str2, HUDFont hfnt, vector2 pos, int flags, double width, double scale = 1.0)
 	{
