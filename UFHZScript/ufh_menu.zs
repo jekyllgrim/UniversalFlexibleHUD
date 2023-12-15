@@ -50,7 +50,6 @@ class OptionMenuItemUFHResetALLCCMD : OptionMenuItemSubmenu
 
 	static const name JGPHUD_AllCvars[] =
 	{
-		'jgphud_debug',
 		'jgphud_BackColor',
 		'jgphud_BackStyle',
 		'jgphud_BackAlpha',
@@ -104,8 +103,12 @@ class OptionMenuItemUFHResetALLCCMD : OptionMenuItemSubmenu
 		'jgphud_MinimapPos',
 		'jgphud_MinimapPosX',
 		'jgphud_MinimapPosY',
+		'jgphud_MinimapEnemyDisplay',
 		'jgphud_MinimapZoom',
 		'jgphud_MinimapDrawUnseen',
+		'jgphud_MinimapDrawFloorDiff',
+		'jgphud_MinimapDrawCeilingDiff',
+		'jgphud_MinimapMapMarkersSize',
 		'jpghud_MinimapBackColor',
 		'jgphud_MinimapLineColor',
 		'jgphud_MinimapIntLineColor',
@@ -139,6 +142,10 @@ class OptionMenuItemUFHResetALLCCMD : OptionMenuItemSubmenu
 		'jgphud_CustomItemsIconSize',
 		'jgphud_CustomItemsPos',
 		'jgphud_CustomItemsX',
-		'jgphud_CustomItemsY'
+		'jgphud_CustomItemsY',
+
+		'jgphud_mainfont',
+		'jgphud_smallfont',
+		'jgphud_numberfont'
 	};
 }
