@@ -2451,8 +2451,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		color youColor = c_minimapYouColor.GetInt();
 		Screen.DrawShapeFill(color(youColor.b, youColor.g, youColor.r), 1.0, minimapShape_Arrow);
 
-		// not functional yet
-		//DrawMapMarkers(pos, diff, playerAngle, size, hudscale.x, mapZoom);
+		DrawMapMarkers(pos, diff, playerAngle, size, hudscale.x, mapZoom);
 		
 		DisableMask();
 	}
@@ -2741,22 +2740,14 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			// (either scaled with zoom, or fixed):
 			double msize = Clamp(c_minimapMapMarkersSize.GetInt(), 0, 64);
 			double markerSize = (msize <= 0 ? thing.radius * zoom : msize) * scale;
-			if (thing is 'MapMarker' && thing.spawnstate)
-			{
-				vector2 mpos = pos + ePos;
-				Screen.DrawTexture(thing.spawnState.GetSpriteTexture(0), false, mpos.x, mpos.y);
-				Console.Printf("Drawing map marker for %s", thing.GetTag());
-			}
-			else
-			{
-				minimapTransform.Clear();
-				minimapTransform.Scale((markerSize,markerSize));
-				minimapTransform.Rotate(-thing.angle - angle - 90);
-				minimapTransform.Translate(pos + ePos);
-				minimapShape_Arrow.SetTransform(minimapTransform);
-				color col = thing.IsHostile(CPLayer.mo) ? foeColor : friendColor;
-				Screen.DrawShapeFill(color(col.b, col.g, col.r), alpha, minimapShape_Arrow);
-			}
+
+			minimapTransform.Clear();
+			minimapTransform.Scale((markerSize,markerSize));
+			minimapTransform.Rotate(-thing.angle - angle - 90);
+			minimapTransform.Translate(pos + ePos);
+			minimapShape_Arrow.SetTransform(minimapTransform);
+			color col = thing.IsHostile(CPLayer.mo) ? foeColor : friendColor;
+			Screen.DrawShapeFill(color(col.b, col.g, col.r), alpha, minimapShape_Arrow);
 		}
 	}
 
@@ -2766,35 +2757,68 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 			return;
 
 		double distFac = IsMinimapCircular() ? 1.0 : SQUARERADIUSFAC;
-		double zoom = GetMinimapZoom();
-		double radius = GetMinimapSize() * 4;
 		double distance = ((radius) / zoom) * distFac; //account for square shapes
 		for (int i = 0; i < handler.mapMarkers.Size(); i++)
 		{
-			let thing = handler.mapMarkers[i];
-			if (!thing)
+			let marker = handler.mapMarkers[i];
+			if (!marker)
 				continue;
 			
-			if (!CPlayer.mo || CPlayer.mo.Distance2DSquared(thing) > distance*distance)
+			if (!CPlayer.mo || CPlayer.mo.Distance2DSquared(marker) > distance*distance)
 				continue;
 
-			vector2 ePos = (thing.pos.xy - ofs) * zoom * scale;
+			TextureID tex = GetMarkerTexture(marker);
+			if (!tex.IsValid())
+				return;
+
+			vector2 ePos = (marker.pos.xy - ofs) * zoom * scale;
 			ePos = AlignPosToMap(ePos, angle, radius);
 
 			// scale alpha with vertical distance:
-			double vdiff = abs(CPlayer.mo.pos.z - thing.pos.z);
+			double vdiff = abs(CPlayer.mo.pos.z - marker.pos.z);
 			double alpha = LinearMap(vdiff, 0, 512, 1.0, 0.1, true);
 			// determine marker size based on the CVAR
 			// (either scaled with zoom, or fixed):
 			double msize = Clamp(c_minimapMapMarkersSize.GetInt(), 0, 64);
-			double markerSize = (msize <= 0 ? thing.radius * zoom * thing.scale.x : msize) * scale;
-			TextureID tex = thing.curstate.GetSpriteTexture(0);
-			if (!tex || !tex.IsValid())
-				continue;
-			Console.Printf("drawing map marker texture %s for %s", TexMan.GetName(tex), thing.GetClassName());
+			double markerSize = (msize <= 0 ? marker.radius * zoom * marker.scale.x : msize) * scale;
 			vector2 mpos = pos + ePos;
-			Screen.DrawTexture(tex, false, mpos.x, mpos.y);
+			Screen.DrawTexture(tex, false, mpos.x, mpos.y, DTA_Alpha, alpha);
 		}
+	}
+
+	// Gets the texture for map markers:
+	TextureID GetMarkerTexture(Actor marker, bool report = false)
+	{
+		// Try getting it from picnum first:
+		TextureID tex = marker.picnum;
+		name texname = TexMan.Getname(tex);
+		if (report)
+			Console.Printf("%s picnum: %s", marker.GetClassName(), texname);
+		// If that failed, get the curstate.sprite:
+		if (!tex.IsValid() || texname == 'AMRKA0' || texname == 'TNT1A0')
+		{
+			tex = marker.curstate.GetSpriteTexture(0);
+			texname = TexMan.Getname(tex);
+			if (report)
+				Console.Printf("%s curstate.sprite: %s", marker.GetClassName(), texname);
+		}
+		// If that failed, get the sprite and frame fields
+		// (they may not be the same as curstate.sprite
+		// if they were modified directly, so GetSpriteTexture
+		// can't obtain them) and construct  the texture name
+		// manually:
+		if (!tex.IsValid() || texname == 'AMRKA0' || texname == 'TNT1A0')
+		{
+			string spritename = ""..marker.sprite;
+			// Converts the integer frame value to a letter from the ASCII
+			// table, by offsetting from "a":
+			string frame = String.Format("%c", int("a")+marker.frame);
+			string spritetex = String.Format("%s%s0", spritename, frame);
+			tex = TexMan.CheckForTexture(spritetex);
+			if (report)
+				Console.Printf("%s sprite: (looking: %s | got: %s)", marker.GetClassName(), spritetex, TexMan.GetName(tex));
+		}
+		return tex;
 	}
 
 	vector2 AlignPosToMap(vector2 vec, double angle, double mapSize)
