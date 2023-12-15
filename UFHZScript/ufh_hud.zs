@@ -65,6 +65,7 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	transient CVar c_KeysY;
 
 	transient CVar c_drawMinimap;
+	transient CVar c_MinimapEnemyDisplay;
 	transient CVar c_CircularMinimap;
 	transient CVar c_minimapSize;
 	transient CVar c_minimapPos;
@@ -188,11 +189,17 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	Shape2D minimapShape_Circle;
 	Shape2D minimapShape_Arrow;
 	Shape2DTransform minimapTransform;
-	enum EMinimapDisplayModes
+	/*enum EMinimapDisplayModes
 	{
 		MD_NONE,
 		MD_MAPONLY,
 		MD_RADAR,
+	}*/
+	enum EMapEnemyDisplay
+	{
+		MED_NONE,
+		MED_ALERTED,
+		MED_ALL
 	}
 
 	// DrawInventoryBar():
@@ -1512,6 +1519,8 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 
 	bool CanDrawReticleBar(int which)
 	{
+		if (autoMapActive)
+			return false;
 		if (c_DrawReticleBars && c_DrawReticleBars.GetInt() != DM_AUTOHIDE)
 			return true;
 
@@ -2235,9 +2244,12 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 		// Cache the CVar if it hasn't been cached yet:
 		if (!c_drawMinimap)
 			c_drawMinimap = CVar.GetCvar('jgphud_DrawMinimap', CPlayer);
+		if (!c_MinimapEnemyDisplay)
+			c_MinimapEnemyDisplay = CVar.GetCvar('jgphud_MinimapEnemyDisplay', CPlayer);
+
 		// Check CVar values:
-		bool drawmap = c_drawMinimap.GetInt() >= MD_MAPONLY;
-		bool drawradar = c_drawMinimap.GetInt() >= MD_RADAR;
+		bool drawmap = c_drawMinimap.GetBool();
+		bool drawradar = c_MinimapEnemyDisplay.GetInt();
 		// Don't draw if PlayerPawn is invalid:
 		if (drawmap && !CPlayer.mo)
 			drawmap = false;
@@ -2722,13 +2734,15 @@ class JGPUFH_FlexibleHUD : BaseStatusBar
 	{
 		if (!minimapShape_Arrow || !minimapTransform)
 			return;
+		
+		bool drawAll = c_MinimapEnemyDisplay.GetInt() >= MED_ALL;
 
 		color foeColor = c_minimapMonsterColor.GetInt();
 		color friendColor = c_minimapFriendColor.GetInt();
 		for (int i = 0; i < radarMonsters.Size(); i++)
 		{
 			let thing = radarMonsters[i];
-			if (!thing)
+			if (!thing || !thing.target)
 				continue;
 
 			vector2 ePos = (thing.pos.xy - ofs) * zoom * scale;

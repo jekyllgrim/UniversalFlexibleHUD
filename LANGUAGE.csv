@@ -93,9 +93,12 @@ Show kill count,JGPHUD_MAPDATA_KILLS,Option in the Map Data options block,Пок
 Show secrets count,JGPHUD_MAPDATA_SECRETS,Option in the Map Data options block,Показывать секреты,Mostrar contagem de segredos,Anzahl der Geheimnisse anzeigen,Mostrar contador de secretos,Nombre de secrets
 Show items count,JGPHUD_MAPDATA_ITEMS,Option in the Map Data options block,Показывать предметы,Mostrar contagem de itens,Anzahl der Gegenstände anzeigen,Mostrar contador de objetos,Nombres d’objets
 Minimap,JGPHUD_MINIMAP_TITLE,Option block title,Мини-карта,Minimapa,Minikarte,Minimapa,Mini-carte
-Minimap display,JGPHUD_MINIMAP_ENABLE,Whether to draw the minimap (off/only map/map and enemies),Отображение мини-карты,Mostrar minimapa,Minikarte anzeigen,Mostrar minimapa,Affichage de la mini-carte
-Minimap only,JGPHUD_MINIMAP_MAPONLY,Minimap display option,Только мини-карта,Apenas minimapa,Nur Minikarte,Solo minimapa,Mini-carte seulement
-Minimap and enemies,JGPHUD_MINIMAP_RADAR,Minimap display option,Мини-карта и враги,Minimapa e inimigos,Minikarte und Gegner,Minimapa y enemigos,Mini-carte et ennemies
+Minimap display,JGPHUD_MINIMAP_ENABLE,Whether to draw the minimap (on/off),Отображение мини-карты,Mostrar minimapa,Minikarte anzeigen,Mostrar minimapa,Affichage de la mini-carte
+Minimap only,JGPHUD_MINIMAP_MAPONLY,DEPRECATED,Только мини-карта,Apenas minimapa,Nur Minikarte,Solo minimapa,Mini-carte seulement
+Minimap and enemies,JGPHUD_MINIMAP_RADAR,DEPRECATED,Мини-карта и враги,Minimapa e inimigos,Minikarte und Gegner,Minimapa y enemigos,Mini-carte et ennemies
+Enemy display,JGPHUD_MINIMAP_ENEMIES,Whether to show enemies on the minimap. Possible options: off / only alerted / all enemies,Показывать врагов на мини-карте,,,,
+Only alerted enemies,JGPHUD_MINIMAP_ENEMIES_ALERTED,"Option for ""Show enemies on the minimap""",Только активных врагов,,,,
+All enemies,JGPHUD_MINIMAP_ENEMIES_ALL,"Option for ""Show enemies on the minimap""",Всех врагов,,,,
 Minimap size,JGPHUD_MINIMAP_SIZE,,Размер мини-карты,Tamanho do minimapa,Minikartengrösse,Tamaño del minimapa,Échelle de la mini-carte
 Minimap shape,JGPHUD_MINIMAP_SHAPE,,Форма мини-карты,Formato do minimapa,Minikartenform,Forma del minimapa,Forme de la mini-carte
 Circle,JGPHUD_MINIMAP_SHAPE_CIRCLE,possible minimap shape,Круг,Círculo,Kreis,Circular,Cercle
@@ -115,10 +118,11 @@ performance sur les cartes à géométrie complexe, en
 particulier lorsque le zoom est faible. à géométrie
 complexe, en particulier lorsque le zoom est faible."
 Display undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,Determines whether the minimap will draw all lines or only the ones the player has seen (like the default automap),Показывать ещё не обнаруженные линии,Mostrar linhas não descobertas,Unentdeckte Linien zeichnen,Mostrar lineas no descubiertas,Montrer lignes non découvertes
-Display edges of different floor heights,JGPHUD_MINIMAP_DRAWFLOORDIFF,On/off: whether to display lines that are at the edges of the sectors with different floor heights,,,,,
-Display edges of different ceiling heights,JGPHUD_MINIMAP_DRAWCEILINGDIFF,On/off: whether to display lines that are at the edges of the sectors with different ceiling heights,,,,,
-Map markers size,JGPHUD_MINIMAP_MAPMARKERSCALE,A slider that determines the size of the enemy markers. At 0 (default) the markers are equal to the size of the monster and thus change theri visual size according to the minimap's zoom value. At values above 0 they become fixed in size.,,,,,
-Match the size of the enemy,JGPHUD_MINIMAP_MAPMARKERSCALE_REAL,"The default value for ""enemy markers size""",,,,,
+Undiscovered lines translucency,JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA,"Replacement for ""Display undiscovered lines"" option: now this is a 0.0-1.0 slider that determines the translucency of the lines that the player hasn't seen yet.",Прозрачность ещё не обнаруженных линий,,,,
+Edges of sectors with different floor heights,JGPHUD_MINIMAP_DRAWFLOORDIFF,On/off: whether to display lines that are at the edges of the sectors with different floor heights,Линии секторов с разной высотой пола,,,,
+Edges of sectors with different ceiling heights,JGPHUD_MINIMAP_DRAWCEILINGDIFF,On/off: whether to display lines that are at the edges of the sectors with different ceiling heights,Линии секторов с разной высотой потолка,,,,
+Map markers size,JGPHUD_MINIMAP_MAPMARKERSCALE,A slider that determines the size of the enemy markers. At 0 (default) the markers are equal to the size of the monster and thus change their visual size according to the minimap's zoom value. At values above 0 they become fixed in size regardless of zoom.,Размер маркеров,,,,
+Match the size of the object,JGPHUD_MINIMAP_MAPMARKERSCALE_REAL,"The default value for ""map markers size""",Соответствует размеру объекта,,,,
 Crosshair options,JGPHUD_CROSSHAIR_TITLE,Title for various crosshair options,Настройки прицела,Opções de retícula,Fadenkreuzoptionen,Opciones de la mirilla,Options des réticules
 Draw enemy hit markers around crosshair,JGPHUD_CROSSHAIR_HITMARKERS,Small angled cross marker around the crosshair when a player's attack hits an enemy.,Индикаторы попадания по врагам вокруг прицела,Mostrar marcadores de acerto ao redor da retícula,Trefferanzeige am Fadenkreuz,Mostrar marcadores de daño contra enemigos,Dessiner les marqueurs de coups de l'ennemi autour du réticule
 Health/armor/ammo bars around crosshair,JGPHUD_CROSSHAIR_BARS_ENABLE,Curved bars around the crosshair in the style of HL2,Индикаторы здоровья/брони/патронов вокруг прицела,Barra de vida/armadura/munição ao redor da retícula,Gesundheits-/Rüstungs-/Munitionsanzeige am Fadenkreuz,Barras de vida/armadura/munición en la mirilla,Barre de santé/armure/munitions autour du réticule
