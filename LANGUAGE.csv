@@ -1,5 +1,6 @@
 default,identifier,remarks,ru,pt,de,esm,fr
 FlexiHUD settings,JGPHUD_SETTINGS_TITLE,"FlexiHUD is the mod's name, do not localize",Настройки FlexiHUD,Configurações do FlexiHUD,FlexiHUD Einstellungen,Configuración de FlexiHUD,Configuration de FlexiHud
+Display FlexiHUD,JGPHUD_GENERAL_ENABLEHUD,A simple On/Off toggle that allows to completely disable the whole HUD,Показывать FlexiHUD,,,,
 General,JGPHUD_GENERAL_TITLE,Title for the general options,Общее,Geral,Allgemein,General,General
 HUD background style,JGPHUD_GENERAL_BACKSTYLE,General appearance of the background: either a flat color or a texture,Стиль фона,Estilo do fundo,Hintergrundstil,Estilo de fondo,Style d'arrière-plan de l’ATH
 Flat color,JGPHUD_GENERAL_BACKSTYLE_COLOR,Option for background appearance,Цветовая заливка,Cor sólida,Füllfarbe,Color sólido,Couleur uniforme
@@ -15,6 +16,9 @@ textura que existe no jogo ou mod.","Trage den Namen der gewünschten Textur ein
 Die Textur muss im derzeitigen Spiel/Mod existieren.","Escribe el nombre de la textura. La textura
 debe existir en el juego o mod actual.","Entrer le nom de la texture désirée ici. Cela doit être une
 texture qui existe actuellement dans le jeu/mod actuel."
+Texture fit mode,JGPHUD_GENERAL_BACKSTYLE_TEXFIT,An option that lets you choose whether the background HUD texture will be tiled or stretched to fit,Режим отрисовки текстуры,,,,
+Tile,JGPHUD_GENERAL_BACKSTYLE_TEXFIT_TILE,"Option for ""Texture fit mode""",Замостить,,,,
+Stretch,JGPHUD_GENERAL_BACKSTYLE_TEXFIT_STRETCH,"Option for ""Texture fit mode""",Растянуть,,,,
 Size of icons,JGPHUD_GENERAL_ICONSIZE,"This is used for several different options: inventory bar, weapon slots, powerup display",Размер значков,Tamanho dos ícones,Icongrösse,Tamaño de los iconos,Taille des icones
 Reset ALL FlexiHUD settings to default,JGPHUD_GENERAL_RESETALL,Label for a menu command that resets ALL console variables related to FlexiHUD to their default values,Сбросить ВСЕ настройки FlexiHUD,Restaurar TODAS as configurações aos padrões,ALLE FlexiHUD-Einstellungen auf Vorgaben zurücksetzen,Reiniciar todas las configuraciones por defecto,Réinitialiser TOUTES les configurations de FlexiHUD par défault
 Position anchor point,JGPHUD_ELEMENT_POS,Lets the player choose the anchor point on the screen for the specified HUD element,Точка привязки элемента,Ponto da âncora,Ankerpunkt,Punto de anclaje,Point d’ancrage
@@ -119,8 +123,8 @@ particulier lorsque le zoom est faible. à géométrie
 complexe, en particulier lorsque le zoom est faible."
 Display undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,Determines whether the minimap will draw all lines or only the ones the player has seen (like the default automap),Показывать ещё не обнаруженные линии,Mostrar linhas não descobertas,Unentdeckte Linien zeichnen,Mostrar lineas no descubiertas,Montrer lignes non découvertes
 Undiscovered lines translucency,JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA,"Replacement for ""Display undiscovered lines"" option: now this is a 0.0-1.0 slider that determines the translucency of the lines that the player hasn't seen yet.",Прозрачность ещё не обнаруженных линий,,,,
-Edges of sectors with different floor heights,JGPHUD_MINIMAP_DRAWFLOORDIFF,On/off: whether to display lines that are at the edges of the sectors with different floor heights,Линии секторов с разной высотой пола,,,,
-Edges of sectors with different ceiling heights,JGPHUD_MINIMAP_DRAWCEILINGDIFF,On/off: whether to display lines that are at the edges of the sectors with different ceiling heights,Линии секторов с разной высотой потолка,,,,
+Lines around different floor heights,JGPHUD_MINIMAP_DRAWFLOORDIFF,On/off: whether to display lines that are at the edges of the sectors with different floor heights,Линии секторов с разной высотой пола,,,,
+Lines around different ceiling heights,JGPHUD_MINIMAP_DRAWCEILINGDIFF,On/off: whether to display lines that are at the edges of the sectors with different ceiling heights,Линии секторов с разной высотой потолка,,,,
 Map markers size,JGPHUD_MINIMAP_MAPMARKERSCALE,A slider that determines the size of the enemy markers. At 0 (default) the markers are equal to the size of the monster and thus change their visual size according to the minimap's zoom value. At values above 0 they become fixed in size regardless of zoom.,Размер маркеров,,,,
 Match the size of the object,JGPHUD_MINIMAP_MAPMARKERSCALE_REAL,"The default value for ""map markers size""",Соответствует размеру объекта,,,,
 Crosshair options,JGPHUD_CROSSHAIR_TITLE,Title for various crosshair options,Настройки прицела,Opções de retícula,Fadenkreuzoptionen,Opciones de la mirilla,Options des réticules

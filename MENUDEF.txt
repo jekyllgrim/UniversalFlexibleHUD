@@ -16,6 +16,9 @@ OptionMenu "JGPHUD_Settings"
 
 	StaticText ""
 	StaticText "$JGPHUD_GENERAL_TITLE", yellow
+	Option "$JGPHUD_GENERAL_ENABLEHUD", "jgphud_enable", "OnOff"
+
+	StaticText ""
 	ScaleSlider "$HUDMNU_UISCALE", "uiscale", 0.0, 8.0, 1.0, "$SCALEMNU_ADAPT"
 	Option "$JGPHUD_GENERAL_BACKSTYLE", "jgphud_BackStyle", "BackgroundStyles"
 	ColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor"
@@ -24,6 +27,7 @@ OptionMenu "JGPHUD_Settings"
 	StaticText "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME_NOTE", gray
 	StaticText ""
 	StaticText ""
+	Option "$JGPHUD_GENERAL_BACKSTYLE_TEXFIT", "jgphud_BackTextureStretch", "BackTextureFitMode"
 	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_BackStyle:jgphud_BackTexture:jgphud_BackColor:jgphud_BackAlpha", 1
 
 	StaticText ""
@@ -244,6 +248,12 @@ OptionMenu "JGPHUD_CrosshairOptions"
 	Option "$JGPHUD_CROSSHAIR_BARS_ENEMYHP", "jgphud_ReticleBarsEnemy", "ReticleBars", "jgphud_DrawReticleBars"
 	StaticText ""
 	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawEnemyHitMarkers:jgphud_DrawReticleBars:jgphud_ReticleBarsSize:jgphud_ReticleBarsAlpha:jgphud_ReticleBarsWidth:jgphud_ReticleBarsText:jgphud_ReticleBarsHealthArmor:jgphud_ReticleBarsAmmo:jgphud_ReticleBarsEnemy", 1
+}
+
+OptionValue "BackTextureFitMode"
+{
+	0, "$JGPHUD_GENERAL_BACKSTYLE_TEXFIT_TILE"
+	1, "$JGPHUD_GENERAL_BACKSTYLE_TEXFIT_STRETCH"
 }
 
 OptionValue "BackgroundStyles"

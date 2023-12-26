@@ -1,10 +1,13 @@
 server bool jgphud_debug = false;
 server bool jgphud_debugmap = false;
 
+user nosave bool jgphud_enable = true;
+
 user nosave color jgphud_BackColor = "433515";
 user nosave bool jgphud_BackStyle = true;
 user nosave float jgphud_BackAlpha = 0.5;
 user nosave string jgphud_BackTexture = "FLOOR3_3";
+user nosave bool jgphud_BackTextureStretch = false;
 
 user nosave float jgphud_ScreenReddenFactor = 1.0;
 user nosave bool jgphud_DrawDamageMarkers = true;
