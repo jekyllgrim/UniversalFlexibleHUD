@@ -12,18 +12,17 @@ AddOptionMenu "OptionsMenuSimple"
 OptionMenu "JGPHUD_Settings"
 {
 	Title "$JGPHUD_SETTINGS_TITLE"
-	StaticText "FlexiHUD v2.0.0", blue
+	StaticText "FlexiHUD v3.0.0pre", blue
 
 	StaticText ""
 	StaticText "$JGPHUD_GENERAL_TITLE", yellow
-	Option "$JGPHUD_GENERAL_ENABLEHUD", "jgphud_enable", "OnOff"
-
 	StaticText ""
+	Option "$JGPHUD_GENERAL_ENABLEHUD", "jgphud_enable", "OnOff"
 	ScaleSlider "$HUDMNU_UISCALE", "uiscale", 0.0, 8.0, 1.0, "$SCALEMNU_ADAPT"
-	Option "$JGPHUD_GENERAL_BACKSTYLE", "jgphud_BackStyle", "BackgroundStyles"
+	Option "$JGPHUD_GENERAL_BACKSTYLE", "jgphud_BackStyle", "BackgroundStyles", "jgphud_enable"
 	ColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor"
-	Slider "$JGPHUD_GENERAL_BACKALPHA", "jgphud_BackAlpha", 0.00, 1.0, 0.05, 2
-	TextField "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME", "jgphud_BackTexture"
+	Slider "$JGPHUD_GENERAL_BACKALPHA", "jgphud_BackAlpha", 0.00, 1.0, 0.05, 2, "jgphud_enable"
+	TextField "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME", "jgphud_BackTexture", "jgphud_enable"
 	StaticText "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME_NOTE", gray
 	StaticText ""
 	StaticText ""
@@ -199,29 +198,34 @@ OptionMenu "JGPHUD_MapData"
 	StaticText ""
 	StaticText ""
 	Option "$JGPHUD_MINIMAP_ENABLE", "jgphud_DrawMinimap", "OnOff"
-	Slider "$JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA", "jgphud_MinimapDrawUnseen", 0.0, 1.0, 0.1, 1
+	Slider "$JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA", "jgphud_MinimapDrawUnseen", 0.0, 1.0, 0.1, 1, "jgphud_DrawMinimap"
 	Option "$JGPHUD_MINIMAP_DRAWFLOORDIFF", "jgphud_MinimapDrawFloorDiff", "OnOff", "jgphud_DrawMinimap"
 	Option "$JGPHUD_MINIMAP_DRAWCEILINGDIFF", "jgphud_MinimapDrawCeilingDiff", "OnOff", "jgphud_DrawMinimap"
 	Slider "$JGPHUD_MINIMAP_SIZE", "jgphud_MinimapSize", 0, 256, 1, 0, "jgphud_DrawMinimap"
 	Option "$JGPHUD_MINIMAP_SHAPE", "jgphud_CircularMinimap", "MinimapShape", "jgphud_DrawMinimap"
 	Slider "$JGPHUD_MINIMAP_ZOOM", "jgphud_MinimapZoom", 0.1, 3.0, 0.05, 2, "jgphud_DrawMinimap"
-	Option "$JGPHUD_MINIMAP_ENEMIES", "jgphud_MinimapEnemyDisplay", "MinimapEnemyDisplay"
+	Option "$JGPHUD_MINIMAP_ENEMIES", "jgphud_MinimapEnemyDisplay", "MinimapEnemyDisplay", "jgphud_DrawMinimap"
 	ScaleSlider "$JGPHUD_MINIMAP_MAPMARKERSCALE", "jgphud_MinimapEnemyMarkersSize", 0, 32, 1, "$JGPHUD_MINIMAP_MAPMARKERSCALE_REAL"
+	
+	StaticText ""
 	StaticText "$AUTOMAPMNU_SETCUSTOMCOLORS", yellow
+	StaticText ""
 	ColorPicker "$MAPCOLORMNU_BACKCOLOR", "jpghud_MinimapBackColor"
 	ColorPicker "$JGPHUD_MINIMAP_COLOR_LINES", "jgphud_MinimapLineColor"
 	ColorPicker "$JGPHUD_MINIMAP_COLOR_INTLINES", "jgphud_MinimapIntLineColor"
 	ColorPicker "$MAPCOLORMNU_YOURCOLOR", "jgphud_MinimapYouColor"
 	ColorPicker "$MAPCOLORMNU_MONSTERCOLOR", "jgphud_MinimapMonsterColor"
 	ColorPicker "$MAPCOLORMNU_FRIENDCOLOR", "jgphud_MinimapFriendColor"
+
 	StaticText ""
 	StaticText "$JGPHUD_MAPDATA_TITLE", yellow
+	StaticText ""
 	Option "$JGPHUD_MAPDATA_KILLS", "jgphud_DrawKills", "OnOff"
 	Option "$JGPHUD_MAPDATA_ITEMS", "jgphud_DrawItems", "OnOff"
 	Option "$JGPHUD_MAPDATA_SECRETS", "jgphud_DrawSecrets", "OnOff"
 	Option "$JGPHUD_MAPDATA_TIME", "jgphud_DrawTime", "OnOff"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawMinimap:jgphud_MinimapPos:jgphud_MinimapPosX:jgphud_MinimapPosY:jgphud_MinimapSize:jgphud_CircularMinimap:jgphud_MinimapZoom:jgphud_DrawKills:jgphud_DrawItems:jgphud_DrawSecrets:jgphud_DrawTime", 1
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_MinimapPos:jgphud_MinimapPosX:jgphud_MinimapPosY:jgphud_DrawMinimap:jgphud_MinimapDrawUnseen:jgphud_MinimapDrawFloorDiff:jgphud_MinimapDrawCeilingDiff:jgphud_MinimapSize:jgphud_CircularMinimap:jgphud_MinimapZoom:jgphud_MinimapEnemyDisplay:jgphud_MinimapEnemyMarkersSize:jgphud_DrawKills:jgphud_DrawItems:jgphud_DrawSecrets:jgphud_DrawTime:jpghud_MinimapBackColor:jgphud_MinimapLineColor:jgphud_MinimapYouColor:jgphud_MinimapMonsterColor:jgphud_MinimapFriendColor", 1
 }
 
 OptionMenu "JGPHUD_CrosshairOptions"
