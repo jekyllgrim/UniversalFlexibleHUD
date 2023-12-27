@@ -1022,16 +1022,17 @@ class JGPUFH_FlexibleHUD : EventHandler
 		vector2 iconPos = (pos.x + indent + iconsize * 0.5, pos.y + height*0.75);
 
 		// Draw health cross shape (instead of drawing a health item):
+		bool hasBerserk = CPlayer.mo.FindInventory('PowerStrength', true);
 		double crossWidth = 4;
 		double crossLength = 10;
 		vector2 crossPos = iconPos;
-		color crossCol = color(255,0,0,0);
+		color crossCol = hasBerserk ? color(255,255,0,0) : color(255,0,0,0);
 		statusbar.Fill(crossCol, crossPos.x - crossWidth*0.5,  crossPos.y - crossLength*0.5, crossWidth, crossLength, barFlags);
 		statusbar.Fill(crossCol, crossPos.x - crossLength*0.5, crossPos.y - crossWidth*0.5, crossLength, crossWidth, barFlags);
 		
-		crossWidth -= 3;
-		crossLength -= 3;
-		crossCol = color(255,255,255,255);
+		crossWidth -= hasBerserk ? 1.5 : 2;
+		crossLength -= hasBerserk ? 1.5 : 2;
+		crossCol = hasBerserk ? color(255,0,0,0) : color(255,255,255,255);
 		statusbar.Fill(crossCol, crossPos.x - crossWidth*0.5, crossPos.y - crossLength*0.5, crossWidth, crossLength, barFlags);
 		statusbar.Fill(crossCol, crossPos.x - crossLength*0.5, crossPos.y - crossWidth*0.5,  crossLength, crossWidth, barFlags);
 		
