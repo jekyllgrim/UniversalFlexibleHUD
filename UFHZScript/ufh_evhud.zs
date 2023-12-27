@@ -396,13 +396,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 	{
 		if (e.isManual)
 			return;
-		let hud = JGPUFH_FlexibleHUD(StatusBar);
-		if (hud)
+		if (e.name == "PlayerHitMonster")
 		{
-			if (e.name == "PlayerHitMonster")
-			{
-				hud.RefreshReticleHitMarker(e.args[0]);
-			}
+			RefreshReticleHitMarker(e.args[0]);
 		}
 	}
 
@@ -471,11 +467,14 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		UiInit();
 		statusbar.BeginHUD();
+		// These value updates need to be interpolated
+		// with framerate, so they happen here rather
+		// than in UiTick():
 		UpdateHealthArmor();
 		UpdateInventoryBar();
 		UpdateReticleBars();
 		UpdateReticleHitMarker();
-
+		
 		DrawDamageMarkers();
 		DrawHealthArmor();
 		DrawWeaponBlock();
