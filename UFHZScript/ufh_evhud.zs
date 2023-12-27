@@ -1673,11 +1673,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 			double crosshairScaleFac = 1.0;
 			if (baseSize > 0)
 			{
-				baseSize = Clamp(baseSize, 5, 128);
+				baseSize = Clamp(baseSize, 2, 128);
 			}
 			else
 			{
-				crosshairScaleFac = max(c_crosshairScale.GetFloat(), 0.3);
+				baseSize = 10;
+				crosshairScaleFac = max(c_crosshairScale.GetFloat(), 0.2);
 			}
 			double size = (baseSize + baseSize * reticleMarkerScale);
 			int screenFac = min(Screen.GetWidth() / 320, Screen.GetHeight() / 200);
