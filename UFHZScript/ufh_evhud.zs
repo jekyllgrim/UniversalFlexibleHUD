@@ -6,6 +6,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	const STR_INVALID = "<invalid>";
 
 	ui PlayerInfo CPlayer;
+	ui bool gamePaused;
 	ui transient CVar c_enable;
 
 	//See GetHUDBackground():
@@ -473,7 +474,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// with framerate, so they happen here rather
 		// than in UiTick(). They also shouldn't
 		// progress if a menu is open:
-		if (!Menu.GetCurrentMenu())
+		gamePaused = Menu.GetCurrentMenu();
+		if (!gamePaused)
 		{
 			UpdateHealthArmor();
 			UpdateInventoryBar();
