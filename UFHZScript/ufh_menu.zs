@@ -1,3 +1,6 @@
+class JGPHUD_Powerups_menu : OptionMenu
+{}
+
 class OptionMenuItemUFHResetCCMD : OptionMenuItemSubmenu
 {
 	private array <String> ccmds;

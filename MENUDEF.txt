@@ -156,6 +156,7 @@ OptionMenu "JGPHUD_InvBar"
 
 OptionMenu "JGPHUD_Powerups"
 {
+	Class "JGPHUD_Powerups_menu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_POWERUPS_TITLE", yellow
 	StaticText ""

@@ -3124,6 +3124,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!c_drawPowerups || !c_drawPowerups.GetBool())
 			return;
 
+		bool previewMode;
 		// Calculate height of the block:
 		int powerNum;
 		for (int i = 0; i < powerupData.Size(); i++)
@@ -3135,12 +3136,28 @@ class JGPUFH_FlexibleHUD : EventHandler
 			}
 		}
 		if (powerNum <= 0)
-			return;
+		{
+			// If the player has no active powerups but they
+			// currently have the Powerups settings menu open,
+			// this will set up a preview mode that draws
+			// dummy powerup icons and empty timers, so that
+			// the player can see where the timers will appear:
+			let mnu = Menu.GetCurrentMenu();
+			if (mnu && mnu is 'JGPHUD_Powerups_menu')
+			{
+				previewMode = true;
+				powerNum = powerupData.Size();
+			}
+			else
+			{
+				return;
+			}
+		}
 
 		int flags = SetScreenFlags(c_PowerupsPos.GetInt());
-		vector2 ofs = ( c_PowerupsX.GetInt(), c_PowerupsY.GetInt() );
+		vector2 ofs = (c_PowerupsX.GetInt(), c_PowerupsY.GetInt());
 		double iconSize = Clamp(c_PowerupsIconSize.GetInt(), 4, 100);
-		int indent = 0;
+		int indent = 1;
 		HUDFont fnt = smallHUDFont;
 		double textScale = iconSize * 0.025;
 		double fy = fnt.mFont.GetHeight() * textScale;
@@ -3149,31 +3166,44 @@ class JGPUFH_FlexibleHUD : EventHandler
 		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 		pos.y += iconSize*0.5;
 
-		double textOfs = iconsize + indent;
-		flags |=  StatusBarCore.DI_ITEM_CENTER;
+		flags |= StatusBarCore.DI_ITEM_CENTER;
+		pos.x += iconsize*0.5;
+		/*double textOfs = iconsize + indent;
 		if ((flags & StatusBarCore.DI_SCREEN_RIGHT) == StatusBarCore.DI_SCREEN_RIGHT)
 		{
 			flags |= StatusBarCore.DI_TEXT_ALIGN_RIGHT;
 			textOfs = -1;
-		}
+		}*/
 		for (int i = 0; i < powerupData.Size(); i++)
 		{
 			let pwd = powerupData[i];
 			if (!pwd)
 				continue;
 			let pow = Powerup(CPlayer.mo.FindInventory(pwd.powerupType));
-			if (pow)
+			if (pow || previewMode)
 			{
-				statusbar.DrawTexture(pwd.icon, (pos.x + iconSize*0.5, pos.y), flags|StatusBarCore.DI_ITEM_CENTER, scale:ScaleToBox(pwd.icon, iconSize), style:pwd.renderStyle);
+				color col = 0xffffffff;
+				int style = STYLE_Stencil;
+				double alpha = 0.4;
+				if (!previewMode)
+				{
+					col = 0xffffffff;
+					style = pwd.renderStyle;
+					alpha = pow.isBlinking() ? 0.6 : 1.0;
+				}
+				statusbar.DrawTexture(pwd.icon, pos, flags|StatusBarCore.DI_ITEM_CENTER, alpha: alpha, scale:ScaleToBox(pwd.icon, iconSize), style:style, col: col);
 				// Account for infinite flight in singleplayer:
-				if (!multiplayer && pow is 'PowerFlight' && Level.infinite_flight)
+				if (!previewMode && !multiplayer && pow is 'PowerFlight' && Level.infinite_flight)
 				{
 					continue;
 				}
 
 				string s_time;
 				int h,m,s;
-				[h,m,s] = TicsToHours(pow.EffectTics);
+				if (!previewMode)
+				{
+					[h,m,s] = TicsToHours(pow.EffectTics);
+				}
 				if (h > 0)
 				{
 					s_time = String.Format("%d:%02d:%02d", h, m, s);
@@ -3182,7 +3212,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 				{
 					s_time = String.Format("%d:%02d", m, s);
 				}
-				statusbar.DrawString(fnt, s_time, pos + (textOfs, -fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_LEFT, alpha: pow.isBlinking() ? 0.5 : 1.0, scale:(textscale,textscale));
+				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, scale:(textscale,textscale));
 				pos.y += iconSize + indent;
 			}
 		}
