@@ -129,6 +129,8 @@ class OptionMenuItemUFHResetALLCCMD : OptionMenuItemSubmenu
 		'jgphud_InvBarY',
 
 		'jgphud_DrawEnemyHitMarkers',
+		'jgphud_EnemyHitMarkersColor',
+		'jgphud_EnemyHitMarkersSize',
 		'jgphud_DrawReticleBars',
 		'jgphud_ReticleBarsText',
 		'jgphud_ReticleBarsSize',

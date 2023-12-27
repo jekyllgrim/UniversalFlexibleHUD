@@ -1,6 +1,7 @@
 default,identifier,remarks,ru,pt,de,esm,fr
 FlexiHUD settings,JGPHUD_SETTINGS_TITLE,"FlexiHUD is the mod's name, do not localize",Настройки FlexiHUD,Configurações do FlexiHUD,FlexiHUD Einstellungen,Configuración de FlexiHUD,Configuration de FlexiHud
 Display FlexiHUD,JGPHUD_GENERAL_ENABLEHUD,A simple On/Off toggle that allows to completely disable the whole HUD,Показывать FlexiHUD,,,,
+Toggle FlexiHUD shortcut,JGPHUD_GENERAL_ENABLEHUD_BIND,An option that lets you specify a custom key that will toggle the HUD on and off,Вкл/откл FlexiHUD,,,,
 General,JGPHUD_GENERAL_TITLE,Title for the general options,Общее,Geral,Allgemein,General,General
 HUD background style,JGPHUD_GENERAL_BACKSTYLE,General appearance of the background: either a flat color or a texture,Стиль фона,Estilo do fundo,Hintergrundstil,Estilo de fondo,Style d'arrière-plan de l’ATH
 Flat color,JGPHUD_GENERAL_BACKSTYLE_COLOR,Option for background appearance,Цветовая заливка,Cor sólida,Füllfarbe,Color sólido,Couleur uniforme
@@ -128,7 +129,11 @@ Lines around different ceiling heights,JGPHUD_MINIMAP_DRAWCEILINGDIFF,On/off: wh
 Map markers size,JGPHUD_MINIMAP_MAPMARKERSCALE,A slider that determines the size of the enemy markers. At 0 (default) the markers are equal to the size of the monster and thus change their visual size according to the minimap's zoom value. At values above 0 they become fixed in size regardless of zoom.,Размер маркеров,,,,
 Match the size of the object,JGPHUD_MINIMAP_MAPMARKERSCALE_REAL,"The default value for ""map markers size""",Соответствует размеру объекта,,,,
 Crosshair options,JGPHUD_CROSSHAIR_TITLE,Title for various crosshair options,Настройки прицела,Opções de retícula,Fadenkreuzoptionen,Opciones de la mirilla,Options des réticules
+Hit markers,JGPHUD_CROSSHAIR_HITMARKERS_TITLE,The title for the menu section,Индикаторы попадания,,,,
 Draw enemy hit markers around crosshair,JGPHUD_CROSSHAIR_HITMARKERS,Small angled cross marker around the crosshair when a player's attack hits an enemy.,Индикаторы попадания по врагам вокруг прицела,Mostrar marcadores de acerto ao redor da retícula,Trefferanzeige am Fadenkreuz,Mostrar marcadores de daño contra enemigos,Dessiner les marqueurs de coups de l'ennemi autour du réticule
+Hit markers color,JGPHUD_CROSSHAIR_HITMARKERS_COLOR,Color of hit markers,Цвет индикаторов,,,,
+Hit markers size,JGPHUD_CROSSHAIR_HITMARKERS_SIZE,"A slider that determines the size of hit markers. At 0 uses ""Relative to crosshair size""",Размер индикаторов,,,,
+Relative to crosshair size,JGPHUD_CROSSHAIR_HITMARKERS_SIZE_RELATIVE,"The default option for ""Hit markers size""",Зависит от размера прицела,,,,
 Health/armor/ammo bars around crosshair,JGPHUD_CROSSHAIR_BARS_ENABLE,Curved bars around the crosshair in the style of HL2,Индикаторы здоровья/брони/патронов вокруг прицела,Barra de vida/armadura/munição ao redor da retícula,Gesundheits-/Rüstungs-/Munitionsanzeige am Fadenkreuz,Barras de vida/armadura/munición en la mirilla,Barre de santé/armure/munitions autour du réticule
 Bars size,JGPHUD_CROSSHAIR_BARS_SIZE,Option for the bars around the crosshair,Размер индикаторов,Tamanho das barras,Leistengrösse,Tamaño de las barras,Taille des barres
 Bars opacity,JGPHUD_CROSSHAIR_BARS_ALPHA,Option for the bars around the crosshair,Прозрачность индикаторов,Opacidade das barras,Leistendeckkraft,Opacidad de las barras,Opacité des barres

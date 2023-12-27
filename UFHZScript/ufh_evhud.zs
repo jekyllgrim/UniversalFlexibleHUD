@@ -6,7 +6,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 	const STR_INVALID = "<invalid>";
 
 	ui PlayerInfo CPlayer;
-
 	ui transient CVar c_enable;
 
 	//See GetHUDBackground():
@@ -48,7 +47,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui transient CVar c_InvBarPos;
 	ui transient CVar c_InvBarX;
 	ui transient CVar c_InvBarY;
-	ui 
+	
 	ui transient CVar c_drawDamageMarkers;
 
 	ui transient CVar c_drawWeaponSlots;
@@ -94,6 +93,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui transient CVar c_DrawTime;
 
 	ui transient CVar c_DrawEnemyHitMarkers;
+	ui transient CVar c_EnemyHitMarkersColor;
+	ui transient CVar c_EnemyHitMarkersSize;
 	ui transient CVar c_DrawReticleBars;
 	ui transient CVar c_ReticleBarsHealthArmor;
 	ui transient CVar c_ReticleBarsAmmo;
@@ -398,7 +399,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return;
 		if (e.name == "PlayerHitMonster")
 		{
-			RefreshReticleHitMarker(e.args[0]);
+			RefreshEnemyHitMarker(e.args[0]);
 		}
 	}
 
@@ -408,6 +409,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 		JGPUFH_LockData.GetLockData(lockdata);
 	}
 
+	// Updates delta time to allow for sub-tic interpolation
+	// of values that are updated per tic. Must be called
+	// in RenderOverlay unconditionally:
 	ui void UpdateDeltaTime()
 	{
 		if (!prevMSTime)
@@ -469,11 +473,15 @@ class JGPUFH_FlexibleHUD : EventHandler
 		statusbar.BeginHUD();
 		// These value updates need to be interpolated
 		// with framerate, so they happen here rather
-		// than in UiTick():
-		UpdateHealthArmor();
-		UpdateInventoryBar();
-		UpdateReticleBars();
-		UpdateReticleHitMarker();
+		// than in UiTick(). They also shouldn't
+		// progress if a menu is open:
+		if (!Menu.GetCurrentMenu())
+		{
+			UpdateHealthArmor();
+			UpdateInventoryBar();
+			UpdateReticleBars();
+			UpdateEnemyHitMarker();
+		}
 		
 		DrawDamageMarkers();
 		DrawHealthArmor();
@@ -484,7 +492,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		DrawPowerups();
 		DrawKeys();
 		DrawInventoryBar();
-		DrawReticleHitMarker();
+		DrawEnemyHitMarker();
 		DrawReticleBars();
 		DrawCustomItems();
 	}
@@ -1622,7 +1630,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui void UpdateReticleHitMarker()
+	ui void UpdateEnemyHitMarker()
 	{
 		if (reticleMarkerAlpha > 0)
 		{
@@ -1634,43 +1642,42 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui void DrawReticleHitMarker()
+	ui void DrawEnemyHitMarker()
 	{
 		if (!c_DrawEnemyHitMarkers.GetBool())
 			return;
 		
 		vector2 screenCenter = (Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5);
-		vector2 hudscale = statusbar.GetHudScale();
-		// Four simple triangle shapes around the crosshair:
+		// Four diagonal bars:
 		if (!reticleHitMarker)
 		{
 			reticleHitMarker = new("Shape2D");
-			vector2 p1 = (-1,-1);
-			vector2 p2 = (-0.4, -0.2);
-			vector2 p3 = (p2.y, p2.x);
+			Vector2 p1 = (-0.08, -1);
+			Vector2 p2 = (-p1.x, p1.y);
+			Vector2 p3 = (p1.x, -0.25);
+			Vector2 p4 = (-p3.x, p3.y);
+			p1 = Actor.RotateVector(p1, -45);
+			p2 = Actor.RotateVector(p2, -45);
+			p3 = Actor.RotateVector(p3, -45);
+			p4 = Actor.RotateVector(p4, -45);
 			int id = 0;
 			for (int i = 0; i < 4; i++)
 			{
 				reticleHitMarker.Pushvertex(p1);
 				reticleHitMarker.Pushvertex(p2);
 				reticleHitMarker.Pushvertex(p3);
+				reticleHitMarker.Pushvertex(p4);
+				reticleHitMarker.PushCoord((0,0));
 				reticleHitMarker.PushCoord((0,0));
 				reticleHitMarker.PushCoord((0,0));
 				reticleHitMarker.PushCoord((0,0));
 				reticleHitMarker.PushTriangle(id, id+1, id+2);
-				id += 3;
-				if (i == 0 || i == 2)
-				{
-					p1.x *= -1;
-					p2.x *= -1;
-					p3.x *= -1;
-				}
-				else if (i == 1 || i == 3)
-				{
-					p1.y *= -1;
-					p2.y *= -1;
-					p3.y *= -1;
-				}
+				reticleHitMarker.PushTriangle(id+1, id+2, id+3);
+				p1 = Actor.RotateVector(p1, 90);
+				p2 = Actor.RotateVector(p2, 90);
+				p3 = Actor.RotateVector(p3, 90);
+				p4 = Actor.RotateVector(p4, 90);
+				id += 4;
 			}
 		}
 		if (reticleMarkerAlpha > 0)
@@ -1679,12 +1686,25 @@ class JGPUFH_FlexibleHUD : EventHandler
 				reticleMarkerTransform = new("Shape2DTransform");
 			// Factor in the crosshair size but up to a point
 			// as to not make these too small:
-			double size = (15 + 15 * reticleMarkerScale) * max(c_crosshairScale.GetFloat(), 0.3);
+			int baseSize = c_EnemyHitMarkersSize.GetInt();
+			double crosshairScaleFac = 1.0;
+			if (baseSize > 0)
+			{
+				baseSize = Clamp(baseSize, 5, 128);
+			}
+			else
+			{
+				crosshairScaleFac = max(c_crosshairScale.GetFloat(), 0.3);
+			}
+			double size = (baseSize + baseSize * reticleMarkerScale);
+			int screenFac = min(Screen.GetWidth() / 320, Screen.GetHeight() / 200);
+			size *= screenFac * crosshairScaleFac;
 			reticleMarkerTransform.Clear();
-			reticleMarkerTransform.Scale((size, size) * hudscale.x);
+			reticleMarkerTransform.Scale((size, size));
 			reticleMarkerTransform.Translate(screenCenter);
 			reticleHitMarker.SetTransform(reticleMarkerTransform);
-			Screen.DrawShapeFill(color(0, 0, 255), reticleMarkerAlpha, reticleHitMarker);
+			color col = color(c_EnemyHitMarkersColor.GetInt());
+			Screen.DrawShapeFill(color(col.b, col.g, col.r), reticleMarkerAlpha, reticleHitMarker);
 		}
 	}
 
@@ -3567,6 +3587,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 			c_drawDamageMarkers = CVar.GetCvar('jgphud_DrawDamageMarkers', CPlayer);
 		if (!c_DrawEnemyHitMarkers)
 			c_DrawEnemyHitMarkers = CVar.GetCvar('jgphud_DrawEnemyHitMarkers', CPlayer);
+		if (!c_EnemyHitMarkersColor)
+			c_EnemyHitMarkersColor = CVar.GetCvar('jgphud_EnemyHitMarkersColor', CPlayer);
+		if (!c_EnemyHitMarkersSize)
+			c_EnemyHitMarkersSize = CVar.GetCvar('jgphud_EnemyHitMarkersSize', CPlayer);
 
 		if (!c_drawAmmoBar)
 			c_drawAmmoBar = CVar.GetCvar('jgphud_DrawAmmoBar', CPlayer);
