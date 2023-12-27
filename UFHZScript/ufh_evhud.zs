@@ -3189,7 +3189,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 				{
 					col = 0xffffffff;
 					style = pwd.renderStyle;
-					alpha = pow.isBlinking() ? 0.6 : 1.0;
+					alpha = pow.isBlinking() ? 0.4 : 1.0;
 				}
 				statusbar.DrawTexture(pwd.icon, pos, flags|StatusBarCore.DI_ITEM_CENTER, alpha: alpha, scale:ScaleToBox(pwd.icon, iconSize), style:style, col: col);
 				// Account for infinite flight in singleplayer:

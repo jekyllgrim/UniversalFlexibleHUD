@@ -12,6 +12,12 @@ class JGPUFH_PowerupData play
 		{
 			pwd.icon = icon;
 			pwd.powerupType = powerupType;
+			// Keeping Normal is useless, switch to Translucent
+			// to let us apply alpha to it:
+			if (renderStyle == STYLE_Normal)
+			{
+				renderStyle = STYLE_Translucent;
+			}
 			pwd.renderStyle = renderStyle;
 		}
 		return pwd;
