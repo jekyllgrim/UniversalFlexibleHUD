@@ -119,8 +119,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui bool initDone;
 	array <JGPUFH_PowerupData> powerupData;
 	array <MapMarker> mapMarkers;
-	JGPUFH_LookTargetController lookControllers[MAXPLAYERS];
-	JGPUFH_DmgMarkerController dmgMarkerControllers[MAXPLAYERS];
 	bool levelUnloaded;
 
 	// see SetScreenFlags():
@@ -169,9 +167,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 	}
 
 	// Damage markers:
+	JGPUFH_DmgMarkerController dmgMarkerControllers[MAXPLAYERS];
 	ui Shape2D dmgMarker;
 	ui Shape2DTransform dmgMarkerTransf;
-	ui JGPUFH_DmgMarkerController dmgMarkerController;
 	ui TextureID dmgMarkerTex;
 
 	// Hit (reticle) markers:
@@ -226,7 +224,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// DrawReticleBars():
 	const MARKERSDELAY = TICRATE*2;
 	const BARCOVERANGLE = 80.0;
-	ui JGPUFH_LookTargetController lookTC;
+	JGPUFH_LookTargetController lookControllers[MAXPLAYERS];
 	ui Shape2D roundBars;
 	ui Shape2D roundBarsAngMask;
 	ui Shape2D roundBarsInnerMask;
@@ -1546,7 +1544,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!c_drawDamageMarkers.GetBool())
 			return;
 
-		if (!GetDamageMarkerController())
+		let dmgMarkerController = dmgMarkerControllers[consoleplayer];
+		if (!dmgMarkerController)
 			return;
 
 		// Create a rectangular shape:
@@ -1603,25 +1602,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui bool GetDamageMarkerController()
-	{
-		if (dmgMarkerController)
-			return true;
-		
-		ThinkerIterator ti = ThinkerIterator.Create('JGPUFH_DmgMarkerController');
-		JGPUFH_DmgMarkerController th;
-		while (th = JGPUFH_DmgMarkerController(ti.Next()))
-		{
-			if (th && th.GetPlayer() == CPlayer)
-			{
-				dmgMarkerController = th;
-				return true;
-			}
-		}
-		return false;
-	}
-
-	ui void RefreshReticleHitMarker(bool killed = true)
+	ui void RefreshEnemyHitMarker(bool killed = true)
 	{
 		reticleMarkerAlpha = 1.0;
 		if (killed)
@@ -1839,9 +1820,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 		bool drawBarText = c_ReticleBarsText.GetBool();
 		
 		double coverAngle = BARCOVERANGLE;
+		let lookTC = lookControllers[consoleplayer];
 		if (!lookTC)
 		{
-			lookTC = lookControllers[CPlayer.mo.PlayerNumber()];
+			return;
 		}
 
 		// This is the general mask that cuts out the inner part
