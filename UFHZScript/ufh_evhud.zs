@@ -113,8 +113,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui HUDFont smallHUDFont;
 	ui HUDFont numHUDFont;
 
+	ui double prevMSTime;
+	ui double deltaTime;
 	ui bool initDone;
-
 	array <JGPUFH_PowerupData> powerupData;
 	array <MapMarker> mapMarkers;
 	JGPUFH_LookTargetController lookControllers[MAXPLAYERS];
@@ -237,10 +238,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui int prevHealth;
 	ui int prevMaxHealth;
 	ui int prevAmmo1Amount;
-	ui ui int prevAmmo1MaxAmount;
+	ui int prevAmmo1MaxAmount;
 	ui int prevAmmo2Amount;
 	ui int prevAmmo2MaxAmount;
-	ui int reticleMarkersDelay[4];
+	ui double reticleMarkersDelay[4];
 	enum EReticleBarTypes
 	{
 		RB_HEALTH,
@@ -405,6 +406,23 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
+	// Obtain mapcolor strings from LOCKDEFS:
+	ui void GetLockData()
+	{
+		JGPUFH_LockData.GetLockData(lockdata);
+	}
+
+	ui void UpdateDeltaTime()
+	{
+		if (!prevMSTime)
+			prevMSTime = MSTimeF();
+
+		double ftime = MSTimeF() - prevMSTime;
+		prevMSTime = MSTimeF();
+		double dtime = 1000.0 / TICRATE;
+		deltaTime = (ftime / dtime);
+	}
+
 	ui void UiInit()
 	{
 		if (initDone)
@@ -427,25 +445,17 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!CPlayer || !CPlayer.mo)
 			return;
 
-		UpdateInterpolators();
-		UpdateReticleHitMarker();
 		UpdateWeaponSlots();
-		UpdateInventoryBar();
-		UpdateReticleBars();
 		UpdateMinimapLines();
 		UpdateEnemyRadar();
-	}
-
-	// Obtain mapcolor strings from LOCKDEFS:
-	ui void GetLockData()
-	{
-		JGPUFH_LockData.GetLockData(lockdata);
+		UpdateInterpolators();
 	}
 
 	override void RenderOverlay(renderEvent e)
 	{
 		// Cache CVars before anything else:
 		CacheCvars();
+		UpdateDeltaTime();
 		if (!c_enable.GetBool())
 		{
 			return;
@@ -462,6 +472,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 		UiInit();
 		statusbar.BeginHUD();
 		UpdateHealthArmor();
+		UpdateInventoryBar();
+		UpdateReticleBars();
+		UpdateReticleHitMarker();
+
 		DrawDamageMarkers();
 		DrawHealthArmor();
 		DrawWeaponBlock();
@@ -1613,11 +1627,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 	{
 		if (reticleMarkerAlpha > 0)
 		{
-			reticleMarkerAlpha -= (reticleMarkerScale > 0) ? 0.075 : 0.15;
+			reticleMarkerAlpha -= (reticleMarkerScale > 0 ? 0.075 : 0.15) * deltaTime;
 		}
 		if (reticleMarkerScale > 0)
 		{
-			reticleMarkerScale -= 0.1;
+			reticleMarkerScale -= 0.1 * deltaTime;
 		}
 	}
 
@@ -1707,7 +1721,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		else
 		{
-			reticleMarkersDelay[RB_HEALTH] -= 1;
+			reticleMarkersDelay[RB_HEALTH] -= 1 * deltaTime;
 		}
 
 		if (prevArmAmount != armAmount || prevArmMaxAmount != armMaxAmount)
@@ -1718,7 +1732,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		else
 		{
-			reticleMarkersDelay[RB_ARMOR] -= 1;
+			reticleMarkersDelay[RB_ARMOR] -= 1 * deltaTime;
 		}
 
 
@@ -1732,7 +1746,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		else
 		{
-			reticleMarkersDelay[RB_AMMO1] -= 1;
+			reticleMarkersDelay[RB_AMMO1] -= 1 * deltaTime;
 		}
 		if (am2 && (prevAmmo2Amount != am2.amount || prevAmmo2MaxAmount != am2.maxamount))
 		{
@@ -1742,7 +1756,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		else
 		{
-			reticleMarkersDelay[RB_AMMO2] -= 1;
+			reticleMarkersDelay[RB_AMMO2] -= 1 * deltaTime;
 		}
 	}
 
@@ -1999,8 +2013,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 					{
 						statusbar.DrawString(hfnt, String.Format("%d", am2.amount), fntPosOut, fntFlagsOut, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
 					}
-					Screen.EnableStencil(false);
-					Screen.ClearStencil();
+					DisableMask();
 				}
 			}
 		}
@@ -3457,15 +3470,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	ui void UpdateInventoryBar(int numfields = 7)
 	{
+		if (invbarCycleOfs == 0)
+			return;
+
 		double iconSize = GetInvBarIconSize();
-		if (invbarCycleOfs > 0)
-		{
-			invbarCycleOfs = Clamp(invbarCycleOfs - iconSize * 0.25, 0, invbarCycleOfs);
-		}
-		if (invbarCycleOfs < 0)
-		{
-			invbarCycleOfs = Clamp(invbarCycleOfs + iconSize * 0.25, invbarCycleOfs, 0);
-		}
+		double step = (invbarCycleOfs > 0 ? -iconSize : iconsize) * 0.25 * deltaTime;
+		invbarCycleOfs = Clamp(invbarCycleOfs + step, min(0, invbarCycleOfs), max(0, invbarCycleOfs));
 	}
 
 	// Returns actual next item, or the item
