@@ -3212,6 +3212,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 				{
 					s_time = String.Format("%d:%02d", m, s);
 				}
+				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5 - fy*0.1), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: Font.CR_BLACK, scale:(textscale,textscale*1.2));
 				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, scale:(textscale,textscale));
 				pos.y += iconSize + indent;
 			}
