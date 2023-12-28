@@ -9,114 +9,13 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui bool gamePaused;
 	ui transient CVar c_enable;
 
-	//See GetHUDBackground():
-	ui transient CVar c_BackColor;
-	ui transient CVar c_BackAlpha;
-	ui transient CVar c_BackTexture;
-	ui transient CVar c_BackStyle;
-	ui transient CVar c_BackTextureStretch;
-
-	ui transient CVar c_aspectscale;
-	ui transient CVar c_crosshairScale;
-
-	ui transient CVar c_mainfont;
-	ui transient CVar c_smallfont;
-	ui transient CVar c_numberfont;
-
-	ui transient CVar c_drawMainbars;
-	ui transient CVar c_MainBarsPos;
-	ui transient CVar c_MainBarsX;
-	ui transient CVar c_MainBarsY;
-	ui transient CVar c_DrawFace;
-
-	ui transient CVar c_drawAmmoBlock;
-	ui transient CVar c_AmmoBlockPos;
-	ui transient CVar c_AmmoBlockX;
-	ui transient CVar c_AmmoBlockY;
-	ui transient CVar c_drawAmmoBar;
-	ui transient CVar c_DrawWeapon;
-
-	ui transient CVar c_drawAllAmmo;
-	ui transient CVar c_AllAmmoShowDepleted;
-	ui transient CVar c_AllAmmoPos;
-	ui transient CVar c_AllAmmoX;
-	ui transient CVar c_AllAmmoY;
-
-	ui transient CVar c_drawInvBar;
-	ui transient CVar c_AlwaysShowInvBar;
-	ui transient CVar c_InvBarIconSize;
-	ui transient CVar c_InvBarPos;
-	ui transient CVar c_InvBarX;
-	ui transient CVar c_InvBarY;
-	
-	ui transient CVar c_drawDamageMarkers;
-
-	ui transient CVar c_drawWeaponSlots;
-	ui transient CVar c_WeaponSlotsSize;
-	ui transient CVar c_WeaponSlotsAlign;
-	ui transient CVar c_WeaponSlotsPos;
-	ui transient CVar c_WeaponSlotsX;
-	ui transient CVar c_WeaponSlotsY;
-
-	ui transient CVar c_drawPowerups;
-	ui transient CVar c_PowerupsIconSize;
-	ui transient CVar c_PowerupsPos;
-	ui transient CVar c_PowerupsX;
-	ui transient CVar c_PowerupsY;
-
-	ui transient CVar c_drawKeys;
-	ui transient CVar c_KeysPos;
-	ui transient CVar c_KeysX;
-	ui transient CVar c_KeysY;
-
-	ui transient CVar c_drawMinimap;
-	ui transient CVar c_MinimapEnemyDisplay;
-	ui transient CVar c_CircularMinimap;
-	ui transient CVar c_minimapSize;
-	ui transient CVar c_minimapPos;
-	ui transient CVar c_minimapPosX;
-	ui transient CVar c_minimapPosY;
-	ui transient CVar c_minimapZoom;
-	ui transient CVar c_minimapDrawUnseen;
-	ui transient CVar c_minimapDrawFloorDiff;
-	ui transient CVar c_minimapDrawCeilingDiff;
-	ui transient CVar c_MinimapMapMarkersSize;
-	ui transient CVar c_minimapBackColor;
-	ui transient CVar c_minimapLineColor;
-	ui transient CVar c_minimapIntLineColor;
-	ui transient CVar c_minimapYouColor;
-	ui transient CVar c_minimapMonsterColor;
-	ui transient CVar c_minimapFriendColor;
-
-	ui transient CVar c_DrawKills;
-	ui transient CVar c_DrawItems;
-	ui transient CVar c_DrawSecrets;
-	ui transient CVar c_DrawTime;
-
-	ui transient CVar c_DrawEnemyHitMarkers;
-	ui transient CVar c_EnemyHitMarkersColor;
-	ui transient CVar c_EnemyHitMarkersSize;
-	ui transient CVar c_DrawReticleBars;
-	ui transient CVar c_ReticleBarsHealthArmor;
-	ui transient CVar c_ReticleBarsAmmo;
-	ui transient CVar c_ReticleBarsEnemy;
-	ui transient CVar c_ReticleBarsText;
-	ui transient CVar c_ReticleBarsAlpha;
-	ui transient CVar c_ReticleBarsSize;
-	ui transient CVar c_ReticleBarsWidth;
-
-	ui transient CVar c_drawCustomItems;
-	ui transient CVar c_CustomItemsIconSize;
-	ui transient CVar c_CustomItemsPos;
-	ui transient CVar c_CustomItemsX;
-	ui transient CVar c_CustomItemsY;
-
 	ui HUDFont mainHUDFont;
 	ui HUDFont smallHUDFont;
 	ui HUDFont numHUDFont;
 
 	ui double prevMSTime;
 	ui double deltaTime;
+	ui double fracTic;
 	ui bool initDone;
 	array <JGPUFH_PowerupData> powerupData;
 	array <MapMarker> mapMarkers;
@@ -420,7 +319,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (initDone)
 			return;
 		
-		smallHUDFont = HUDFont.Create(newConsoleFont);
+		smallHUDFont = HUDFont.Create(newConsoleFont, shadowx: -1, shadowy: -1);
 		Font fnt = "Confont";
 		mainHUDFont = HUDFont.Create(fnt);
 		fnt = "IndexFont";
@@ -447,6 +346,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Cache CVars before anything else:
 		CacheCvars();
 		UpdateDeltaTime();
+		fracTic = e.fracTic;
 		if (!c_enable.GetBool())
 		{
 			return;
@@ -694,6 +594,27 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
+	// Returns a value that pulses using a sine wave,
+	// optionally, with a range specified. If inMenus
+	// argument is true, it'll also pulse while a menu
+	// is open (the game is paused):
+	ui double SinePulse(double frequency = TICRATE, double startVal = 0.0, double endVal = 1.0, double inMenus = false)
+	{
+		//return 0.5 + 0.5 * sin(360.0 * deltatime / (frequency*1000.0));
+		double time = (inMenus && gamePaused) ? Menu.MenuTime() : Level.mapTime;
+		double pulseVal = 0.5 + 0.5 * sin(360.0 * (time + fracTic) / frequency);
+		return LinearMap(pulseVal, 0.0, 1.0, startVal, endVal);
+	}
+
+	// Returns true if the menu belonging to the
+	// specified class is currently open:
+	ui bool IsMenuOpen(class<Object> menuname)
+	{
+		let mnu = Menu.GetCurrentMenu();
+		return mnu && mnu is menuname;
+	}
+
+	// Wrappers to enable and disable stencil masks:
 	ui void EnableMask(int ofs, Shape2D mask)
 	{
 		Screen.EnableStencil(true);
@@ -792,6 +713,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
+	// Returns a color and font colors based on the provided
+	// percentage value (either in the 0.0-1.0 or 0-100 range).
+	// Meant to be used for armor's savepercent, so it's tuned
+	// to common savepercent values (50, 80 and 33):
 	clearscope int, int, int, int GetArmorColor(double savePercent)
 	{
 		int cRed, cGreen, cBlue, cFntCol;
@@ -829,26 +754,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (amount >= maxamount * 0.25)
 			return Font.CR_Orange;
 		return Font.CR_Red;
-	}
-
-	// Returns color for a percentage value normalized
-	// to the 0.0-1.0 range:
-	clearscope int, int, int GetPercentageColor(double amount)
-	{
-		// Over 100%: cyan
-		if (amount > 1)
-			return 0, 255, 255;	
-		// Over 75%: green
-		if (amount >= 0.75)
-			return 0, 255, 0;	
-		// Over 50%: yellow
-		if (amount >= 0.5)
-			return 255, 255, 0;
-		// Over 25: orange:
-		if (amount >= 0.25)
-			return 255, 128, 0;
-		// Otherwise: red
-		return 255, 0, 0;
 	}
 
 	// Cache existing icons for Hexen armor classes
@@ -1656,33 +1561,44 @@ class JGPUFH_FlexibleHUD : EventHandler
 				id += 4;
 			}
 		}
-		if (reticleMarkerAlpha > 0)
+
+		double alpha = reticleMarkerAlpha;
+		if (alpha <= 0)
 		{
-			if (!reticleMarkerTransform)
-				reticleMarkerTransform = new("Shape2DTransform");
-			// Factor in the crosshair size but up to a point
-			// as to not make these too small:
-			int baseSize = c_EnemyHitMarkersSize.GetInt();
-			double crosshairScaleFac = 1.0;
-			if (baseSize > 0)
+			if (IsMenuOpen('JGPHUD_CrosshairOptions_menu'))
 			{
-				baseSize = Clamp(baseSize, 2, 128);
+				alpha = SinePulse(TICRATE*2, 0.2, 0.6, inMenus:true);
 			}
 			else
 			{
-				baseSize = 10;
-				crosshairScaleFac = max(c_crosshairScale.GetFloat(), 0.2);
+				return;
 			}
-			double size = (baseSize + baseSize * reticleMarkerScale);
-			int screenFac = min(Screen.GetWidth() / 320, Screen.GetHeight() / 200);
-			size *= screenFac * crosshairScaleFac;
-			reticleMarkerTransform.Clear();
-			reticleMarkerTransform.Scale((size, size));
-			reticleMarkerTransform.Translate(screenCenter);
-			reticleHitMarker.SetTransform(reticleMarkerTransform);
-			color col = color(c_EnemyHitMarkersColor.GetInt());
-			Screen.DrawShapeFill(color(col.b, col.g, col.r), reticleMarkerAlpha, reticleHitMarker);
 		}
+
+		if (!reticleMarkerTransform)
+			reticleMarkerTransform = new("Shape2DTransform");
+		// Factor in the crosshair size but up to a point
+		// as to not make these too small:
+		int baseSize = c_EnemyHitMarkersSize.GetInt();
+		double crosshairScaleFac = 1.0;
+		if (baseSize > 0)
+		{
+			baseSize = Clamp(baseSize, 2, 128);
+		}
+		else
+		{
+			baseSize = 10;
+			crosshairScaleFac = max(c_crosshairScale.GetFloat(), 0.2);
+		}
+		double size = (baseSize + baseSize * reticleMarkerScale);
+		int screenFac = min(Screen.GetWidth() / 320, Screen.GetHeight() / 200);
+		size *= screenFac * crosshairScaleFac;
+		reticleMarkerTransform.Clear();
+		reticleMarkerTransform.Scale((size, size));
+		reticleMarkerTransform.Translate(screenCenter);
+		reticleHitMarker.SetTransform(reticleMarkerTransform);
+		color col = color(c_EnemyHitMarkersColor.GetInt());
+		Screen.DrawShapeFill(color(col.b, col.g, col.r), alpha, reticleHitMarker);
 	}
 
 	ui bool CanDrawReticleBar(int which)
@@ -2058,7 +1974,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// is under 20%:
 		if (frac >= 0.8)
 		{
-			double alphaSineFac = 0.5 + 0.5 * sin(360.0 * level.maptime / TICRATE);
+			double alphaSineFac = SinePulse(LinearMap(frac, 0.8, 1.0, TICRATE, TICRATE*0.34));
 			Screen.DrawShapeFill(color(255,255,255), alpha * alphaSineFac * 0.5, roundBars);
 		}
 		DisableMask();
@@ -3117,8 +3033,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// this will set up a preview mode that draws
 			// dummy powerup icons and empty timers, so that
 			// the player can see where the timers will appear:
-			let mnu = Menu.GetCurrentMenu();
-			if (mnu && mnu is 'JGPHUD_Powerups_menu')
+			if (IsMenuOpen('JGPHUD_Powerups_menu'))
 			{
 				previewMode = true;
 				powerNum = powerupData.Size();
@@ -3158,7 +3073,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			if (pow || previewMode)
 			{
 				int style = STYLE_TranslucentStencil;
-				double alpha = 0.4;
+				double alpha = SinePulse(TICRATE*2, 0.2, 0.6, inMenus:true);
 				if (!previewMode)
 				{
 					style = pwd.renderStyle;
@@ -3185,7 +3100,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 				{
 					s_time = String.Format("%d:%02d", m, s);
 				}
-				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5 - fy*0.1), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: Font.CR_BLACK, scale:(textscale,textscale*1.2));
+				//statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5 - fy*0.1), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: Font.CR_BLACK, scale:(textscale,textscale*1.2));
 				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, scale:(textscale,textscale));
 				pos.y += iconSize + indent;
 			}
@@ -3202,8 +3117,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			// Enable preview display if the relevant
 			// menu is open but the player has no keys:
-			let mnu = Menu.GetCurrentMenu();
-			if (mnu && mnu is 'JGPHUD_Keys_menu')
+			if (IsMenuOpen('JGPHUD_Keys_menu'))
 			{
 				previewMode = true;
 			}
@@ -3278,8 +3192,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (previewMode)
 		{
 			style = STYLE_TranslucentStencil;
-			alpha = 0.35;
-			col = color(128,255,255,255);
+			alpha = SinePulse(TICRATE*2, 0.2, 0.5, inMenus:true);
+			col = color(int(255 * alpha),255,255,255);
 		}
 		BackgroundFill(pos.x, pos.y, width, height, flags, col);
 
@@ -3318,6 +3232,25 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return ITEMBARICONSIZE;
 	}
 
+	ui bool ShouldDrawInvBar(int numfields)
+	{		
+		// Perform the usual checks first:
+		if (!c_drawInvBar.GetBool())
+			return false;
+		if (Level.NoInventoryBar)
+			return false;
+		// This does something important to make sure
+		// the first item in the list is valid:
+		CPlayer.mo.InvFirst = statusbar.ValidateInvFirst(numfields);
+		if (!CPlayer.mo.InvFirst)
+			return false;
+		// Check the player has a selected item:
+		if (!CPlayer.mo.InvSel)
+			return false;
+		
+		return true;
+	}
+
 	// This draws a vaguely Silent Hill-style inventory bar,
 	// where the selected item is in the center, and the other
 	// items are drawn to the left and to the right of it.
@@ -3325,42 +3258,48 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// infinitely:
 	ui void DrawInventoryBar(int numfields = 7)
 	{
-		// Perform the usual checks first:
-		if (!c_drawInvBar.GetBool())
-			return;
-		if (Level.NoInventoryBar)
-			return;
-		// This does something important to make sure
-		// the first item in the list is valid:
-		CPlayer.mo.InvFirst = statusbar.ValidateInvFirst(numfields);
-		if (!CPlayer.mo.InvFirst)
-			return;
-		// Cache the currently selected item:
-		Inventory invSel = CPlayer.mo.InvSel;	
-		if (!invSel)
-			return;
-		
-		// Calculate the total number of items to display
-		// and clamp the number of icons to that value:
-		int totalItems;
-		Inventory invFirst = CPlayer.mo.InvFirst;
-		while (invFirst)
+		bool previewMode;
+		if (!ShouldDrawInvBar(numfields))
 		{
-			invFirst = invFirst.NextInv();
-			totalItems++;
+			if (IsMenuOpen("JGPHUD_InvBar_menu"))
+			{
+				previewMode = true;
+			}
+			else
+			{
+				return;
+			}
 		}
-		// The number of fields can't be larger than the
-		// total number of items:
-		numfields = Clamp(numfields, 1, totalItems);
 
-		// Numfields must be an odd number. So, if the player
-		// only has 2 items, they'll see the current item
-		// in the center, and the next item both to the left
-		// and to the right of it:
-		if (numfields % 2 == 0)
+		Inventory invSel;
+		Inventory invFirst;
+		int totalItems;
+		if (!previewMode)
 		{
-			numfields += 1;
+			// Cache the currently selected item:
+			invSel = CPlayer.mo.InvSel;
+			// Calculate the total number of items to display
+			// and clamp the number of icons to that value:
+			Inventory invFirst = CPlayer.mo.InvFirst;
+			while (invFirst)
+			{
+				invFirst = invFirst.NextInv();
+				totalItems++;
+			}
+			// The number of fields can't be larger than the
+			// total number of items:
+			numfields = Clamp(numfields, 1, totalItems);
+
+			// Numfields must be an odd number. So, if the player
+			// only has 2 items, they'll see the current item
+			// in the center, and the next item both to the left
+			// and to the right of it:
+			if (numfields % 2 == 0)
+			{
+				numfields += 1;
+			}
 		}
+
 		int indent = 1;
 		double iconSize = GetInvBarIconSize();
 		int width = (iconSize + indent) * numfields - indent;
@@ -3368,8 +3307,34 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		// Validate position as usual:
 		int flags = SetScreenFlags(c_InvBarPos.GetInt());
-		vector2 ofs = ( c_InvBarX.GetInt(), c_InvBarY.GetInt());
+		vector2 ofs = (c_InvBarX.GetInt(), c_InvBarY.GetInt());
 		vector2 pos = AdjustElementPos((width*0.5, height*0.5), flags, (width, height), ofs);
+
+		// In preview mode we'll simply display a series
+		// of pulsing fills the inv slots, and nothing else:
+		if (previewMode)
+		{
+			double spaceWidth = width / numfields;
+			int midPoint = ceil(numfields / 2);
+			vector2 ppos = (pos.x - width*0.5, pos.y - height*0.5);
+			for (int i = 0; i < numfields; i++)
+			{
+				double amin, amax;
+				if (i < midPoint)
+				{
+					amin = LinearMap(i, 0, midPoint, 0.2, 0.4);
+				}
+				else
+				{
+					amin = LinearMap(i, midPoint, numfields - 1, 0.4, 0.2);
+				}
+				amax = amin + 0.2;
+				int alph = int(255 * SinePulse(TICRATE*2, amin, amax, inMenus:true));
+				statusbar.Fill(color(alph, 200, 200, 200), ppos.x, ppos.y, spaceWidth, height, flags);
+				ppos.x += spaceWidth;
+			}
+			return;
+		}
 
 		vector2 cursOfs = (-iconSize*0.5 - indent, -iconSize*0.5 - indent);
 		vector2 cursPos = pos + cursOfs;
@@ -3557,6 +3522,107 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		return lastgood;
 	}
+
+	ui transient CVar c_BackColor;
+	ui transient CVar c_BackAlpha;
+	ui transient CVar c_BackTexture;
+	ui transient CVar c_BackStyle;
+	ui transient CVar c_BackTextureStretch;
+
+	ui transient CVar c_aspectscale;
+	ui transient CVar c_crosshairScale;
+
+	ui transient CVar c_mainfont;
+	ui transient CVar c_smallfont;
+	ui transient CVar c_numberfont;
+
+	ui transient CVar c_drawMainbars;
+	ui transient CVar c_MainBarsPos;
+	ui transient CVar c_MainBarsX;
+	ui transient CVar c_MainBarsY;
+	ui transient CVar c_DrawFace;
+
+	ui transient CVar c_drawAmmoBlock;
+	ui transient CVar c_AmmoBlockPos;
+	ui transient CVar c_AmmoBlockX;
+	ui transient CVar c_AmmoBlockY;
+	ui transient CVar c_drawAmmoBar;
+	ui transient CVar c_DrawWeapon;
+
+	ui transient CVar c_drawAllAmmo;
+	ui transient CVar c_AllAmmoShowDepleted;
+	ui transient CVar c_AllAmmoPos;
+	ui transient CVar c_AllAmmoX;
+	ui transient CVar c_AllAmmoY;
+
+	ui transient CVar c_drawInvBar;
+	ui transient CVar c_AlwaysShowInvBar;
+	ui transient CVar c_InvBarIconSize;
+	ui transient CVar c_InvBarPos;
+	ui transient CVar c_InvBarX;
+	ui transient CVar c_InvBarY;
+	
+	ui transient CVar c_drawDamageMarkers;
+
+	ui transient CVar c_drawWeaponSlots;
+	ui transient CVar c_WeaponSlotsSize;
+	ui transient CVar c_WeaponSlotsAlign;
+	ui transient CVar c_WeaponSlotsPos;
+	ui transient CVar c_WeaponSlotsX;
+	ui transient CVar c_WeaponSlotsY;
+
+	ui transient CVar c_drawPowerups;
+	ui transient CVar c_PowerupsIconSize;
+	ui transient CVar c_PowerupsPos;
+	ui transient CVar c_PowerupsX;
+	ui transient CVar c_PowerupsY;
+
+	ui transient CVar c_drawKeys;
+	ui transient CVar c_KeysPos;
+	ui transient CVar c_KeysX;
+	ui transient CVar c_KeysY;
+
+	ui transient CVar c_drawMinimap;
+	ui transient CVar c_MinimapEnemyDisplay;
+	ui transient CVar c_CircularMinimap;
+	ui transient CVar c_minimapSize;
+	ui transient CVar c_minimapPos;
+	ui transient CVar c_minimapPosX;
+	ui transient CVar c_minimapPosY;
+	ui transient CVar c_minimapZoom;
+	ui transient CVar c_minimapDrawUnseen;
+	ui transient CVar c_minimapDrawFloorDiff;
+	ui transient CVar c_minimapDrawCeilingDiff;
+	ui transient CVar c_MinimapMapMarkersSize;
+	ui transient CVar c_minimapBackColor;
+	ui transient CVar c_minimapLineColor;
+	ui transient CVar c_minimapIntLineColor;
+	ui transient CVar c_minimapYouColor;
+	ui transient CVar c_minimapMonsterColor;
+	ui transient CVar c_minimapFriendColor;
+
+	ui transient CVar c_DrawKills;
+	ui transient CVar c_DrawItems;
+	ui transient CVar c_DrawSecrets;
+	ui transient CVar c_DrawTime;
+
+	ui transient CVar c_DrawEnemyHitMarkers;
+	ui transient CVar c_EnemyHitMarkersColor;
+	ui transient CVar c_EnemyHitMarkersSize;
+	ui transient CVar c_DrawReticleBars;
+	ui transient CVar c_ReticleBarsHealthArmor;
+	ui transient CVar c_ReticleBarsAmmo;
+	ui transient CVar c_ReticleBarsEnemy;
+	ui transient CVar c_ReticleBarsText;
+	ui transient CVar c_ReticleBarsAlpha;
+	ui transient CVar c_ReticleBarsSize;
+	ui transient CVar c_ReticleBarsWidth;
+
+	ui transient CVar c_drawCustomItems;
+	ui transient CVar c_CustomItemsIconSize;
+	ui transient CVar c_CustomItemsPos;
+	ui transient CVar c_CustomItemsX;
+	ui transient CVar c_CustomItemsY;
 
 	ui void CacheCvars()
 	{
