@@ -1,5 +1,7 @@
 class JGPHUD_Powerups_menu : OptionMenu
 {}
+class JGPHUD_Keys_menu : OptionMenu
+{}
 
 class OptionMenuItemUFHResetCCMD : OptionMenuItemSubmenu
 {

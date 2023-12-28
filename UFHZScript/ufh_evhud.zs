@@ -3157,16 +3157,14 @@ class JGPUFH_FlexibleHUD : EventHandler
 			let pow = Powerup(CPlayer.mo.FindInventory(pwd.powerupType));
 			if (pow || previewMode)
 			{
-				color col = 0xffffffff;
-				int style = STYLE_Stencil;
+				int style = STYLE_TranslucentStencil;
 				double alpha = 0.4;
 				if (!previewMode)
 				{
-					col = 0xffffffff;
 					style = pwd.renderStyle;
 					alpha = pow.isBlinking() ? 0.4 : 1.0;
 				}
-				statusbar.DrawTexture(pwd.icon, pos, flags|StatusBarCore.DI_ITEM_CENTER, alpha: alpha, scale:ScaleToBox(pwd.icon, iconSize), style:style, col: col);
+				statusbar.DrawTexture(pwd.icon, pos, flags|StatusBarCore.DI_ITEM_CENTER, alpha: alpha, scale:ScaleToBox(pwd.icon, iconSize), style:style);
 				// Account for infinite flight in singleplayer:
 				if (!previewMode && !multiplayer && pow is 'PowerFlight' && Level.infinite_flight)
 				{
@@ -3199,30 +3197,66 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!c_drawKeys.GetBool())
 			return;
 
+		bool previewMode;
 		if (!CPlayer.mo.FindInventory('Key',true))
-			return;
+		{
+			// Enable preview display if the relevant
+			// menu is open but the player has no keys:
+			let mnu = Menu.GetCurrentMenu();
+			if (mnu && mnu is 'JGPHUD_Keys_menu')
+			{
+				previewMode = true;
+			}
+			else
+			{
+				return;
+			}
+		}
 
 		int flags = SetScreenFlags(c_KeysPos.GetInt());
-		vector2 ofs = ( c_KeysX.GetInt(), c_KeysY.GetInt() );
+		vector2 ofs = (c_KeysX.GetInt(), c_KeysY.GetInt());
 		double iconSize = 10;
 		int indent = 1;
 		double width;
 		double height;
 
 		int keyCount = Key.GetKeyTypeCount();
-		int totalKeys;
+		array<TextureID> keyIcons;
 		for (int i = 0; i < keyCount; i++)
 		{
-			let k = CPlayer.mo.FindInventory(Key.GetKeyType(i));
-			if (k)
+			class<Key> kc = Key.GetKeyType(i);
+			TextureID icon;
+			// In preview mode, cache the icons
+			// from class definitions:
+			if (previewMode)
 			{
-				let icon = statusbar.GetIcon(k,0);
-				if (icon.IsValid() && TexMan.GetName(icon) != 'TNT1A0')
-					totalKeys++;
+				let k = GetDefaultByType(kc);
+				icon = k.icon;
+				if (!icon.IsValid())
+				{
+					icon = k.spawnstate.GetSpriteTexture(0);
+				}
+			}
+			// Otherwise, cache them from keys
+			// in player's inventory:
+			else
+			{
+				let k = CPlayer.mo.FindInventory(kc);
+				if (k)
+				{
+					icon = statusbar.GetIcon(k,0);
+				}
+			}
+			if (icon.IsValid() && TexMan.GetName(icon) != 'TNT1A0')
+			{
+				keyIcons.Push(int(icon));
 			}
 		}
+		int totalKeys = keyIcons.Size();
 		if (totalKeys <= 0)
+		{
 			return;
+		}
 
 		// Calculate the size of the key block
 		// If there are 3 keys or fewer: columns = total keys, and rows = 1.
@@ -3235,9 +3269,19 @@ class JGPUFH_FlexibleHUD : EventHandler
 		int rows = totalKeys > 3 ? ceil(totalkeys / double(columns)) : 1;
 		width = (iconsize + indent) * columns + indent;
 		height = (iconsize + indent) * rows;
-
 		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
-		BackgroundFill(pos.x, pos.y, width, height, flags);
+		
+		int style = STYLE_Normal;
+		double alpha = 1.0;
+		int col = color(0,0,0,0);
+		// altered visuals for preview mode:
+		if (previewMode)
+		{
+			style = STYLE_TranslucentStencil;
+			alpha = 0.35;
+			col = color(128,255,255,255);
+		}
+		BackgroundFill(pos.x, pos.y, width, height, flags, col);
 
 		pos += (iconsize*0.5+indent, iconsize*0.5+indent);
 		vector2 kpos = pos;
@@ -3245,30 +3289,24 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// so we can switch to new line when we've filled all
 		// columns:
 		int horKeys;
-		for (int i = 0; i < keyCount; i++)
+		for (int i = 0; i < keyIcons.Size(); i++)
 		{
-			let k = CPlayer.mo.FindInventory(Key.GetKeyType(i));
-			if (k)
+			let icon = keyIcons[i];
+			statusbar.DrawTexture(icon, kpos, flags|StatusBarCore.DI_ITEM_CENTER, alpha:alpha, box:(iconSize, iconSize), style:style);
+			horKeys++;
+			// Keep going right if this isn't the final
+			// column yet:
+			if (horKeys < columns)
 			{
-				let icon = statusbar.GetIcon(k,0);
-				if (!icon.IsValid() || TexMan.GetName(icon) == 'TNT1A0')
-					continue;
-				statusbar.DrawTexture(icon, kpos, flags|StatusBarCore.DI_ITEM_CENTER, box:(iconSize, iconSize));
-				horKeys++;
-				// Keep going right if this isn't the final
-				// column yet:
-				if (horKeys < columns)
-				{
-					kpos.x += iconsize + indent;
-				}
-				// Otherwise reached the final column - 
-				// reset x pos and move y pos:
-				else
-				{
-					horKeys = 0;
-					kpos.x = pos.x;
-					kpos.y += iconSize;
-				}
+				kpos.x += iconsize + indent;
+			}
+			// Otherwise reached the final column - 
+			// reset x pos and move y pos:
+			else
+			{
+				horKeys = 0;
+				kpos.x = pos.x;
+				kpos.y += iconSize;
 			}
 		}
 	}

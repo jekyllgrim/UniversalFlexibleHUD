@@ -67,7 +67,6 @@ OptionMenu "JGPHUD_MainBars"
 	Option "$JGPHUD_MAINBARS_ENABLE", "jgphud_DrawMainbars", "MainBars"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_MainBarsPos", "ElementScreenPos", "jgphud_DrawMainbars"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_MainBarsX", -160, 160, 2, 0, "jgphud_DrawMainbars"
-	StaticTextSwitchable "pos x 0", "pos x not 0", "jgphud_MainBarsX"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_MainBarsY", -100, 100, 2, 0, "jgphud_DrawMainbars"
 	Option "$JGPHUD_MAINBARS_SHOWFACE", "jgphud_DrawFace", "OnOff", "jgphud_DrawMainbars"
 	StaticText ""
@@ -105,6 +104,7 @@ OptionMenu "JGPHUD_AllAmmo"
 
 OptionMenu "JGPHUD_Keys"
 {
+	Class "JGPHUD_Keys_menu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_KEYS_TITLE", yellow
 	StaticText ""
