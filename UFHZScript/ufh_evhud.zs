@@ -319,7 +319,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (initDone)
 			return;
 		
-		smallHUDFont = HUDFont.Create(newConsoleFont, shadowx: -1, shadowy: -1);
+		smallHUDFont = HUDFont.Create(newConsoleFont);
 		Font fnt = "Confont";
 		mainHUDFont = HUDFont.Create(fnt);
 		fnt = "IndexFont";
@@ -608,7 +608,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	// Returns true if the menu belonging to the
 	// specified class is currently open:
-	ui bool IsMenuOpen(class<Object> menuname)
+	ui bool IsMenuOpen(class<Object> menuname = 'JGPHUD_OptionMenu')
 	{
 		let mnu = Menu.GetCurrentMenu();
 		return mnu && mnu is menuname;
@@ -1349,6 +1349,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!c_DrawCustomItems.GetBool())
 			return;
 
+		bool previewMode;
 		int itemNum;
 		for (int i = 0; i < customItems.Size(); i++)
 		{
@@ -1359,7 +1360,17 @@ class JGPUFH_FlexibleHUD : EventHandler
 			}
 		}
 		if (itemNum <= 0)
-			return;
+		{
+			if (IsMenuOpen())
+			{
+				previewMode = true;
+				itemNum = 4;
+			}
+			else
+			{
+				return;
+			}
+		}
 
 		double iconSize = Clamp(c_CustomItemsIconSize.GetFloat(), 4, 64);
 		int indent = 1;
@@ -1370,20 +1381,44 @@ class JGPUFH_FlexibleHUD : EventHandler
 		double fy = hfnt.mFont.GetHeight() * fntScale;
 		double width = iconsize + indent*4 + hfnt.mFont.StringWidth("000/000") * fntScale;
 		double height = itemNum * (iconsize + indent);
-
+		
 		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
-		BackGroundFill(pos.x, pos.y, width, height, flags);
-
-		for (int i = 0; i < customItems.Size(); i++)
+		// visuals for preview mode:
+		double alpha = SinePulse(TICRATE*2, 0.2, 0.5, inMenus:true);
+		if (previewMode)
 		{
-			let it = customItems[i];
-			if (!it)
-				continue;
-			let item = CPlayer.mo.FindInventory(it);
-			if (!item)
-				continue;
-			statusbar.DrawInventoryIcon(item, pos + (iconSize*0.5,iconSize*0.5), flags|StatusBarCore.DI_ITEM_CENTER, scale:ScaleToBox(item.icon, iconSize));
-			statusbar.DrawString(hfnt, String.Format("%3d/%3d", item.amount, item.maxamount), pos + (iconSize + indent, iconsize*0.5 -fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_LEFT, translation: GetPercentageFontColor(item.amount, item.maxamount), scale:(fntScale,fntScale));
+			color col = color(int(255 * alpha),255,255,255);
+			statusbar.Fill(col, pos.x, pos.y, width, height, flags);
+		}
+		else
+		{
+			BackgroundFill(pos.x, pos.y, width, height, flags);
+		}
+		int style = STYLE_TranslucentStencil;
+		string text = "000/000";
+		int translation = Font.CR_Untranslated;
+		TextureID icon = TexMan.CheckForTexture("AMRKA0");
+
+		int count = previewMode ? itemNum : customItems.Size();
+		for (int i = 0; i < count; i++)
+		{
+			Inventory item;
+			if (!previewMode)
+			{
+				let it = customItems[i];
+				if (!it)
+					continue;
+				item = CPlayer.mo.FindInventory(it);
+				if (!item)
+					continue;
+				icon = statusbar.GetIcon(item,0);
+				style = item.GetRenderstyle();
+				alpha = 1.0;
+				text = String.Format("%3d/%3d", item.amount, item.maxamount);
+				translation = GetPercentageFontColor(item.amount, item.maxamount);
+			}
+			statusbar.DrawTexture(icon, pos + (iconSize*0.5,iconSize*0.5), flags|StatusBarCore.DI_ITEM_CENTER, alpha:alpha, scale:ScaleToBox(icon, iconSize), style:style);
+			statusbar.DrawString(hfnt, text, pos + (iconSize + indent, iconsize*0.5 -fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_LEFT, translation: translation, scale:(fntScale,fntScale));
 			pos.y += max(fy, iconsize) + indent;
 		}
 	}
@@ -1565,7 +1600,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		double alpha = reticleMarkerAlpha;
 		if (alpha <= 0)
 		{
-			if (IsMenuOpen('JGPHUD_CrosshairOptions_menu'))
+			if (IsMenuOpen())
 			{
 				alpha = SinePulse(TICRATE*2, 0.2, 0.6, inMenus:true);
 			}
@@ -2334,29 +2369,27 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Check CVar values:
 		bool drawmap = c_drawMinimap.GetBool();
 		bool drawradar = c_MinimapEnemyDisplay.GetInt();
-		// Don't draw if PlayerPawn is invalid:
-		if (drawmap && !CPlayer.mo)
+		bool canDraw = drawmap || drawradar;
+		// Don't draw if either of these is true:
+		// 1. the level has been unloaded (prevents possible crashes on tally/intermission)
+		// 2. PlayerPawn is invalid
+		// 3. automap is open
+		// 4. we're not in a level (this will probably never happen though)
+		if (candraw)
+		{
+			candraw = !levelUnloaded && CPlayer.mo && !autoMapActive && gamestate == GS_Level;
+		}
+		if (!canDraw)
+		{
 			drawmap = false;
-		// Don't draw if automap is open:
-		if (drawmap && autoMapActive)
-			drawmap = false;
-		// Don't draw if the world has been unloaded (this prevents
-		// possible crashes on tally/intermission
-		// screens when moving to the next map):
-		if (levelUnloaded)
-			drawmap = false;
-		// Just as a safety check, don't draw if
-		// not in a level (this probably will never
-		// be actually checked):
-		if (drawmap && gamestate != GS_LEVEL)
-			drawmap = false;
-		// If map shouldn't be drawn, radar shouldn't
-		// be drawn either. Also, clera lines and
-		// monsters arrays:
+			drawradar = false;
+		}
 		if (!drawmap)
 		{
-			drawradar = false;
 			mapLines.Clear();
+		}
+		if (!drawradar)
+		{
 			radarMonsters.Clear();
 		}
 		return drawmap, drawradar;
@@ -2390,7 +2423,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Draw map data below the minimap
 		// (or above it if it's at the bottom of the screen):
 		vector2 msize = (64, 0);
-		if (drawMap)
+		if (drawMap || drawradar)
 		{
 			msize = (max(size, 44), size); //going under 44 pixels looks too bad scaling-wise
 		}
@@ -2409,8 +2442,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 		DrawMapData(mapDataPos, flags, msize.x, 0.5);
 		
 		// If the actual minimap is disabled, stop here:
-		if (!drawMap)
+		if (!drawMap && !drawradar)
+		{
 			return;
+		}
 
 		size *= hudscale.x;
 
@@ -2516,7 +2551,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		
 		// Draw the minimap lines:
-		DrawMinimapLines(pos, diff, playerAngle, size, hudscale.x, mapZoom);
+		if (drawmap)
+		{
+			DrawMinimapLines(pos, diff, playerAngle, size, hudscale.x, mapZoom);
+		}
 
 		// White arrow at the center represeing the player:
 		if (!minimapShape_Arrow)
@@ -2775,7 +2813,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	ui void UpdateEnemyRadar()
 	{
-		if (!ShouldDrawMinimap())
+		bool drawMap, drawRadar;
+		[drawMap, drawRadar] = ShouldDrawMinimap();
+		if (!drawRadar)
 		{
 			return;
 		}
@@ -2807,7 +2847,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		for (int i = 0; i < radarMonsters.Size(); i++)
 		{
 			let thing = radarMonsters[i];
-			if (!thing || !thing.target)
+			if (!thing || (!drawAll && !thing.target))
 				continue;
 
 			vector2 ePos = (thing.pos.xy - ofs) * zoom * scale;
@@ -3033,7 +3073,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// this will set up a preview mode that draws
 			// dummy powerup icons and empty timers, so that
 			// the player can see where the timers will appear:
-			if (IsMenuOpen('JGPHUD_Powerups_menu'))
+			if (IsMenuOpen())
 			{
 				previewMode = true;
 				powerNum = powerupData.Size();
@@ -3100,7 +3140,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 				{
 					s_time = String.Format("%d:%02d", m, s);
 				}
-				//statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5 - fy*0.1), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: Font.CR_BLACK, scale:(textscale,textscale*1.2));
+				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5) - (0.5,0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation:Font.CR_Black, scale:(textscale,textscale));
 				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, scale:(textscale,textscale));
 				pos.y += iconSize + indent;
 			}
@@ -3117,7 +3157,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			// Enable preview display if the relevant
 			// menu is open but the player has no keys:
-			if (IsMenuOpen('JGPHUD_Keys_menu'))
+			if (IsMenuOpen())
 			{
 				previewMode = true;
 			}
@@ -3187,15 +3227,18 @@ class JGPUFH_FlexibleHUD : EventHandler
 		
 		int style = STYLE_Normal;
 		double alpha = 1.0;
-		int col = color(0,0,0,0);
 		// altered visuals for preview mode:
 		if (previewMode)
 		{
 			style = STYLE_TranslucentStencil;
 			alpha = SinePulse(TICRATE*2, 0.2, 0.5, inMenus:true);
-			col = color(int(255 * alpha),255,255,255);
+			color col = color(int(255 * alpha),255,255,255);
+			statusbar.Fill(col, pos.x, pos.y, width, height, flags);
 		}
-		BackgroundFill(pos.x, pos.y, width, height, flags, col);
+		else
+		{
+			BackgroundFill(pos.x, pos.y, width, height, flags);
+		}
 
 		pos += (iconsize*0.5+indent, iconsize*0.5+indent);
 		vector2 kpos = pos;
@@ -3261,7 +3304,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		bool previewMode;
 		if (!ShouldDrawInvBar(numfields))
 		{
-			if (IsMenuOpen("JGPHUD_InvBar_menu"))
+			if (IsMenuOpen())
 			{
 				previewMode = true;
 			}

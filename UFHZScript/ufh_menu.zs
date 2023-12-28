@@ -1,15 +1,7 @@
-// These classes are here simply so that I can feed them
+// This classes are here simply so that I can feed it
 // to the Class property in MENUDEF. This lets me detect
-// that a specific submenu in the mod's settings is open
-class JGPHUD_Powerups_menu : OptionMenu
-{}
-class JGPHUD_Keys_menu : OptionMenu
-{}
-class JGPHUD_CrosshairOptions_menu : OptionMenu
-{}
-class JGPHUD_CustomItems_menu : OptionMenu
-{}
-class JGPHUD_InvBar_menu : OptionMenu
+// that the mod's settings menu is open:
+class JGPHUD_OptionMenu : OptionMenu
 {}
 
 class OptionMenuItemUFHResetCCMD : OptionMenuItemSubmenu
