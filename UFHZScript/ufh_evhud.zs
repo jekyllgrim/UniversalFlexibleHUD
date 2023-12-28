@@ -196,7 +196,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 	const MAPSCALEFACTOR = 8.;
 	ui array <Line> mapLines;
 	ui array <Actor> radarMonsters;
-	ui array <JGPUFH_LockData> lockdata;
 	ui Shape2D minimapShape_Square;
 	ui Shape2D minimapShape_Circle;
 	ui Shape2D minimapShape_Arrow;
@@ -402,12 +401,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	// Obtain mapcolor strings from LOCKDEFS:
-	ui void GetLockData()
-	{
-		JGPUFH_LockData.GetLockData(lockdata);
-	}
-
 	// Updates delta time to allow for sub-tic interpolation
 	// of values that are updated per tic. Must be called
 	// in RenderOverlay unconditionally:
@@ -433,7 +426,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		fnt = "IndexFont";
 		numHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
 		
-		GetLockData();
 		GetCustomItemsList();
 
 		initDone = true;
@@ -2862,25 +2854,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!lock)
 			return -1;
 		
-		int gametype = GameInfo.GameType;
-		for (int i = 0; i < lockdata.Size(); i++)
-		{
-			let ld = lockdata[i];
-			if (ld && ld.lockNumber == lock && ld.gametype == gametype)
-			{
-				return ld.lockcolor;
-			}
-		}
-		for (int i = 0; i < lockdata.Size(); i++)
-		{
-			let ld = lockdata[i];
-			if (ld && ld.lockNumber == lock)
-			{
-				return ld.lockcolor;
-			}
-		}
-
-		return color(0,255,255);
+		return Key.GetMapColorForLock(lock);
 	}
 
 	ui void UpdateEnemyRadar()
