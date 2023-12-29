@@ -122,8 +122,8 @@ mapas complejos, especialmente con bajo zoom.","Remarque : la minimap peut entra
 performance sur les cartes à géométrie complexe, en
 particulier lorsque le zoom est faible. à géométrie
 complexe, en particulier lorsque le zoom est faible."
-Display undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,Determines whether the minimap will draw all lines or only the ones the player has seen (like the default automap),Показывать ещё не обнаруженные линии,Mostrar linhas não descobertas,Unentdeckte Linien zeichnen,Mostrar lineas no descubiertas,Montrer lignes non découvertes
-Undiscovered lines translucency,JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA,"Replacement for ""Display undiscovered lines"" option: now this is a 0.0-1.0 slider that determines the translucency of the lines that the player hasn't seen yet.",Прозрачность ещё не обнаруженных линий,,,,
+Display undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,DEPRECATED,Показывать ещё не обнаруженные линии,Mostrar linhas não descobertas,Unentdeckte Linien zeichnen,Mostrar lineas no descubiertas,Montrer lignes non découvertes
+Undiscovered lines opacity,JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA,"Replacement for ""Display undiscovered lines"" option: now this is a 0.0-1.0 slider that determines the translucency of the lines that the player hasn't seen yet.",Прозрачность ещё не обнаруженных линий,,,,
 Lines around different floor heights,JGPHUD_MINIMAP_DRAWFLOORDIFF,On/off: whether to display lines that are at the edges of the sectors with different floor heights,Линии секторов с разной высотой пола,,,,
 Lines around different ceiling heights,JGPHUD_MINIMAP_DRAWCEILINGDIFF,On/off: whether to display lines that are at the edges of the sectors with different ceiling heights,Линии секторов с разной высотой потолка,,,,
 Map markers size,JGPHUD_MINIMAP_MAPMARKERSCALE,A slider that determines the size of the enemy markers. At 0 (default) the markers are equal to the size of the monster and thus change their visual size according to the minimap's zoom value. At values above 0 they become fixed in size regardless of zoom.,Размер маркеров,,,,
@@ -161,3 +161,40 @@ de ítens especificadas no arquivo ITEMINFO.","Dieses spezielle Element kann Geg
 anzeigen, die im ITEMINFO lump spezifiziert sind.","Este elemento especial puede mostrar clases
 personalizadas de items definidas en ITEMINFO.","Cet élément spécial peut montrer des classes
 d'objets spécifiées dans le bloc ITEMINFO."
+Presets,JGPHUD_Presets_Title,Title for the Presets submenu,Пресеты,,,,
+load,JGPHUD_Presets_Verb_Load,"Translate as a verb (probably in infinitive form)
+
+This is one of the actions in a submenu that appears when you click on a preset.
+After that it's used as a verb and inserted in the follwing message:
+
+Are you sure you want to <verb> preset ""presetname""?",загрузить,,,,
+overwrite,JGPHUD_Presets_Verb_Overwrite,"Translate as a verb (probably in infinitive form)
+
+This is one of the actions in a submenu that appears when you click on a preset.
+After that it's used as a verb and inserted in the follwing message:
+
+Are you sure you want to <verb> preset ""presetname""?",перезаписать,,,,
+delete,JGPHUD_Presets_Verb_Delete,"Translate as a verb (probably in infinitive form)
+
+This is one of the actions in a submenu that appears when you click on a preset.
+After that it's used as a verb and inserted in the follwing message:
+
+Are you sure you want to <verb> preset ""presetname""?",удалить,,,,
+cancel,JGPHUD_Presets_Menu_Cancel,"Button to leave the Presets menu. Comes after options to load/overwrite/delete, so please user lowercase for this one as well.
+The meaning is ""return to previous menu and do nothing"", so this can also be translated as ""back""",назад,,,,
+"Are you sure you want to %1s preset \""%2s\""?",JGPHUD_Presets_ConfirmAction,"%1s is ""load"" or ""overwrite"" or ""delete""
+%2s is the name of the preset given by the user, so it's not affected by grammar
+
+These string tags can be moved around, but make sure that their numbers stay in the same place (e.g. if %2s needs to be placed before %1s, the numbers do NOT change).
+Don't forget the escape character \ for quotation marks.","Вы точно хотите %1s пресет \""%2s\""?",,,,
+"Overwrite existing preset \""%s\""?",JGPHUD_Preset_Warning_Overwrite,"Generic warning for the Presets menu
+%s is the name of the preset given by the user, so it's not affected by grammar","Перезаписать пресет \""%s\""?",,,,
+Preset name cannot contain whitespace,JGPHUD_Preset_Warning_Whitespace,Generic warning for the Presets menu,В названии пресета не должно быть пробелов,,,,
+Cannot create preset with empty name,JGPHUD_Preset_Warning_EmptyName,Generic warning for the Presets menu,Нельзя создать пресет с пустым названием,,,,
+Built-in presets,JGPHUD_Presets_Menu_BuiltIn,Title of a submenu in the Presets menu,Встроенные пресеты,,,,
+User presets,JGPHUD_Presets_Menu_User,Title of a submenu in the Presets menu,Пользовательские пресеты,,,,
+Save current preset,JGPHUD_Presets_Menu_Save,Command in the Presets menu that saves the current settings,Сохранить текущие настройки в пресет,,,,
+Are you sure you want to reset to default settings?,JGPHUD_Presets_Menu_ResetSettingsConfirm,,Вы точно хотите сбросить настройки?,,,,
+Are you sure you want to load the default preset?,JGPHUD_Presets_Menu_ResetPresetConfirm,,Вы точно хотите загрузить пресет по умолчанию?,,,,
+Preset name:,JGPHUD_Presets_Menu_Name,"When the user chooses ""Save current preset"", this line appears, followed by a text input field where the user has to enter the name for their current preset.",Название пресета:,,,,
+Confirm,JGPHUD_Presets_Menu_Confirm,A button the player presses after they've entered the preset name.,Подтвердить,,,,

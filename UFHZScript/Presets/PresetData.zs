@@ -1,6 +1,7 @@
 extend class JGPUFH_PresetHandler
 {
-	static const Name preset_cvars[] = {
+	static const Name preset_cvars[] =
+	{
 		'jgphud_BackColor',
 		'jgphud_BackStyle',
 		'jgphud_BackAlpha',
@@ -103,7 +104,8 @@ extend class JGPUFH_PresetHandler
 		'jgphud_numberfont'
 	};
 
-	static const Class<JGPUFH_JsonElement> preset_cvar_json_types[] = {
+	static const Class<JGPUFH_JsonElement> preset_cvar_json_types[] =
+	{
 		'JGPUFH_JsonNumber', // jgphud_BackColor
 		'JGPUFH_JsonBool',   // jgphud_BackStyle
 		'JGPUFH_JsonNumber', // jgphud_BackAlpha

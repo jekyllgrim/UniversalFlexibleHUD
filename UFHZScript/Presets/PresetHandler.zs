@@ -94,7 +94,8 @@ class JGPUFH_PresetHandler : StaticEventHandler
 			JGPUFH_JsonElement e;
 			CVar c = CVar.FindCVar(preset_cvars[i]);
 			
-			switch(c.GetRealType()){
+			switch(c.GetRealType())
+			{
 			case CVar.CVAR_Int:
 			case CVar.CVAR_Color:
 				e = JGPUFH_JsonInt.make(c.GetInt());

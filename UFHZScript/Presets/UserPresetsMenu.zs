@@ -2,14 +2,16 @@ class JGPUFH_PresetMessageBox : CustomMessageBoxMenuBase {
 	
 	string mPreset;
 	
-	static const string options[] = {
-		"Load",
-		"Overwrite",
-		"Delete",
-		"Cancel"
+	static const string options[] = 
+	{
+		"$JGPHUD_Presets_Verb_Load",
+		"$JGPHUD_Presets_Verb_Overwrite",
+		"$JGPHUD_Presets_Verb_Delete",
+		"$JGPHUD_Presets_Menu_Cancel"
 	};
 	
-	static const string cmds[] = {
+	static const string cmds[] = 
+	{
 		"LoadUserPreset",
 		"SaveUserPreset",
 		"DeleteUserPreset"
@@ -17,21 +19,26 @@ class JGPUFH_PresetMessageBox : CustomMessageBoxMenuBase {
 	
 	int confirm_index;
 	
-	override uint optionCount(){
+	override uint optionCount()
+	{
 		return options.Size();
 	}
 	
-	override string optionName(uint i){
-		return options[i];
+	override string optionName(uint i)
+	{
+		return StringTable.Localize(options[i]);
 	}
 	
-	override int OptionXOffset(uint index) {
+	override int OptionXOffset(uint index) 
+	{
 		return -30;
 	}
 	
 	// -1 = no shortcut
-	override int OptionForShortcut(int char_key, out bool activate) {
-		if(char_key == 110) {
+	override int OptionForShortcut(int char_key, out bool activate) 
+	{
+		if(char_key == 110) 
+		{
 			activate = false;
 			return 3;
 		}
@@ -39,21 +46,29 @@ class JGPUFH_PresetMessageBox : CustomMessageBoxMenuBase {
 	}
 	
 	// -1 = escape
-	override void HandleResult(int i) {
-		if(i == -1 || i == 3) {
+	override void HandleResult(int i) 
+	{
+		if(i == -1 || i == 3) 
+		{
 			CloseSound();
 			Close();
-		} else {
+		}
+		else
+		{
 			MenuSound("menu/activate");
 			confirm_index = i;
-			Menu.StartMessage(TEXTCOLOR_NORMAL.."Are you sure you want to "..options[i].." preset '"..mPreset.."'?", 0);
+			string msg = StringTable.Localize("$JGPHUD_Presets_ConfirmAction");
+			msg = String.Format(msg, StringTable.Localize(options[i]), mPreset);
+			Menu.StartMessage(TEXTCOLOR_NORMAL..msg, 0);
 		}
 	}
 	
 	int toClose;
 	
-	override void OnReturn() {
-		if(toClose) {
+	override void OnReturn() 
+	{
+		if(toClose) 
+		{
 			JGPUFH_UserPresetsMenu(mParentMenu).toClose = toClose - 1;
 			Close();
 		}
@@ -94,11 +109,14 @@ class JGPUFH_UserPreset : OptionMenuItemSubmenu
 	}
 }
 
-class JGPUFH_SavePresetMenu : OptionMenu {
+class JGPUFH_SavePresetMenu : OptionMenu
+{
 	bool toClose;
 	
-	override void OnReturn() {
-		if(toClose) {
+	override void OnReturn() 
+	{
+		if(toClose) 
+		{
 			Close();
 		}
 	}
@@ -108,7 +126,7 @@ class OptionMenuItemJGPUFH_SaveUserPreset : OptionMenuItemSubmenu
 {
 	OptionMenuItemJGPUFH_SaveUserPreset Init()
 	{
-		Super.Init("Confirm", "", 0, true);
+		Super.Init(StringTable.Localize("$JGPHUD_Presets_Menu_Confirm"), "", 0, true);
 		return self;
 	}
 	
@@ -131,12 +149,17 @@ class OptionMenuItemJGPUFH_SaveUserPreset : OptionMenuItemSubmenu
 		let handler = JGPUFH_PresetHandler(StaticEventHandler.Find("JGPUFH_PresetHandler"));
 		parentMenu = JGPUFH_SavePresetMenu(Menu.GetCurrentMenu());
 		handler.presets;
+		String msg;
 		if(__jgphud_save_preset_name.RightIndexOf(" ") != -1){
-			Menu.StartMessage(TEXTCOLOR_NORMAL.."Preset Name Cannot Contain Whitespace", 1);
+			msg = StringTable.Localize("$JGPHUD_Preset_Warning_Whitespace");
+			Menu.StartMessage(TEXTCOLOR_NORMAL..msg, 1);
 		} else if(handler.presets.Get(__jgphud_save_preset_name) != null) {
-			Menu.StartMessage(TEXTCOLOR_NORMAL.."Overwrite existing preset '"..__jgphud_save_preset_name.."'?", 0);
+			msg = StringTable.Localize("$JGPHUD_Preset_Warning_Overwrite");
+			msg = String.Format(msg, __jgphud_save_preset_name);
+			Menu.StartMessage(TEXTCOLOR_NORMAL..msg, 0);
 		} else if(__jgphud_save_preset_name.Length() == 0){
-			Menu.StartMessage(TEXTCOLOR_NORMAL.."Cannot Create Preset with Empty Name", 1);
+			msg = StringTable.Localize("$JGPHUD_Preset_Warning_EmptyName");
+			Menu.StartMessage(TEXTCOLOR_NORMAL..msg, 1);
 		} else {
 			handler.ExecuteCommand("SaveUserPreset",__jgphud_save_preset_name);
 			parentMenu.Close();
@@ -149,7 +172,6 @@ class OptionMenuItemJGPUFH_SaveUserPreset : OptionMenuItemSubmenu
 class OptionMenuItemJGPUFH_ConfirmCommand : OptionMenuItemSubmenu
 {
 	String mPrompt;
-	
 	Name mCommand;
 	String mData;
 
@@ -157,7 +179,7 @@ class OptionMenuItemJGPUFH_ConfirmCommand : OptionMenuItemSubmenu
 	OptionMenuItemJGPUFH_ConfirmCommand Init(String label,Name command,String data, String prompt = "")
 	{
 		Super.Init(label, "");
-		mPrompt = prompt;
+		mPrompt = StringTable.Localize(prompt);
 		mCommand = command;
 		mData = data;
 		return self;
@@ -181,21 +203,25 @@ class OptionMenuItemJGPUFH_ConfirmCommand : OptionMenuItemSubmenu
 }
 
 
-class JGPUFH_UserPresetsMenu : OptionMenu {
+class JGPUFH_UserPresetsMenu : OptionMenu
+{
 	
-	void RebuildList(OptionMenuDescriptor desc) {
+	void RebuildList(OptionMenuDescriptor desc)
+	{
 		let handler = JGPUFH_PresetHandler(StaticEventHandler.Find("JGPUFH_PresetHandler"));
 		desc.mItems.Clear();
 		Array<String> keys;
 		handler.presets.GetKeysInto(keys);
 		let n = keys.Size();
-		for(int i = 0; i < n; i++) {
+		for(int i = 0; i < n; i++)
+		{
 			desc.mItems.Push(new("JGPUFH_UserPreset").Init(keys[i]));
 		}
 	}
 	
 	
-	override void Init(Menu parent, OptionMenuDescriptor desc) {
+	override void Init(Menu parent, OptionMenuDescriptor desc)
+	{
 		RebuildList(desc);
 		
 		Super.Init(parent,desc);
@@ -203,8 +229,10 @@ class JGPUFH_UserPresetsMenu : OptionMenu {
 	
 	int toClose;
 	
-	override void OnReturn() {
-		if(toClose) {
+	override void OnReturn()
+	{
+		if(toClose) 
+		{
 			JGPUFH_PresetsMenu(mParentMenu).toClose = toClose - 1;
 			mDesc.mSelectedItem = 0;
 			Close();
@@ -212,29 +240,36 @@ class JGPUFH_UserPresetsMenu : OptionMenu {
 	}
 }
 
-class OptionMenuItemUserPresetsSubmenu : OptionMenuItemSubmenu {
+class OptionMenuItemUserPresetsSubmenu : OptionMenuItemSubmenu
+{
 	JGPUFH_PresetHandler handler;
-	OptionMenuItemUserPresetsSubmenu Init(String label, Name command, int param = 0, bool centered = false) {
+	OptionMenuItemUserPresetsSubmenu Init(String label, Name command, int param = 0, bool centered = false)
+	{
 		Super.Init(label,command,param,centered);
 		handler = JGPUFH_PresetHandler(StaticEventHandler.Find("JGPUFH_PresetHandler"));
 		return self;
 	}
-	override bool Selectable() {
+	override bool Selectable()
+	{
 		return handler.presets.size() != 0;
 	}
 	
-	override bool Activate() {
+	override bool Activate()
+	{
 		if(Selectable()) return Super.Activate();
 		return false;
 	}
 }
 
-class JGPUFH_PresetsMenu : OptionMenu {
+class JGPUFH_PresetsMenu : OptionMenu
+{
 	bool toClose;
 	
-	override void OnReturn() {
+	override void OnReturn()
+	{
 		CVar.GetCVar("__jgphud_save_preset_name").SetString("");
-		if(toClose) {
+		if(toClose) 
+		{
 			Close();
 		}
 	}
