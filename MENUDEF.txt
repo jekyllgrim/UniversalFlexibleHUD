@@ -42,11 +42,11 @@ OptionMenu "JGPHUD_Settings"
 	SubMenu "$JGPHUD_POWERUPS_TITLE", "JGPHUD_Powerups"
 	SubMenu "$JGPHUD_DMGMARKERS_TITLE", "JGPHUD_DamageMarkers"
 	SubMenu "$JGPHUD_CROSSHAIR_TITLE", "JGPHUD_CrosshairOptions"
-	SubMenu "$JGPHUD_MAPDATA_TITLE", "JGPHUD_MapData"
+	SubMenu "$JGPHUD_MAPDATA_GEN_TITLE", "JGPHUD_MapData"
 	SubMenu "$JGPHUD_CustomItems_TITLE", "JGPHUD_CustomItems"
 	
-	StaticText ""
-	UFHResetALLCCMD "$JGPHUD_GENERAL_RESETALL", 1
+	//StaticText ""
+	//UFHResetALLCCMD "$JGPHUD_GENERAL_RESETALL", 1
 }
 
 OptionMenu "JGPHUD_DamageMarkers"
@@ -200,6 +200,8 @@ OptionMenu "JGPHUD_MapData"
 {	
 	Class "JGPHUD_OptionMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
+	StaticText "$JGPHUD_MAPDATA_GEN_TITLE", yellow
+	StaticText ""
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_MinimapPos", "ElementScreenPos"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_MinimapPosX", -160, 160, 2, 0
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_MinimapPosY", -100, 100, 2, 0
@@ -217,7 +219,7 @@ OptionMenu "JGPHUD_MapData"
 	Option "$JGPHUD_MINIMAP_SHAPE", "jgphud_CircularMinimap", "MinimapShape"
 	Slider "$JGPHUD_MINIMAP_ZOOM", "jgphud_MinimapZoom", 0.1, 3.0, 0.05, 2
 	Option "$JGPHUD_MINIMAP_ENEMIES", "jgphud_MinimapEnemyDisplay", "MinimapEnemyDisplay"
-	ScaleSlider "$JGPHUD_MINIMAP_MAPMARKERSCALE", "jgphud_MinimapEnemyMarkersSize", 0, 32, 1, "$JGPHUD_MINIMAP_MAPMARKERSCALE_REAL"
+	ScaleSlider "$JGPHUD_MINIMAP_MAPMARKERSCALE", "jgphud_MinimapMapMarkersSize", 0, 32, 1, "$JGPHUD_MINIMAP_MAPMARKERSCALE_REAL"
 	
 	StaticText ""
 	StaticText "$AUTOMAPMNU_SETCUSTOMCOLORS", yellow
