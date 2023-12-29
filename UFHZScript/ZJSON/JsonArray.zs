@@ -90,7 +90,8 @@ class JGPUFH_JsonArray : JGPUFH_JsonElement
 		return s;
 	}
     
-	override string GetPrettyName() {
+	override string GetPrettyName()
+	{
 		return "Array";
 	}
 }

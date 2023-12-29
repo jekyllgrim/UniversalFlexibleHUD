@@ -1,0 +1,48 @@
+OptionMenu "JGPUFH_PresetMenu" {
+	Title "Presets"
+	
+	Class "JGPUFH_PresetsMenu"
+	
+	
+	Submenu "Built-in Presets", "JGPUFH_BuiltInPresets"
+	UserPresetsSubmenu "User Presets", "JGPUFH_UserPresets"
+	Submenu "Save Current Preset", "JGPUFH_SaveUserPreset"
+	
+	StaticText ""
+	
+	JGPUFH_ConfirmCommand "Reset to Default", "ResetToDefault", "", "Are you sure you want to reset to default settings?"
+}
+
+OptionMenu "JGPUFH_BuiltInPresets" {
+	
+	Title "Built-In Presets"
+	
+	JGPUFH_ConfirmCommand "Default", "LoadDefaultPreset", "", "Are you sure you want to load the default preset?"
+	
+}
+
+OptionMenu "JGPUFH_UserPresets" {
+	
+	Title "User Presets"
+	
+	Class "JGPUFH_UserPresetsMenu"
+	
+}
+
+OptionMenu "JGPUFH_SaveUserPreset" {
+	Class "JGPUFH_SavePresetMenu"
+	StaticText ""
+	StaticText ""
+	StaticText ""
+	StaticText ""
+	StaticText ""
+	StaticText ""
+	StaticText ""
+	StaticText ""
+	StaticText ""
+	StaticText ""
+	StaticText ""
+	StaticText ""
+	TextField "Preset Name: ", "__jgphud_save_preset_name"
+	JGPUFH_SaveUserPreset
+}

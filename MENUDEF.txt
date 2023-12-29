@@ -14,6 +14,8 @@ OptionMenu "JGPHUD_Settings"
 	Class "JGPHUD_OptionMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "FlexiHUD v3.0.0pre", blue
+	
+	SubMenu "Presets", "JGPUFH_PresetMenu"
 
 	StaticText ""
 	StaticText "$JGPHUD_GENERAL_TITLE", yellow
