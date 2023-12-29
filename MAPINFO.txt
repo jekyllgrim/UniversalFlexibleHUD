@@ -1,4 +1,4 @@
 Gameinfo
 {
-	AddEventHandlers = "JGPUFH_FlexibleHUD"
+	AddEventHandlers = "JGPUFH_FlexibleHUD", "JGPUFH_PresetHandler"
 }

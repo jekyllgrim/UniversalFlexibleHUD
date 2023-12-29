@@ -103,3 +103,7 @@ nosave int jgphud_CustomItemsY = 2;
 nosave string jgphud_mainfont = "BigUpper";
 nosave string jgphud_smallfont = "Confont";
 nosave string jgphud_numberfont = "IndexFont";
+
+
+nosave 			 string __jgphud_user_presets_json = "{}";
+nosave noarchive string __jgphud_save_preset_name = "";
