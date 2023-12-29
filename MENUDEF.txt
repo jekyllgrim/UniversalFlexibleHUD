@@ -224,7 +224,7 @@ OptionMenu "JGPHUD_MapData"
 	StaticText ""
 	StaticText "$AUTOMAPMNU_SETCUSTOMCOLORS", yellow
 	StaticText ""
-	ColorPicker "$MAPCOLORMNU_BACKCOLOR", "jpghud_MinimapBackColor"
+	ColorPicker "$MAPCOLORMNU_BACKCOLOR", "jgphud_MinimapBackColor"
 	ColorPicker "$JGPHUD_MINIMAP_COLOR_LINES", "jgphud_MinimapLineColor"
 	ColorPicker "$JGPHUD_MINIMAP_COLOR_INTLINES", "jgphud_MinimapIntLineColor"
 	ColorPicker "$MAPCOLORMNU_YOURCOLOR", "jgphud_MinimapYouColor"
