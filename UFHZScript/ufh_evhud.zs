@@ -3304,7 +3304,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		bool previewMode;
 		if (!ShouldDrawInvBar(numfields))
 		{
-			if (IsMenuOpen())
+			if (IsMenuOpen() && c_drawInvBar.GetBool())
 			{
 				previewMode = true;
 			}
