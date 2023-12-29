@@ -2747,35 +2747,47 @@ class JGPUFH_FlexibleHUD : EventHandler
 			p2 = AlignPosToMap(p2, angle, radius);
 
 			double thickness = 1;
-			color col = GetLockColor(ln);
 			int lineAlph = 255;
+			color col = GetLockColor(ln);
+			// If lock color is valid, this is a locked line,
+			// so make it thick and colorize accordingly:
 			if (col != -1)
 			{
 				thickness = 4;
 				col = color(col.r, col.g, col.b);
 			}
-			else if (ln.activation & SPAC_PlayerActivate)
+			// Otherwise check if it's any kind of interactive line
+			// (don't forget to check for special, because activation
+			// flags may be set up by mistake on lines that don't
+			// actually do anything):
+			else if (ln.activation & SPAC_PlayerActivate && ln.special != 0)
 			{
 				col = color(intLineCol.r, intLineCol.g, intLineCol.b);
 			}
+			// Otherwise apply regular line color:
 			else
 			{
 				col = color(lineCol.r, lineCol.g, lineCol.b);
-				// One-sided lines are thicker and opaque:
+				// Double-sided lines are thick:
 				if (!(ln.flags & Line.ML_TWOSIDED))
 				{
 					thickness = 2;
 				}
+				// One-sidd lines use regular thickness
+				// and 50% of opacity:
 				else
 				{
 					lineAlph /= 2;
 				}
 			}
+			// Change opacity if this line is undiscovered:
 			if (!(ln.flags & Line.ML_MAPPED))
 			{
 				lineAlph *= Clamp(c_minimapDrawUnseen.GetFloat(), 0., 1.);
 			}
 
+			// DrawLine is a bit cheaper than DrawThickLine, so use that
+			// if thickness is 1:
 			if (thickness <= 1)
 				Screen.DrawLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, col, lineAlph);
 			else
@@ -2783,7 +2795,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui color GetLockColor(Line l)
+	clearscope color GetLockColor(Line l)
 	{
 		int lock = l.locknumber;
 		// special-specific locks:
