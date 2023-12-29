@@ -164,6 +164,43 @@ class JGPUFH_PresetHandler : StaticEventHandler
 		}
 	}
 	
+	static const Name enablerCVars[] =
+	{
+		'jgphud_DrawDamageMarkers',
+		'jgphud_DrawMainbars',
+		'jgphud_DrawAmmoBlock',
+		'jgphud_DrawAmmoBar',
+		'jgphud_DrawWeapon',
+		'jgphud_DrawAllAmmo',
+		'jgphud_DrawKeys',
+		'jgphud_DrawWeaponSlots',
+		'jgphud_DrawPowerups',
+		'jgphud_DrawMinimap',
+		'jgphud_DrawKills',
+		'jgphud_DrawItems',
+		'jgphud_DrawSecrets',
+		'jgphud_DrawTime',
+		'jgphud_DrawInvBar',
+		'jgphud_DrawEnemyHitMarkers',
+		'jgphud_DrawCustomItems'
+	};
+	
+	static clearscope void DisableAllElements()
+	{
+		let n = JGPUFH_PresetHandler.enablerCVars.Size();
+		for(uint i = 0; i < n; i++)
+		{
+			CVar.FindCVar(JGPUFH_PresetHandler.enablerCVars[i]).SetBool(false);
+		}
+	}
+	
+	static clearscope void LoadMinimapOnlyPreset()
+	{
+		ResetToDefault();
+		DisableAllElements();
+		CVar.FindCVar('jgphud_DrawMinimap').SetBool(true);
+	}
+	
 	clearscope void ExecuteCommand(name cmd, string data)
 	{
 		switch(cmd)
@@ -182,6 +219,9 @@ class JGPUFH_PresetHandler : StaticEventHandler
 		case 'ResetToDefault':
 		case 'LoadDefaultPreset':
 			ResetToDefault();
+			break;
+		case 'LoadMinimapOnlyPreset':
+			LoadMinimapOnlyPreset();
 			break;
 		default:
 			console.PrintfEx(PRINT_NONOTIFY,TEXTCOLOR_RED.."Unkonwn command for ExecuteCommand '"..cmd.."'");
