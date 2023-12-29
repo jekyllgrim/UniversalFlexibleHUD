@@ -3813,7 +3813,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!c_minimapMapMarkersSize)
 			c_minimapMapMarkersSize = CVar.GetCvar('jgphud_minimapMapMarkersSize', CPlayer);
 		if (!c_minimapBackColor)
-			c_minimapBackColor = CVar.GetCvar('jpghud_MinimapBackColor', CPlayer);
+			c_minimapBackColor = CVar.GetCvar('jgphud_MinimapBackColor', CPlayer);
 		if (!c_minimapLineColor)
 			c_minimapLineColor = CVar.GetCvar('jgphud_MinimapLineColor', CPlayer);
 		if (!c_minimapIntLineColor)
