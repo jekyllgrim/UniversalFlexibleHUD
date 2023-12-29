@@ -16,8 +16,7 @@ class JGPUFH_JsonObject : JGPUFH_JsonElement
 	
 	JGPUFH_JsonElement Get(String key)
 	{
-		if(!data.CheckKey(key)) return null;
-		return data.Get(key);
+		return data.GetIfExists(key);
 	}
 	
 	void Set(String key,JGPUFH_JsonElement e)
@@ -44,7 +43,8 @@ class JGPUFH_JsonObject : JGPUFH_JsonElement
 		keys.Clear();
 		MapIterator<String,JGPUFH_JsonElement> it;
 		it.Init(data);
-		while(it.Next()){
+		while(it.Next())
+		{
 			keys.Push(it.GetKey());
 		}
 	}

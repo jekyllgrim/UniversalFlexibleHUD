@@ -989,7 +989,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 					// cache the icon for the slot if the amount of armor
 					// in that slot is over 0 (since Hexen doesn't use
 					// armor items or icons at all, only amounts):
-					hArmTex.Push(int(hexenArmorIcons[i]));
+					hArmTex.Push(hexenArmorIcons[i]);
 				}
 				// If any icons have been pushed, draw them:
 				if (hArmTex.Size() > 0)
@@ -1456,7 +1456,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 				string clsname = lumpData.Mid(searchPos, lineEnd - searchPos);
 				if (jgphud_debug)
 					Console.Printf("\cDITEMINFO\c- Possible class name: [%s]", clsname);
-				class<Actor> cls = clsname;
+				class<Inventory> cls = clsname;
 				if (cls)
 				{
 					if (jgphud_debug)
@@ -3203,7 +3203,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			}
 			if (icon.IsValid() && TexMan.GetName(icon) != 'TNT1A0')
 			{
-				keyIcons.Push(int(icon));
+				keyIcons.Push(icon);
 			}
 		}
 		int totalKeys = keyIcons.Size();
