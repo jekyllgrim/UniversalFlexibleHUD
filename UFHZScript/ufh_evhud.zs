@@ -99,17 +99,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui Shape2D minimapShape_Circle;
 	ui Shape2D minimapShape_Arrow;
 	ui Shape2DTransform minimapTransform;
-	/*enum EMinimapDisplayModes
+	enum EMinimapDisplayModes
 	{
-		MD_NONE,
-		MD_MAPONLY,
-		MD_RADAR,
-	}*/
-	enum EMapEnemyDisplay
-	{
-		MED_NONE,
-		MED_ALERTED,
-		MED_ALL
+		MDD_NONE,
+		MDD_RADARONLY,
+		MDD_MAPONLY,
+		MDD_BOTH,
 	}
 
 	// DrawInventoryBar():
@@ -1463,7 +1458,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 						Console.Printf("\cDITEMINFO\c- \cDFound item [%s]", cls.GetClassName());
 					customItems.Push(cls);
 				}
-				else
+				else if (jgphud_debug)
 					Console.Printf("\cDITEMINFO\c- \cGWARNING: \cD%s\cG is not a valid item name", clsname);
 				if (jgphud_debug)
 					Console.Printf("\cDITEMINFO\c- Searchpos %d | line end %d | file end %d", searchPos, lineEnd, fileEnd);
@@ -2363,12 +2358,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Cache the CVar if it hasn't been cached yet:
 		if (!c_drawMinimap)
 			c_drawMinimap = CVar.GetCvar('jgphud_DrawMinimap', CPlayer);
-		if (!c_MinimapEnemyDisplay)
-			c_MinimapEnemyDisplay = CVar.GetCvar('jgphud_MinimapEnemyDisplay', CPlayer);
+		
+		int drawThis = c_DrawMinimap.GetInt();
 
 		// Check CVar values:
-		bool drawmap = c_drawMinimap.GetBool();
-		bool drawradar = c_MinimapEnemyDisplay.GetInt();
+		bool drawmap = (drawThis == MDD_MAPONLY || drawThis == MDD_BOTH);
+		bool drawradar = (drawThis == MDD_RADARONLY || drawThis == MDD_BOTH);
 		bool canDraw = drawmap || drawradar;
 		// Don't draw if either of these is true:
 		// 1. the level has been unloaded (prevents possible crashes on tally/intermission)
@@ -2852,7 +2847,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!minimapShape_Arrow || !minimapTransform)
 			return;
 		
-		bool drawAll = c_MinimapEnemyDisplay.GetInt() >= MED_ALL;
+		bool drawAll = c_MinimapEnemyDisplay.GetBool();
 
 		color foeColor = c_minimapMonsterColor.GetInt();
 		color friendColor = c_minimapFriendColor.GetInt();
@@ -3804,6 +3799,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		if (!c_drawMinimap)
 			c_drawMinimap = CVar.GetCvar('jgphud_DrawMinimap', CPlayer);
+		if (!c_MinimapEnemyDisplay)
+			c_MinimapEnemyDisplay = CVar.GetCvar('jgphud_MinimapEnemyDisplay', CPlayer);
 		if (!c_CircularMinimap)
 			c_CircularMinimap = CVar.GetCvar('jgphud_CircularMinimap', CPlayer);
 		if (!c_minimapSize)

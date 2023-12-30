@@ -51,13 +51,13 @@ nosave int jgphud_PowerupsPos = 2;
 nosave int jgphud_PowerupsX = 2;
 nosave int jgphud_PowerupsY = 2;
 
-nosave bool jgphud_DrawMinimap = true;
+nosave int jgphud_DrawMinimap = 3;
 nosave bool jgphud_CircularMinimap = false;
 nosave int jgphud_MinimapSize = 64;
 nosave int jgphud_MinimapPos = 3;
 nosave int jgphud_MinimapPosX = 2;
 nosave int jgphud_MinimapPosY = 0;
-nosave int jgphud_MinimapEnemyDisplay = 1;
+nosave bool jgphud_MinimapEnemyDisplay = false;
 nosave float jgphud_MinimapZoom = 0.7;
 nosave float jgphud_MinimapDrawUnseen = 0.3;
 nosave bool jgphud_MinimapDrawFloorDiff = true;

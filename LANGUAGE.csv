@@ -91,26 +91,8 @@ aktiviert werden können.","Nota: la barra solo aparecerá en juegos y mods que
 contengan objetos de inventario utilizables.","Remarque : la barre d'inventaire n'apparaît que dans les
 jeux/mods dont les objets peuvent être placés dans
 l'inventaire et être utilisés à partir de celui-ci."
-Minimap and map data,JGPHUD_MAPDATA_GEN_TITLE,General title for the submenu that contains minimap and map data settings,Мини-карта и данные об уровне,Minimapa e dados do mapa,Minikarte und Kartendaten,Minimapa y datos,Mini-carte et données de la carte
-Map data display,JGPHUD_MAPDATA_TITLE,This is a title for a block of options that determine what kind of extra data about the current map is drawn on the HUD,Данные об уровне,Dados do mapa,Kartendaten,Datos del mapa,Affichage des données de la carte
-Show map time,JGPHUD_MAPDATA_TIME,Option in the Map Data options block,Показывать время уровня,Mostrar tempo do mapa,Kartenzeit anzeigen,Mostrar tiempo,Temps de la carte
-Show kill count,JGPHUD_MAPDATA_KILLS,Option in the Map Data options block,Показывать убийства,Mostrar contagem de vitimas,Anzahl der Abschüsse anzeigen,Mostrar enemigos muertos,Nombre de morts
-Show secrets count,JGPHUD_MAPDATA_SECRETS,Option in the Map Data options block,Показывать секреты,Mostrar contagem de segredos,Anzahl der Geheimnisse anzeigen,Mostrar contador de secretos,Nombre de secrets
-Show items count,JGPHUD_MAPDATA_ITEMS,Option in the Map Data options block,Показывать предметы,Mostrar contagem de itens,Anzahl der Gegenstände anzeigen,Mostrar contador de objetos,Nombres d’objets
-Minimap,JGPHUD_MINIMAP_TITLE,Option block title,Мини-карта,Minimapa,Minikarte,Minimapa,Mini-carte
-Minimap display,JGPHUD_MINIMAP_ENABLE,Whether to draw the minimap (on/off),Отображение мини-карты,Mostrar minimapa,Minikarte anzeigen,Mostrar minimapa,Affichage de la mini-carte
-Minimap only,JGPHUD_MINIMAP_MAPONLY,DEPRECATED,Только мини-карта,Apenas minimapa,Nur Minikarte,Solo minimapa,Mini-carte seulement
-Minimap and enemies,JGPHUD_MINIMAP_RADAR,DEPRECATED,Мини-карта и враги,Minimapa e inimigos,Minikarte und Gegner,Minimapa y enemigos,Mini-carte et ennemies
-Enemy display,JGPHUD_MINIMAP_ENEMIES,Whether to show enemies on the minimap. Possible options: off / only alerted / all enemies,Показывать врагов на мини-карте,,,,
-Only alerted enemies,JGPHUD_MINIMAP_ENEMIES_ALERTED,"Option for ""Show enemies on the minimap""",Только активных врагов,,,,
-All enemies,JGPHUD_MINIMAP_ENEMIES_ALL,"Option for ""Show enemies on the minimap""",Всех врагов,,,,
-Minimap size,JGPHUD_MINIMAP_SIZE,,Размер мини-карты,Tamanho do minimapa,Minikartengrösse,Tamaño del minimapa,Échelle de la mini-carte
-Minimap shape,JGPHUD_MINIMAP_SHAPE,,Форма мини-карты,Formato do minimapa,Minikartenform,Forma del minimapa,Forme de la mini-carte
-Circle,JGPHUD_MINIMAP_SHAPE_CIRCLE,possible minimap shape,Круг,Círculo,Kreis,Circular,Cercle
-Square,JGPHUD_MINIMAP_SHAPE_SQUARE,possible minimap shape,Квадрат,Quadrado,Quadrat,Cuadrada,Carré
-Minimap zoom,JGPHUD_MINIMAP_ZOOM,minimap zoom value,Приближение мини-карты,Zoom do minimapa,Minikartenzoom,Zoom del minimapa,Zoom de la mini-carte
-Lines,JGPHUD_MINIMAP_COLOR_LINES,color for regular minimap lines,Линии,Linhas,Linien,Lineas,Lignes
-Interactive lines,JGPHUD_MINIMAP_COLOR_INTLINES,"color for interactive minimap lines (activateable by pressing Use, but not requiring a key, because locked lines will have a lock color)",Интерактивные линии,Linhas usáveis,Auslöserlinien,Lineas interactivas,Lignes interactives
+"Minimap, radar and map data",JGPHUD_MAPDATA_GEN_TITLE,General title for the submenu that contains minimap and map data settings,Мини-карта и данные об уровне,,,,
+Minimap and enemy radar,JGPHUD_MINIMAP_TITLE,Option block title,Мини-карта,,,,
 "Note: The minimap may cause performance issues on maps
 with complex geometry, especially at low zoom values.",JGPHUD_MINIMAP_NOTE,"Keep under 4 lines! Use real linebreaks (Ctrl-Enter) to add new lines, so that each line is under 60 characters","Примечание: мини-карта может вызывать проблемы с
 производительностью на уровнях со сложной геометрией,
@@ -122,12 +104,32 @@ mapas complejos, especialmente con bajo zoom.","Remarque : la minimap peut entra
 performance sur les cartes à géométrie complexe, en
 particulier lorsque le zoom est faible. à géométrie
 complexe, en particulier lorsque le zoom est faible."
+Minimap and enemy radar display,JGPHUD_MINIMAP_ENABLE,Whether to draw the minimap and the enemy markers. Possible values: Off / Minimap only / Enemy markers only / Both,Отображение мини-карты и маркеров врагов,,,,
+Minimap only,JGPHUD_MINIMAP_MAPONLY,"Possible value for ""Minimap and enemy radar display"" option",Только мини-карта,Apenas minimapa,Nur Minikarte,Solo minimapa,Mini-carte seulement
+Enemy markers only,JGPHUD_MINIMAP_RADARONLY,"Possible value for ""Minimap and enemy radar display"" option",Только маркеры врагов,,,,
+Minimap and enemy markers,JGPHUD_MINIMAP_BOTH,"Possible value for ""Minimap and enemy radar display"" option",Мини-карта и маркеры врагов,,,,
+Enemy markers display,JGPHUD_MINIMAP_ENEMIES,"Whether to show enemies on the minimap. Possible options: Only alerted enemies / All enemies
+This option becomes available when ""Minimap and enemy radar display"" is set either to ""Enemy markers only"" or ""Minimap and enemy markers""",Отображение маркеров противников,,,,
+Only alerted enemies,JGPHUD_MINIMAP_ENEMIES_ALERTED,"Option for ""Show enemies on the minimap""",Только активных врагов,,,,
+All enemies,JGPHUD_MINIMAP_ENEMIES_ALL,"Option for ""Show enemies on the minimap""",Всех врагов,,,,
+Minimap/radar size,JGPHUD_MINIMAP_SIZE,,Размер мини-карты/радара,,,,
+Minimap/radar shape,JGPHUD_MINIMAP_SHAPE,,Форма мини-карты/радара,,,,
+Minimap/radar zoom,JGPHUD_MINIMAP_ZOOM,minimap zoom value,Приближение мини-карты/радара,,,,
+Circle,JGPHUD_MINIMAP_SHAPE_CIRCLE,possible minimap shape,Круг,Círculo,Kreis,Circular,Cercle
+Square,JGPHUD_MINIMAP_SHAPE_SQUARE,possible minimap shape,Квадрат,Quadrado,Quadrat,Cuadrada,Carré
 Display undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,DEPRECATED,Показывать ещё не обнаруженные линии,Mostrar linhas não descobertas,Unentdeckte Linien zeichnen,Mostrar lineas no descubiertas,Montrer lignes non découvertes
 Undiscovered lines opacity,JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA,"Replacement for ""Display undiscovered lines"" option: now this is a 0.0-1.0 slider that determines the translucency of the lines that the player hasn't seen yet.",Прозрачность ещё не обнаруженных линий,,,,
 Lines around different floor heights,JGPHUD_MINIMAP_DRAWFLOORDIFF,On/off: whether to display lines that are at the edges of the sectors with different floor heights,Линии секторов с разной высотой пола,,,,
 Lines around different ceiling heights,JGPHUD_MINIMAP_DRAWCEILINGDIFF,On/off: whether to display lines that are at the edges of the sectors with different ceiling heights,Линии секторов с разной высотой потолка,,,,
-Map markers size,JGPHUD_MINIMAP_MAPMARKERSCALE,A slider that determines the size of the enemy markers. At 0 (default) the markers are equal to the size of the monster and thus change their visual size according to the minimap's zoom value. At values above 0 they become fixed in size regardless of zoom.,Размер маркеров,,,,
+Markers size,JGPHUD_MINIMAP_MAPMARKERSCALE,A slider that determines the size of the enemy markers. At 0 (default) the markers are equal to the size of the monster and thus change their visual size according to the minimap's zoom value. At values above 0 they become fixed in size regardless of zoom.,Размер маркеров,,,,
 Match the size of the object,JGPHUD_MINIMAP_MAPMARKERSCALE_REAL,"The default value for ""map markers size""",Соответствует размеру объекта,,,,
+Lines,JGPHUD_MINIMAP_COLOR_LINES,color for regular minimap lines,Линии,Linhas,Linien,Lineas,Lignes
+Interactive lines,JGPHUD_MINIMAP_COLOR_INTLINES,"color for interactive minimap lines (activateable by pressing Use, but not requiring a key, because locked lines will have a lock color)",Интерактивные линии,Linhas usáveis,Auslöserlinien,Lineas interactivas,Lignes interactives
+Map data display,JGPHUD_MAPDATA_TITLE,This is a title for a block of options that determine what kind of extra data about the current map is drawn on the HUD,Данные об уровне,Dados do mapa,Kartendaten,Datos del mapa,Affichage des données de la carte
+Show map time,JGPHUD_MAPDATA_TIME,Option in the Map Data options block,Показывать время уровня,Mostrar tempo do mapa,Kartenzeit anzeigen,Mostrar tiempo,Temps de la carte
+Show kill count,JGPHUD_MAPDATA_KILLS,Option in the Map Data options block,Показывать убийства,Mostrar contagem de vitimas,Anzahl der Abschüsse anzeigen,Mostrar enemigos muertos,Nombre de morts
+Show secrets count,JGPHUD_MAPDATA_SECRETS,Option in the Map Data options block,Показывать секреты,Mostrar contagem de segredos,Anzahl der Geheimnisse anzeigen,Mostrar contador de secretos,Nombre de secrets
+Show items count,JGPHUD_MAPDATA_ITEMS,Option in the Map Data options block,Показывать предметы,Mostrar contagem de itens,Anzahl der Gegenstände anzeigen,Mostrar contador de objetos,Nombres d’objets
 Crosshair options,JGPHUD_CROSSHAIR_TITLE,Title for various crosshair options,Настройки прицела,Opções de retícula,Fadenkreuzoptionen,Opciones de la mirilla,Options des réticules
 Hit markers,JGPHUD_CROSSHAIR_HITMARKERS_TITLE,The title for the menu section,Индикаторы попадания,,,,
 Draw enemy hit markers around crosshair,JGPHUD_CROSSHAIR_HITMARKERS,Small angled cross marker around the crosshair when a player's attack hits an enemy.,Индикаторы попадания по врагам вокруг прицела,Mostrar marcadores de acerto ao redor da retícula,Trefferanzeige am Fadenkreuz,Mostrar marcadores de daño contra enemigos,Dessiner les marqueurs de coups de l'ennemi autour du réticule

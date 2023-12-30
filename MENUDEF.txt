@@ -6,7 +6,6 @@ AddOptionMenu "OptionsMenu"
 AddOptionMenu "OptionsMenuSimple"
 {
 	Submenu "$JGPHUD_SETTINGS_TITLE", "JGPHUD_Settings"
-	StaticText ""
 }
 
 OptionMenu "JGPHUD_Settings"
@@ -22,14 +21,14 @@ OptionMenu "JGPHUD_Settings"
 	StaticText ""
 	Option "$JGPHUD_GENERAL_ENABLEHUD", "jgphud_enable", "OnOff"
 	ScaleSlider "$HUDMNU_UISCALE", "uiscale", 0.0, 8.0, 1.0, "$SCALEMNU_ADAPT"
-	Option "$JGPHUD_GENERAL_BACKSTYLE", "jgphud_BackStyle", "BackgroundStyles", "jgphud_enable"
-	ColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor"
-	Slider "$JGPHUD_GENERAL_BACKALPHA", "jgphud_BackAlpha", 0.00, 1.0, 0.05, 2, "jgphud_enable"
-	TextField "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME", "jgphud_BackTexture", "jgphud_enable"
+	Option "$JGPHUD_GENERAL_BACKSTYLE", "jgphud_BackStyle", "BackgroundStyles"
+	UFHColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor", "jgphud_BackStyle"
+	Slider "$JGPHUD_GENERAL_BACKALPHA", "jgphud_BackAlpha", 0.00, 1.0, 0.05, 2
+	UFHTextField "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME", "jgphud_BackTexture", "jgphud_BackStyle", "!:0"
 	StaticText "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME_NOTE", gray
 	StaticText ""
 	StaticText ""
-	Option "$JGPHUD_GENERAL_BACKSTYLE_TEXFIT", "jgphud_BackTextureStretch", "BackTextureFitMode"
+	UFHOption "$JGPHUD_GENERAL_BACKSTYLE_TEXFIT", "jgphud_BackTextureStretch", "BackTextureFitMode", "jgphud_BackStyle", "!:0"
 	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_BackStyle:jgphud_BackTexture:jgphud_BackColor:jgphud_BackAlpha", 1
 
 	StaticText ""
@@ -211,25 +210,61 @@ OptionMenu "JGPHUD_MapData"
 	StaticText "" // make space for the note
 	StaticText ""
 	StaticText ""
-	Option "$JGPHUD_MINIMAP_ENABLE", "jgphud_DrawMinimap", "OnOff"
-	Slider "$JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA", "jgphud_MinimapDrawUnseen", 0.0, 1.0, 0.1, 1, "jgphud_DrawMinimap"
-	Option "$JGPHUD_MINIMAP_DRAWFLOORDIFF", "jgphud_MinimapDrawFloorDiff", "OnOff", "jgphud_DrawMinimap"
-	Option "$JGPHUD_MINIMAP_DRAWCEILINGDIFF", "jgphud_MinimapDrawCeilingDiff", "OnOff", "jgphud_DrawMinimap"
-	Slider "$JGPHUD_MINIMAP_SIZE", "jgphud_MinimapSize", 0, 256, 1, 0
-	Option "$JGPHUD_MINIMAP_SHAPE", "jgphud_CircularMinimap", "MinimapShape"
-	Slider "$JGPHUD_MINIMAP_ZOOM", "jgphud_MinimapZoom", 0.1, 3.0, 0.05, 2
-	Option "$JGPHUD_MINIMAP_ENEMIES", "jgphud_MinimapEnemyDisplay", "MinimapEnemyDisplay"
-	ScaleSlider "$JGPHUD_MINIMAP_MAPMARKERSCALE", "jgphud_MinimapMapMarkersSize", 0, 32, 1, "$JGPHUD_MINIMAP_MAPMARKERSCALE_REAL"
+	Option "$JGPHUD_MINIMAP_ENABLE", 
+		"jgphud_DrawMinimap", 
+		"MinimapRadarDisplay"
+	UFHSlider "$JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA", 
+		"jgphud_MinimapDrawUnseen", 
+		0.0, 1.0, 0.1, 1, 
+		// Hide this if minimap/radar mode is 'Off' or in 'Radar Only' mode:
+		"jgphud_DrawMinimap", "<:2"
+	UFHOption "$JGPHUD_MINIMAP_DRAWFLOORDIFF", 
+		"jgphud_MinimapDrawFloorDiff", 
+		"OnOff", 
+		// Hide this if minimap/radar mode is 'Off' or in 'Radar Only' mode:
+		"jgphud_DrawMinimap", "<:2"
+	UFHOption "$JGPHUD_MINIMAP_DRAWCEILINGDIFF", 
+		"jgphud_MinimapDrawCeilingDiff", 
+		"OnOff", 
+		// Hide this if minimap/radar mode is 'Off' or in 'Radar Only' mode:
+		"jgphud_DrawMinimap", "<:2"
+	Slider "$JGPHUD_MINIMAP_SIZE", 
+		"jgphud_MinimapSize", 
+		0, 256, 1, 0, 
+		// Hide this if minimap/radar mode is 'Off':
+		"jgphud_DrawMinimap"
+	Option "$JGPHUD_MINIMAP_SHAPE", 
+		"jgphud_CircularMinimap", 
+		"MinimapShape", 
+		// Hide this if minimap/radar mode is 'Off':
+		"jgphud_DrawMinimap"
+	Slider "$JGPHUD_MINIMAP_ZOOM", 
+		"jgphud_MinimapZoom", 
+		0.1, 3.0, 0.05, 2,
+		// Hide this if minimap/radar mode is 'Off':
+		"jgphud_DrawMinimap"
+	UFHOption "$JGPHUD_MINIMAP_ENEMIES",
+		"jgphud_MinimapEnemyDisplay",
+		"MinimapEnemyDisplay", 
+		// Hide this if minimap/radar mode is 'Off' OR in 'Minimap Only' mode:
+		"jgphud_DrawMinimap", "0", "1", "jgphud_DrawMinimap", "2"
+	UFHScaleSlider "$JGPHUD_MINIMAP_MAPMARKERSCALE", 
+		"jgphud_MinimapMapMarkersSize", 
+		0, 32, 1,
+		"$JGPHUD_MINIMAP_MAPMARKERSCALE_REAL", "",
+		// Hide this if minimap/radar mode is 'Off' OR in 'Minimap Only' mode:
+		"jgphud_DrawMinimap", "0", "1", "jgphud_DrawMinimap", "2"
 	
 	StaticText ""
 	StaticText "$AUTOMAPMNU_SETCUSTOMCOLORS", yellow
 	StaticText ""
-	ColorPicker "$MAPCOLORMNU_BACKCOLOR", "jgphud_MinimapBackColor"
-	ColorPicker "$JGPHUD_MINIMAP_COLOR_LINES", "jgphud_MinimapLineColor"
-	ColorPicker "$JGPHUD_MINIMAP_COLOR_INTLINES", "jgphud_MinimapIntLineColor"
-	ColorPicker "$MAPCOLORMNU_YOURCOLOR", "jgphud_MinimapYouColor"
-	ColorPicker "$MAPCOLORMNU_MONSTERCOLOR", "jgphud_MinimapMonsterColor"
-	ColorPicker "$MAPCOLORMNU_FRIENDCOLOR", "jgphud_MinimapFriendColor"
+	// Hide these if minimap/radar mode is 'Off' or in 'Radar Only' mode:
+	UFHColorPicker "$MAPCOLORMNU_BACKCOLOR", "jgphud_MinimapBackColor", "jgphud_DrawMinimap", "<:2"
+	UFHColorPicker "$JGPHUD_MINIMAP_COLOR_LINES", "jgphud_MinimapLineColor", "jgphud_DrawMinimap", "<:2"
+	UFHColorPicker "$JGPHUD_MINIMAP_COLOR_INTLINES", "jgphud_MinimapIntLineColor", "jgphud_DrawMinimap", "<:2"
+	UFHColorPicker "$MAPCOLORMNU_YOURCOLOR", "jgphud_MinimapYouColor", "jgphud_DrawMinimap", "<:2"
+	UFHColorPicker "$MAPCOLORMNU_MONSTERCOLOR", "jgphud_MinimapMonsterColor", "jgphud_DrawMinimap", "<:2"
+	UFHColorPicker "$MAPCOLORMNU_FRIENDCOLOR", "jgphud_MinimapFriendColor", "jgphud_DrawMinimap", "<:2"
 
 	StaticText ""
 	StaticText "$JGPHUD_MAPDATA_TITLE", yellow
@@ -255,8 +290,9 @@ OptionMenu "JGPHUD_CrosshairOptions"
 	StaticText "$JGPHUD_CROSSHAIR_HITMARKERS_TITLE", yellow
 	StaticText ""
 	Option "$JGPHUD_CROSSHAIR_HITMARKERS", "jgphud_DrawEnemyHitMarkers", "OnOff"
-	ColorPicker "$JGPHUD_CROSSHAIR_HITMARKERS_COLOR", "jgphud_EnemyHitMarkersColor"
-	ScaleSlider "$JGPHUD_CROSSHAIR_HITMARKERS_SIZE", "jgphud_EnemyHitMarkersSize", 0, 64, 1, "$JGPHUD_CROSSHAIR_HITMARKERS_SIZE_RELATIVE"
+	UFHColorPicker "$JGPHUD_CROSSHAIR_HITMARKERS_COLOR", "jgphud_EnemyHitMarkersColor", "jgphud_DrawEnemyHitMarkers"
+	UFHScaleSlider "$JGPHUD_CROSSHAIR_HITMARKERS_SIZE", "jgphud_EnemyHitMarkersSize", 0, 64, 1, "$JGPHUD_CROSSHAIR_HITMARKERS_SIZE_RELATIVE", "", "jgphud_DrawEnemyHitMarkers"
+	// Make space at the center of the screen to let the player see the markers:
 	StaticText ""
 	StaticText ""
 	StaticText ""
@@ -297,11 +333,18 @@ OptionValue "AllAmmoOptions"
 	3, "$JGPHUD_ALLAMMO_ALLWEAPONS"
 }
 
-OptionValue "MinimapEnemyDisplay"
+OptionValue "MinimapRadarDisplay"
 {
 	0, "$OPTVAL_OFF"
-	1, "$JGPHUD_MINIMAP_ENEMIES_ALERTED"
-	2, "$JGPHUD_MINIMAP_ENEMIES_ALL"
+	1, "$JGPHUD_MINIMAP_RADARONLY"
+	2, "$JGPHUD_MINIMAP_MAPONLY"
+	3, "$JGPHUD_MINIMAP_BOTH"
+}
+
+OptionValue "MinimapEnemyDisplay"
+{
+	0, "$JGPHUD_MINIMAP_ENEMIES_ALERTED"
+	1, "$JGPHUD_MINIMAP_ENEMIES_ALL"
 }
 
 OptionValue "WeaponSlotsAlignment"

@@ -267,6 +267,23 @@ class JGPUFH_LookTargetController : Thinker
 		
 		FLineTraceData lt;
 		pp.LineTrace(pp.angle, 2048, pp.pitch, offsetz: pp.height * 0.5 - pp.floorclip + pp.AttackZOffset*pp.player.crouchFactor, data:lt);
+		// Debug stuff, not used by the mod:
+//		if (lt.HitType == TRACE_HitWall && lt.HitLine)
+//		{
+//			Line ln = lt.HitLine;
+//			string report = 
+//				"Hit line. Side: "..(lt.LineSide == Line.front ? "front" : "back").."\n"..
+//				"flags: "..ln.flags.."\n"..
+//				"flags2: "..ln.flags2.."\n"..
+//				"flags2: "..ln.flags2.."\n"..
+//				"activation: "..ln.activation.."\n"..
+//				"SPAC_Use: "..(ln.activation & SPAC_Use ? "\cDtrue" : "\cGfalse").."\n"..
+//				"SPAC_Cross: "..(ln.activation & SPAC_Cross ? "\cDtrue" : "\cGfalse").."\n"..
+//				"SPAC_Push: "..(ln.activation & SPAC_Push ? "\cDtrue" : "\cGfalse").."\n"..
+//				"SPAC_UseBack: "..(ln.activation & SPAC_UseBack ? "\cDtrue" : "\cGfalse").."\n"..
+//				"SPAC_PlayerActivate: "..(ln.activation & SPAC_PlayerActivate ? "\cDtrue" : "\cGfalse");
+//			Console.MidPrint(newConsoleFont, report);
+//		}
 		if (lt.HitType == TRACE_HitActor)
 		{
 			let ha = lt.HitActor;
