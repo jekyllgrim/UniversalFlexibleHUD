@@ -6,17 +6,16 @@ class JGPUFH_FlexibleHUD : EventHandler
 	const STR_INVALID = "<invalid>";
 
 	ui PlayerInfo CPlayer;
-	ui bool gamePaused;
-	ui transient CVar c_enable;
+	ui transient bool gamePaused;
 
-	ui HUDFont mainHUDFont;
-	ui HUDFont smallHUDFont;
-	ui HUDFont numHUDFont;
+	ui transient HUDFont mainHUDFont;
+	ui transient HUDFont smallHUDFont;
+	ui transient HUDFont numHUDFont;
 
-	ui double prevMSTime;
-	ui double deltaTime;
-	ui double fracTic;
-	ui bool initDone;
+	ui transient double prevMSTime;
+	ui transient double deltaTime;
+	ui transient double fracTic;
+	ui transient bool initDone;
 	array <JGPUFH_PowerupData> powerupData;
 	array <MapMarker> mapMarkers;
 	bool levelUnloaded;
@@ -68,15 +67,15 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	// Damage markers:
 	JGPUFH_DmgMarkerController dmgMarkerControllers[MAXPLAYERS];
-	ui Shape2D dmgMarker;
-	ui Shape2DTransform dmgMarkerTransf;
+	ui transient Shape2D dmgMarker;
+	ui transient Shape2DTransform dmgMarkerTransf;
 	ui TextureID dmgMarkerTex;
 
 	// Hit (reticle) markers:
-	ui Shape2D reticleHitMarker;
+	ui transient Shape2D reticleHitMarker;
+	ui transient Shape2DTransform reticleMarkerTransform;
 	ui double reticleMarkerAlpha;
 	ui double reticleMarkerScale;
-	ui Shape2DTransform reticleMarkerTransform;
 	
 	// Weapon slots
 	const MAXWEAPONSLOTS = 10;
@@ -95,10 +94,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 	const MAPSCALEFACTOR = 8.;
 	ui array <Line> mapLines;
 	ui array <Actor> radarMonsters;
-	ui Shape2D minimapShape_Square;
-	ui Shape2D minimapShape_Circle;
-	ui Shape2D minimapShape_Arrow;
-	ui Shape2DTransform minimapTransform;
+	ui transient Shape2D minimapShape_Square;
+	ui transient Shape2D minimapShape_Circle;
+	ui transient Shape2D minimapShape_Arrow;
+	ui transient Shape2DTransform minimapTransform;
 	enum EMinimapDisplayModes
 	{
 		MDD_NONE,
@@ -119,13 +118,13 @@ class JGPUFH_FlexibleHUD : EventHandler
 	const MARKERSDELAY = TICRATE*2;
 	const BARCOVERANGLE = 80.0;
 	JGPUFH_LookTargetController lookControllers[MAXPLAYERS];
-	ui Shape2D roundBars;
-	ui Shape2D roundBarsAngMask;
-	ui Shape2D roundBarsInnerMask;
-	ui Shape2D genRoundMask;
-	ui Shape2DTransform roundBarsTransform;
-	ui Shape2DTransform genRoundMaskTransfInner;
-	ui Shape2DTransform genRoundMaskTransfOuter;
+	ui transient Shape2D roundBars;
+	ui transient Shape2D roundBarsAngMask;
+	ui transient Shape2D roundBarsInnerMask;
+	ui transient Shape2D genRoundMask;
+	ui transient Shape2DTransform roundBarsTransform;
+	ui transient Shape2DTransform genRoundMaskTransfInner;
+	ui transient Shape2DTransform genRoundMaskTransfOuter;
 	ui double prevArmAmount;
 	ui double prevArmMaxAmount;
 	ui int prevHealth;
@@ -322,12 +321,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 		
 		GetCustomItemsList();
 
-		initDone = true;
+		initDone = smallHUDFont && smallHUDFont.mFont && mainHUDFont && mainHUDFont.mFont && numHUDFont && numHUDFont.mFont;
 	}
 
 	override void UiTick()
 	{
-		if (!CPlayer || !CPlayer.mo)
+		if (!CPlayer || !CPlayer.mo || !initDone)
 			return;
 
 		UpdateWeaponSlots();
@@ -342,6 +341,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		CacheCvars();
 		UpdateDeltaTime();
 		fracTic = e.fracTic;
+		/*Console.Printf("smallHUDFont: %s/%s | mainHUDFont: %s/%s | numHUDFont: %s/%s",
+			smallHUDFont ? "valid" : "invalid", smallHUDFont && smallHUDFont.mFont ? "valid" : "invalid",
+			mainHUDFont ? "valid" : "invalid", mainHUDFont && mainHUDFont.mFont ? "valid" : "invalid",
+			numHUDFont ? "valid" : "invalid", numHUDFont && numHUDFont.mFont ? "valid" : "invalid"
+		);*/
 		if (!c_enable.GetBool())
 		{
 			return;
@@ -356,6 +360,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 
 		UiInit();
+		if (!initDone)
+		{
+			return;
+		}
 		statusbar.BeginHUD();
 		// These value updates need to be interpolated
 		// with framerate, so they happen here rather
@@ -3573,6 +3581,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return lastgood;
 	}
 
+	ui transient CVar c_enable;
+	
 	ui transient CVar c_BackColor;
 	ui transient CVar c_BackAlpha;
 	ui transient CVar c_BackTexture;
