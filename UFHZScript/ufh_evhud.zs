@@ -92,6 +92,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	// Minimap
 	const MAPSCALEFACTOR = 8.;
+	ui double prevPlayerAngle;
+	ui vector2 prevPlayerPos;
+	ui int prevMapTime;
 	ui array <Line> mapLines;
 	ui array <Actor> radarMonsters;
 	ui transient Shape2D minimapShape_Square;
@@ -173,6 +176,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 			d = Clamp(d, truemin, truemax);
 		}
 		return d;
+	}
+
+	clearscope double Lerp(double from, double to, double frac)
+	{
+		return (from * (1.0 - frac)) + (to * frac);
 	}
 
 	clearscope bool IsVoodooDoll(PlayerPawn mo)
@@ -330,9 +338,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return;
 
 		UpdateWeaponSlots();
+		UpdateInterpolators();
 		UpdateMinimapLines();
 		UpdateEnemyRadar();
-		UpdateInterpolators();
 	}
 
 	override void RenderOverlay(renderEvent e)
@@ -346,15 +354,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			mainHUDFont ? "valid" : "invalid", mainHUDFont && mainHUDFont.mFont ? "valid" : "invalid",
 			numHUDFont ? "valid" : "invalid", numHUDFont && numHUDFont.mFont ? "valid" : "invalid"
 		);*/
-		if (!c_enable.GetBool())
-		{
-			return;
-		}
-		if (!CPlayer || !CPlayer.mo)
-		{
-			return;
-		}
-		if (CPlayer.camera != CPlayer.mo)
+		if (!c_enable.GetBool() || !CPlayer || !CPlayer.mo || CPlayer.camera != CPlayer.mo)
 		{
 			return;
 		}
@@ -2380,7 +2380,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// 4. we're not in a level (this will probably never happen though)
 		if (candraw)
 		{
-			candraw = !levelUnloaded && CPlayer.mo && !autoMapActive && gamestate == GS_Level;
+			candraw = !levelUnloaded && CPlayer.mo && gamestate == GS_Level;
 		}
 		if (!canDraw)
 		{
@@ -2405,6 +2405,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// line drawing.
 	ui void DrawMinimap()
 	{
+		if (autoMapActive)
+			return;
+
 		bool drawMap, drawRadar;
 		[drawMap, drawRadar] = ShouldDrawMinimap();
 
@@ -2458,8 +2461,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// These are needed to position the lines on our
 		// minimap to the same relative positions they are
 		// in the world:
-		vector2 ppos = CPlayer.mo.pos.xy;
-		double playerAngle = -(CPlayer.mo.angle + 90);
+		vector2 ppos;
+		ppos.x = Lerp(prevPlayerPos.x, CPlayer.mo.pos.x, fracTic);
+		ppos.y = Lerp(prevPlayerPos.y, CPlayer.mo.pos.y, fracTic);
+		double playerAngle = -(Lerp(prevPlayerAngle, CPlayer.mo.angle, fracTic) + 90);
 		vector2 diff = Level.Vec2Diff((0,0), ppos);
 
 		// Create square and circular shapes for the minimap:
@@ -2557,6 +2562,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (drawmap)
 		{
 			DrawMinimapLines(pos, diff, playerAngle, size, hudscale.x, mapZoom);
+			DrawMapMarkers(pos, diff, playerAngle, size, hudscale.x, mapZoom);
 		}
 
 		// White arrow at the center represeing the player:
@@ -2587,8 +2593,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		minimapShape_Arrow.SetTransform(minimapTransform);
 		color youColor = c_minimapYouColor.GetInt();
 		Screen.DrawShapeFill(color(youColor.b, youColor.g, youColor.r), 1.0, minimapShape_Arrow);
-
-		DrawMapMarkers(pos, diff, playerAngle, size, hudscale.x, mapZoom);
 		
 		DisableMask();
 	}
@@ -2622,6 +2626,19 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			return;
 		}
+		// Update player position and angle with smooth
+		// interpolation between tics:
+		int lt = Level.mapTime;
+		if (!prevMapTime)
+			prevMapTime = lt;
+		
+		if (lt > prevMapTime)
+		{
+			prevPlayerAngle = CPlayer.mo.angle;
+			prevPlayerPos = CPlayer.mo.pos.xy;
+			prevMapTime = lt;
+		}
+
 		// We don't need to update the lines every tic.
 		// Every 10 tics is enough:
 		if (!Level || Level.maptime % 10 != 0)
