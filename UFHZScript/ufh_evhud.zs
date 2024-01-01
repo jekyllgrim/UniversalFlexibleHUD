@@ -334,13 +334,14 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	override void UiTick()
 	{
-		if (!CPlayer || !CPlayer.mo || !initDone)
+		if (!CPlayer || !CPlayer.mo || !initDone || gamePaused)
 			return;
 
 		UpdateWeaponSlots();
 		UpdateInterpolators();
 		UpdateMinimapLines();
 		UpdateEnemyRadar();
+		UpdatePlayerAngle();
 	}
 
 	override void RenderOverlay(renderEvent e)
@@ -377,7 +378,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 			UpdateReticleBars();
 			UpdateEnemyHitMarker();
 		}
-		
 		DrawDamageMarkers();
 		DrawHealthArmor();
 		DrawWeaponBlock();
@@ -1519,6 +1519,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			dmgMarkerTex = TexMan.CheckForTexture('JGPUFH_DMGMARKER');
 		// Draw the shape for each damage marker data
 		// in the previously built array:
+		double playerAngle = CPlayer.mo.angle;
 		for (int i = dmgMarkerController.markers.Size() - 1; i >= 0; i--)
 		{
 			let dm = dmgMarkerController.markers[i];
@@ -1529,7 +1530,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			double width = LinearMap(dm.damage, 0, 50, size*0.2, size, true);
 			dmgMarkerTransf.Clear();
 			dmgMarkerTransf.Scale((width, size) * hudscale.x);
-			dmgMarkerTransf.Rotate(dm.GetAngle());
+			dmgMarkerTransf.Rotate(dm.GetAngle(Lerp(prevPlayerAngle, playerAngle, fracTic)));
 			dmgMarkerTransf.Translate((Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5));
 			dmgMarker.SetTransform(dmgMarkerTransf);
 			Screen.DrawShape(dmgMarkerTex, false, 
@@ -2358,6 +2359,23 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
+	// Update player position and angle with smooth
+	// interpolation between tics. Used by the
+	// minimap and damage markers:
+	ui void UpdatePlayerAngle()
+	{
+		int lt = Level.mapTime;
+		if (!prevMapTime)
+			prevMapTime = lt;
+		
+		if (lt > prevMapTime)
+		{
+			prevPlayerAngle = CPlayer.mo.angle;
+			prevPlayerPos = CPlayer.mo.pos.xy;
+			prevMapTime = lt;
+		}
+	}
+
 	// Checks if the minimap should be drawn. Has two returns:
 	// 1. whether to draw the minimap at all
 	// 2. whether to draw enemy radar on top
@@ -2625,18 +2643,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!ShouldDrawMinimap())
 		{
 			return;
-		}
-		// Update player position and angle with smooth
-		// interpolation between tics:
-		int lt = Level.mapTime;
-		if (!prevMapTime)
-			prevMapTime = lt;
-		
-		if (lt > prevMapTime)
-		{
-			prevPlayerAngle = CPlayer.mo.angle;
-			prevPlayerPos = CPlayer.mo.pos.xy;
-			prevMapTime = lt;
 		}
 
 		// We don't need to update the lines every tic.

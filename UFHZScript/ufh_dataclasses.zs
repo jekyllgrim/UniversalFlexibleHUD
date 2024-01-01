@@ -224,11 +224,14 @@ class JGPUFH_DmgMarker play
 		}
 	}
 
-	clearscope double GetAngle()
+	// The argument here is used so that we can pass
+	// a subtic-lerped player angle in the HUD rather
+	// that reading current player's angle every tic:
+	clearscope double GetAngle(double playerangle = 0)
 	{
 		if (attacker && ppawn)
 		{
-			return Actor.DeltaAngle(ppawn.AngleTo(attacker), ppawn.angle);
+			return Actor.DeltaAngle(ppawn.AngleTo(attacker), playerangle);
 		}
 		return angle;
 	}
