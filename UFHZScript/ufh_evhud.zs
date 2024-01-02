@@ -2385,11 +2385,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!c_drawMinimap)
 			c_drawMinimap = CVar.GetCvar('jgphud_DrawMinimap', CPlayer);
 		
-		int drawThis = c_DrawMinimap.GetInt();
+		int shouldDraw = c_DrawMinimap.GetInt();
 
 		// Check CVar values:
-		bool drawmap = (drawThis == MDD_MAPONLY || drawThis == MDD_BOTH);
-		bool drawradar = (drawThis == MDD_RADARONLY || drawThis == MDD_BOTH);
+		bool drawmap = (shouldDraw == MDD_MAPONLY || shouldDraw == MDD_BOTH);
+		bool drawradar = (shouldDraw == MDD_RADARONLY || shouldDraw == MDD_BOTH);
 		bool canDraw = drawmap || drawradar;
 		// Don't draw if either of these is true:
 		// 1. the level has been unloaded (prevents possible crashes on tally/intermission)
@@ -2405,14 +2405,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			drawmap = false;
 			drawradar = false;
 		}
-		if (!drawmap)
-		{
-			mapLines.Clear();
-		}
-		if (!drawradar)
-		{
-			radarMonsters.Clear();
-		}
+		
 		return drawmap, drawradar;
 	}
 
