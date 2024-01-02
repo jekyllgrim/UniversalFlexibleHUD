@@ -20,6 +20,7 @@ OptionMenu "JGPHUD_Settings"
 	StaticText "$JGPHUD_GENERAL_TITLE", yellow
 	StaticText ""
 	Option "$JGPHUD_GENERAL_ENABLEHUD", "jgphud_enable", "OnOff"
+	Control "$JGPHUD_GENERAL_ENABLEHUD_BIND", "toggle jgphud_enable"
 	ScaleSlider "$HUDMNU_UISCALE", "uiscale", 0.0, 8.0, 1.0, "$SCALEMNU_ADAPT"
 	Option "$JGPHUD_GENERAL_BACKSTYLE", "jgphud_BackStyle", "BackgroundStyles"
 	UFHColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor", "jgphud_BackStyle"

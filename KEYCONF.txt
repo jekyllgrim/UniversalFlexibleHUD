@@ -1,0 +1,2 @@
+AddKeySection "FlexiHUD" FlexiHUDkeys
+AddMenuKey "$JGPHUD_GENERAL_ENABLEHUD_BIND" "toggle jgphud_enable"
