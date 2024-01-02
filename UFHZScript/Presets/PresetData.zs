@@ -57,6 +57,7 @@ extend class JGPUFH_PresetHandler
 		'jgphud_MinimapPosX',
 		'jgphud_MinimapPosY',
 		'jgphud_MinimapEnemyDisplay',
+		'jgphud_MinimapEnemyShape',
 		'jgphud_MinimapZoom',
 		'jgphud_MinimapDrawUnseen',
 		'jgphud_MinimapDrawFloorDiff',
@@ -161,6 +162,7 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonNumber',	// jgphud_MinimapPosX
 		'JGPUFH_JsonNumber',	// jgphud_MinimapPosY
 		'JGPUFH_JsonBool',		// jgphud_MinimapEnemyDisplay
+		'JGPUFH_JsonBool',		// jgphud_MinimapEnemyShape
 		'JGPUFH_JsonNumber',	// jgphud_MinimapZoom
 		'JGPUFH_JsonNumber',	// jgphud_MinimapDrawUnseen
 		'JGPUFH_JsonBool',		// jgphud_MinimapDrawFloorDiff

@@ -2875,10 +2875,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	ui void DrawEnemyRadar(vector2 pos, vector2 ofs, double angle, double radius, double scale = 1.0, double zoom = 1.0)
 	{
-		if (!minimapShape_Arrow || !minimapTransform)
+		if (!minimapShape_Arrow || !minimapShape_Circle || !minimapTransform)
 			return;
 		
 		bool drawAll = c_MinimapEnemyDisplay.GetBool();
+		Shape2D shapeTouse = c_MinimapEnemyShape.GetBool() ? minimapShape_Circle : minimapShape_Arrow;
 
 		color foeColor = c_minimapMonsterColor.GetInt();
 		color friendColor = c_minimapFriendColor.GetInt();
@@ -2903,9 +2904,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 			minimapTransform.Scale((markerSize,markerSize));
 			minimapTransform.Rotate(-thing.angle - angle - 90);
 			minimapTransform.Translate(pos + ePos);
-			minimapShape_Arrow.SetTransform(minimapTransform);
+			shapeTouse.SetTransform(minimapTransform);
 			color col = thing.IsHostile(CPLayer.mo) ? foeColor : friendColor;
-			Screen.DrawShapeFill(color(col.b, col.g, col.r), alpha, minimapShape_Arrow);
+			Screen.DrawShapeFill(color(col.b, col.g, col.r), alpha, shapeTouse);
 		}
 	}
 
@@ -3667,6 +3668,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	ui transient CVar c_drawMinimap;
 	ui transient CVar c_MinimapEnemyDisplay;
+	ui transient CVar c_MinimapEnemyShape;
 	ui transient CVar c_CircularMinimap;
 	ui transient CVar c_minimapSize;
 	ui transient CVar c_minimapPos;
@@ -3834,6 +3836,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 			c_drawMinimap = CVar.GetCvar('jgphud_DrawMinimap', CPlayer);
 		if (!c_MinimapEnemyDisplay)
 			c_MinimapEnemyDisplay = CVar.GetCvar('jgphud_MinimapEnemyDisplay', CPlayer);
+		if (!c_MinimapEnemyShape)
+			c_MinimapEnemyShape = CVar.GetCvar('jgphud_MinimapEnemyShape', CPlayer);
 		if (!c_CircularMinimap)
 			c_CircularMinimap = CVar.GetCvar('jgphud_CircularMinimap', CPlayer);
 		if (!c_minimapSize)

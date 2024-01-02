@@ -248,13 +248,18 @@ OptionMenu "JGPHUD_MapData"
 		"jgphud_MinimapEnemyDisplay",
 		"MinimapEnemyDisplay", 
 		// Hide this if minimap/radar mode is 'Off' OR in 'Minimap Only' mode:
-		"jgphud_DrawMinimap", "0", "1", "jgphud_DrawMinimap", "2"
+		"jgphud_DrawMinimap", "0", 1, "jgphud_DrawMinimap", "2"
+	UFHOption "$JGPHUD_MINIMAP_ENEMIES_SHAPE",
+		"jgphud_MinimapEnemyShape",
+		"MinimapEnemyShape", 
+		// Hide this if minimap/radar mode is 'Off' OR in 'Minimap Only' mode:
+		"jgphud_DrawMinimap", "0", 1, "jgphud_DrawMinimap", "2"
 	UFHScaleSlider "$JGPHUD_MINIMAP_MAPMARKERSCALE", 
 		"jgphud_MinimapMapMarkersSize", 
 		0, 32, 1,
 		"$JGPHUD_MINIMAP_MAPMARKERSCALE_REAL", "",
 		// Hide this if minimap/radar mode is 'Off' OR in 'Minimap Only' mode:
-		"jgphud_DrawMinimap", "0", "1", "jgphud_DrawMinimap", "2"
+		"jgphud_DrawMinimap", "0", 1, "jgphud_DrawMinimap", "2"
 	
 	StaticText ""
 	StaticText "$AUTOMAPMNU_SETCUSTOMCOLORS", yellow
@@ -275,7 +280,7 @@ OptionMenu "JGPHUD_MapData"
 	Option "$JGPHUD_MAPDATA_SECRETS", "jgphud_DrawSecrets", "OnOff"
 	Option "$JGPHUD_MAPDATA_TIME", "jgphud_DrawTime", "OnOff"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_MinimapPos:jgphud_MinimapPosX:jgphud_MinimapPosY:jgphud_DrawMinimap:jgphud_MinimapDrawUnseen:jgphud_MinimapDrawFloorDiff:jgphud_MinimapDrawCeilingDiff:jgphud_MinimapSize:jgphud_CircularMinimap:jgphud_MinimapZoom:jgphud_MinimapEnemyDisplay:jgphud_MinimapEnemyMarkersSize:jgphud_DrawKills:jgphud_DrawItems:jgphud_DrawSecrets:jgphud_DrawTime:jpghud_MinimapBackColor:jgphud_MinimapLineColor:jgphud_MinimapYouColor:jgphud_MinimapMonsterColor:jgphud_MinimapFriendColor", 1
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_MinimapPos:jgphud_MinimapPosX:jgphud_MinimapPosY:jgphud_DrawMinimap:jgphud_MinimapDrawUnseen:jgphud_MinimapDrawFloorDiff:jgphud_MinimapDrawCeilingDiff:jgphud_MinimapSize:jgphud_CircularMinimap:jgphud_MinimapZoom:jgphud_MinimapEnemyDisplay:jgphud_MinimapEnemyShape:jgphud_MinimapEnemyMarkersSize:jgphud_DrawKills:jgphud_DrawItems:jgphud_DrawSecrets:jgphud_DrawTime:jpghud_MinimapBackColor:jgphud_MinimapLineColor:jgphud_MinimapYouColor:jgphud_MinimapMonsterColor:jgphud_MinimapFriendColor", 1
 }
 
 OptionMenu "JGPHUD_CrosshairOptions"
@@ -346,6 +351,12 @@ OptionValue "MinimapEnemyDisplay"
 {
 	0, "$JGPHUD_MINIMAP_ENEMIES_ALERTED"
 	1, "$JGPHUD_MINIMAP_ENEMIES_ALL"
+}
+
+OptionValue "MinimapEnemyShape"
+{
+	0, "$JGPHUD_MINIMAP_ENEMIES_SHAPE_ARROW"
+	1, "$JGPHUD_MINIMAP_ENEMIES_SHAPE_DOT"
 }
 
 OptionValue "WeaponSlotsAlignment"
