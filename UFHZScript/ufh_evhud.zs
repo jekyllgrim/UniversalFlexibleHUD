@@ -319,9 +319,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		deltaTime = (ftime / dtime);
 	}
 
-	// A replacement for using Level.maptime / Menu.MenuTime().
-	// Still returns tics but updates all the time,
-	// even when paused.
+	// Gets the current tic, be it menus or in the level:
 	ui int GetGlobalTics()
 	{
 		return gamePaused ? Menu.MenuTime() : Level.maptime;
@@ -348,10 +346,14 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!CPlayer || !CPlayer.mo || !initDone)
 			return;
 
-		UpdateWeaponSlots();
-		UpdateInterpolators();
 		UpdateEnemyRadar();
-		UpdatePlayerAngle();
+		UpdateMinimapLines();
+		if (!gamePaused)
+		{
+			UpdateWeaponSlots();
+			UpdateInterpolators();
+			UpdatePlayerAngle();
+		}
 	}
 
 	override void RenderOverlay(renderEvent e)
@@ -388,7 +390,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 			UpdateReticleBars();
 			UpdateEnemyHitMarker();
 		}
-		UpdateMinimapLines();
 		DrawDamageMarkers();
 		DrawHealthArmor();
 		DrawWeaponBlock();
@@ -2649,9 +2650,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return;
 		}
 		// We don't need to update the lines every tic.
-		// Every 10 tics is enough:
-		if (GetGlobalTics() % 10 != 0)
+		// Update once a second in menus, otherwise
+		// once per 10 tics:
+		int freq = gamePaused ? 35 : 10;
+		if (GetGlobalTics() % freq != 0)
 			return;
+
 		mapLines.Clear();
 		double distFac = IsMinimapCircular() ? 1.0 : SQUARERADIUSFAC;
 		double zoom = GetMinimapZoom();
