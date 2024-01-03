@@ -8,6 +8,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui PlayerInfo CPlayer;
 	ui transient bool gamePaused;
 
+	// Apparently, HUDFont is not properly serializable,
+	// so these need to be transient:
+	ui transient bool initDone;
 	ui transient HUDFont mainHUDFont;
 	ui transient HUDFont smallHUDFont;
 	ui transient HUDFont numHUDFont;
@@ -15,7 +18,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui transient double prevMSTime;
 	ui transient double deltaTime;
 	ui transient double fracTic;
-	ui transient bool initDone;
+
 	array <JGPUFH_PowerupData> powerupData;
 	array <MapMarker> mapMarkers;
 	bool levelUnloaded;
@@ -90,9 +93,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		WA_VERTICALINV,
 	}
 
-	// Minimap
+	// Minimap and monster radar:
 	const MAPSCALEFACTOR = 8.;
-	ui double globalDeltaTimer;
 	ui double prevPlayerAngle;
 	ui vector2 prevPlayerPos;
 	ui int prevLevelTime;
@@ -115,7 +117,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui Inventory prevInvSel;
 	ui double invbarCycleOfs;
 
-	// DrawCustomItems():	
+	// DrawCustomItems():
 	ui array < class<Inventory> > customItems;
 
 	// DrawReticleBars():
@@ -315,15 +317,14 @@ class JGPUFH_FlexibleHUD : EventHandler
 		prevMSTime = MSTimeF();
 		double dtime = 1000.0 / TICRATE;
 		deltaTime = (ftime / dtime);
-		globalDeltaTimer += deltatime;
 	}
 
 	// A replacement for using Level.maptime / Menu.MenuTime().
 	// Still returns tics but updates all the time,
 	// even when paused.
-	ui int GetGlobalTime()
+	ui int GetGlobalTics()
 	{
-		return round(globalDeltaTimer);
+		return gamePaused ? Menu.MenuTime() : Level.maptime;
 	}
 
 	ui void UiInit()
@@ -614,7 +615,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui double SinePulse(double frequency = TICRATE, double startVal = 0.0, double endVal = 1.0, double inMenus = false)
 	{
 		//return 0.5 + 0.5 * sin(360.0 * deltatime / (frequency*1000.0));
-		double time = inMenus ? GetGlobalTime() : Level.mapTime;
+		double time = inMenus ? GetGlobalTics() : Level.mapTime;
 		double pulseVal = 0.5 + 0.5 * sin(360.0 * (time + fracTic) / frequency);
 		return LinearMap(pulseVal, 0.0, 1.0, startVal, endVal);
 	}
@@ -2647,10 +2648,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			return;
 		}
-
 		// We don't need to update the lines every tic.
 		// Every 10 tics is enough:
-		if (GetGlobalTime() % 10 != 0)
+		if (GetGlobalTics() % 10 != 0)
 			return;
 		mapLines.Clear();
 		double distFac = IsMinimapCircular() ? 1.0 : SQUARERADIUSFAC;
