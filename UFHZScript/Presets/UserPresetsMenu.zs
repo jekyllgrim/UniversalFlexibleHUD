@@ -109,7 +109,7 @@ class JGPUFH_UserPreset : OptionMenuItemSubmenu
 	}
 }
 
-class JGPUFH_SavePresetMenu : OptionMenu
+class JGPUFH_SavePresetMenu : JGPHUD_OptionMenu
 {
 	bool toClose;
 	
@@ -203,7 +203,7 @@ class OptionMenuItemJGPUFH_ConfirmCommand : OptionMenuItemSubmenu
 }
 
 
-class JGPUFH_UserPresetsMenu : OptionMenu
+class JGPUFH_UserPresetsMenu : JGPHUD_OptionMenu
 {
 	
 	void RebuildList(OptionMenuDescriptor desc)
@@ -261,7 +261,7 @@ class OptionMenuItemUserPresetsSubmenu : OptionMenuItemSubmenu
 	}
 }
 
-class JGPUFH_PresetsMenu : OptionMenu
+class JGPUFH_PresetsMenu : JGPHUD_OptionMenu
 {
 	bool toClose;
 	
