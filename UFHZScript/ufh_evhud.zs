@@ -2922,16 +2922,19 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 			vector2 ePos = (marker.pos.xy - ofs) * zoom * scale;
 			ePos = AlignPosToMap(ePos, angle, radius);
-
 			// scale alpha with vertical distance:
 			double vdiff = abs(CPlayer.mo.pos.z - marker.pos.z);
 			double alpha = LinearMap(vdiff, 0, 512, 1.0, 0.1, true);
-			// determine marker size based on the CVAR
-			// (either scaled with zoom, or fixed):
-			double msize = Clamp(c_minimapMapMarkersSize.GetInt(), 0, 64);
-			double markerSize = (msize <= 0 ? marker.radius * zoom * marker.scale.x : msize) * scale;
 			vector2 mpos = pos + ePos;
-			Screen.DrawTexture(tex, false, mpos.x, mpos.y, DTA_Alpha, alpha);
+			Screen.DrawTexture(tex, false,
+				mpos.x, mpos.y,
+				DTA_Alpha, alpha,
+				// Marker's size is just their graphic scaled relative
+				// to their scale property, and it shouldn't change
+				// with the map's zoom:
+				DTA_ScaleX, marker.scale.x,
+				DTA_ScaleY, marker.scale.y
+			);
 		}
 	}
 
