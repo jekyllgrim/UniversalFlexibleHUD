@@ -92,9 +92,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	// Minimap
 	const MAPSCALEFACTOR = 8.;
+	ui double globalDeltaTimer;
 	ui double prevPlayerAngle;
 	ui vector2 prevPlayerPos;
-	ui int prevMapTime;
+	ui int prevLevelTime;
 	ui array <Line> mapLines;
 	ui array <Actor> radarMonsters;
 	ui transient Shape2D minimapShape_Square;
@@ -314,6 +315,15 @@ class JGPUFH_FlexibleHUD : EventHandler
 		prevMSTime = MSTimeF();
 		double dtime = 1000.0 / TICRATE;
 		deltaTime = (ftime / dtime);
+		globalDeltaTimer += deltatime;
+	}
+
+	// A replacement for using Level.maptime / Menu.MenuTime().
+	// Still returns tics but updates all the time,
+	// even when paused.
+	ui int GetGlobalTime()
+	{
+		return round(globalDeltaTimer);
 	}
 
 	ui void UiInit()
@@ -334,12 +344,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	override void UiTick()
 	{
-		if (!CPlayer || !CPlayer.mo || !initDone || gamePaused)
+		if (!CPlayer || !CPlayer.mo || !initDone)
 			return;
 
 		UpdateWeaponSlots();
 		UpdateInterpolators();
-		UpdateMinimapLines();
 		UpdateEnemyRadar();
 		UpdatePlayerAngle();
 	}
@@ -378,6 +387,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			UpdateReticleBars();
 			UpdateEnemyHitMarker();
 		}
+		UpdateMinimapLines();
 		DrawDamageMarkers();
 		DrawHealthArmor();
 		DrawWeaponBlock();
@@ -604,7 +614,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui double SinePulse(double frequency = TICRATE, double startVal = 0.0, double endVal = 1.0, double inMenus = false)
 	{
 		//return 0.5 + 0.5 * sin(360.0 * deltatime / (frequency*1000.0));
-		double time = (inMenus && gamePaused) ? Menu.MenuTime() : Level.mapTime;
+		double time = inMenus ? GetGlobalTime() : Level.mapTime;
 		double pulseVal = 0.5 + 0.5 * sin(360.0 * (time + fracTic) / frequency);
 		return LinearMap(pulseVal, 0.0, 1.0, startVal, endVal);
 	}
@@ -2365,14 +2375,14 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui void UpdatePlayerAngle()
 	{
 		int lt = Level.mapTime;
-		if (!prevMapTime)
-			prevMapTime = lt;
+		if (!prevLevelTime)
+			prevLevelTime = lt;
 		
-		if (lt > prevMapTime)
+		if (lt > prevLevelTime)
 		{
 			prevPlayerAngle = CPlayer.mo.angle;
 			prevPlayerPos = CPlayer.mo.pos.xy;
-			prevMapTime = lt;
+			prevLevelTime = lt;
 		}
 	}
 
@@ -2640,7 +2650,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		// We don't need to update the lines every tic.
 		// Every 10 tics is enough:
-		if (!Level || Level.maptime % 10 != 0)
+		if (GetGlobalTime() % 10 != 0)
 			return;
 		mapLines.Clear();
 		double distFac = IsMinimapCircular() ? 1.0 : SQUARERADIUSFAC;
