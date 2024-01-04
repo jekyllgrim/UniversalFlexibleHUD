@@ -19,6 +19,7 @@ OptionMenu "JGPUFH_BuiltInPresets"
 	Title "$JGPHUD_Presets_Menu_BuiltIn"
 	
 	JGPUFH_ConfirmCommand "Default", "LoadDefaultPreset", "", "$JGPHUD_Presets_Menu_ResetPresetConfirm"
+	JGPUFH_ConfirmCommand "Minimap-Only", "LoadBuiltInPresetJSON", "MinimapOnly", "Are you sure you want to load the minimap-only preset?"
 }
 
 OptionMenu "JGPUFH_UserPresets"
