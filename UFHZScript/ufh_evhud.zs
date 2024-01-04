@@ -498,6 +498,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return pos;
 	}
 
+	clearscope color RGB2BGR(color col)
+	{
+		return color(col.b, col.g, col.r);
+	}
+
 	ui vector2 ScaleToBox(TextureID tex, double squareSize)
 	{
 		vector2 size = TexMan.GetScaledSize(tex);
@@ -1659,7 +1664,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		reticleMarkerTransform.Translate(screenCenter);
 		reticleHitMarker.SetTransform(reticleMarkerTransform);
 		color col = color(c_EnemyHitMarkersColor.GetInt());
-		Screen.DrawShapeFill(color(col.b, col.g, col.r), alpha, reticleHitMarker);
+		Screen.DrawShapeFill(RGB2BGR(col), alpha, reticleHitMarker);
 	}
 
 	ui bool CanDrawReticleBar(int which)
@@ -2027,8 +2032,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		roundBarsTransform.Rotate(angle);
 		roundBarsTransform.Translate(pos);
 		roundBars.SetTransform(roundBarsTransform);
-		color colBGR = color(col.b, col.g, col.r);
-		Screen.DrawShapeFill(colBGR, alpha, roundBars);
+		Screen.DrawShapeFill(RGB2BGR(col), alpha, roundBars);
 		// Flash with a 50% white pulse if the value
 		// is under 20%:
 		if (frac >= 0.8)
@@ -2562,7 +2566,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		
 		// Fill the shape with the outline color
 		// (remember than DrawShapeFill is BGR, not RGB):
-		Screen.DrawShapeFill(color(baseCol.B, baseCol.G, baseCol.R), 1.0, shapeToUse);
+		Screen.DrawShapeFill(RGB2BGR(baseCol), 1.0, shapeToUse);
 		
 		// Scale the shape down to draw the black background:
 		// If the shape isn't circular, half of the line width
@@ -2576,7 +2580,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		shapeToUse.SetTransform(minimapTransform);
 		// Draw background:
 		color backCol = c_minimapBackColor.GetInt();
-		Screen.DrawShapeFill(color(255, backCol.b, backCol.g, backCol.r), 1.0, shapeToUse);
 
 		// Apply mask
 		// It's applied after outline and background scaling, 
@@ -2585,6 +2588,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			EnableMask(1, shapeToUse);
 		}
+		Screen.DrawShapeFill(RGB2BGR(backCol), 1.0, shapeToUse);
 		
 		// Draw the minimap lines:
 		if (drawmap)
@@ -2620,7 +2624,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		minimapTransform.Translate(pos + (size*0.5,size*0.5));
 		minimapShape_Arrow.SetTransform(minimapTransform);
 		color youColor = c_minimapYouColor.GetInt();
-		Screen.DrawShapeFill(color(youColor.b, youColor.g, youColor.r), 1.0, minimapShape_Arrow);
+		Screen.DrawShapeFill(RGB2BGR(youcolor), 1.0, minimapShape_Arrow);
 		
 		DisableMask();
 	}
@@ -2918,7 +2922,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			minimapTransform.Translate(pos + ePos);
 			shapeTouse.SetTransform(minimapTransform);
 			color col = thing.IsHostile(CPLayer.mo) ? foeColor : friendColor;
-			Screen.DrawShapeFill(color(col.b, col.g, col.r), alpha, shapeTouse);
+			Screen.DrawShapeFill(RGB2BGR(col), alpha, shapeTouse);
 		}
 	}
 
