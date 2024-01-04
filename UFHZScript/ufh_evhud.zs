@@ -117,6 +117,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	const ITEMBARICONSIZE = 28;
 	ui Inventory prevInvSel;
 	ui double invbarCycleOfs;
+	ui bool pressedInvNext;
 
 	// DrawCustomItems():
 	ui array < class<Inventory> > customItems;
@@ -233,6 +234,23 @@ class JGPUFH_FlexibleHUD : EventHandler
 				dmgMarkerControllers[i] = dmc;
 			}
 		}
+	}
+
+	override bool InputProcess (InputEvent e)
+	{
+		array<int> buttons;
+		Bindings.GetAllKeysForCommand(buttons, "invnext");
+		if(buttons.Find(e.keyScan) != buttons.Size())
+		{
+			pressedInvNext = true;
+		}
+		buttons.Clear();
+		Bindings.GetAllKeysForCommand(buttons, "invprev");
+		if(buttons.Find(e.keyScan) != buttons.Size())
+		{
+			pressedInvNext = false;
+		}
+		return false;
 	}
 
 	// This field only really has one purpose: it's checked
@@ -3497,10 +3515,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Detect the player cycled through inventory:
 		if (invSel != prevInvSel)
 		{
-			let prevNext = NextItem(prevInvSel);
-			bool toNext = (invSel == prevNext);
 			// Add positive or negative offsets to the icon:
-			invbarCycleOfs = toNext ? iconSize : -iconSize;
+			invbarCycleOfs = pressedInvNext ? iconSize : -iconSize;
 			prevInvSel = invSel;
 			if (c_AlwaysShowInvBar.GetBool())
 			{
