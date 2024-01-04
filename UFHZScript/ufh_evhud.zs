@@ -2460,10 +2460,16 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		// Draw map data below the minimap
 		// (or above it if it's at the bottom of the screen):
+		// Figure out horizontal size first, based on the
+		// width of the minimap. If the minimap is hidden,
+		// we use 64 for width:
 		vector2 msize = (64, 0);
 		if (drawMap || drawradar)
 		{
-			msize = (max(size, 44), size); //going under 44 pixels looks too bad scaling-wise
+			// Otherwise we use the minimap's width, but no
+			// less than 44 pixels (otherwise it looks bad
+			// due to scaling):
+			msize = (max(size, 44), size);
 		}
 		vector2 mapDataSize = (msize.x, msize.y + 16);
 		// draw it above the minimap if that's at the bottom:
@@ -2494,6 +2500,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// minimap to the same relative positions they are
 		// in the world:
 		vector2 ppos;
+		// Lerp pos and angle to smooth it with framerate:
 		ppos.x = Lerp(prevPlayerPos.x, CPlayer.mo.pos.x, fracTic);
 		ppos.y = Lerp(prevPlayerPos.y, CPlayer.mo.pos.y, fracTic);
 		double playerAngle = -(Lerp(prevPlayerAngle, CPlayer.mo.angle, fracTic) + 90);
@@ -2578,16 +2585,14 @@ class JGPUFH_FlexibleHUD : EventHandler
 		minimapTransform.Scale((size-edgeThickness,size-edgeThickness) * shapeFac);
 		minimapTransform.Translate(pos + shapeOfs);
 		shapeToUse.SetTransform(minimapTransform);
-		// Draw background:
-		color backCol = c_minimapBackColor.GetInt();
-
-		// Apply mask
-		// It's applied after outline and background scaling, 
-		// so that the lines are maked within the outline:
+		// This debug CVAR disables the mask for the minimap
+		// in case I need to view everything in full:
 		if (!jgphud_debugmap)
 		{
 			EnableMask(1, shapeToUse);
 		}
+		// Draw background:
+		color backCol = c_minimapBackColor.GetInt();
 		Screen.DrawShapeFill(RGB2BGR(backCol), 1.0, shapeToUse);
 		
 		// Draw the minimap lines:
