@@ -3106,7 +3106,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			strScale = scale * (maxStrWidth / strWidth);
 		}
-		statusbar.DrawString(hfnt, str1, pos-(strOfs,0), flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT, scale:(strScale,strScale));
+		statusbar.DrawString(hfnt, str1, pos-(strOfs,0), flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT, scale:(strScale,scale));
 		statusbar.DrawString(hfnt, ":", pos, flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, scale:(scale,scale));
 		statusbar.DrawString(hfnt, str2, pos+(strOfs,0), flags|StatusBarCore.DI_TEXT_ALIGN_LEFT, scale:(scale,scale));
 	}
