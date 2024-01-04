@@ -351,6 +351,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		UpdateMinimapLines();
 		if (!gamePaused)
 		{
+			UpdateHealthArmor();
 			UpdateWeaponSlots();
 			UpdateInterpolators();
 			UpdatePlayerAngle();
@@ -375,21 +376,20 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		UiInit();
 		if (!initDone)
-		{
 			return;
-		}
+
 		statusbar.BeginHUD();
+		
 		// These value updates need to be interpolated
-		// with framerate, so they happen here rather
+		// with deltatime, so they happen here rather
 		// than in UiTick(). They also shouldn't
 		// progress if a menu is open:
 		gamePaused = Menu.GetCurrentMenu();
 		if (!gamePaused)
 		{
-			UpdateHealthArmor();
-			UpdateInventoryBar();
-			UpdateReticleBars();
-			UpdateEnemyHitMarker();
+			UpdateInventoryBar(deltaTime);
+			UpdateReticleBars(deltaTime);
+			UpdateEnemyHitMarker(deltaTime);
 		}
 		
 		// Do not draw stuff if automap is open. This is,
@@ -1577,15 +1577,15 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui void UpdateEnemyHitMarker()
+	ui void UpdateEnemyHitMarker(double delta = 1.0)
 	{
 		if (reticleMarkerAlpha > 0)
 		{
-			reticleMarkerAlpha -= (reticleMarkerScale > 0 ? 0.075 : 0.15) * deltaTime;
+			reticleMarkerAlpha -= (reticleMarkerScale > 0 ? 0.075 : 0.15) * delta;
 		}
 		if (reticleMarkerScale > 0)
 		{
-			reticleMarkerScale -= 0.1 * deltaTime;
+			reticleMarkerScale -= 0.1 * delta;
 		}
 	}
 
@@ -1676,7 +1676,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return reticleMarkersDelay[which] > 0;
 	}
 
-	ui void UpdateReticleBars()
+	ui void UpdateReticleBars(double delta = 1.0)
 	{
 		if (c_DrawReticleBars && c_DrawReticleBars.GetInt() != DM_AUTOHIDE)
 		{
@@ -1697,7 +1697,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		else
 		{
-			reticleMarkersDelay[RB_HEALTH] -= 1 * deltaTime;
+			reticleMarkersDelay[RB_HEALTH] -= 1 * delta;
 		}
 
 		if (prevArmAmount != armAmount || prevArmMaxAmount != armMaxAmount)
@@ -1708,7 +1708,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		else
 		{
-			reticleMarkersDelay[RB_ARMOR] -= 1 * deltaTime;
+			reticleMarkersDelay[RB_ARMOR] -= 1 * delta;
 		}
 
 
@@ -1722,7 +1722,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		else
 		{
-			reticleMarkersDelay[RB_AMMO1] -= 1 * deltaTime;
+			reticleMarkersDelay[RB_AMMO1] -= 1 * delta;
 		}
 		if (am2 && (prevAmmo2Amount != am2.amount || prevAmmo2MaxAmount != am2.maxamount))
 		{
@@ -1732,7 +1732,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		else
 		{
-			reticleMarkersDelay[RB_AMMO2] -= 1 * deltaTime;
+			reticleMarkersDelay[RB_AMMO2] -= 1 * delta;
 		}
 	}
 
@@ -3582,13 +3582,13 @@ class JGPUFH_FlexibleHUD : EventHandler
 		statusbar.Fill (cursCol, cursPos.x+cursSize.x-cursSize.y, cursPos.y, cursSize.y, cursSize.x, flags); //right
 	}
 
-	ui void UpdateInventoryBar(int numfields = 7)
+	ui void UpdateInventoryBar(double delta = 1.0, int numfields = 7)
 	{
 		if (invbarCycleOfs == 0)
 			return;
 
 		double iconSize = GetInvBarIconSize();
-		double step = (invbarCycleOfs > 0 ? -iconSize : iconsize) * 0.25 * deltaTime;
+		double step = (invbarCycleOfs > 0 ? -iconSize : iconsize) * 0.25 * delta;
 		invbarCycleOfs = Clamp(invbarCycleOfs + step, min(0, invbarCycleOfs), max(0, invbarCycleOfs));
 	}
 
