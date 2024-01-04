@@ -645,12 +645,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 	}
 
 	// Wrappers to enable and disable stencil masks:
-	ui void EnableMask(int ofs, Shape2D mask)
+	ui void EnableMask(int ofs, Shape2D mask, bool invert = false)
 	{
 		Screen.EnableStencil(true);
 		Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
 		Screen.DrawShapeFill(color(0,0,0), 1, mask);
-		Screen.SetStencil(ofs, SOP_Keep, SF_AllOn);
+		Screen.SetStencil(invert ? 0 : ofs, SOP_Keep, SF_AllOn);
 	}
 
 	ui void DisableMask()
