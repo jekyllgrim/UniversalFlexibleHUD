@@ -3020,10 +3020,23 @@ class JGPUFH_FlexibleHUD : EventHandler
 		let fy = fnt.GetHeight() * scale;
 
 		pos.x += width*0.5;
+		bool shoulDrawKills = c_DrawKills.GetBool();
+		bool shoulDrawItems = c_DrawItems.GetBool();
+		bool shoulDrawSecrets = c_DrawSecrets.GetBool();
+		bool shoulDrawTime = c_DrawTime.GetBool();
 		// flip if it's at the bottom:
 		if ((flags & StatusBarCore.DI_SCREEN_BOTTOM) == StatusBarCore.DI_SCREEN_BOTTOM)
 		{
-			pos.y -= fy * 3;
+			int vofs;
+			if (shoulDrawKills)
+				vofs++;
+			if (shoulDrawItems)
+				vofs++;
+			if (shoulDrawSecrets)
+				vofs++;
+			if (shoulDrawTime)
+				vofs++;
+			pos.y -= (fy * vofs + 1);
 		}
 
 		int secrets = Level.found_secrets;
@@ -3043,7 +3056,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		// Drawing the actual elements is relegated to a
 		// separate function to properly handle scaling:
-		if (c_DrawKills.GetBool())
+		if (shoulDrawKills)
 		{
 			s_left = String.Format("\cG%s", StringTable.Localize("$TXT_IMKILLS"));
 			s_right = String.Format("\cD%d\c-/\cD%d", kills, totalkills);
@@ -3051,7 +3064,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			pos.y+=fy;
 		}
 
-		if (c_DrawItems.GetBool())
+		if (shoulDrawItems)
 		{
 			s_left = String.Format("\cG%s", StringTable.Localize("$TXT_IMITEMS"));
 			s_right = String.Format("\cD%d\c-/\cD%d", items, totalitems);
@@ -3059,7 +3072,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			pos.y+=fy;
 		}
 
-		if (c_DrawSecrets.GetBool())
+		if (shoulDrawSecrets)
 		{
 			s_left = String.Format("\cG%s", StringTable.Localize("$TXT_IMSECRETS"));
 			s_right = String.Format("\cD%d\c-/\cD%d", secrets, totalsecrets);
@@ -3067,11 +3080,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 			pos.y+=fy;
 		}
 
-		if (c_DrawTime.GetBool())
+		if (shoulDrawTime)
 		{
 			s_left = String.Format("\cG%s", StringTable.Localize("$TXT_IMTIME"));
 			int h,m,s;
-			[h,m,s] = TicsToHours(level.time);
+			[h,m,s] = TicsToHours(Level.time);
 			s_right = String.Format("\cD%d:%02d:%02d", h, m, s);
 			DrawMapDataElement(s_left, s_right, hfnt, pos, flags, width, scale);
 		}
