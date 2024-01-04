@@ -18,6 +18,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui transient double prevMSTime;
 	ui transient double deltaTime;
 	ui transient double fracTic;
+	ui transient int HUDTics; //incremented all the time, including while paused
 
 	array <JGPUFH_PowerupData> powerupData;
 	array <MapMarker> mapMarkers;
@@ -319,10 +320,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 		deltaTime = (ftime / dtime);
 	}
 
-	// Gets the current tic, be it menus or in the level:
-	ui int GetGlobalTics()
+	ui int GetHUDTics()
 	{
-		return gamePaused ? Menu.MenuTime() : Level.maptime;
+		return HUDTics;
 	}
 
 	ui void UiInit()
@@ -346,6 +346,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!CPlayer || !CPlayer.mo || !initDone)
 			return;
 
+		HUDTics++;
 		UpdateEnemyRadar();
 		UpdateMinimapLines();
 		if (!gamePaused)
@@ -616,7 +617,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui double SinePulse(double frequency = TICRATE, double startVal = 0.0, double endVal = 1.0, double inMenus = false)
 	{
 		//return 0.5 + 0.5 * sin(360.0 * deltatime / (frequency*1000.0));
-		double time = inMenus ? GetGlobalTics() : Level.mapTime;
+		double time = inMenus ? GetHUDTics() : Level.mapTime;
 		double pulseVal = 0.5 + 0.5 * sin(360.0 * (time + fracTic) / frequency);
 		return LinearMap(pulseVal, 0.0, 1.0, startVal, endVal);
 	}
@@ -2653,7 +2654,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Update once a second in menus, otherwise
 		// once per 10 tics:
 		int freq = gamePaused ? 35 : 10;
-		if (GetGlobalTics() % freq != 0)
+		if (GetHUDTics() % freq != 0)
 			return;
 
 		mapLines.Clear();
