@@ -391,14 +391,23 @@ class JGPUFH_FlexibleHUD : EventHandler
 			UpdateReticleBars();
 			UpdateEnemyHitMarker();
 		}
-		DrawDamageMarkers();
+		
+		// Do not draw stuff if automap is open. This is,
+		// because, one, if the user is using one of the
+		// vanilla HUDs, a statusbar version will already
+		// be drawn on the automap; and two, this just
+		// gets noisy and not very necessary.
+		if (autoMapActive)
+			return;
+
+		DrawPowerups();
+		DrawKeys();
 		DrawHealthArmor();
+		DrawDamageMarkers();
 		DrawWeaponBlock();
 		DrawAllAmmo();
 		DrawWeaponSlots();
 		DrawMinimap();
-		DrawPowerups();
-		DrawKeys();
 		DrawInventoryBar();
 		DrawEnemyHitMarker();
 		DrawReticleBars();
@@ -1655,8 +1664,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	ui bool CanDrawReticleBar(int which)
 	{
-		if (autoMapActive)
-			return false;
 		if (c_DrawReticleBars && c_DrawReticleBars.GetInt() != DM_AUTOHIDE)
 			return true;
 
@@ -2429,9 +2436,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// line drawing.
 	ui void DrawMinimap()
 	{
-		if (autoMapActive)
-			return;
-
 		bool drawMap, drawRadar;
 		[drawMap, drawRadar] = ShouldDrawMinimap();
 
