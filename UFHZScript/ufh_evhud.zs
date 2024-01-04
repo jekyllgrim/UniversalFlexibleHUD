@@ -890,7 +890,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Check if armor exists and is above 0
 		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
 		let hexarm = HexenArmor(CPlayer.mo.FindInventory("HexenArmor"));
-		armMaxamount = 100;
+		armMaxAmount = 0;
 		hasHexenArmor = false;
 		int r,g,b;
 		if (barm)
@@ -912,7 +912,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 				SetupHexenArmorIcons();
 				hasHexenArmor = true;
 				armAmount = hexArmAmount;
-				armMaxAmount = 100;
+				for (int i = 0; i < hexarm.slotsIncrement.Size(); i++)
+				{
+					armMaxamount += hexarm.slotsIncrement[i];
+				}
+				armMaxamount += hexarm.slots[4];
 				[r,g,b] = GetArmorColor(barm.savePercent);
 				armorColor = color(r, g, b);
 			}
