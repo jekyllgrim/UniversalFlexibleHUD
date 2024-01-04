@@ -365,14 +365,16 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return;
 
 		HUDTics++;
+		if (!c_enable || !c_enable.GetBool())
+			return;
 		UpdateEnemyRadar();
 		UpdateMinimapLines();
 		if (!gamePaused)
 		{
 			UpdateHealthArmor();
 			UpdateWeaponSlots();
-			UpdateInterpolators();
 			UpdatePlayerAngle();
+			UpdateInterpolators();
 		}
 	}
 
@@ -857,20 +859,31 @@ class JGPUFH_FlexibleHUD : EventHandler
 			healthIntr.Update(CPlayer.mo.health);
 		if (armorIntr)
 			armorIntr.Update(armAmount);
+
+		if (!healthIntr && healthMaxAmount > 0)
+		{
+			healthIntr = LinearValueInterpolator.Create(healthMaxAmount, 1);
+			healthIntr.Reset(healthAmount);
+		}
+		if (!armorIntr && armMaxAmount > 0)
+		{
+			armorIntr = LinearValueInterpolator.Create(armMaxAmount, 1);
+			armorIntr.Reset(armAmount);
+		}
 	}
 
 	ui double GetHealthInterpolated()
 	{
-		if (!healthIntr)
-			healthIntr = LinearValueInterpolator.Create(healthMaxAmount, 1);
-		return healthIntr.GetValue();
+		if (healthIntr)
+			return healthIntr.GetValue();
+		return healthAmount;
 	}
 
 	ui double GetArmorInterpolated()
 	{
-		if (!armorIntr)
-			armorIntr = LinearValueInterpolator.Create(armMaxAmount, 1);
-		return armorIntr.GetValue();
+		if (armorIntr)
+			return armorIntr.GetValue();
+		return healthAmount;
 	}
 
 	// This is meant to be called unconditionally
