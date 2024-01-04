@@ -6,7 +6,7 @@ OptionMenu "JGPUFH_PresetMenu"
 	
 	
 	Submenu "$JGPHUD_Presets_Menu_BuiltIn", "JGPUFH_BuiltInPresets"
-	UserPresetsSubmenu "$JGPHUD_Presets_Menu_User", "JGPUFH_UserPresets"
+	JGPUFH_UserPresetsSubmenu "$JGPHUD_Presets_Menu_User", "JGPUFH_UserPresets"
 	Submenu "$JGPHUD_Presets_Menu_Save", "JGPUFH_SaveUserPreset"
 	
 	StaticText ""

@@ -240,10 +240,10 @@ class JGPUFH_UserPresetsMenu : JGPHUD_OptionMenu
 	}
 }
 
-class OptionMenuItemUserPresetsSubmenu : OptionMenuItemSubmenu
+class OptionMenuItemJGPUFH_UserPresetsSubmenu : OptionMenuItemSubmenu
 {
 	JGPUFH_PresetHandler handler;
-	OptionMenuItemUserPresetsSubmenu Init(String label, Name command, int param = 0, bool centered = false)
+	OptionMenuItemJGPUFH_UserPresetsSubmenu Init(String label, Name command, int param = 0, bool centered = false)
 	{
 		Super.Init(label,command,param,centered);
 		handler = JGPUFH_PresetHandler(StaticEventHandler.Find("JGPUFH_PresetHandler"));
