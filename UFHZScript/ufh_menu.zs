@@ -1,4 +1,4 @@
-// This classes are here simply so that I can feed it
+// This class is here simply so that I can feed it
 // to the Class property in MENUDEF. This lets me detect
 // that the mod's settings menu is open:
 class JGPHUD_OptionMenu : OptionMenu
@@ -153,15 +153,7 @@ mixin class UFHCVarChecker
 	}
 
 	bool ShouldBeGrayed()
-	{		
-		/*Console.Printf("'%s' condition: value %s %d %s value %s %d",
-			StringTable.Localize(mLabel), 
-			cvarCondition1 == GC_ISNOT ? "!=" : cvarCondition1 == GC_MORE ? ">" : cvarCondition1 == GC_LESS ? "<" : "==",
-			targetCvarValue1, 
-			cvarLogic == GC_AND ? "&&" : "||",
-			cvarCondition2 == GC_ISNOT ? "!=" : cvarCondition2 == GC_MORE ? ">" : cvarCondition2 == GC_LESS ? "<" : "==",
-			targetCvarValue2
-		);*/
+	{
 		if (!graycheck1)
 		{
 			return false;
