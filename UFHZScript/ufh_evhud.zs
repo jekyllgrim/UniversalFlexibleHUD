@@ -82,15 +82,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui transient Shape2DTransform reticleMarkerTransform;
 	ui double reticleMarkerAlpha;
 	ui double reticleMarkerScale;
-	enum EHitmarkerModes
-	{
-		HM_AngledCross,
-		HM_Cross,
-		HM_AngledTriangles,
-		HM_Triangles,
-		HM_Circle,
-		HM_Disk,
-	}
 	
 	// Weapon slots
 	const MAXWEAPONSLOTS = 10;
@@ -1752,18 +1743,22 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 		default:
 			angle = 45;
-		case HM_Cross:
 			shapeToUse = hitmarker_cross;
 			break;
-		case HM_AngledTriangles:
-			angle = 45;
-		case HM_Triangles:
+		case 1:
+			shapeToUse = hitmarker_cross;
+			break;
+		case 2:
 			shapeToUse = hitmarker_triangles;
 			break;
-		case HM_Circle:
+		case 3:
+			angle = 45;
+			shapeToUse = hitmarker_triangles;
+			break;
+		case 4:
 			shapeToUse = hitmarker_circle;
 			break;
-		case HM_Disk:
+		case 5:
 			shapeToUse = minimapShape_Circle; //misnomer, minimap's shape is actually a disk
 			break;
 		}
