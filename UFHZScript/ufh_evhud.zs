@@ -76,10 +76,21 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui TextureID dmgMarkerTex;
 
 	// Hit (reticle) markers:
-	ui transient Shape2D reticleHitMarker;
+	ui transient Shape2D hitmarker_cross;
+	ui transient Shape2D hitmarker_triangles;
+	ui transient Shape2D hitmarker_circle;
 	ui transient Shape2DTransform reticleMarkerTransform;
 	ui double reticleMarkerAlpha;
 	ui double reticleMarkerScale;
+	enum EHitmarkerModes
+	{
+		HM_AngledCross,
+		HM_Cross,
+		HM_AngledTriangles,
+		HM_Triangles,
+		HM_Circle,
+		HM_Disk,
+	}
 	
 	// Weapon slots
 	const MAXWEAPONSLOTS = 10;
@@ -97,7 +108,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// Minimap and monster radar:
 	const MAPSCALEFACTOR = 8.;
 	ui double prevPlayerAngle;
-	ui vector2 prevPlayerPos;
+	ui Vector2 prevPlayerPos;
 	ui int prevLevelTime;
 	ui array <Line> mapLines;
 	ui array <Actor> radarMonsters;
@@ -441,10 +452,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// take the element outside the screen.
 	// If 'real' is true, returns real screen coordinates multiplied
 	// by hudscale, rather than StatusBar coordinates.
-	ui vector2 AdjustElementPos(vector2 pos, int flags, vector2 size, vector2 ofs = (0,0), bool real = false)
+	ui Vector2 AdjustElementPos(Vector2 pos, int flags, Vector2 size, Vector2 ofs = (0,0), bool real = false)
 	{
-		vector2 screenSize = (0,0);
-		vector2 hudscale = statusbar.GetHudScale();
+		Vector2 screenSize = (0,0);
+		Vector2 hudscale = statusbar.GetHudScale();
 		if (real)
 		{
 			screenSize = (Screen.GetWidth(), Screen.GetHeight());
@@ -523,9 +534,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return color(col.b, col.g, col.r);
 	}
 
-	ui vector2 ScaleToBox(TextureID tex, double squareSize)
+	ui Vector2 ScaleToBox(TextureID tex, double squareSize)
 	{
-		vector2 size = TexMan.GetScaledSize(tex);
+		Vector2 size = TexMan.GetScaledSize(tex);
 		double longside = max(size.x, size.y);
 		double s = squareSize / longSide;
 		return (s,s);
@@ -592,8 +603,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Otherwise draw a texture, tiled and slightly scaled:
 		flags |= StatusBarCore.DI_ITEM_LEFT_TOP|StatusBarCore.DI_FORCEFILL;
 		color texCol = fillcol.a == 0 ? 0xffffffff : fillcol;
-		vector2 box = (width, height);
-		vector2 pos = (xPos, yPos);
+		Vector2 box = (width, height);
+		Vector2 pos = (xPos, yPos);
 		
 		// Stretch to fit mode:
 		if (c_BackTextureStretch.GetBool())
@@ -605,7 +616,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Otherwise tile the texture:
 
 		// Get texture size and aspect ratio:
-		vector2 size = TexMan.GetScaledSize(tex);
+		Vector2 size = TexMan.GetScaledSize(tex);
 		double texaspect = size.x / size.y;
 		// If the bos is wider than it is tall:
 		if (width >= height)
@@ -681,9 +692,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	// Draws a bar using Fill()
 	// If segments is above 0, will use multiple fills to create a segmented bar
-	ui void DrawFlatColorBar(vector2 pos, double curValue, double maxValue, color barColor, string leftText = "", string rightText = "", int valueColor = -1, double barwidth = 64, double barheight = 8, double indent = 0.6, color backColor = color(255, 0, 0, 0), double sparsity = 1, uint segments = 0, int flags = 0)
+	ui void DrawFlatColorBar(Vector2 pos, double curValue, double maxValue, color barColor, string leftText = "", string rightText = "", int valueColor = -1, double barwidth = 64, double barheight = 8, double indent = 0.6, color backColor = color(255, 0, 0, 0), double sparsity = 1, uint segments = 0, int flags = 0)
 	{
-		vector2 barpos = pos;
+		Vector2 barpos = pos;
 		// This flag centers the bar vertically. I didn't add
 		// horizontal centering because it felt useless, since
 		// all bars in the HUD go from left to right:
@@ -702,7 +713,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// The bar itself is indented against the background:
 		double innerBarWidth = barwidth - (indent * 2);
 		double innerBarHeight = barheight - (indent * 2);
-		vector2 innerBarPos = (barpos.x + indent, barpos.y + indent);
+		Vector2 innerBarPos = (barpos.x + indent, barpos.y + indent);
 		// Get the current bar size according to the provided values:
 		double curInnerBarWidth = LinearMap(curValue, 0, maxValue, 0, innerBarWidth, true);
 		
@@ -727,7 +738,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// Calculate width of a single segment based
 			// on bar width and sparsity:
 			double singleSegWidth = (innerBarWidth - (segments - 1) * sparsity) / segments;
-			vector2 segPos = innerBarPos;
+			Vector2 segPos = innerBarPos;
 			// Draw the segments:
 			while (segPos.x < curInnerBarWidth + innerBarPos.x)
 			{
@@ -964,8 +975,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			width += indent + faceSize;
 		}
-		vector2 ofs = ( c_MainBarsX.GetInt(), c_MainBarsY.GetInt() );
-		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
+		Vector2 ofs = ( c_MainBarsX.GetInt(), c_MainBarsY.GetInt() );
+		Vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 		int baseCol = GetHUDBackground();
 		// bars background:
 		BackgroundFill(pos.x, pos.y, mainBlockWidth, height, flags);
@@ -973,7 +984,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// a small indent between this and the bars background):
 		if (drawFace)
 		{
-			vector2 facePos = (pos.x + mainBlockWidth + indent, pos.y);
+			Vector2 facePos = (pos.x + mainBlockWidth + indent, pos.y);
 			BackgroundFill(facePos.x, facePos.y, faceSize, faceSize, flags);
 			statusbar.DrawTexture(statusBar.GetMugShot(5), (facePos.x + faceSize*0.5, facePos.y + faceSize*0.5), flags|StatusBarCore.DI_ITEM_CENTER, box: (faceSize - 2, faceSize - 2));
 		}
@@ -981,13 +992,13 @@ class JGPUFH_FlexibleHUD : EventHandler
 		int barFlags = flags|StatusBarCore.DI_ITEM_CENTER;
 		indent = 4;
 		double iconSize = 8;
-		vector2 iconPos = (pos.x + indent + iconsize * 0.5, pos.y + height*0.75);
+		Vector2 iconPos = (pos.x + indent + iconsize * 0.5, pos.y + height*0.75);
 
 		// Draw health cross shape (instead of drawing a health item):
 		bool hasBerserk = CPlayer.mo.FindInventory('PowerStrength', true);
 		double crossWidth = 4;
 		double crossLength = 10;
-		vector2 crossPos = iconPos;
+		Vector2 crossPos = iconPos;
 		color crossCol = hasBerserk ? color(255,255,0,0) : color(255,0,0,0);
 		statusbar.Fill(crossCol, crossPos.x - crossWidth*0.5,  crossPos.y - crossLength*0.5, crossWidth, crossLength, barFlags);
 		statusbar.Fill(crossCol, crossPos.x - crossLength*0.5, crossPos.y - crossWidth*0.5, crossLength, crossWidth, barFlags);
@@ -1072,7 +1083,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 					{
 						armTexSize *= 0.5;
 						double ofs = armTexSize*0.5;
-						vector2 armPos;
+						Vector2 armPos;
 						for (int i = 0; i < hArmTex.Size(); i++)
 						{
 							armTex = hArmTex[i];
@@ -1134,7 +1145,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return;
 
 		int flags = SetScreenFlags(c_AmmoBlockPos.GetInt());
-		vector2 ofs = ( c_AmmoBlockX.GetInt(), c_AmmoBlockY.GetInt() );
+		Vector2 ofs = ( c_AmmoBlockX.GetInt(), c_AmmoBlockY.GetInt() );
 		
 		// As usual, calculate total block size first to do the fill.
 
@@ -1145,10 +1156,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		// X size is fixed, we'll calculate Y size from here:
 		int indent = 1;
-		vector2 size = (66, 0);
+		Vector2 size = (66, 0);
 		// predefine size for the weapon icon and ammo icon boxes:
-		vector2 weapIconBox = (size.x - indent*2, 18);
-		vector2 ammoIconBox = (size.x * 0.25 - indent*4, 16);
+		Vector2 weapIconBox = (size.x - indent*2, 18);
+		Vector2 ammoIconBox = (size.x * 0.25 - indent*4, 16);
 		double ammoTextHeight = mainHUDFont.mFont.GetHeight();
 		// If we're drawing the ammo bar, add its height and indentation
 		// to total height:
@@ -1183,7 +1194,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 
 		// Finally, adjust the position and draw fill:
-		vector2 pos = AdjustElementPos((0,0), flags, (size.x, size.y), ofs);
+		Vector2 pos = AdjustElementPos((0,0), flags, (size.x, size.y), ofs);
 		BackgroundFill(pos.x, pos.y, size.x, size.y, flags);
 		
 		if (weapIconValid)
@@ -1201,15 +1212,15 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Initially we'll assume there's only one ammo type
 		// and we'll place the icon horizontally at the center;
 		// if there are two ammo types, we'll adjust later:
-		vector2 ammo1pos = pos + (size.x * 0.5, ammoIconBox.y * 0.5 + indent);
-		vector2 ammo2pos = ammo1pos;
+		Vector2 ammo1pos = pos + (size.x * 0.5, ammoIconBox.y * 0.5 + indent);
+		Vector2 ammo2pos = ammo1pos;
 		// Calculate position for ammo amount text, placed right
 		// below the ammo icon:
-		vector2 ammoTextPos = ammo1pos + (0, ammoIconBox.y*0.5 + indent);
+		Vector2 ammoTextPos = ammo1pos + (0, ammoIconBox.y*0.5 + indent);
 		// And now the ammo bar width:
 		int barwidth = size.x - indent*2;
 		// and the ammo bar pos:
-		vector2 ammoBarPos = ammoTextPos + (-barwidth*0.5, ammoTextHeight + indent);
+		Vector2 ammoBarPos = ammoTextPos + (-barwidth*0.5, ammoTextHeight + indent);
 		int segments;
 
 		// Uses only 1 ammo type - draw as calculated:
@@ -1261,7 +1272,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		double iconSize = 6;
 		int indent = 1;
 		int flags = SetScreenFlags(c_AllAmmoPos.GetInt());
-		vector2 ofs = ( c_AllAmmoX.GetInt(), c_AllAmmoY.GetInt() );
+		Vector2 ofs = ( c_AllAmmoX.GetInt(), c_AllAmmoY.GetInt() );
 		let hfnt = mainHUDFont;
 		double fntScale = 0.6;
 		double fy = hfnt.mFont.GetHeight() * fntScale;
@@ -1314,7 +1325,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return;
 
 		// Finally, draw the ammo:
-		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
+		Vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 		// Get current HUD background color
 		// and current weapon's ammo:
 		color col = GetHUDBackground();
@@ -1440,14 +1451,14 @@ class JGPUFH_FlexibleHUD : EventHandler
 		double iconSize = Clamp(c_CustomItemsIconSize.GetFloat(), 4, 64);
 		int indent = 1;
 		int flags = SetScreenFlags(c_CustomItemsPos.GetInt());
-		vector2 ofs = ( c_CustomItemsX.GetInt(), c_CustomItemsY.GetInt() );
+		Vector2 ofs = ( c_CustomItemsX.GetInt(), c_CustomItemsY.GetInt() );
 		let hfnt = smallHUDFont;
 		double fntScale = iconSize * 0.025;
 		double fy = hfnt.mFont.GetHeight() * fntScale;
 		double width = iconsize + indent*4 + hfnt.mFont.StringWidth("000/000") * fntScale;
 		double height = itemNum * (iconsize + indent);
 		
-		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
+		Vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 		// visuals for preview mode:
 		double alpha = SinePulse(TICRATE*2, 0.2, 0.5, inMenus:true);
 		if (previewMode)
@@ -1551,9 +1562,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Create a rectangular shape:
 		if (!dmgMarker)
 		{
-			dmgMarker = new("Shape2D");
+			dmgMarker = New("Shape2D");
 
-			vector2 p = (-0.055, -1);
+			Vector2 p = (-0.055, -1);
 			dmgMarker.Pushvertex(p);
 			p.x *= -1;
 			dmgMarker.Pushvertex(p);
@@ -1573,9 +1584,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 
 		// Don't forget to multiply by hudscale:
-		vector2 hudscale = statusbar.GetHudScale();
+		Vector2 hudscale = statusbar.GetHudScale();
 		if (!dmgMarkerTransf)
-			dmgMarkerTransf = new("Shape2DTransform");
+			dmgMarkerTransf = New("Shape2DTransform");
 		// Cache the texture:
 		if (!dmgMarkerTex || !dmgMarkerTex.IsValid())
 			dmgMarkerTex = TexMan.CheckForTexture('JGPUFH_DMGMARKER');
@@ -1624,37 +1635,35 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui void DrawEnemyHitMarker()
+	ui Shape2D, double GetHitMarkerShape()
 	{
-		if (!c_DrawEnemyHitMarkers.GetBool())
-			return;
+		if (!c_EnemyHitMarkersShape)
+			return null, 0;
 		
-		vector2 screenCenter = (Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5);
+		if (!reticleMarkerTransform)
+			reticleMarkerTransform = New("Shape2DTransform");
+
 		// Four diagonal bars:
-		if (!reticleHitMarker)
+		if (!hitmarker_cross)
 		{
-			reticleHitMarker = new("Shape2D");
+			hitmarker_cross = New("Shape2D");
 			Vector2 p1 = (-0.08, -1);
 			Vector2 p2 = (-p1.x, p1.y);
 			Vector2 p3 = (p1.x, -0.25);
 			Vector2 p4 = (-p3.x, p3.y);
-			p1 = Actor.RotateVector(p1, -45);
-			p2 = Actor.RotateVector(p2, -45);
-			p3 = Actor.RotateVector(p3, -45);
-			p4 = Actor.RotateVector(p4, -45);
 			int id = 0;
 			for (int i = 0; i < 4; i++)
 			{
-				reticleHitMarker.Pushvertex(p1);
-				reticleHitMarker.Pushvertex(p2);
-				reticleHitMarker.Pushvertex(p3);
-				reticleHitMarker.Pushvertex(p4);
-				reticleHitMarker.PushCoord((0,0));
-				reticleHitMarker.PushCoord((0,0));
-				reticleHitMarker.PushCoord((0,0));
-				reticleHitMarker.PushCoord((0,0));
-				reticleHitMarker.PushTriangle(id, id+1, id+2);
-				reticleHitMarker.PushTriangle(id+1, id+2, id+3);
+				hitmarker_cross.Pushvertex(p1);
+				hitmarker_cross.Pushvertex(p2);
+				hitmarker_cross.Pushvertex(p3);
+				hitmarker_cross.Pushvertex(p4);
+				hitmarker_cross.PushCoord((0,0));
+				hitmarker_cross.PushCoord((0,0));
+				hitmarker_cross.PushCoord((0,0));
+				hitmarker_cross.PushCoord((0,0));
+				hitmarker_cross.PushTriangle(id, id+1, id+2);
+				hitmarker_cross.PushTriangle(id+1, id+2, id+3);
 				p1 = Actor.RotateVector(p1, 90);
 				p2 = Actor.RotateVector(p2, 90);
 				p3 = Actor.RotateVector(p3, 90);
@@ -1663,6 +1672,110 @@ class JGPUFH_FlexibleHUD : EventHandler
 			}
 		}
 
+		// Four simple triangle shapes around the crosshair:
+		if (!hitmarker_triangles)
+		{
+			hitmarker_triangles = New("Shape2D");
+			Vector2 p1 = (-1,-1);
+			Vector2 p2 = (-0.4, -0.2);
+			Vector2 p3 = (p2.y, p2.x);
+			int id = 0;
+			for (int i = 0; i < 4; i++)
+			{
+				hitmarker_triangles.Pushvertex(p1);
+				hitmarker_triangles.Pushvertex(p2);
+				hitmarker_triangles.Pushvertex(p3);
+				hitmarker_triangles.PushCoord((0,0));
+				hitmarker_triangles.PushCoord((0,0));
+				hitmarker_triangles.PushCoord((0,0));
+				hitmarker_triangles.PushTriangle(id, id+1, id+2);
+				id += 3;
+				if (i == 0 || i == 2)
+				{
+					p1.x *= -1;
+					p2.x *= -1;
+					p3.x *= -1;
+				}
+				else if (i == 1 || i == 3)
+				{
+					p1.y *= -1;
+					p2.y *= -1;
+					p3.y *= -1;
+				}
+			}
+		}
+
+		// A ring:
+		if (!hitmarker_circle)
+		{
+			hitmarker_circle = New("Shape2D");
+			int steps = 30;
+			double angStep = CIRCLEANGLES / steps;
+			Vector2 p = (0, -1);
+			for (int i = 0; i < steps; i++)
+			{
+				hitmarker_circle.PushVertex(p);
+				hitmarker_circle.PushCoord((0,0));
+				p = Actor.RotateVector(p, angStep);
+			}
+			Vector2 p1 = (0, -0.9);
+			for (int i = 0; i < steps; i++)
+			{
+				hitmarker_circle.PushVertex(p1);
+				hitmarker_circle.PushCoord((0,0));
+				p1 = Actor.RotateVector(p1, angStep);
+			}
+			for (int i = 0; i < steps; i++)
+			{
+				int next = i+1;
+				if (next >= steps)
+					next -= steps;
+				hitmarker_circle.PushTriangle(i, next, i + steps);
+				int nextInner = i + steps + 1;
+				if (nextInner >= steps*2)
+					nextInner -= steps;
+				hitmarker_circle.PushTriangle(next, i + steps, nextInner);
+			}
+			/*for (int i = 0; i <= steps; i++)
+			{
+				int start = i+1;
+				if (start >= steps)
+					start -= steps;
+				int prevInner = i + steps;
+				hitmarker_circle.PushTriangle(start, i + steps, start + steps);
+			}*/
+		}
+	
+		Shape2D shapeTouse;
+		double angle;
+		switch(c_EnemyHitMarkersShape.GetInt())
+		{
+		default:
+			angle = 45;
+		case HM_Cross:
+			shapeToUse = hitmarker_cross;
+			break;
+		case HM_AngledTriangles:
+			angle = 45;
+		case HM_Triangles:
+			shapeToUse = hitmarker_triangles;
+			break;
+		case HM_Circle:
+			shapeToUse = hitmarker_circle;
+			break;
+		case HM_Disk:
+			shapeToUse = minimapShape_Circle; //misnomer, minimap's shape is actually a disk
+			break;
+		}
+		return shapeToUse, angle;
+	}
+
+	ui void DrawEnemyHitMarker()
+	{
+		if (!c_DrawEnemyHitMarkers.GetBool())
+			return;
+		
+		Vector2 screenCenter = (Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5);
 		double alpha = reticleMarkerAlpha;
 		if (alpha <= 0)
 		{
@@ -1676,8 +1789,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 			}
 		}
 
-		if (!reticleMarkerTransform)
-			reticleMarkerTransform = new("Shape2DTransform");
+		Shape2D shapeToUse;
+		double angle;
+		[shapeToUse, angle] = GetHitMarkerShape();
 		// Factor in the crosshair size but up to a point
 		// as to not make these too small:
 		int baseSize = c_EnemyHitMarkersSize.GetInt();
@@ -1696,10 +1810,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		size *= screenFac * crosshairScaleFac;
 		reticleMarkerTransform.Clear();
 		reticleMarkerTransform.Scale((size, size));
+		reticleMarkerTransform.Rotate(angle);
 		reticleMarkerTransform.Translate(screenCenter);
-		reticleHitMarker.SetTransform(reticleMarkerTransform);
+		shapeToUse.SetTransform(reticleMarkerTransform);
 		color col = color(c_EnemyHitMarkersColor.GetInt());
-		Screen.DrawShapeFill(RGB2BGR(col), alpha, reticleHitMarker);
+		Screen.DrawShapeFill(RGB2BGR(col), alpha, shapeToUse);
 	}
 
 	ui bool CanDrawReticleBar(int which)
@@ -1771,11 +1886,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui double, vector2, vector2, int, int GetReticleBarsPos(int i, double inwidth, double outwidth, double fntHeight)
+	ui double, Vector2, Vector2, int, int GetReticleBarsPos(int i, double inwidth, double outwidth, double fntHeight)
 	{
 		i = Clamp(i, 0, 4);
-		vector2 posIn;
-		vector2 posOut;
+		Vector2 posIn;
+		Vector2 posOut;
 		double angle;
 		int inFlags = StatusBarCore.DI_TEXT_ALIGN_CENTER;
 		int outFlags = StatusBarCore.DI_TEXT_ALIGN_CENTER;
@@ -1877,8 +1992,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 
 		// Position and sizes:
-		vector2 screenCenter = (Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5);
-		vector2 hudscale = statusbar.GetHudScale();
+		Vector2 screenCenter = (Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5);
+		Vector2 hudscale = statusbar.GetHudScale();
 		double widthFac = 1.0 - Clamp(c_ReticleBarsWidth.GetFloat(), 0.0, 1.0);
 		double virtualSize = c_ReticleBarsSize.GetInt();
 		double secSizeFac = 1.05;
@@ -1911,7 +2026,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		double fy = fnt.GetHeight() * fntScale;
 		double fontOfsIn = maskSize / hudscale.x - 1;
 		double fontOfsOut = secondarySize / hudscale.x + 1;
-		vector2 fntPosIn, fntPosOut;
+		Vector2 fntPosIn, fntPosOut;
 		int fntFlagsIn, fntFlagsOut;
 		double angle;
 		double valueFrac;
@@ -2031,7 +2146,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui void DrawCircleSegmentShape(color col, vector2 pos, double size, int steps, double angle, double coverAngle, double frac = 1.0, double alpha = 1.0)
+	ui void DrawCircleSegmentShape(color col, Vector2 pos, double size, int steps, double angle, double coverAngle, double frac = 1.0, double alpha = 1.0)
 	{
 		// Make sure the shapes and transforms exist:
 		if (!roundBars || !roundBarsAngMask || !roundBarsTransform)
@@ -2217,7 +2332,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		GetWeaponSlots();
 
 		double iconWidth = Clamp(c_WeaponSlotsSize.GetInt(), 4, 100);
-		vector2 box = (iconWidth, iconWidth * 0.625);
+		Vector2 box = (iconWidth, iconWidth * 0.625);
 		double indent = iconWidth * 0.05;
 
 		int totalSlots;
@@ -2262,8 +2377,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		double height = (box.y + indent) * vertMul - indent; //ditto
 
 		// Handle positioning as usual:
-		vector2 ofs = ( c_WeaponSlotsX.GetInt(), c_WeaponSlotsY.GetInt() );
-		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
+		Vector2 ofs = ( c_WeaponSlotsX.GetInt(), c_WeaponSlotsY.GetInt() );
+		Vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 
 		if (vertical)
 		{
@@ -2290,7 +2405,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// split into slots and indexes.
 		// By default slots are columns, indexes are rows,
 		// but with vertical alignment it's the opposite.
-		vector2 wpos = pos;
+		Vector2 wpos = pos;
 		// 1 array of data per each slot. Iterate over array:
 		for (int i = 0; i < weaponSlotData.Size(); i++)
 		{
@@ -2358,7 +2473,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui void DrawOneWeaponSlot(Weapon weap, vector2 pos, int flags, vector2 box, int slot = -1)
+	ui void DrawOneWeaponSlot(Weapon weap, Vector2 pos, int flags, Vector2 box, int slot = -1)
 	{
 		if (!weap)
 			return;
@@ -2482,23 +2597,23 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Almost everything has to be multiplied by hudscale.x
 		// so that it matches the general HUD scale regarldess
 		// of physical resolution:
-		vector2 hudscale = statusbar.GetHudScale();
+		Vector2 hudscale = statusbar.GetHudScale();
 		// Screen flags are obtained as usual, although they're
 		// only used in AdjustElementPos, not in the actual
 		// drawing functions, since Screen functions don't
 		// interact with statusbar DI_* flags:
 		int flags = SetScreenFlags(c_MinimapPos.GetInt());
-		vector2 ofs = ( c_MinimapPosX.GetInt(), c_MinimapPosY.GetInt() );
+		Vector2 ofs = ( c_MinimapPosX.GetInt(), c_MinimapPosY.GetInt() );
 		// Real: true makes this function return real screeen
 		// coordinates rather virtual ones:
-		vector2 pos = AdjustElementPos((0,0), flags, (size, size), ofs, real:true);
+		Vector2 pos = AdjustElementPos((0,0), flags, (size, size), ofs, real:true);
 
 		// Draw map data below the minimap
 		// (or above it if it's at the bottom of the screen):
 		// Figure out horizontal size first, based on the
 		// width of the minimap. If the minimap is hidden,
 		// we use 64 for width:
-		vector2 msize = (64, 0);
+		Vector2 msize = (64, 0);
 		if (drawMap || drawradar)
 		{
 			// Otherwise we use the minimap's width, but no
@@ -2506,9 +2621,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// due to scaling):
 			msize = (max(size, 44), size);
 		}
-		vector2 mapDataSize = (msize.x, msize.y + 16);
+		Vector2 mapDataSize = (msize.x, msize.y + 16);
 		// draw it above the minimap if that's at the bottom:
-		vector2 mapDataPos = ((flags & StatusBarCore.DI_SCREEN_BOTTOM) == StatusBarCore.DI_SCREEN_BOTTOM) ? (0, 0) : (0, msize.y);
+		Vector2 mapDataPos = ((flags & StatusBarCore.DI_SCREEN_BOTTOM) == StatusBarCore.DI_SCREEN_BOTTOM) ? (0, 0) : (0, msize.y);
 		mapdataPos = AdjustElementPos(mapDataPos, flags, (msize.x, msize.y), ofs);
 		// Since this thing is anchored to the minimap, and the minimap,
 		// being drawn by Screen, ignores HUD aspect scaling, we
@@ -2534,18 +2649,18 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// These are needed to position the lines on our
 		// minimap to the same relative positions they are
 		// in the world:
-		vector2 ppos;
+		Vector2 ppos;
 		// Lerp pos and angle to smooth it with framerate:
 		ppos.x = Lerp(prevPlayerPos.x, CPlayer.mo.pos.x, fracTic);
 		ppos.y = Lerp(prevPlayerPos.y, CPlayer.mo.pos.y, fracTic);
 		double playerAngle = -(Lerp(prevPlayerAngle, CPlayer.mo.angle, fracTic) + 90);
-		vector2 diff = Level.Vec2Diff((0,0), ppos);
+		Vector2 diff = Level.Vec2Diff((0,0), ppos);
 
 		// Create square and circular shapes for the minimap:
 		if (!minimapShape_Square)
 		{
 			minimapShape_Square = New("Shape2D");
-			vector2 mv = (0, 0);
+			Vector2 mv = (0, 0);
 			minimapShape_Square.PushVertex(mv);
 			mv = (0, 1);
 			minimapShape_Square.PushVertex(mv);
@@ -2563,7 +2678,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!minimapShape_Circle)
 		{
 			minimapShape_Circle = New("Shape2D");
-			vector2 mv = (0.5, 0.5);
+			Vector2 mv = (0.5, 0.5);
 			minimapShape_Circle.PushVertex(mv);
 			minimapShape_Circle.PushCoord((0,0));
 			int steps = 60;
@@ -2597,7 +2712,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// to the center of the element, since it's drawn from
 		// the center, not the corner, in contrast to a square:
 		double shapeFac = circular ? 0.5 : 1.;
-		vector2 shapeOfs = circular ? (size*shapeFac,size*shapeFac) : (0,0);
+		Vector2 shapeOfs = circular ? (size*shapeFac,size*shapeFac) : (0,0);
 		minimapTransform.Scale((size,size) * shapeFac);
 		minimapTransform.Translate(pos + shapeOfs);
 		shapeToUse.SetTransform(minimapTransform);
@@ -2640,7 +2755,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// White arrow at the center represeing the player:
 		if (!minimapShape_Arrow)
 		{
-			minimapShape_Arrow = new("Shape2D");
+			minimapShape_Arrow = New("Shape2D");
 			minimapShape_Arrow.Pushvertex((0, -1));
 			minimapShape_Arrow.Pushvertex((-1, 1));
 			minimapShape_Arrow.Pushvertex((1, 1));
@@ -2789,7 +2904,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Check if the adjacent sectors have a difference
 		// in ceiling height. If there's difference and the
 		// relevant CVAR is true, draw them:
-		vector2 pos = ln.v1.p;
+		Vector2 pos = ln.v1.p;
 		if (sf.floorplane.ZAtPoint(pos) != ff.floorplane.ZAtPoint(pos) && (c_minimapDrawFloorDiff && c_minimapDrawFloorDiff.GetBool()))
 		{
 			return true;
@@ -2807,7 +2922,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return false;
 	}
 
-	ui void DrawMinimapLines(vector2 pos, vector2 ofs, double angle, double radius, double scale = 1.0, double zoom = 1.0)
+	ui void DrawMinimapLines(Vector2 pos, Vector2 ofs, double angle, double radius, double scale = 1.0, double zoom = 1.0)
 	{
 		color lineCol = c_minimapLineColor.GetInt();
 		color intLineCol = c_MinimapIntLineColor.GetInt();
@@ -2820,10 +2935,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 				
 			// Get vertices and scale them in accordance
 			// with zoom value and hudscale:
-			vector2 lp1 = ln.v1.p;
-			vector2 lp2 = ln.v2.p;
-			vector2 p1 = (lp1 - ofs) * zoom * scale;
-			vector2 p2 = (lp2 - ofs) * zoom * scale;
+			Vector2 lp1 = ln.v1.p;
+			Vector2 lp2 = ln.v2.p;
+			Vector2 p1 = (lp1 - ofs) * zoom * scale;
+			Vector2 p2 = (lp2 - ofs) * zoom * scale;
 
 			p1 = AlignPosToMap(p1, angle, radius);
 			p2 = AlignPosToMap(p2, angle, radius);
@@ -2929,7 +3044,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui void DrawEnemyRadar(vector2 pos, vector2 ofs, double angle, double radius, double scale = 1.0, double zoom = 1.0)
+	ui void DrawEnemyRadar(Vector2 pos, Vector2 ofs, double angle, double radius, double scale = 1.0, double zoom = 1.0)
 	{
 		if (!minimapShape_Arrow || !minimapShape_Circle || !minimapTransform)
 			return;
@@ -2945,7 +3060,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			if (!thing || (!drawAll && !thing.target))
 				continue;
 
-			vector2 ePos = (thing.pos.xy - ofs) * zoom * scale;
+			Vector2 ePos = (thing.pos.xy - ofs) * zoom * scale;
 			ePos = AlignPosToMap(ePos, angle, radius);
 
 			// scale alpha with vertical distance:
@@ -2966,7 +3081,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui void DrawMapMarkers(vector2 pos, vector2 ofs, double angle, double radius, double scale = 1.0, double zoom = 1.0)
+	ui void DrawMapMarkers(Vector2 pos, Vector2 ofs, double angle, double radius, double scale = 1.0, double zoom = 1.0)
 	{
 		double distFac = IsMinimapCircular() ? 1.0 : SQUARERADIUSFAC;
 		double distance = ((radius) / zoom) * distFac; //account for square shapes
@@ -2983,12 +3098,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 			if (!tex.IsValid())
 				return;
 
-			vector2 ePos = (marker.pos.xy - ofs) * zoom * scale;
+			Vector2 ePos = (marker.pos.xy - ofs) * zoom * scale;
 			ePos = AlignPosToMap(ePos, angle, radius);
 			// scale alpha with vertical distance:
 			double vdiff = abs(CPlayer.mo.pos.z - marker.pos.z);
 			double alpha = LinearMap(vdiff, 0, 512, 1.0, 0.1, true);
-			vector2 mpos = pos + ePos;
+			Vector2 mpos = pos + ePos;
 			Screen.DrawTexture(tex, false,
 				mpos.x, mpos.y,
 				DTA_Alpha, alpha,
@@ -3036,7 +3151,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return tex;
 	}
 
-	ui vector2 AlignPosToMap(vector2 vec, double angle, double mapSize)
+	ui Vector2 AlignPosToMap(Vector2 vec, double angle, double mapSize)
 	{
 		// Rotate and mirror horizontally, so that the top
 		// of the minimap is pointing where the player
@@ -3053,7 +3168,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// Draw map data (kills/secrets/items/time) below the
 	// minimap (even if the minimap isn't drawn, it'll be
 	// attached to the same position):
-	ui void DrawMapData(vector2 pos, int flags, double width, double scale = 1.0)
+	ui void DrawMapData(Vector2 pos, int flags, double width, double scale = 1.0)
 	{
 		HUDFont hfnt = mainHUDFont;
 		Font fnt = hfnt.mFont;
@@ -3132,7 +3247,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	// Draws the actual map data element, consisting of the label
 	// (left), a colon, and the value (right):
-	ui void DrawMapDataElement(string str1, string str2, HUDFont hfnt, vector2 pos, int flags, double width, double scale = 1.0)
+	ui void DrawMapDataElement(string str1, string str2, HUDFont hfnt, Vector2 pos, int flags, double width, double scale = 1.0)
 	{
 		Font fnt = hfnt.mFont;
 		// Scale the string down if it's too wide
@@ -3196,7 +3311,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 
 		int flags = SetScreenFlags(c_PowerupsPos.GetInt());
-		vector2 ofs = (c_PowerupsX.GetInt(), c_PowerupsY.GetInt());
+		Vector2 ofs = (c_PowerupsX.GetInt(), c_PowerupsY.GetInt());
 		double iconSize = Clamp(c_PowerupsIconSize.GetInt(), 4, 100);
 		int indent = 1;
 		HUDFont fnt = smallHUDFont;
@@ -3204,7 +3319,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		double fy = fnt.mFont.GetHeight() * textScale;
 		double width = iconSize + indent;
 		double height = (iconsize + indent) * powerNum + indent;
-		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
+		Vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 		pos.y += iconSize*0.5;
 
 		flags |= StatusBarCore.DI_ITEM_CENTER;
@@ -3279,7 +3394,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 
 		int flags = SetScreenFlags(c_KeysPos.GetInt());
-		vector2 ofs = (c_KeysX.GetInt(), c_KeysY.GetInt());
+		Vector2 ofs = (c_KeysX.GetInt(), c_KeysY.GetInt());
 		double iconSize = 10;
 		int indent = 1;
 		double width;
@@ -3334,7 +3449,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		int rows = totalKeys > 3 ? ceil(totalkeys / double(columns)) : 1;
 		width = (iconsize + indent) * columns + indent;
 		height = (iconsize + indent) * rows;
-		vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
+		Vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 		
 		int style = STYLE_Normal;
 		double alpha = 1.0;
@@ -3352,7 +3467,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 
 		pos += (iconsize*0.5+indent, iconsize*0.5+indent);
-		vector2 kpos = pos;
+		Vector2 kpos = pos;
 		// Keep track of how many keys we've drawn horizontally,
 		// so we can switch to new line when we've filled all
 		// columns:
@@ -3461,8 +3576,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		// Validate position as usual:
 		int flags = SetScreenFlags(c_InvBarPos.GetInt());
-		vector2 ofs = (c_InvBarX.GetInt(), c_InvBarY.GetInt());
-		vector2 pos = AdjustElementPos((width*0.5, height*0.5), flags, (width, height), ofs);
+		Vector2 ofs = (c_InvBarX.GetInt(), c_InvBarY.GetInt());
+		Vector2 pos = AdjustElementPos((width*0.5, height*0.5), flags, (width, height), ofs);
 
 		// In preview mode we'll simply display a series
 		// of pulsing fills the inv slots, and nothing else:
@@ -3470,7 +3585,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			double spaceWidth = width / numfields;
 			int midPoint = ceil(numfields / 2);
-			vector2 ppos = (pos.x - width*0.5, pos.y - height*0.5);
+			Vector2 ppos = (pos.x - width*0.5, pos.y - height*0.5);
 			for (int i = 0; i < numfields; i++)
 			{
 				double amin, amax;
@@ -3490,9 +3605,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return;
 		}
 
-		vector2 cursOfs = (-iconSize*0.5 - indent, -iconSize*0.5 - indent);
-		vector2 cursPos = pos + cursOfs;
-		vector2 cursSize = (iconsize + indent*2, indent); //width, height
+		Vector2 cursOfs = (-iconSize*0.5 - indent, -iconSize*0.5 - indent);
+		Vector2 cursPos = pos + cursOfs;
+		Vector2 cursSize = (iconsize + indent*2, indent); //width, height
 
 		// Show some gray fill behind the central icon
 		// (which is the selected item):
@@ -3546,7 +3661,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// slide out of view gradually instead of disappearing:
 		numfields += 2;
 		int i = 0;
-		vector2 itemPos = pos;
+		Vector2 itemPos = pos;
 		// Adding this lets us interpolate icon position. Until the player
 		// cycles through inventory, invbarCycleOfs is 0; otherwise it's
 		// set to be the size of the icon and then tics down
@@ -3764,6 +3879,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui transient CVar c_DrawEnemyHitMarkers;
 	ui transient CVar c_EnemyHitMarkersColor;
 	ui transient CVar c_EnemyHitMarkersSize;
+	ui transient CVar c_EnemyHitMarkersShape;
 	ui transient CVar c_DrawReticleBars;
 	ui transient CVar c_ReticleBarsHealthArmor;
 	ui transient CVar c_ReticleBarsAmmo;
@@ -3841,6 +3957,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 			c_EnemyHitMarkersColor = CVar.GetCvar('jgphud_EnemyHitMarkersColor', CPlayer);
 		if (!c_EnemyHitMarkersSize)
 			c_EnemyHitMarkersSize = CVar.GetCvar('jgphud_EnemyHitMarkersSize', CPlayer);
+		if (!c_EnemyHitMarkersShape)
+			c_EnemyHitMarkersShape = CVar.GetCvar('jgphud_EnemyHitMarkersShape', CPlayer);
 
 		if (!c_drawAmmoBar)
 			c_drawAmmoBar = CVar.GetCvar('jgphud_DrawAmmoBar', CPlayer);

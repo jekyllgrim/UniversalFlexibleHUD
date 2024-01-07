@@ -86,6 +86,7 @@ nosave int jgphud_InvBarY = 32;
 nosave bool jgphud_DrawEnemyHitMarkers = true;
 nosave color jgphud_EnemyHitMarkersColor = "ffffff";
 nosave int jgphud_EnemyHitMarkersSize = 0;
+nosave int jgphud_EnemyHitMarkersShape = 0;
 nosave int jgphud_DrawReticleBars = 2;
 nosave bool jgphud_ReticleBarsText = false;
 nosave int jgphud_ReticleBarsSize = 18;
