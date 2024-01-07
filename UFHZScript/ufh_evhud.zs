@@ -2663,10 +2663,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 			minimapShape_Square.PushVertex(mv);
 			mv = (1, 1);
 			minimapShape_Square.PushVertex(mv);
-			minimapShape_Square.PushCoord((0,0));
-			minimapShape_Square.PushCoord((0,0));
-			minimapShape_Square.PushCoord((0,0));
-			minimapShape_Square.PushCoord((0,0));
+			for (int i = 0; i < 4; i++)
+			{
+				minimapShape_Square.PushCoord((0,0));
+			}
 			minimapShape_Square.PushTriangle(0,1,2);
 			minimapShape_Square.PushTriangle(1,2,3);
 		}
