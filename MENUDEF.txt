@@ -11,6 +11,7 @@ AddOptionMenu "OptionsMenuSimple"
 OptionMenu "JGPHUD_Settings"
 {
 	Class "JGPHUD_OptionMenu"
+	ScrollTop 3
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "FlexiHUD v3.0.0pre", blue
 	
@@ -19,9 +20,9 @@ OptionMenu "JGPHUD_Settings"
 	StaticText ""
 	StaticText "$JGPHUD_GENERAL_TITLE", yellow
 	StaticText ""
+	Submenu "$HUDMNU_SCALEOPT", "ScalingOptions" 
 	Option "$JGPHUD_GENERAL_ENABLEHUD", "jgphud_enable", "OnOff"
 	Control "$JGPHUD_GENERAL_ENABLEHUD_BIND", "toggle jgphud_enable"
-	ScaleSlider "$HUDMNU_UISCALE", "uiscale", 0.0, 8.0, 1.0, "$SCALEMNU_ADAPT"
 	Option "$JGPHUD_GENERAL_BACKSTYLE", "jgphud_BackStyle", "BackgroundStyles"
 	UFHColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor", "jgphud_BackStyle"
 	Slider "$JGPHUD_GENERAL_BACKALPHA", "jgphud_BackAlpha", 0.00, 1.0, 0.05, 2
