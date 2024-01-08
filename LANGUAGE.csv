@@ -146,6 +146,8 @@ Angled cross,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_AngledCross,"Samel as cross, but 
 4 angled triangles,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_AngledTriangles,"Same as 4 triangles, but angled 45 degrees (this is what FlexiHUD was originally using)",4 наклоненных треугольника,,,,
 Circle,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Circle,"Circle, as in a ring around the crosshair. Not to be confused with ""disk""! Can be translated as ""ring""",Кольцо,,,,
 Disk,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Disk,"Disk shape, i.e. a filled circle. Not to be confused with ""circle""!",Круг,,,,
+Square,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Square,,,,,,
+Diamond,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Diamond,Just a square angled 45 degrees,,,,,
 Health/armor/ammo bars around crosshair,JGPHUD_CROSSHAIR_BARS_ENABLE,Curved bars around the crosshair in the style of HL2,Индикаторы здоровья/брони/патронов вокруг прицела,Barra de vida/armadura/munição ao redor da retícula,Gesundheits-/Rüstungs-/Munitionsanzeige am Fadenkreuz,Barras de vida/armadura/munición en la mirilla,Barre de santé/armure/munitions autour du réticule
 Bars size,JGPHUD_CROSSHAIR_BARS_SIZE,Option for the bars around the crosshair,Размер индикаторов,Tamanho das barras,Leistengrösse,Tamaño de las barras,Taille des barres
 Bars opacity,JGPHUD_CROSSHAIR_BARS_ALPHA,Option for the bars around the crosshair,Прозрачность индикаторов,Opacidade das barras,Leistendeckkraft,Opacidad de las barras,Opacité des barres

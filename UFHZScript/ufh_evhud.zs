@@ -401,7 +401,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return;
 
 		statusbar.BeginHUD();
-		
 		// These value updates need to be interpolated
 		// with deltatime, so they happen here rather
 		// than in UiTick(). They also shouldn't
@@ -1638,9 +1637,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!hitmarker_cross)
 		{
 			hitmarker_cross = New("Shape2D");
-			Vector2 p1 = (-0.08, -1);
+			Vector2 p1 = (-0.08, -1) * 0.5;
 			Vector2 p2 = (-p1.x, p1.y);
-			Vector2 p3 = (p1.x, -0.25);
+			Vector2 p3 = (p1.x, p1.y * 0.25);
 			Vector2 p4 = (-p3.x, p3.y);
 			int id = 0;
 			for (int i = 0; i < 4; i++)
@@ -1667,8 +1666,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!hitmarker_triangles)
 		{
 			hitmarker_triangles = New("Shape2D");
-			Vector2 p1 = (-1,-1);
-			Vector2 p2 = (-0.4, -0.2);
+			Vector2 p1 = (-1,-1) * 0.5;
+			Vector2 p2 = (-0.4, -0.2) * 0.5;
 			Vector2 p3 = (p2.y, p2.x);
 			int id = 0;
 			for (int i = 0; i < 4; i++)
@@ -1702,14 +1701,14 @@ class JGPUFH_FlexibleHUD : EventHandler
 			hitmarker_circle = New("Shape2D");
 			int steps = 30;
 			double angStep = CIRCLEANGLES / steps;
-			Vector2 p = (0, -1);
+			Vector2 p = (0, -0.5);
 			for (int i = 0; i < steps; i++)
 			{
 				hitmarker_circle.PushVertex(p);
 				hitmarker_circle.PushCoord((0,0));
 				p = Actor.RotateVector(p, angStep);
 			}
-			Vector2 p1 = (0, -0.9);
+			Vector2 p1 = (0, -0.45);
 			for (int i = 0; i < steps; i++)
 			{
 				hitmarker_circle.PushVertex(p1);
@@ -1727,14 +1726,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 					nextInner -= steps;
 				hitmarker_circle.PushTriangle(next, i + steps, nextInner);
 			}
-			/*for (int i = 0; i <= steps; i++)
-			{
-				int start = i+1;
-				if (start >= steps)
-					start -= steps;
-				int prevInner = i + steps;
-				hitmarker_circle.PushTriangle(start, i + steps, start + steps);
-			}*/
 		}
 	
 		Shape2D shapeTouse;
@@ -1743,16 +1734,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 		default:
 			angle = 45;
-			shapeToUse = hitmarker_cross;
-			break;
 		case 1:
 			shapeToUse = hitmarker_cross;
 			break;
-		case 2:
-			shapeToUse = hitmarker_triangles;
-			break;
 		case 3:
 			angle = 45;
+		case 2:
 			shapeToUse = hitmarker_triangles;
 			break;
 		case 4:
@@ -1760,6 +1747,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 			break;
 		case 5:
 			shapeToUse = minimapShape_Circle; //misnomer, minimap's shape is actually a disk
+			break;
+		case 6:
+			angle = 45;
+		case 7:
+			shapeToUse = minimapShape_Square;
 			break;
 		}
 		return shapeToUse, angle;
