@@ -2651,18 +2651,15 @@ class JGPUFH_FlexibleHUD : EventHandler
 		double playerAngle = -(Lerp(prevPlayerAngle, CPlayer.mo.angle, fracTic) + 90);
 		Vector2 diff = Level.Vec2Diff((0,0), ppos);
 
-		// Create square and circular shapes for the minimap:
+		// Create a square shape in the (-0.5-0.5, -0.5-0.5) range:
 		if (!minimapShape_Square)
 		{
 			minimapShape_Square = New("Shape2D");
-			Vector2 mv = (0, 0);
+			Vector2 mv = (-0.5, -0.5); //start at top left corner
 			minimapShape_Square.PushVertex(mv);
-			mv = (0, 1);
-			minimapShape_Square.PushVertex(mv);
-			mv = (1, 0);
-			minimapShape_Square.PushVertex(mv);
-			mv = (1, 1);
-			minimapShape_Square.PushVertex(mv);
+			minimapShape_Square.PushVertex((mv.x, -mv.y));
+			minimapShape_Square.PushVertex((-mv.x, mv.y));
+			minimapShape_Square.PushVertex((-mv.x, -mv.y));
 			for (int i = 0; i < 4; i++)
 			{
 				minimapShape_Square.PushCoord((0,0));
@@ -2670,28 +2667,29 @@ class JGPUFH_FlexibleHUD : EventHandler
 			minimapShape_Square.PushTriangle(0,1,2);
 			minimapShape_Square.PushTriangle(1,2,3);
 		}
+		// Create a disk shape in the (-0.5-0.5, -0.5-0.5) range:
 		if (!minimapShape_Circle)
 		{
 			minimapShape_Circle = New("Shape2D");
-			Vector2 mv = (0.5, 0.5);
-			minimapShape_Circle.PushVertex(mv);
+			Vector2 cmid = (0, 0); //center
+			minimapShape_Circle.PushVertex(cmid);
 			minimapShape_Circle.PushCoord((0,0));
 			int steps = 60;
-			double ang = 0;
 			double angStep = CIRCLEANGLES / steps;
+			Vector2 p = (0, -0.5); //edge point
 			for (int i = 0; i < steps; i++)
 			{
-				double c = cos(ang);
-				double s = sin(ang);
-				minimapShape_Circle.PushVertex((c,s));
+				minimapShape_Circle.PushVertex(p);
 				minimapShape_Circle.PushCoord((0,0));
-				ang += angStep;
+				p = Actor.RotateVector(p, angStep);
 			}
+			// Draw triangles between center,
+			// edge point and the next edge point:
 			for (int i = 1; i <= steps; i++)
 			{
 				int next = i+1;
 				if (next > steps)
-					next -= steps;
+					next = 1;
 				minimapShape_Circle.PushTriangle(0, i, next);
 			}
 		}
@@ -2703,12 +2701,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Pick the shape to use based on the player's choice:
 		bool circular = IsMinimapCircular();
 		Shape2D shapeToUse = circular ? minimapShape_Circle : minimapShape_Square;
-		// A circular shape has to be scaled to 50% and moved 
-		// to the center of the element, since it's drawn from
-		// the center, not the corner, in contrast to a square:
-		double shapeFac = circular ? 0.5 : 1.;
-		Vector2 shapeOfs = circular ? (size*shapeFac,size*shapeFac) : (0,0);
-		minimapTransform.Scale((size,size) * shapeFac);
+		// offset to the half of the shape size:
+		Vector2 shapeOfs = (size, size)*0.5;
+		minimapTransform.Scale((size,size));
 		minimapTransform.Translate(pos + shapeOfs);
 		shapeToUse.SetTransform(minimapTransform);
 
@@ -2721,13 +2716,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		Screen.DrawShapeFill(RGB2BGR(baseCol), 1.0, shapeToUse);
 		
 		// Scale the shape down to draw the black background:
-		// If the shape isn't circular, half of the line width
-		// must be added to the offsets, because of positioning
-		// differences:
-		if (!circular)
-			shapeOfs += (edgeThickness*0.5,edgeThickness*0.5);
 		minimapTransform.Clear();
-		minimapTransform.Scale((size-edgeThickness,size-edgeThickness) * shapeFac);
+		minimapTransform.Scale((size-edgeThickness,size-edgeThickness));
 		minimapTransform.Translate(pos + shapeOfs);
 		shapeToUse.SetTransform(minimapTransform);
 		// This debug CVAR disables the mask for the minimap
