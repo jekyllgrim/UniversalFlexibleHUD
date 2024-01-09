@@ -261,6 +261,19 @@ OptionMenu "JGPHUD_MapData"
 		"$JGPHUD_MINIMAP_MAPMARKERSCALE_REAL", "",
 		// Hide this if minimap/radar mode is 'Off' OR in 'Minimap Only' mode:
 		"jgphud_DrawMinimap", "0", 1, "jgphud_DrawMinimap", "2"
+	Option "$JGPHUD_MINIMAP_CARDINAL_ENABLE", 
+		"jgphud_MinimapCardinalDir",
+		"CardinalDirections",
+		"jgphud_DrawMinimap"
+	UFHSlider "$JGPHUD_MINIMAP_CARDINAL_SIZE", 
+		"jgphud_MinimapCardinalDirSize", 
+		4, 64, 1, 0,
+		// Hide this if minimap/radar mode is 'Off' OR cardinal directions are off:
+		"jgphud_DrawMinimap", "0", 1, "jgphud_MinimapCardinalDir", "0"
+	UFHOption "$JGPHUD_MINIMAP_CARDINAL_COLOR",
+		"jgphud_MinimapCardinalDirColor",
+		"TextColors",
+		"jgphud_DrawMinimap", "0", 1, "jgphud_MinimapCardinalDir", "0"
 	
 	StaticText ""
 	StaticText "$AUTOMAPMNU_SETCUSTOMCOLORS", yellow
@@ -330,8 +343,15 @@ OptionValue "HitmarkersShapes"
 	3, "$JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Triangles"
 	4, "$JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Circle"
 	5, "$JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Disk"
-	6, "JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Diamond"
-	7, "JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Square"
+	6, "$JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Diamond"
+	7, "$JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Square"
+}
+
+OptionValue "CardinalDirections"
+{
+	0, "$OPTVAL_OFF"
+	1, "$JGPHUD_MINIMAP_CARDINAL_CIRCULAR"
+	2, "$JGPHUD_MINIMAP_CARDINAL_MATCHMAP"
 }
 
 OptionValue "BackTextureFitMode"

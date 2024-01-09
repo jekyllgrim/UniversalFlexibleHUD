@@ -519,6 +519,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return pos;
 	}
 
+	// To use with DrawShapeFill which uses BGR:
 	clearscope color RGB2BGR(color col)
 	{
 		return color(col.b, col.g, col.r);
@@ -539,7 +540,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return ScreenFlags[val];
 	}
 
-	// Returns the color (or texture, is available)
+	// Returns the color (or texture, if available)
 	// and the alpha for the background fill:
 	ui color, TextureID, double GetHUDBackground()
 	{
@@ -608,7 +609,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Get texture size and aspect ratio:
 		Vector2 size = TexMan.GetScaledSize(tex);
 		double texaspect = size.x / size.y;
-		// If the bos is wider than it is tall:
+		// If the texture is wider than it is tall:
 		if (width >= height)
 		{
 			// Stretch the texture to the box's height vertically:
@@ -2757,6 +2758,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		minimapShape_Arrow.SetTransform(minimapTransform);
 		color youColor = c_minimapYouColor.GetInt();
 		Screen.DrawShapeFill(RGB2BGR(youcolor), 1.0, minimapShape_Arrow);
+
+		DrawCardinalDirections(pos, playerAngle, size);
 		
 		DisableMask();
 	}
@@ -2899,6 +2902,28 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return false;
 	}
 
+	// Aligns world position to the map and rotates it
+	// to match player's angle:
+	ui Vector2 AlignPosToMap(Vector2 vec, double angle, double mapSize)
+	{
+		// Rotate and mirror horizontally, so that the top
+		// of the minimap is pointing where the player
+		// is facing:
+		vec = Actor.RotateVector(vec, angle);
+		vec.x *= -1;
+		// Offset relative to the map center, not player
+		// position:
+		vec += (mapSize, mapSize)*0.5;
+		return vec;
+	}
+
+	// Performs the actual line drawing:
+	//  pos - position of the element
+	//  ofs - Vec2Diff between world origin (0,0) and current player position
+	//  angle - player's angle
+	//  radius - size of the minimap
+	//  scale - hudscale
+	//  zoom - current minimap zoom value
 	ui void DrawMinimapLines(Vector2 pos, Vector2 ofs, double angle, double radius, double scale = 1.0, double zoom = 1.0)
 	{
 		color lineCol = c_minimapLineColor.GetInt();
@@ -2966,6 +2991,55 @@ class JGPUFH_FlexibleHUD : EventHandler
 				Screen.DrawLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, col, lineAlph);
 			else
 				Screen.DrawThickLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, thickness, col, lineAlph);
+		}
+	}
+
+	// Draws NESW letters on the map:
+	static const String com_letters[] = { "N", "W", "E", "S" };
+	static const double com_angles[] = { 0, 90, -90, 180 };
+	ui void DrawCardinalDirections(Vector2 pos, double angle, double radius)
+	{
+		if (!c_MinimapCardinalDir || c_MinimapCardinalDir.GetInt() <= 0)
+		{
+			return;
+		}
+		Font fnt = newConsoleFont;
+		int fntColor = c_MinimapCardinalDirColor.GetInt();
+		int letterSize = c_MinimapCardinalDirSize.GetInt();
+		String letter;
+		bool square = !IsMinimapCircular() && c_MinimapCardinalDir.GetInt() >= 2;
+		double rad = square ? radius * 2 : radius;
+		for (int i = 0; i < 4; i++)
+		{
+			letter = com_letters[i];
+			// Center of the letter:
+			Vector2 stringSize = (fnt.GetHeight(), fnt.StringWidth(letter));
+			double letterScale = letterSize / stringSize.y;
+			Vector2 charMid = (stringSize.x*0.5, stringSize.y*0.5) * letterScale;
+			// Offset by a radius from the center, but
+			// offset the letter from the edge by its total
+			// size, so it's guaranteed to never go
+			// beyond the minimap's edge:
+			double charOfs = max(charMid.x, charMid.y);
+			Vector2 ofs = (0, rad*0.5 - charOfs);
+			// Rotate by the necessary angle:
+			Vector2 p = Actor.RotateVector(ofs, angle + com_angles[i]);
+			// Flip X to match top with player's facing angle:
+			p.x *= -1;
+			// Add half of the size to position the letter
+			// relative to the center:
+			p += pos + (radius,radius)*0.5;
+			if (square)
+			{
+				//p *= 0.5;
+				p.x = Clamp(p.x, pos.x + charOfs, pos.x + radius - charOfs);
+				p.y = Clamp(p.y, pos.y + charOfs, pos.y + radius - charOfs);
+			}
+			// Add this to the letter so it's centered
+			// at its target position:
+			p.x -= charMid.y;
+			p.y -= charMid.x;
+			Screen.DrawText(fnt, fntColor, p.x, p.y, letter, DTA_ScaleX, letterScale, DTA_ScaleY, letterScale, DTA_MonoSpace, Mono_CellLeft);
 		}
 	}
 
@@ -3127,20 +3201,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		return tex;
 	}
-
-	ui Vector2 AlignPosToMap(Vector2 vec, double angle, double mapSize)
-	{
-		// Rotate and mirror horizontally, so that the top
-		// of the minimap is pointing where the player
-		// is facing:
-		vec = Actor.RotateVector(vec, angle);
-		vec.x *= -1;
-		// Offset relative to the map center, not player
-		// position:
-		vec += (mapSize, mapSize)*0.5;
-		return vec;
-	}
-
 
 	// Draw map data (kills/secrets/items/time) below the
 	// minimap (even if the minimap isn't drawn, it'll be
@@ -3847,6 +3907,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui transient CVar c_minimapYouColor;
 	ui transient CVar c_minimapMonsterColor;
 	ui transient CVar c_minimapFriendColor;
+	ui transient CVar c_MinimapCardinalDir;
+	ui transient CVar c_MinimapCardinalDirSize;
+	ui transient CVar c_MinimapCardinalDirColor;
 
 	ui transient CVar c_DrawKills;
 	ui transient CVar c_DrawItems;
@@ -4035,6 +4098,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 			c_minimapMonsterColor = CVar.GetCvar('jgphud_MinimapMonsterColor', CPlayer);
 		if (!c_minimapFriendColor)
 			c_minimapFriendColor = CVar.GetCvar('jgphud_MinimapFriendColor', CPlayer);
+		if (!c_MinimapCardinalDir)
+			c_MinimapCardinalDir = CVar.GetCvar('jgphud_MinimapCardinalDir', CPlayer);
+		if (!c_MinimapCardinalDirSize)
+			c_MinimapCardinalDirSize = CVar.GetCvar('jgphud_MinimapCardinalDirSize', CPlayer);
+		if (!c_MinimapCardinalDirColor)
+			c_MinimapCardinalDirColor = CVar.GetCvar('jgphud_MinimapCardinalDirColor', CPlayer);
 
 		if (!c_DrawKills)
 			c_DrawKills = CVar.GetCvar('jgphud_DrawKills', CPlayer);

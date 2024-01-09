@@ -70,6 +70,9 @@ nosave color jgphud_MinimapIntLineColor = "FFFFFF";
 nosave color jgphud_MinimapYouColor = "FFFFFF";
 nosave color jgphud_MinimapMonsterColor = "FF0000";
 nosave color jgphud_MinimapFriendColor = "00FFFF";
+nosave int jgphud_MinimapCardinalDir = 1;
+nosave int jgphud_MinimapCardinalDirSize = 8;
+nosave int jgphud_MinimapCardinalDirColor = 5;
 
 nosave bool jgphud_DrawKills = true;
 nosave bool jgphud_DrawItems = true;

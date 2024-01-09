@@ -119,6 +119,12 @@ Lines around different floor heights,JGPHUD_MINIMAP_DRAWFLOORDIFF,On/off: whethe
 Lines around different ceiling heights,JGPHUD_MINIMAP_DRAWCEILINGDIFF,On/off: whether to display lines that are at the edges of the sectors with different ceiling heights,Линии секторов с разной высотой потолка,,,,
 Lines,JGPHUD_MINIMAP_COLOR_LINES,color for regular minimap lines,Линии,Linhas,Linien,Lineas,Lignes
 Interactive lines,JGPHUD_MINIMAP_COLOR_INTLINES,"color for interactive minimap lines (activateable by pressing Use, but not requiring a key, because locked lines will have a lock color)",Интерактивные линии,Linhas usáveis,Auslöserlinien,Lineas interactivas,Lignes interactives
+Cardinal directions display,JGPHUD_MINIMAP_CARDINAL_ENABLE,"Determines whether the cardinal direction letters (N, W, E, S) will be displayed on the minimap.
+Possible values: Off / In a circular bounding box / In the minimap's bounding box",Показывать стороны света,,,,
+In a circular bounding box,JGPHUD_MINIMAP_CARDINAL_CIRCULAR,"The cardinal direction letters will always rotate along a circle, even if the minimap is set to use the square shape",В круглой рамке,,,,
+In the minimap's bounding box,JGPHUD_MINIMAP_CARDINAL_MATCHMAP,"The cardinal direction letters will slide along the minimap's edge, either in a circular or square bounding box, depending on the minimap's shape. This could also be translated as ""Always along the minimap's edge""",Всегда по краю мини-карты,,,,
+Cardinal directions' color,JGPHUD_MINIMAP_CARDINAL_COLOR,A color picker that determines the color of the N W E S letters on the minimap,Цвет  сторон света,,,,
+Cardinal directions' size,JGPHUD_MINIMAP_CARDINAL_SIZE,"A slider that determines the size of the cardinal direction letters (N, W, E, S) on the minimap.",Размер сторон света,,,,
 Monster markers display,JGPHUD_MINIMAP_ENEMIES,"Whether to show enemies on the minimap. Possible options: Only alerted enemies / All enemies
 This option becomes available when ""Minimap and enemy radar display"" is set either to ""Enemy markers only"" or ""Minimap and enemy markers""",Отображение маркеров врагов,,,,
 Only alerted monsters,JGPHUD_MINIMAP_ENEMIES_ALERTED,"Option for ""Show enemies on the minimap""",Только для активных врагов,,,,

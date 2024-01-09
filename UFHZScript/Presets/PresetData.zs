@@ -69,6 +69,9 @@ extend class JGPUFH_PresetHandler
 		'jgphud_MinimapYouColor',
 		'jgphud_MinimapMonsterColor',
 		'jgphud_MinimapFriendColor',
+		'jgphud_MinimapCardinalDir',
+		'jgphud_MinimapCardinalDirSize',
+		'jgphud_MinimapCardinalDirColor',
 
 		'jgphud_DrawKills',
 		'jgphud_DrawItems',
@@ -174,6 +177,9 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonNumber',	// jgphud_MinimapYouColor
 		'JGPUFH_JsonNumber',	// jgphud_MinimapMonsterColor
 		'JGPUFH_JsonNumber',	// jgphud_MinimapFriendColor
+		'JGPUFH_JsonNumber',	// jgphud_MinimapCardinalDir
+		'JGPUFH_JsonNumber',	// jgphud_MinimapCardinalDirSize
+		'JGPUFH_JsonNumber',	// jgphud_MinimapCardinalDirColor
 
 		'JGPUFH_JsonBool',		// jgphud_DrawKills
 		'JGPUFH_JsonBool',		// jgphud_DrawItems
