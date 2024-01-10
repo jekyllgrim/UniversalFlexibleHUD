@@ -108,23 +108,12 @@ Minimap and monster radar display,JGPHUD_MINIMAP_ENABLE,Whether to draw the mini
 Minimap only,JGPHUD_MINIMAP_MAPONLY,"Possible value for ""Minimap and enemy radar display"" option",Только мини-карта,Apenas minimapa,Nur Minikarte,Solo minimapa,Mini-carte seulement
 Monster markers only,JGPHUD_MINIMAP_RADARONLY,"Possible value for ""Minimap and enemy radar display"" option",Только маркеры врагов,,,,
 Minimap and monster markers,JGPHUD_MINIMAP_BOTH,"Possible value for ""Minimap and enemy radar display"" option",Мини-карта и маркеры врагов,,,,
-Minimap/radar size,JGPHUD_MINIMAP_SIZE,,Размер мини-карты/радара,,,,
-Minimap/radar shape,JGPHUD_MINIMAP_SHAPE,,Форма мини-карты/радара,,,,
-Minimap/radar zoom,JGPHUD_MINIMAP_ZOOM,minimap zoom value,Приближение мини-карты/радара,,,,
+Background opacity,JGPHUD_MINIMAP_OPACITY,A 0.0-1.0 slider that determines the opacity of the minimap/radar background,Прозрачность фона,,,,
+Minimap/radar size,JGPHUD_MINIMAP_SIZE,A slider,Размер мини-карты/радара,,,,
+Minimap/radar shape,JGPHUD_MINIMAP_SHAPE,Square or circle,Форма мини-карты/радара,,,,
+Minimap/radar zoom,JGPHUD_MINIMAP_ZOOM,A slider for the zoom value,Приближение мини-карты/радара,,,,
 Circle,JGPHUD_MINIMAP_SHAPE_CIRCLE,possible minimap shape,Круг,Círculo,Kreis,Circular,Cercle
 Square,JGPHUD_MINIMAP_SHAPE_SQUARE,possible minimap shape,Квадрат,Quadrado,Quadrat,Cuadrada,Carré
-Display undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,DEPRECATED,Показывать ещё не обнаруженные линии,Mostrar linhas não descobertas,Unentdeckte Linien zeichnen,Mostrar lineas no descubiertas,Montrer lignes non découvertes
-Undiscovered lines opacity,JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA,"Replacement for ""Display undiscovered lines"" option: now this is a 0.0-1.0 slider that determines the translucency of the lines that the player hasn't seen yet.",Прозрачность ещё не обнаруженных линий,,,,
-Lines around different floor heights,JGPHUD_MINIMAP_DRAWFLOORDIFF,On/off: whether to display lines that are at the edges of the sectors with different floor heights,Линии секторов с разной высотой пола,,,,
-Lines around different ceiling heights,JGPHUD_MINIMAP_DRAWCEILINGDIFF,On/off: whether to display lines that are at the edges of the sectors with different ceiling heights,Линии секторов с разной высотой потолка,,,,
-Lines,JGPHUD_MINIMAP_COLOR_LINES,color for regular minimap lines,Линии,Linhas,Linien,Lineas,Lignes
-Interactive lines,JGPHUD_MINIMAP_COLOR_INTLINES,"color for interactive minimap lines (activateable by pressing Use, but not requiring a key, because locked lines will have a lock color)",Интерактивные линии,Linhas usáveis,Auslöserlinien,Lineas interactivas,Lignes interactives
-Cardinal directions display,JGPHUD_MINIMAP_CARDINAL_ENABLE,"Determines whether the cardinal direction letters (N, W, E, S) will be displayed on the minimap.
-Possible values: Off / In a circular bounding box / In the minimap's bounding box",Показывать стороны света,,,,
-In a circular bounding box,JGPHUD_MINIMAP_CARDINAL_CIRCULAR,"The cardinal direction letters will always rotate along a circle, even if the minimap is set to use the square shape",В круглой рамке,,,,
-In the minimap's bounding box,JGPHUD_MINIMAP_CARDINAL_MATCHMAP,"The cardinal direction letters will slide along the minimap's edge, either in a circular or square bounding box, depending on the minimap's shape. This could also be translated as ""Always along the minimap's edge""",Всегда по краю мини-карты,,,,
-Cardinal directions' color,JGPHUD_MINIMAP_CARDINAL_COLOR,A color picker that determines the color of the N W E S letters on the minimap,Цвет  сторон света,,,,
-Cardinal directions' size,JGPHUD_MINIMAP_CARDINAL_SIZE,"A slider that determines the size of the cardinal direction letters (N, W, E, S) on the minimap.",Размер сторон света,,,,
 Monster markers display,JGPHUD_MINIMAP_ENEMIES,"Whether to show enemies on the minimap. Possible options: Only alerted enemies / All enemies
 This option becomes available when ""Minimap and enemy radar display"" is set either to ""Enemy markers only"" or ""Minimap and enemy markers""",Отображение маркеров врагов,,,,
 Only alerted monsters,JGPHUD_MINIMAP_ENEMIES_ALERTED,"Option for ""Show enemies on the minimap""",Только для активных врагов,,,,
@@ -134,6 +123,19 @@ Arrow,JGPHUD_MINIMAP_ENEMIES_SHAPE_ARROW,"Option for ""Enemy markers shape""",С
 Dot,JGPHUD_MINIMAP_ENEMIES_SHAPE_DOT,"Option for ""Enemy markers shape""",Точка,,,,
 Monster markers size,JGPHUD_MINIMAP_MAPMARKERSCALE,A slider that determines the size of the enemy markers. At 0 (default) the markers are equal to the size of the monster and thus change their visual size according to the minimap's zoom value. At values above 0 they become fixed in size regardless of zoom.,Размер маркеров монстров,,,,
 Match the size of the object,JGPHUD_MINIMAP_MAPMARKERSCALE_REAL,"The default value for ""map markers size""",Соответствует размеру объекта,,,,
+Cardinal directions display,JGPHUD_MINIMAP_CARDINAL_ENABLE,"Determines whether the cardinal direction letters (N, W, E, S) will be displayed on the minimap.
+Possible values: Off / In a circular bounding box / In the minimap's bounding box",Показывать стороны света,,,,
+In a circular bounding box,JGPHUD_MINIMAP_CARDINAL_CIRCULAR,"The cardinal direction letters will always rotate along a circle, even if the minimap is set to use the square shape",В круглой рамке,,,,
+In the minimap's bounding box,JGPHUD_MINIMAP_CARDINAL_MATCHMAP,"The cardinal direction letters will slide along the minimap's edge, either in a circular or square bounding box, depending on the minimap's shape. This could also be translated as ""Always along the minimap's edge""",Всегда по краю мини-карты,,,,
+Cardinal directions' color,JGPHUD_MINIMAP_CARDINAL_COLOR,A color picker that determines the color of the N W E S letters on the minimap,Цвет  сторон света,,,,
+Cardinal directions' size,JGPHUD_MINIMAP_CARDINAL_SIZE,"A slider that determines the size of the cardinal direction letters (N, W, E, S) on the minimap.",Размер сторон света,,,,
+Lines and colors,JGPHUD_MINIMAP_LINESANDCOLORS_TITLE,"A subtitle for a minimap menu section where you control things like ""Undiscovered lines opacity"" and the colors of the lines",Линии и цвета,,,,
+Display undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,DEPRECATED,Показывать ещё не обнаруженные линии,Mostrar linhas não descobertas,Unentdeckte Linien zeichnen,Mostrar lineas no descubiertas,Montrer lignes non découvertes
+Undiscovered lines opacity,JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA,"Replacement for ""Display undiscovered lines"" option: now this is a 0.0-1.0 slider that determines the translucency of the lines that the player hasn't seen yet.",Прозрачность ещё не обнаруженных линий,,,,
+Lines around different floor heights,JGPHUD_MINIMAP_DRAWFLOORDIFF,On/off: whether to display lines that are at the edges of the sectors with different floor heights,Линии секторов с разной высотой пола,,,,
+Lines around different ceiling heights,JGPHUD_MINIMAP_DRAWCEILINGDIFF,On/off: whether to display lines that are at the edges of the sectors with different ceiling heights,Линии секторов с разной высотой потолка,,,,
+Lines,JGPHUD_MINIMAP_COLOR_LINES,color for regular minimap lines,Линии,Linhas,Linien,Lineas,Lignes
+Interactive lines,JGPHUD_MINIMAP_COLOR_INTLINES,"color for interactive minimap lines (activateable by pressing Use, but not requiring a key, because locked lines will have a lock color)",Интерактивные линии,Linhas usáveis,Auslöserlinien,Lineas interactivas,Lignes interactives
 Map data display,JGPHUD_MAPDATA_TITLE,This is a title for a block of options that determine what kind of extra data about the current map is drawn on the HUD,Данные об уровне,Dados do mapa,Kartendaten,Datos del mapa,Affichage des données de la carte
 Show map time,JGPHUD_MAPDATA_TIME,Option in the Map Data options block,Показывать время уровня,Mostrar tempo do mapa,Kartenzeit anzeigen,Mostrar tiempo,Temps de la carte
 Show kill count,JGPHUD_MAPDATA_KILLS,Option in the Map Data options block,Показывать убийства,Mostrar contagem de vitimas,Anzahl der Abschüsse anzeigen,Mostrar enemigos muertos,Nombre de morts
@@ -148,12 +150,12 @@ Relative to crosshair size,JGPHUD_CROSSHAIR_HITMARKERS_SIZE_RELATIVE,"The defaul
 Hit markers shape,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE,Option that lets player pick a specific shape for the hitmarkers,Форма индикаторов,,,,
 Cross,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Cross,A cross shape made out of 4 small pins,Крест,,,,
 Angled cross,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_AngledCross,"Samel as cross, but angled 45 degrees",Наклоненный крест,,,,
-4 triangles,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Triangles,A cross shame made out of 4 triangles,4 треугольника,,,,
+4 triangles,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Triangles,A cross shape made out of 4 triangles,4 треугольника,,,,
 4 angled triangles,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_AngledTriangles,"Same as 4 triangles, but angled 45 degrees (this is what FlexiHUD was originally using)",4 наклоненных треугольника,,,,
 Circle,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Circle,"Circle, as in a ring around the crosshair. Not to be confused with ""disk""! Can be translated as ""ring""",Кольцо,,,,
 Disk,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Disk,"Disk shape, i.e. a filled circle. Not to be confused with ""circle""!",Круг,,,,
-Square,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Square,,,,,,
-Diamond,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Diamond,Just a square angled 45 degrees,,,,,
+Square,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Square,Simple square shape,Квадрат,,,,
+Diamond,JGPHUD_CROSSHAIR_HITMARKERS_SHAPE_Diamond,"Diamond shape, i.e. a square angled 45 degrees",Ромб,,,,
 Health/armor/ammo bars around crosshair,JGPHUD_CROSSHAIR_BARS_ENABLE,Curved bars around the crosshair in the style of HL2,Индикаторы здоровья/брони/патронов вокруг прицела,Barra de vida/armadura/munição ao redor da retícula,Gesundheits-/Rüstungs-/Munitionsanzeige am Fadenkreuz,Barras de vida/armadura/munición en la mirilla,Barre de santé/armure/munitions autour du réticule
 Bars size,JGPHUD_CROSSHAIR_BARS_SIZE,Option for the bars around the crosshair,Размер индикаторов,Tamanho das barras,Leistengrösse,Tamaño de las barras,Taille des barres
 Bars opacity,JGPHUD_CROSSHAIR_BARS_ALPHA,Option for the bars around the crosshair,Прозрачность индикаторов,Opacidade das barras,Leistendeckkraft,Opacidad de las barras,Opacité des barres

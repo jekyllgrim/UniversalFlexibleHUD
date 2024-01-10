@@ -2703,10 +2703,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// background:
 		Color baseCol = GetHUDBackground();
 		double edgeThickness = 1 * hudscale.x;
+		double backAlpha = Clamp(c_MinimapOpacity.GetFloat(), 0.0, 1.0);
 		
 		// Fill the shape with the outline color
 		// (remember than DrawShapeFill is BGR, not RGB):
-		Screen.DrawShapeFill(RGB2BGR(baseCol), 1.0, shapeToUse);
+		Screen.DrawShapeFill(RGB2BGR(baseCol), backAlpha, shapeToUse);
 		
 		// Scale the shape down to draw the black background:
 		minimapTransform.Clear();
@@ -2721,7 +2722,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		// Draw background:
 		color backCol = c_minimapBackColor.GetInt();
-		Screen.DrawShapeFill(RGB2BGR(backCol), 1.0, shapeToUse);
+		Screen.DrawShapeFill(RGB2BGR(backCol), backAlpha, shapeToUse);
 		
 		// Draw the minimap lines:
 		if (drawmap)
@@ -2730,7 +2731,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			DrawMapMarkers(pos, diff, playerAngle, size, hudscale.x, mapZoom);
 		}
 
-		// White arrow at the center represeing the player:
+		// White arrow at the center representing the player:
 		if (!minimapShape_Arrow)
 		{
 			minimapShape_Arrow = New("Shape2D");
@@ -3910,6 +3911,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui transient CVar c_MinimapCardinalDir;
 	ui transient CVar c_MinimapCardinalDirSize;
 	ui transient CVar c_MinimapCardinalDirColor;
+	ui transient CVar c_MinimapOpacity;
 
 	ui transient CVar c_DrawKills;
 	ui transient CVar c_DrawItems;
@@ -4104,6 +4106,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 			c_MinimapCardinalDirSize = CVar.GetCvar('jgphud_MinimapCardinalDirSize', CPlayer);
 		if (!c_MinimapCardinalDirColor)
 			c_MinimapCardinalDirColor = CVar.GetCvar('jgphud_MinimapCardinalDirColor', CPlayer);
+		if (!c_MinimapOpacity)
+			c_MinimapOpacity = CVar.GetCvar('jgphud_MinimapOpacity', CPlayer);
 
 		if (!c_DrawKills)
 			c_DrawKills = CVar.GetCvar('jgphud_DrawKills', CPlayer);

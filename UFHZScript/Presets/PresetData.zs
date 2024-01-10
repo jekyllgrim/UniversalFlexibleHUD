@@ -72,6 +72,7 @@ extend class JGPUFH_PresetHandler
 		'jgphud_MinimapCardinalDir',
 		'jgphud_MinimapCardinalDirSize',
 		'jgphud_MinimapCardinalDirColor',
+		'jgphud_MinimapOpacity',
 
 		'jgphud_DrawKills',
 		'jgphud_DrawItems',
@@ -180,6 +181,7 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonNumber',	// jgphud_MinimapCardinalDir
 		'JGPUFH_JsonNumber',	// jgphud_MinimapCardinalDirSize
 		'JGPUFH_JsonNumber',	// jgphud_MinimapCardinalDirColor
+		'JGPUFH_JsonNumber',	// jgphud_MinimapOpacity
 
 		'JGPUFH_JsonBool',		// jgphud_DrawKills
 		'JGPUFH_JsonBool',		// jgphud_DrawItems

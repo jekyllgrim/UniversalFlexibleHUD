@@ -215,21 +215,10 @@ OptionMenu "JGPHUD_MapData"
 	Option "$JGPHUD_MINIMAP_ENABLE", 
 		"jgphud_DrawMinimap", 
 		"MinimapRadarDisplay"
-	UFHSlider "$JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA", 
-		"jgphud_MinimapDrawUnseen", 
-		0.0, 1.0, 0.1, 1, 
-		// Hide this if minimap/radar mode is 'Off' or in 'Radar Only' mode:
-		"jgphud_DrawMinimap", "<:2"
-	UFHOption "$JGPHUD_MINIMAP_DRAWFLOORDIFF", 
-		"jgphud_MinimapDrawFloorDiff", 
-		"OnOff", 
-		// Hide this if minimap/radar mode is 'Off' or in 'Radar Only' mode:
-		"jgphud_DrawMinimap", "<:2"
-	UFHOption "$JGPHUD_MINIMAP_DRAWCEILINGDIFF", 
-		"jgphud_MinimapDrawCeilingDiff", 
-		"OnOff", 
-		// Hide this if minimap/radar mode is 'Off' or in 'Radar Only' mode:
-		"jgphud_DrawMinimap", "<:2"
+	Slider "$JGPHUD_MINIMAP_OPACITY",
+		"jgphud_MinimapOpacity",
+		0.0, 1.0, 0.1, 2,
+		"jgphud_DrawMinimap"
 	Slider "$JGPHUD_MINIMAP_SIZE", 
 		"jgphud_MinimapSize", 
 		0, 256, 1, 0, 
@@ -276,9 +265,22 @@ OptionMenu "JGPHUD_MapData"
 		"jgphud_DrawMinimap", "0", 1, "jgphud_MinimapCardinalDir", "0"
 	
 	StaticText ""
-	StaticText "$AUTOMAPMNU_SETCUSTOMCOLORS", yellow
+	StaticText "$JGPHUD_MINIMAP_LINESANDCOLORS_TITLE", yellow
 	StaticText ""
-	// Hide these if minimap/radar mode is 'Off' or in 'Radar Only' mode:
+	// All of these elements become hidden if
+	// the minimap/radar is 'Off' or 'Radar Only' mode:
+	UFHSlider "$JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA", 
+		"jgphud_MinimapDrawUnseen", 
+		0.0, 1.0, 0.1, 1, 
+		"jgphud_DrawMinimap", "<:2"
+	UFHOption "$JGPHUD_MINIMAP_DRAWFLOORDIFF", 
+		"jgphud_MinimapDrawFloorDiff", 
+		"OnOff", 
+		"jgphud_DrawMinimap", "<:2"
+	UFHOption "$JGPHUD_MINIMAP_DRAWCEILINGDIFF", 
+		"jgphud_MinimapDrawCeilingDiff", 
+		"OnOff", 
+		"jgphud_DrawMinimap", "<:2"
 	UFHColorPicker "$MAPCOLORMNU_BACKCOLOR", "jgphud_MinimapBackColor", "jgphud_DrawMinimap", "<:2"
 	UFHColorPicker "$JGPHUD_MINIMAP_COLOR_LINES", "jgphud_MinimapLineColor", "jgphud_DrawMinimap", "<:2"
 	UFHColorPicker "$JGPHUD_MINIMAP_COLOR_INTLINES", "jgphud_MinimapIntLineColor", "jgphud_DrawMinimap", "<:2"
@@ -294,7 +296,7 @@ OptionMenu "JGPHUD_MapData"
 	Option "$JGPHUD_MAPDATA_SECRETS", "jgphud_DrawSecrets", "OnOff"
 	Option "$JGPHUD_MAPDATA_TIME", "jgphud_DrawTime", "OnOff"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_MinimapPos:jgphud_MinimapPosX:jgphud_MinimapPosY:jgphud_DrawMinimap:jgphud_MinimapDrawUnseen:jgphud_MinimapDrawFloorDiff:jgphud_MinimapDrawCeilingDiff:jgphud_MinimapSize:jgphud_CircularMinimap:jgphud_MinimapZoom:jgphud_MinimapEnemyDisplay:jgphud_MinimapEnemyShape:jgphud_MinimapEnemyMarkersSize:jgphud_DrawKills:jgphud_DrawItems:jgphud_DrawSecrets:jgphud_DrawTime:jpghud_MinimapBackColor:jgphud_MinimapLineColor:jgphud_MinimapYouColor:jgphud_MinimapMonsterColor:jgphud_MinimapFriendColor", 1
+	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_MinimapPos:jgphud_MinimapOpacity:jgphud_MinimapPosX:jgphud_MinimapPosY:jgphud_DrawMinimap:jgphud_MinimapDrawUnseen:jgphud_MinimapDrawFloorDiff:jgphud_MinimapDrawCeilingDiff:jgphud_MinimapSize:jgphud_CircularMinimap:jgphud_MinimapZoom:jgphud_MinimapEnemyDisplay:jgphud_MinimapEnemyShape:jgphud_MinimapMapMarkersSize:jgphud_MinimapCardinalDir:jgphud_MinimapCardinalDirSize:jgphud_MinimapCardinalDirColor:jgphud_DrawKills:jgphud_DrawItems:jgphud_DrawSecrets:jgphud_DrawTime:jpghud_MinimapBackColor:jgphud_MinimapLineColor:jgphud_MinimapYouColor:jgphud_MinimapMonsterColor:jgphud_MinimapFriendColor", 1
 }
 
 OptionMenu "JGPHUD_CrosshairOptions"
