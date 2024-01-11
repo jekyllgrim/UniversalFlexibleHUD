@@ -23,6 +23,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 	array <JGPUFH_PowerupData> powerupData;
 	array <MapMarker> mapMarkers;
 	bool levelUnloaded;
+	
+	//Generic shapes
+	ui transient Shape2D shape_square;
+	ui transient Shape2D shape_disk;
 
 	// see SetScreenFlags():
 	static const int ScreenFlags[] =
@@ -103,8 +107,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui int prevLevelTime;
 	ui array <Line> mapLines;
 	ui array <Actor> radarMonsters;
-	ui transient Shape2D minimapShape_Square;
-	ui transient Shape2D minimapShape_Circle;
 	ui transient Shape2D minimapShape_Arrow;
 	ui transient Shape2DTransform minimapTransform;
 	enum EMinimapDisplayModes
@@ -401,6 +403,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return;
 
 		statusbar.BeginHUD();
+		CreateGenericShapes(); //used by the minimap and hitmarkers
 		// These value updates need to be interpolated
 		// with deltatime, so they happen here rather
 		// than in UiTick(). They also shouldn't
@@ -1747,12 +1750,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 			shapeToUse = hitmarker_circle;
 			break;
 		case 5:
-			shapeToUse = minimapShape_Circle; //misnomer, minimap's shape is actually a disk
+			shapeToUse = shape_disk; //misnomer, minimap's shape is actually a disk
 			break;
 		case 6:
 			angle = 45;
 		case 7:
-			shapeToUse = minimapShape_Square;
+			shapeToUse = shape_square;
 			break;
 		}
 		return shapeToUse, angle;
@@ -2521,6 +2524,52 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
+	ui void CreateGenericShapes()
+	{
+		// Create a square shape in the (-0.5-0.5, -0.5-0.5) range:
+		if (!shape_square)
+		{
+			shape_square = New("Shape2D");
+			Vector2 mv = (-0.5, -0.5); //start at top left corner
+			shape_square.PushVertex(mv);
+			shape_square.PushVertex((mv.x, -mv.y));
+			shape_square.PushVertex((-mv.x, mv.y));
+			shape_square.PushVertex((-mv.x, -mv.y));
+			for (int i = 0; i < 4; i++)
+			{
+				shape_square.PushCoord((0,0));
+			}
+			shape_square.PushTriangle(0,1,2);
+			shape_square.PushTriangle(1,2,3);
+		}
+		// Create a disk shape in the (-0.5-0.5, -0.5-0.5) range:
+		if (!shape_disk)
+		{
+			shape_disk = New("Shape2D");
+			Vector2 cmid = (0, 0); //center
+			shape_disk.PushVertex(cmid);
+			shape_disk.PushCoord((0,0));
+			int steps = 60;
+			double angStep = CIRCLEANGLES / steps;
+			Vector2 p = (0, -0.5); //edge point
+			for (int i = 0; i < steps; i++)
+			{
+				shape_disk.PushVertex(p);
+				shape_disk.PushCoord((0,0));
+				p = Actor.RotateVector(p, angStep);
+			}
+			// Draw triangles between center,
+			// edge point and the next edge point:
+			for (int i = 1; i <= steps; i++)
+			{
+				int next = i+1;
+				if (next > steps)
+					next = 1;
+				shape_disk.PushTriangle(0, i, next);
+			}
+		}
+	}
+
 	// Update player position and angle with smooth
 	// interpolation between tics. Used by the
 	// minimap and damage markers:
@@ -2644,48 +2693,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		double playerAngle = -(Lerp(prevPlayerAngle, CPlayer.mo.angle, fracTic) + 90);
 		Vector2 diff = Level.Vec2Diff((0,0), ppos);
 
-		// Create a square shape in the (-0.5-0.5, -0.5-0.5) range:
-		if (!minimapShape_Square)
-		{
-			minimapShape_Square = New("Shape2D");
-			Vector2 mv = (-0.5, -0.5); //start at top left corner
-			minimapShape_Square.PushVertex(mv);
-			minimapShape_Square.PushVertex((mv.x, -mv.y));
-			minimapShape_Square.PushVertex((-mv.x, mv.y));
-			minimapShape_Square.PushVertex((-mv.x, -mv.y));
-			for (int i = 0; i < 4; i++)
-			{
-				minimapShape_Square.PushCoord((0,0));
-			}
-			minimapShape_Square.PushTriangle(0,1,2);
-			minimapShape_Square.PushTriangle(1,2,3);
-		}
-		// Create a disk shape in the (-0.5-0.5, -0.5-0.5) range:
-		if (!minimapShape_Circle)
-		{
-			minimapShape_Circle = New("Shape2D");
-			Vector2 cmid = (0, 0); //center
-			minimapShape_Circle.PushVertex(cmid);
-			minimapShape_Circle.PushCoord((0,0));
-			int steps = 60;
-			double angStep = CIRCLEANGLES / steps;
-			Vector2 p = (0, -0.5); //edge point
-			for (int i = 0; i < steps; i++)
-			{
-				minimapShape_Circle.PushVertex(p);
-				minimapShape_Circle.PushCoord((0,0));
-				p = Actor.RotateVector(p, angStep);
-			}
-			// Draw triangles between center,
-			// edge point and the next edge point:
-			for (int i = 1; i <= steps; i++)
-			{
-				int next = i+1;
-				if (next > steps)
-					next = 1;
-				minimapShape_Circle.PushTriangle(0, i, next);
-			}
-		}
 		if (!minimapTransform)
 		{
 			minimapTransform = New("Shape2DTransform");
@@ -2693,7 +2700,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		minimapTransform.Clear();
 		// Pick the shape to use based on the player's choice:
 		bool circular = IsMinimapCircular();
-		Shape2D shapeToUse = circular ? minimapShape_Circle : minimapShape_Square;
+		Shape2D shapeToUse = circular ? shape_disk : shape_square;
 		// offset to the half of the shape size:
 		Vector2 shapeOfs = (size, size)*0.5;
 		minimapTransform.Scale((size,size));
@@ -3098,11 +3105,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	ui void DrawEnemyRadar(Vector2 pos, Vector2 ofs, double angle, double radius, double scale = 1.0, double zoom = 1.0)
 	{
-		if (!minimapShape_Arrow || !minimapShape_Circle || !minimapTransform)
+		if (!minimapShape_Arrow || !shape_disk || !minimapTransform)
 			return;
 		
 		bool drawAll = c_MinimapEnemyDisplay.GetBool();
-		Shape2D shapeTouse = c_MinimapEnemyShape.GetBool() ? minimapShape_Circle : minimapShape_Arrow;
+		Shape2D shapeTouse = c_MinimapEnemyShape.GetBool() ? shape_disk : minimapShape_Arrow;
 
 		color foeColor = c_minimapMonsterColor.GetInt();
 		color friendColor = c_minimapFriendColor.GetInt();
