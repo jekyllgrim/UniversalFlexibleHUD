@@ -663,10 +663,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	// Returns true if the menu belonging to the
 	// specified class is currently open:
-	ui bool IsMenuOpen(class<Object> menuname = 'JGPHUD_OptionMenu')
+	ui bool IsModMenuOpen()
 	{
 		let mnu = Menu.GetCurrentMenu();
-		return mnu && mnu is menuname;
+		return mnu && (mnu is 'JGPUFH_OptionMenu');
 	}
 
 	// Wrappers to enable and disable stencil masks:
@@ -1431,7 +1431,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		if (itemNum <= 0)
 		{
-			if (IsMenuOpen())
+			if (IsModMenuOpen())
 			{
 				previewMode = true;
 				itemNum = 4;
@@ -1770,7 +1770,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		double alpha = reticleMarkerAlpha;
 		if (alpha <= 0)
 		{
-			if (IsMenuOpen())
+			if (IsModMenuOpen())
 			{
 				alpha = SinePulse(TICRATE*2, 0.2, 0.6, inMenus:true);
 			}
@@ -3344,7 +3344,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// this will set up a preview mode that draws
 			// dummy powerup icons and empty timers, so that
 			// the player can see where the timers will appear:
-			if (IsMenuOpen())
+			if (IsModMenuOpen())
 			{
 				previewMode = true;
 				powerNum = powerupData.Size();
@@ -3428,7 +3428,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			// Enable preview display if the relevant
 			// menu is open but the player has no keys:
-			if (IsMenuOpen())
+			if (IsModMenuOpen())
 			{
 				previewMode = true;
 			}
@@ -3575,7 +3575,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		bool previewMode;
 		if (!ShouldDrawInvBar(numfields))
 		{
-			if (IsMenuOpen() && c_drawInvBar.GetBool())
+			if (IsModMenuOpen() && c_drawInvBar.GetBool())
 			{
 				previewMode = true;
 			}

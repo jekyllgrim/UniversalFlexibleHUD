@@ -1,9 +1,7 @@
 OptionMenu "JGPUFH_PresetMenu"
 {
 	Title "$JGPHUD_Presets_Title"
-	
 	Class "JGPUFH_PresetsMenu"
-	
 	
 	Submenu "$JGPHUD_Presets_Menu_BuiltIn", "JGPUFH_BuiltInPresets"
 	JGPUFH_UserPresetsSubmenu "$JGPHUD_Presets_Menu_User", "JGPUFH_UserPresets"
@@ -17,15 +15,20 @@ OptionMenu "JGPUFH_PresetMenu"
 OptionMenu "JGPUFH_BuiltInPresets"
 {
 	Title "$JGPHUD_Presets_Menu_BuiltIn"
+	Class "JGPUFH_PresetsMenu"
 	
-	JGPUFH_ConfirmCommand "Default", "LoadDefaultPreset", "", "$JGPHUD_Presets_Menu_ResetPresetConfirm"
-	JGPUFH_ConfirmCommand "Minimap-Only", "LoadBuiltInPresetJSON", "MinimapOnly", "Are you sure you want to load the minimap-only preset?"
+	JGPUFH_ConfirmCommand "$JGPHUD_Presets_BuiltInPreset_MinimapOnly", "LoadBuiltInPresetJSON", "MinimapOnly"
+	JGPUFH_ConfirmCommand "$JGPHUD_Presets_BuiltInPreset_DamageMarkersOnly", "LoadBuiltInPresetJSON", "DamageMarkersOnly"
+	JGPUFH_ConfirmCommand "$JGPHUD_Presets_BuiltInPreset_ExtraInfoOnly", "LoadBuiltInPresetJSON", "ExtraInfoOnly"
+	JGPUFH_ConfirmCommand "$JGPHUD_Presets_BuiltInPreset_OldOldSchool", "LoadBuiltInPresetJSON", "OldOldSchool"
+	JGPUFH_ConfirmCommand "$JGPHUD_Presets_BuiltInPreset_Minimalist", "LoadBuiltInPresetJSON", "Minimalist"
+	JGPUFH_ConfirmCommand "$JGPHUD_Presets_BuiltInPreset_Arcade", "LoadBuiltInPresetJSON", "Arcade"
+	JGPUFH_ConfirmCommand "$ALTHUDMNU_TITLE", "LoadBuiltInPresetJSON", "Althud"
 }
 
 OptionMenu "JGPUFH_UserPresets"
 {
 	Title "$JGPHUD_Presets_Menu_User"
-	
 	Class "JGPUFH_UserPresetsMenu"
 }
 

@@ -1,14 +1,14 @@
-// This class is here simply so that I can feed it
+// These classes are here simply so that I can feed them
 // to the Class property in MENUDEF. This lets me detect
 // that the mod's settings menu is open:
-class JGPHUD_OptionMenu : OptionMenu
+class JGPUFH_OptionMenu : OptionMenu
 {}
 
-class OptionMenuItemUFHResetCCMD : OptionMenuItemSubmenu
+class OptionMenuItemJGPUFHResetCCMD : OptionMenuItemSubmenu
 {
 	private array <String> ccmds;
 
-	OptionMenuItemUFHResetCCMD Init(String label, string commands, bool centered = false)
+	OptionMenuItemJGPUFHResetCCMD Init(String label, string commands, bool centered = false)
 	{
 		Super.Init(label, '', 0, centered);
 		commands.Split(ccmds, ":");
@@ -31,9 +31,9 @@ class OptionMenuItemUFHResetCCMD : OptionMenuItemSubmenu
 	}
 }
 
-class OptionMenuItemUFHResetALLCCMD : OptionMenuItemSubmenu
+class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
 {
-	OptionMenuItemUFHResetALLCCMD Init(String label, bool centered = false)
+	OptionMenuItemJGPUFHResetALLCCMD Init(String label, bool centered = false)
 	{
 		Super.Init(label, '', 0, centered);
 		return self;
@@ -46,7 +46,7 @@ class OptionMenuItemUFHResetALLCCMD : OptionMenuItemSubmenu
 	}
 }
 
-mixin class UFHCVarChecker
+mixin class JGPUFHCVarChecker
 {
 	// possible cond values:
 	// 0 		- equal to 0
@@ -178,11 +178,11 @@ mixin class UFHCVarChecker
 	}
 }
 
-class OptionMenuItemUFHSlider : OptionMenuItemSlider
+class OptionMenuItemJGPUFHSlider : OptionMenuItemSlider
 {
-	mixin UFHCVarChecker;
+	mixin JGPUFHCVarChecker;
 
-	OptionMenuItemUFHSlider Init(String label, Name command, double min, double max, double step, int showval = 1, CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
+	OptionMenuItemJGPUFHSlider Init(String label, Name command, double min, double max, double step, int showval = 1, CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
 	{
 		Super.Init(label, command, min, max, step, showval, null);
 		ParseGrayConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);
@@ -195,11 +195,11 @@ class OptionMenuItemUFHSlider : OptionMenuItemSlider
 	}
 }
 
-class OptionMenuItemUFHOption : OptionMenuItemOption
+class OptionMenuItemJGPUFHOption : OptionMenuItemOption
 {
-	mixin UFHCVarChecker;
+	mixin JGPUFHCVarChecker;
 
-	OptionMenuItemUFHOption Init(String label, Name command, Name values, CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
+	OptionMenuItemJGPUFHOption Init(String label, Name command, Name values, CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
 	{
 		Super.Init(label, command, values, null, 0);
 		ParseGrayConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);
@@ -212,11 +212,11 @@ class OptionMenuItemUFHOption : OptionMenuItemOption
 	}
 }
 
-class OptionMenuItemUFHScaleSlider : OptionMenuItemScaleSlider
+class OptionMenuItemJGPUFHScaleSlider : OptionMenuItemScaleSlider
 {
-	mixin UFHCVarChecker;
+	mixin JGPUFHCVarChecker;
 
-	OptionMenuItemUFHScaleSlider Init(String label, Name command, double min, double max, double step, String zero, String negone = "", CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
+	OptionMenuItemJGPUFHScaleSlider Init(String label, Name command, double min, double max, double step, String zero, String negone = "", CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
 	{
 		Super.Init(label, command, min, max, step, zero, negone);
 		ParseGrayConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);
@@ -247,11 +247,11 @@ class OptionMenuItemUFHScaleSlider : OptionMenuItemScaleSlider
 	}
 }
 
-class OptionMenuItemUFHColorPicker : OptionMenuItemColorPicker
+class OptionMenuItemJGPUFHColorPicker : OptionMenuItemColorPicker
 {
-	mixin UFHCVarChecker;
+	mixin JGPUFHCVarChecker;
 
-	OptionMenuItemUFHColorPicker Init(String label, Name command, CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
+	OptionMenuItemJGPUFHColorPicker Init(String label, Name command, CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
 	{
 		Super.Init(label, command);
 		ParseGrayConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);
@@ -283,11 +283,11 @@ class OptionMenuItemUFHColorPicker : OptionMenuItemColorPicker
 	}
 }
 
-class OptionMenuItemUFHTextField : OptionMenuItemTextField
+class OptionMenuItemJGPUFHTextField : OptionMenuItemTextField
 {
-	mixin UFHCVarChecker;
+	mixin JGPUFHCVarChecker;
 
-	OptionMenuItemUFHTextField Init (String label, Name command, CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
+	OptionMenuItemJGPUFHTextField Init (String label, Name command, CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
 	{
 		Super.Init(label, command, null);
 		ParseGrayConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);

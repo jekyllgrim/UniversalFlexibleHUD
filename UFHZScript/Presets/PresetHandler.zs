@@ -1,9 +1,5 @@
 class JGPUFH_PresetHandler : StaticEventHandler
 {
-	const default_presets_json = "{'MinimapOnly':{'jgphud_AmmoBlockX':2,'jgphud_DrawDamageMarkers':false,'jgphud_BackTextureStretch':false,'jgphud_ReticleBarsSize':18,'jgphud_BackAlpha':0.50000,'jgphud_DrawFace':true,'jgphud_DamageMarkersAlpha':0.50000,'jgphud_CustomItemsIconSize':12,'jgphud_AllAmmoX':2,'jgphud_MainBarsY':2,'jgphud_AllAmmoY':0,'jgphud_MainBarsPos':6,'jgphud_WeaponSlotsAlign':0,'jgphud_CustomItemsPos':7,'jgphud_DrawCustomItems':false,'jgphud_MinimapPosY':0,'jgphud_AllAmmoShowDepleted':false,'jgphud_ReticleBarsWidth':0.10000,'jgphud_PowerupsPos':2,'jgphud_MinimapEnemyDisplay':1,'jgphud_AmmoBlockY':2,'jgphud_DrawSecrets':false,'jgphud_WeaponSlotsPos':1,'jgphud_WeaponSlotsY':2,'jgphud_WeaponSlotsSize':16,'jgphud_MinimapIntLineColor':16777215,'jgphud_MinimapZoom':0.70000,'jgphud_ReticleBarsAmmo':3,'jgphud_MinimapDrawUnseen':0.30000,'jgphud_BackTexture':'FLOOR3_3','jgphud_MinimapMonsterColor':16711680,'jgphud_DrawEnemyHitMarkers':false,'jgphud_CircularMinimap':false,'jgphud_InvBarX':0,'jgphud_AllAmmoPos':5,'jgphud_ReticleBarsAlpha':0.70000,'jgphud_DrawAllAmmo':0,'jgphud_KeysX':70,'jgphud_DrawMinimap':true,'jgphud_MinimapDrawFloorDiff':true,'jgphud_numberfont':'IndexFont','jgphud_DamageMarkersFadeTime':0.50000,'jgphud_smallfont':'Confont','jgphud_CustomItemsX':-140,'jgphud_MinimapLineColor':8454016,'jgphud_DrawWeaponSlots':0,'jgphud_KeysPos':8,'jgphud_CustomItemsY':2,'jgphud_ReticleBarsEnemy':4,'jgphud_mainfont':'BigUpper','jgphud_DrawTime':false,'jgphud_ReticleBarsText':false,'jgphud_DrawReticleBars':2,'jgphud_KeysY':2,'jgphud_DrawItems':false,'jgphud_EnemyHitMarkersSize':0,'jgphud_DrawKeys':false,'jgphud_EnemyHitMarkersColor':16777215,'jgphud_InvBarY':32,'jgphud_InvBarPos':6,'jgphud_MinimapYouColor':16777215,'jgphud_PowerupsIconSize':20,'jgphud_InvBarIconSize':18,'jgphud_MinimapFriendColor':65535,'jgphud_ScreenReddenFactor':1.00000,'jgphud_DrawInvBar':false,'jgphud_DrawAmmoBar':false,'jgphud_DrawWeapon':false,'jgphud_DrawPowerups':false,'jgphud_BackColor':4404501,'jgphud_ReticleBarsHealthArmor':1,'jgphud_PowerupsY':2,'jgphud_WeaponSlotsX':0,'jgphud_MinimapPosX':2,'jgphud_DrawMainbars':0,'jgphud_BackStyle':true,'jgphud_MinimapPos':3,'jgphud_AmmoBlockPos':8,'jgphud_DrawAmmoBlock':false,'jgphud_MinimapSize':64,'jgphud_AlwaysShowInvBar':true,'jgphud_MainBarsX':2,'jgphud_MinimapMapMarkersSize':0,'jgphud_MinimapBackColor':0,'jgphud_DrawKills':false,'jgphud_MinimapDrawCeilingDiff':false,'jgphud_PowerupsX':2}}";
-	
-	
-	
 	JGPUFH_JsonObject presets;
 	
 	JGPUFH_JsonObject default_presets;
@@ -91,7 +87,7 @@ class JGPUFH_PresetHandler : StaticEventHandler
 		}
 		
 		presets = LoadPresets(__jgphud_user_presets_json, true);
-		default_presets = LoadPresets(default_presets_json, false);
+		default_presets = LoadPresets(JGPUFH_DefaultPresets.default_presets_json, false);
 	}
 	
 	clearscope void SavePresets()

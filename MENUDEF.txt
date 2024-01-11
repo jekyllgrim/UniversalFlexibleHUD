@@ -10,7 +10,7 @@ AddOptionMenu "OptionsMenuSimple"
 
 OptionMenu "JGPHUD_Settings"
 {
-	Class "JGPHUD_OptionMenu"
+	Class "JGPUFH_OptionMenu"
 	ScrollTop 3
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "FlexiHUD v3.0.0pre", blue
@@ -24,14 +24,14 @@ OptionMenu "JGPHUD_Settings"
 	Option "$JGPHUD_GENERAL_ENABLEHUD", "jgphud_enable", "OnOff"
 	Control "$JGPHUD_GENERAL_ENABLEHUD_BIND", "toggle jgphud_enable"
 	Option "$JGPHUD_GENERAL_BACKSTYLE", "jgphud_BackStyle", "BackgroundStyles"
-	UFHColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor", "jgphud_BackStyle"
+	JGPUFHColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor", "jgphud_BackStyle"
 	Slider "$JGPHUD_GENERAL_BACKALPHA", "jgphud_BackAlpha", 0.00, 1.0, 0.05, 2
-	UFHTextField "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME", "jgphud_BackTexture", "jgphud_BackStyle", "!:0"
+	JGPUFHTextField "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME", "jgphud_BackTexture", "jgphud_BackStyle", "!:0"
 	StaticText "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME_NOTE", gray
 	StaticText ""
 	StaticText ""
-	UFHOption "$JGPHUD_GENERAL_BACKSTYLE_TEXFIT", "jgphud_BackTextureStretch", "BackTextureFitMode", "jgphud_BackStyle", "!:0"
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_BackStyle:jgphud_BackTexture:jgphud_BackColor:jgphud_BackAlpha", 1
+	JGPUFHOption "$JGPHUD_GENERAL_BACKSTYLE_TEXFIT", "jgphud_BackTextureStretch", "BackTextureFitMode", "jgphud_BackStyle", "!:0"
+	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_BackStyle:jgphud_BackTexture:jgphud_BackColor:jgphud_BackAlpha", 1
 
 	StaticText ""
 	SubMenu "$JGPHUD_MAINBARS_TITLE", "JGPHUD_MainBars"
@@ -47,12 +47,12 @@ OptionMenu "JGPHUD_Settings"
 	SubMenu "$JGPHUD_CustomItems_TITLE", "JGPHUD_CustomItems"
 	
 	//StaticText ""
-	//UFHResetALLCCMD "$JGPHUD_GENERAL_RESETALL", 1
+	//JGPUFHResetALLCCMD "$JGPHUD_GENERAL_RESETALL", 1
 }
 
 OptionMenu "JGPHUD_DamageMarkers"
 {
-	Class "JGPHUD_OptionMenu"
+	Class "JGPUFH_OptionMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_DMGMARKERS_TITLE", yellow
 	StaticText ""
@@ -61,12 +61,12 @@ OptionMenu "JGPHUD_DamageMarkers"
 	Slider "$JGPHUD_DMGMARKERS_MAXALPHA", "jgphud_DamageMarkersAlpha", 0.0, 1.0, 0.1, 1, "jgphud_drawDamageMarkers"
 	Slider "$JGPHUD_DMGMARKERS_FADEOUTTIME", "jgphud_DamageMarkersFadeTime", 0.05, 5.0, 0.05, 2, "jgphud_drawDamageMarkers"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_ScreenReddenFactor:jgphud_drawDamageMarkers:jgphud_DamageMarkersAlpha:jgphud_DamageMarkersFadeTime", 1
+	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_ScreenReddenFactor:jgphud_drawDamageMarkers:jgphud_DamageMarkersAlpha:jgphud_DamageMarkersFadeTime", 1
 }
 
 OptionMenu "JGPHUD_MainBars"
 {
-	Class "JGPHUD_OptionMenu"
+	Class "JGPUFH_OptionMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_MAINBARS_TITLE", yellow
 	StaticText ""
@@ -76,12 +76,12 @@ OptionMenu "JGPHUD_MainBars"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_MainBarsY", -100, 100, 2, 0, "jgphud_DrawMainbars"
 	Option "$JGPHUD_MAINBARS_SHOWFACE", "jgphud_DrawFace", "OnOff", "jgphud_DrawMainbars"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawMainbars:jgphud_MainBarsPos:jgphud_MainBarsX:jgphud_MainBarsY:jgphud_DrawFace", 1
+	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawMainbars:jgphud_MainBarsPos:jgphud_MainBarsX:jgphud_MainBarsY:jgphud_DrawFace", 1
 }
 
 OptionMenu "JGPHUD_AmmoBlock"
 {
-	Class "JGPHUD_OptionMenu"
+	Class "JGPUFH_OptionMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_AMMOBLOCK_TITLE", yellow
 	StaticText ""
@@ -92,12 +92,12 @@ OptionMenu "JGPHUD_AmmoBlock"
 	Option "$JGPHUD_AMMOBLOCK_SHOWWEAP", "jgphud_DrawWeapon", "OnOff", "jgphud_DrawAmmoBlock"
 	Option "$JGPHUD_AMMOBLOCK_SHOWAMMOBAR", "jgphud_DrawAmmoBar", "OnOff", "jgphud_DrawAmmoBlock"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawAmmoBlock:jgphud_AmmoBlockPos:jgphud_AmmoBlockX:jgphud_AmmoBlockY:jgphud_DrawWeapon:jgphud_DrawAmmoBar", 1
+	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawAmmoBlock:jgphud_AmmoBlockPos:jgphud_AmmoBlockX:jgphud_AmmoBlockY:jgphud_DrawWeapon:jgphud_DrawAmmoBar", 1
 }
 
 OptionMenu "JGPHUD_AllAmmo"
 {
-	Class "JGPHUD_OptionMenu"
+	Class "JGPUFH_OptionMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_ALLAMMO_TITLE", yellow
 	StaticText ""
@@ -107,12 +107,12 @@ OptionMenu "JGPHUD_AllAmmo"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_AllAmmoX", -160, 160, 2, 0, "jgphud_drawAllAmmo"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_AllAmmoY", -100, 100, 2, 0, "jgphud_drawAllAmmo"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawAllAmmo:jgphud_AllAmmoShowDepleted:jgphud_AllAmmoPos:jgphud_AllAmmoX:jgphud_AllAmmoY", 1
+	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawAllAmmo:jgphud_AllAmmoShowDepleted:jgphud_AllAmmoPos:jgphud_AllAmmoX:jgphud_AllAmmoY", 1
 }
 
 OptionMenu "JGPHUD_Keys"
 {
-	Class "JGPHUD_OptionMenu"
+	Class "JGPUFH_OptionMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_KEYS_TITLE", yellow
 	StaticText ""
@@ -121,12 +121,12 @@ OptionMenu "JGPHUD_Keys"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_KeysX", -160, 160, 2, 0, "jgphud_drawKeys"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_KeysY", -100, 100, 2, 0, "jgphud_drawKeys"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawKeys:jgphud_KeysPos:jgphud_KeysX:jgphud_KeysY", 1
+	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawKeys:jgphud_KeysPos:jgphud_KeysX:jgphud_KeysY", 1
 }
 
 OptionMenu "JGPHUD_WeaponSlots"
 {
-	Class "JGPHUD_OptionMenu"
+	Class "JGPUFH_OptionMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_WEAPSLOTS_TITLE", yellow
 	StaticText ""
@@ -137,12 +137,12 @@ OptionMenu "JGPHUD_WeaponSlots"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_WeaponSlotsX", -160, 160, 2, 0, "jgphud_drawWeaponSlots"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_WeaponSlotsY", -100, 100, 2, 0, "jgphud_drawWeaponSlots"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawWeaponSlots:jgphud_WeaponSlotsAlign:jgphud_WeaponSlotsSize:jgphud_WeaponSlotsPos:jgphud_WeaponSlotsX:jgphud_WeaponSlotsY", 1
+	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawWeaponSlots:jgphud_WeaponSlotsAlign:jgphud_WeaponSlotsSize:jgphud_WeaponSlotsPos:jgphud_WeaponSlotsX:jgphud_WeaponSlotsY", 1
 }
 
 OptionMenu "JGPHUD_InvBar"
 {
-	Class "JGPHUD_OptionMenu"
+	Class "JGPUFH_OptionMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_INVBAR_TITLE", yellow
 	StaticText ""
@@ -161,12 +161,12 @@ OptionMenu "JGPHUD_InvBar"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_InvBarX", -160, 160, 2, 0, "jgphud_drawInvBar"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_InvBarY", -100, 100, 2, 0, "jgphud_drawInvBar"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawInvBar:jgphud_AlwaysShowInvBar:jgphud_InvBarIconSize:jgphud_InvBarPos:jgphud_InvBarX:jgphud_InvBarY", 1
+	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawInvBar:jgphud_AlwaysShowInvBar:jgphud_InvBarIconSize:jgphud_InvBarPos:jgphud_InvBarX:jgphud_InvBarY", 1
 }
 
 OptionMenu "JGPHUD_Powerups"
 {
-	Class "JGPHUD_OptionMenu"
+	Class "JGPUFH_OptionMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_POWERUPS_TITLE", yellow
 	StaticText ""
@@ -176,12 +176,12 @@ OptionMenu "JGPHUD_Powerups"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_PowerupsX", -160, 160, 2, 0, "jgphud_drawPowerups"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_PowerupsY", -100, 100, 2, 0, "jgphud_drawPowerups"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawPowerups:jgphud_PowerupsPos:jgphud_PowerupsX:jgphud_PowerupsY", 1
+	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawPowerups:jgphud_PowerupsPos:jgphud_PowerupsX:jgphud_PowerupsY", 1
 }
 
 OptionMenu "JGPHUD_CustomItems"
 {
-	Class "JGPHUD_OptionMenu"
+	Class "JGPUFH_OptionMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_CustomItems_TITLE", yellow
 	StaticText ""
@@ -194,12 +194,12 @@ OptionMenu "JGPHUD_CustomItems"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_CustomItemsX", -160, 160, 2, 0, "jgphud_drawCustomItems"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_CustomItemsY", -100, 100, 2, 0, "jgphud_drawCustomItems"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawCustomItems:jgphud_CustomItemsPos:jgphud_CustomItemsX:jgphud_CustomItemsY", 1
+	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawCustomItems:jgphud_CustomItemsPos:jgphud_CustomItemsX:jgphud_CustomItemsY", 1
 }
 
 OptionMenu "JGPHUD_MapData"
 {	
-	Class "JGPHUD_OptionMenu"
+	Class "JGPUFH_OptionMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_MAPDATA_GEN_TITLE", yellow
 	StaticText ""
@@ -234,17 +234,17 @@ OptionMenu "JGPHUD_MapData"
 		0.1, 3.0, 0.05, 2,
 		// Hide this if minimap/radar mode is 'Off':
 		"jgphud_DrawMinimap"
-	UFHOption "$JGPHUD_MINIMAP_ENEMIES",
+	JGPUFHOption "$JGPHUD_MINIMAP_ENEMIES",
 		"jgphud_MinimapEnemyDisplay",
 		"MinimapEnemyDisplay", 
 		// Hide this if minimap/radar mode is 'Off' OR in 'Minimap Only' mode:
 		"jgphud_DrawMinimap", "0", 1, "jgphud_DrawMinimap", "2"
-	UFHOption "$JGPHUD_MINIMAP_ENEMIES_SHAPE",
+	JGPUFHOption "$JGPHUD_MINIMAP_ENEMIES_SHAPE",
 		"jgphud_MinimapEnemyShape",
 		"MinimapEnemyShape", 
 		// Hide this if minimap/radar mode is 'Off' OR in 'Minimap Only' mode:
 		"jgphud_DrawMinimap", "0", 1, "jgphud_DrawMinimap", "2"
-	UFHScaleSlider "$JGPHUD_MINIMAP_MAPMARKERSCALE", 
+	JGPUFHScaleSlider "$JGPHUD_MINIMAP_MAPMARKERSCALE", 
 		"jgphud_MinimapMapMarkersSize", 
 		0, 32, 1,
 		"$JGPHUD_MINIMAP_MAPMARKERSCALE_REAL", "",
@@ -254,12 +254,12 @@ OptionMenu "JGPHUD_MapData"
 		"jgphud_MinimapCardinalDir",
 		"CardinalDirections",
 		"jgphud_DrawMinimap"
-	UFHSlider "$JGPHUD_MINIMAP_CARDINAL_SIZE", 
+	JGPUFHSlider "$JGPHUD_MINIMAP_CARDINAL_SIZE", 
 		"jgphud_MinimapCardinalDirSize", 
 		4, 64, 1, 0,
 		// Hide this if minimap/radar mode is 'Off' OR cardinal directions are off:
 		"jgphud_DrawMinimap", "0", 1, "jgphud_MinimapCardinalDir", "0"
-	UFHOption "$JGPHUD_MINIMAP_CARDINAL_COLOR",
+	JGPUFHOption "$JGPHUD_MINIMAP_CARDINAL_COLOR",
 		"jgphud_MinimapCardinalDirColor",
 		"TextColors",
 		"jgphud_DrawMinimap", "0", 1, "jgphud_MinimapCardinalDir", "0"
@@ -269,24 +269,24 @@ OptionMenu "JGPHUD_MapData"
 	StaticText ""
 	// All of these elements become hidden if
 	// the minimap/radar is 'Off' or 'Radar Only' mode:
-	UFHSlider "$JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA", 
+	JGPUFHSlider "$JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA", 
 		"jgphud_MinimapDrawUnseen", 
 		0.0, 1.0, 0.1, 1, 
 		"jgphud_DrawMinimap", "<:2"
-	UFHOption "$JGPHUD_MINIMAP_DRAWFLOORDIFF", 
+	JGPUFHOption "$JGPHUD_MINIMAP_DRAWFLOORDIFF", 
 		"jgphud_MinimapDrawFloorDiff", 
 		"OnOff", 
 		"jgphud_DrawMinimap", "<:2"
-	UFHOption "$JGPHUD_MINIMAP_DRAWCEILINGDIFF", 
+	JGPUFHOption "$JGPHUD_MINIMAP_DRAWCEILINGDIFF", 
 		"jgphud_MinimapDrawCeilingDiff", 
 		"OnOff", 
 		"jgphud_DrawMinimap", "<:2"
-	UFHColorPicker "$MAPCOLORMNU_BACKCOLOR", "jgphud_MinimapBackColor", "jgphud_DrawMinimap", "<:2"
-	UFHColorPicker "$JGPHUD_MINIMAP_COLOR_LINES", "jgphud_MinimapLineColor", "jgphud_DrawMinimap", "<:2"
-	UFHColorPicker "$JGPHUD_MINIMAP_COLOR_INTLINES", "jgphud_MinimapIntLineColor", "jgphud_DrawMinimap", "<:2"
-	UFHColorPicker "$MAPCOLORMNU_YOURCOLOR", "jgphud_MinimapYouColor", "jgphud_DrawMinimap", "<:2"
-	UFHColorPicker "$MAPCOLORMNU_MONSTERCOLOR", "jgphud_MinimapMonsterColor", "jgphud_DrawMinimap", "<:2"
-	UFHColorPicker "$MAPCOLORMNU_FRIENDCOLOR", "jgphud_MinimapFriendColor", "jgphud_DrawMinimap", "<:2"
+	JGPUFHColorPicker "$MAPCOLORMNU_BACKCOLOR", "jgphud_MinimapBackColor", "jgphud_DrawMinimap", "<:2"
+	JGPUFHColorPicker "$JGPHUD_MINIMAP_COLOR_LINES", "jgphud_MinimapLineColor", "jgphud_DrawMinimap", "<:2"
+	JGPUFHColorPicker "$JGPHUD_MINIMAP_COLOR_INTLINES", "jgphud_MinimapIntLineColor", "jgphud_DrawMinimap", "<:2"
+	JGPUFHColorPicker "$MAPCOLORMNU_YOURCOLOR", "jgphud_MinimapYouColor", "jgphud_DrawMinimap", "<:2"
+	JGPUFHColorPicker "$MAPCOLORMNU_MONSTERCOLOR", "jgphud_MinimapMonsterColor", "jgphud_DrawMinimap", "<:2"
+	JGPUFHColorPicker "$MAPCOLORMNU_FRIENDCOLOR", "jgphud_MinimapFriendColor", "jgphud_DrawMinimap", "<:2"
 
 	StaticText ""
 	StaticText "$JGPHUD_MAPDATA_TITLE", yellow
@@ -296,12 +296,12 @@ OptionMenu "JGPHUD_MapData"
 	Option "$JGPHUD_MAPDATA_SECRETS", "jgphud_DrawSecrets", "OnOff"
 	Option "$JGPHUD_MAPDATA_TIME", "jgphud_DrawTime", "OnOff"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_MinimapPos:jgphud_MinimapOpacity:jgphud_MinimapPosX:jgphud_MinimapPosY:jgphud_DrawMinimap:jgphud_MinimapDrawUnseen:jgphud_MinimapDrawFloorDiff:jgphud_MinimapDrawCeilingDiff:jgphud_MinimapSize:jgphud_CircularMinimap:jgphud_MinimapZoom:jgphud_MinimapEnemyDisplay:jgphud_MinimapEnemyShape:jgphud_MinimapMapMarkersSize:jgphud_MinimapCardinalDir:jgphud_MinimapCardinalDirSize:jgphud_MinimapCardinalDirColor:jgphud_DrawKills:jgphud_DrawItems:jgphud_DrawSecrets:jgphud_DrawTime:jpghud_MinimapBackColor:jgphud_MinimapLineColor:jgphud_MinimapYouColor:jgphud_MinimapMonsterColor:jgphud_MinimapFriendColor", 1
+	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_MinimapPos:jgphud_MinimapOpacity:jgphud_MinimapPosX:jgphud_MinimapPosY:jgphud_DrawMinimap:jgphud_MinimapDrawUnseen:jgphud_MinimapDrawFloorDiff:jgphud_MinimapDrawCeilingDiff:jgphud_MinimapSize:jgphud_CircularMinimap:jgphud_MinimapZoom:jgphud_MinimapEnemyDisplay:jgphud_MinimapEnemyShape:jgphud_MinimapMapMarkersSize:jgphud_MinimapCardinalDir:jgphud_MinimapCardinalDirSize:jgphud_MinimapCardinalDirColor:jgphud_DrawKills:jgphud_DrawItems:jgphud_DrawSecrets:jgphud_DrawTime:jpghud_MinimapBackColor:jgphud_MinimapLineColor:jgphud_MinimapYouColor:jgphud_MinimapMonsterColor:jgphud_MinimapFriendColor", 1
 }
 
 OptionMenu "JGPHUD_CrosshairOptions"
 {
-	Class "JGPHUD_OptionMenu"
+	Class "JGPUFH_OptionMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_CROSSHAIR_TITLE", yellow
 	StaticText ""
@@ -312,8 +312,8 @@ OptionMenu "JGPHUD_CrosshairOptions"
 	StaticText "$JGPHUD_CROSSHAIR_HITMARKERS_TITLE", yellow
 	StaticText ""
 	Option "$JGPHUD_CROSSHAIR_HITMARKERS", "jgphud_DrawEnemyHitMarkers", "OnOff"
-	UFHColorPicker "$JGPHUD_CROSSHAIR_HITMARKERS_COLOR", "jgphud_EnemyHitMarkersColor", "jgphud_DrawEnemyHitMarkers"
-	UFHScaleSlider "$JGPHUD_CROSSHAIR_HITMARKERS_SIZE", "jgphud_EnemyHitMarkersSize", 0, 64, 1, "$JGPHUD_CROSSHAIR_HITMARKERS_SIZE_RELATIVE", "", "jgphud_DrawEnemyHitMarkers"
+	JGPUFHColorPicker "$JGPHUD_CROSSHAIR_HITMARKERS_COLOR", "jgphud_EnemyHitMarkersColor", "jgphud_DrawEnemyHitMarkers"
+	JGPUFHScaleSlider "$JGPHUD_CROSSHAIR_HITMARKERS_SIZE", "jgphud_EnemyHitMarkersSize", 0, 64, 1, "$JGPHUD_CROSSHAIR_HITMARKERS_SIZE_RELATIVE", "", "jgphud_DrawEnemyHitMarkers"
 	Option "$JGPHUD_CROSSHAIR_HITMARKERS_SHAPE", "jgphud_EnemyHitMarkersShape", "HitmarkersShapes", "jgphud_DrawEnemyHitMarkers"
 	// Make space at the center of the screen to let the player see the markers:
 	StaticText ""
@@ -334,7 +334,7 @@ OptionMenu "JGPHUD_CrosshairOptions"
 	Option "$JGPHUD_CROSSHAIR_BARS_AMMO", "jgphud_ReticleBarsAmmo", "ReticleBars", "jgphud_DrawReticleBars"
 	Option "$JGPHUD_CROSSHAIR_BARS_ENEMYHP", "jgphud_ReticleBarsEnemy", "ReticleBars", "jgphud_DrawReticleBars"
 	StaticText ""
-	UFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawEnemyHitMarkers:jgphud_EnemyHitMarkersColor:jgphud_EnemyHitMarkersSize:jgphud_EnemyHitMarkersShape:jgphud_DrawReticleBars:jgphud_ReticleBarsSize:jgphud_ReticleBarsAlpha:jgphud_ReticleBarsWidth:jgphud_ReticleBarsText:jgphud_ReticleBarsHealthArmor:jgphud_ReticleBarsAmmo:jgphud_ReticleBarsEnemy", 1
+	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawEnemyHitMarkers:jgphud_EnemyHitMarkersColor:jgphud_EnemyHitMarkersSize:jgphud_EnemyHitMarkersShape:jgphud_DrawReticleBars:jgphud_ReticleBarsSize:jgphud_ReticleBarsAlpha:jgphud_ReticleBarsWidth:jgphud_ReticleBarsText:jgphud_ReticleBarsHealthArmor:jgphud_ReticleBarsAmmo:jgphud_ReticleBarsEnemy", 1
 }
 
 OptionValue "HitmarkersShapes"

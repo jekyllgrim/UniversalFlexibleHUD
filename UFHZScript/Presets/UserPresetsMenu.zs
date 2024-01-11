@@ -91,7 +91,6 @@ class JGPUFH_UserPreset : OptionMenuItemSubmenu
 {
 	String mPreset;
 
-
 	JGPUFH_UserPreset Init(String preset)
 	{
 		Super.Init(preset, "");
@@ -109,7 +108,7 @@ class JGPUFH_UserPreset : OptionMenuItemSubmenu
 	}
 }
 
-class JGPUFH_SavePresetMenu : JGPHUD_OptionMenu
+class JGPUFH_SavePresetMenu : JGPUFH_OptionMenu
 {
 	bool toClose;
 	
@@ -168,7 +167,6 @@ class OptionMenuItemJGPUFH_SaveUserPreset : OptionMenuItemSubmenu
 	}
 }
 
-
 class OptionMenuItemJGPUFH_ConfirmCommand : OptionMenuItemSubmenu
 {
 	String mPrompt;
@@ -176,10 +174,20 @@ class OptionMenuItemJGPUFH_ConfirmCommand : OptionMenuItemSubmenu
 	String mData;
 
 
-	OptionMenuItemJGPUFH_ConfirmCommand Init(String label,Name command,String data, String prompt = "")
+	OptionMenuItemJGPUFH_ConfirmCommand Init(String label, Name command, String data, String prompt = "")
 	{
 		Super.Init(label, "");
-		mPrompt = StringTable.Localize(prompt);
+		if (prompt != "")
+		{
+			mPrompt = StringTable.Localize(prompt);
+		}
+		else
+		{
+			String toLoc = StringTable.Localize("$JGPHUD_Presets_ConfirmAction");
+			String verb = StringTable.Localize("$JGPHUD_Presets_Verb_Load");
+			String presetName = data;
+			mPrompt = String.Format(toLoc, verb, presetname);
+		}
 		mCommand = command;
 		mData = data;
 		return self;
@@ -202,8 +210,7 @@ class OptionMenuItemJGPUFH_ConfirmCommand : OptionMenuItemSubmenu
 	}
 }
 
-
-class JGPUFH_UserPresetsMenu : JGPHUD_OptionMenu
+class JGPUFH_UserPresetsMenu : JGPUFH_OptionMenu
 {
 	
 	void RebuildList(OptionMenuDescriptor desc)
@@ -261,7 +268,7 @@ class OptionMenuItemJGPUFH_UserPresetsSubmenu : OptionMenuItemSubmenu
 	}
 }
 
-class JGPUFH_PresetsMenu : JGPHUD_OptionMenu
+class JGPUFH_PresetsMenu : JGPUFH_OptionMenu
 {
 	bool toClose;
 	
