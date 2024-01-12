@@ -89,6 +89,7 @@ extend class JGPUFH_PresetHandler
 		'jgphud_DrawEnemyHitMarkers',
 		'jgphud_EnemyHitMarkersColor',
 		'jgphud_EnemyHitMarkersSize',
+		'jgphud_EnemyHitMarkersShape',
 		'jgphud_DrawReticleBars',
 		'jgphud_ReticleBarsText',
 		'jgphud_ReticleBarsSize',
