@@ -154,7 +154,7 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsX
 		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsY
 
-		'JGPUFH_JsonBool',		// jgphud_DrawPowerups
+		'JGPUFH_JsonNumber',		// jgphud_DrawPowerups
 		'JGPUFH_JsonNumber',	// jgphud_PowerupsIconSize
 		'JGPUFH_JsonNumber',	// jgphud_PowerupsPos
 		'JGPUFH_JsonNumber',	// jgphud_PowerupsX
@@ -199,6 +199,7 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonBool',		// jgphud_DrawEnemyHitMarkers
 		'JGPUFH_JsonNumber',	// jgphud_EnemyHitMarkersColor
 		'JGPUFH_JsonNumber',	// jgphud_EnemyHitMarkersSize
+		'JGPUFH_JsonNumber',	// jgphud_EnemyHitMarkersShape
 		'JGPUFH_JsonNumber',	// jgphud_DrawReticleBars
 		'JGPUFH_JsonBool',		// jgphud_ReticleBarsText
 		'JGPUFH_JsonNumber',	// jgphud_ReticleBarsSize

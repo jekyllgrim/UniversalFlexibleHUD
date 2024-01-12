@@ -3325,7 +3325,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 	{
 		if (!c_drawPowerups || !c_drawPowerups.GetBool())
 			return;
-
+		
+		bool vertical = c_drawPowerups.GetInt() == 1;
 		bool previewMode;
 		// Calculate height of the block:
 		int powerNum;
@@ -3362,19 +3363,13 @@ class JGPUFH_FlexibleHUD : EventHandler
 		HUDFont fnt = smallHUDFont;
 		double textScale = iconSize * 0.025;
 		double fy = fnt.mFont.GetHeight() * textScale;
-		double width = iconSize + indent;
-		double height = (iconsize + indent) * powerNum + indent;
+		double shortsize = iconSize + indent;
+		double longsize = (iconsize + indent) * powerNum + indent;
+		double width = vertical ? shortsize : longsize;
+		double height = vertical ?  longsize : shortsize;
 		Vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
-		pos.y += iconSize*0.5;
-
 		flags |= StatusBarCore.DI_ITEM_CENTER;
-		pos.x += iconsize*0.5;
-		/*double textOfs = iconsize + indent;
-		if ((flags & StatusBarCore.DI_SCREEN_RIGHT) == StatusBarCore.DI_SCREEN_RIGHT)
-		{
-			flags |= StatusBarCore.DI_TEXT_ALIGN_RIGHT;
-			textOfs = -1;
-		}*/
+		pos += (iconSize*0.5, iconsize*0.5);
 		for (int i = 0; i < powerupData.Size(); i++)
 		{
 			let pwd = powerupData[i];
@@ -3412,8 +3407,15 @@ class JGPUFH_FlexibleHUD : EventHandler
 					s_time = String.Format("%d:%02d", m, s);
 				}
 				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5) - (0.5,0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation:Font.CR_Black, scale:(textscale,textscale));
-				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, scale:(textscale,textscale));
-				pos.y += iconSize + indent;
+				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation:Font.CR_Yellow, scale:(textscale,textscale));
+				if (vertical)
+				{
+					pos.y += iconSize + indent;
+				}
+				else
+				{
+					pos.x += iconSize + indent;
+				}
 			}
 		}
 	}

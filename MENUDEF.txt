@@ -170,7 +170,7 @@ OptionMenu "JGPHUD_Powerups"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_POWERUPS_TITLE", yellow
 	StaticText ""
-	Option "$JGPHUD_POWERUPS_ENABLE", "jgphud_DrawPowerups", "OnOff"
+	Option "$JGPHUD_POWERUPS_ENABLE", "jgphud_DrawPowerups", "PowerupOptions"
 	Slider "$JGPHUD_GENERAL_ICONSIZE", "jgphud_PowerupsIconSize", 2, 64, 1, 0, "jgphud_drawPowerups"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_PowerupsPos", "ElementScreenPos", "jgphud_drawPowerups"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_PowerupsX", -160, 160, 2, 0, "jgphud_drawPowerups"
@@ -381,6 +381,13 @@ OptionValue "MinimapRadarDisplay"
 	1, "$JGPHUD_MINIMAP_RADARONLY"
 	2, "$JGPHUD_MINIMAP_MAPONLY"
 	3, "$JGPHUD_MINIMAP_BOTH"
+}
+
+OptionValue "PowerupOptions"
+{
+	0, "$OPTVAL_OFF"
+	1, "$JGPHUD_WEAPSLOTS_ALIGNMENT_V"
+	2, "$JGPHUD_WEAPSLOTS_ALIGNMENT_H"
 }
 
 OptionValue "MinimapEnemyDisplay"
