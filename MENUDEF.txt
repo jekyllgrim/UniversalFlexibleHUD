@@ -13,7 +13,7 @@ OptionMenu "JGPHUD_Settings"
 	Class "JGPUFH_OptionMenu"
 	ScrollTop 3
 	Title "$JGPHUD_SETTINGS_TITLE"
-	StaticText "FlexiHUD v3.0.0pre", blue
+	StaticText "FlexiHUD v3.0.0", blue
 	
 	SubMenu "$JGPHUD_Presets_Title", "JGPUFH_PresetMenu"
 
