@@ -6,7 +6,8 @@
 
 ### General
 
-* FlexiHUD replaces default HUD, not the AltHud. Make sure AltHud is off. FlexiHUD doesn't differentiate between fullscreen and statusbar modes.
+* FlexiHUD is drawn on top of your current HUD, with the help of an EventHandler class. Normally, you would hide your default HUD (by pressing = twice or typing `screenblocks 12` in the console), but you can also combine FlexiHUD with the default HUD, by choosing which parts of FlexiHUD are shown. FlexiHUD itself can be toggled at a press of a custom bind.
+* Comes with a preset system that lets you save your current FlexiHUD arrangement.
 * Not a single graphical element — everything is done through code (aside from a couple of virtual textures in TEXTURES).
 * Every single element can be toggled on/off, attached to any screen angle or edge, and offset from there.
 * Many elements have several display modes (such as disabled/autohide after delay/always show)
@@ -55,17 +56,17 @@
   
   * A minimap of the level (supports adjustable zoom and size, can be square or circular)
   
-  * Customizable minimap colors
+  * Can also display monster markers (which can be enabled combined with the minimap or separately from it)
   
-  * Parses LOCKDEFS to obtain correct colors for locked lines
-  
-  * Optional monster radar
+  * Customizable minimap colors, size and shape (square or circular)
   
   * Optional Map Data block that can show kills, secrets, items and level time (all toggleablle)
+  
+  * Also supports map markers, such as the ones used by [Hellscape Navigator](https://github.com/mmaulwurff/hellscape-navigator/tree/master)
 
 * **Powerup timers**
   
-  * Shows icons and remaining time for current powerups
+  * Shows icons and remaining time for current powerups (in a horizontal or vertical arrangement)
   
   * Obtains icons even for those powerups that don't have them (provided the powerup in question is associated with a PowerupGiver class)
 
@@ -89,11 +90,13 @@
 
 * **Hit markers**
   
-  * A simple cross-shaped hitmarker will flash around the crosshair when you hit an enemy
+  * Hit marker around your crosshair that flashes when you hit an enemy
+  
+  * Several hit marker shapes to choose from
+  
+  * Adjustable size and color. Size can either match the crosshair or be set explicitly
   
   * The marker will grow larger if your attack killed the enemy
-  
-  * Scales accordingly with your crosshair
 
 * **Inventory bar**
   
@@ -108,6 +111,8 @@
 ## Credits
 
 Agent_Ash aka Jekyll Grim Payne - idea, code, Russian localization
+
+RicardoLuis - the preset system
 
 generic name guy - Brazilian Portugese localization
 
