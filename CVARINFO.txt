@@ -103,8 +103,8 @@ nosave float jgphud_ReticleBarsWidth = 0.1;
 
 nosave bool jgphud_DrawCustomItems = true;
 nosave int jgphud_CustomItemsIconSize = 12;
-nosave int jgphud_CustomItemsPos = 7;
-nosave int jgphud_CustomItemsX = -140;
+nosave int jgphud_CustomItemsPos = 6;
+nosave int jgphud_CustomItemsX = 160;
 nosave int jgphud_CustomItemsY = 2;
 
 nosave string jgphud_mainfont = "BigUpper";
