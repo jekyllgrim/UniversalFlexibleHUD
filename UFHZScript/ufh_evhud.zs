@@ -382,6 +382,20 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
+	const HUDRES_X = 320.0;
+	const HUDRES_Y = 200.0;
+	ui void BeginOverlayHUD()
+	{
+		vector2 res = (-1,-1);
+		double scale = CVar.GetCvar('jgphud_scale', CPlayer).GetFloat();
+		bool customScale = scale > 0;
+		if (customScale)
+		{
+			res = (HUDRES_X / scale, HUDRES_Y / scale);
+		}
+		statusbar.BeginHUD(1.0, customScale, res.x, res.y);
+	}
+
 	override void RenderOverlay(renderEvent e)
 	{
 		// Cache CVars before anything else:
@@ -402,7 +416,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!initDone)
 			return;
 
-		statusbar.BeginHUD();
+		BeginOverlayHUD();
 		CreateGenericShapes(); //used by the minimap and hitmarkers
 		// These value updates need to be interpolated
 		// with deltatime, so they happen here rather

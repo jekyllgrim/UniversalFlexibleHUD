@@ -2,6 +2,7 @@ server bool jgphud_debug = false;
 server bool jgphud_debugmap = false;
 
 nosave bool jgphud_enable = true;
+nosave float jgphud_scale = 0;
 
 nosave color jgphud_BackColor = "433515";
 nosave bool jgphud_BackStyle = true;

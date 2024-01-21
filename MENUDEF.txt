@@ -23,6 +23,22 @@ OptionMenu "JGPHUD_Settings"
 	Submenu "$HUDMNU_SCALEOPT", "ScalingOptions" 
 	Option "$JGPHUD_GENERAL_ENABLEHUD", "jgphud_enable", "OnOff"
 	Control "$JGPHUD_GENERAL_ENABLEHUD_BIND", "toggle jgphud_enable"
+	Slider "Override HUD scaling", "jgphud_scale", 0.0, 3.0, 0.1, 1
+	/*JGPUFHScaleSlider "$HUDMNU_UISCALE", 
+		"uiscale", 
+		0.0, 8.0, 1.0, 
+		"$SCALEMNU_ADAPT", "",
+		"hud_oldscale"
+	JGPUFHScaleSlider "$SCALEMNU_HUD", 
+		"hud_scale", 
+		-1.0, 8.0, 1.0, 
+		"$SCALEMNU_USEUI", "$SCALEMNU_USEFS",
+		"hud_oldscale"
+	Option "$JGPHUD_GENERAL_OLDSCALE", "hud_oldscale", "OnOff"
+	JGPUFHSlider "$JGPHUD_GENERAL_SCALEFACTOR", 
+		"hud_scalefactor",
+		0.0, 1.0, 0.025, 2,
+		"hud_oldscale", 1*/
 	Option "$JGPHUD_GENERAL_BACKSTYLE", "jgphud_BackStyle", "BackgroundStyles"
 	JGPUFHColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor", "jgphud_BackStyle"
 	Slider "$JGPHUD_GENERAL_BACKALPHA", "jgphud_BackAlpha", 0.00, 1.0, 0.05, 2
