@@ -2273,6 +2273,13 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// (See JGPUFH_WeaponSlotData class)
 	ui void GetWeaponSlots()
 	{
+		// We need to wait here for a bit because, apparently,
+		// slots set up via KEYCONF (ugh) are somehow set up
+		// with a delay, and trying to set them up immediately
+		// will result in vanilla weapons being cached instead:
+		if (Level.maptime < 2)
+			return;
+
 		if (weaponSlotData.Size() > 0)
 			return;
 
@@ -2294,6 +2301,13 @@ class JGPUFH_FlexibleHUD : EventHandler
 				class<Weapon> weap = wslots.GetWeapon(sn, s);
 				if (weap && wsd)
 				{
+					if (jgphud_debug)
+						Console.Printf(
+							"Slot \cF%d\c-, index \cF%d\c-, weapon \cD%s\c-. Pushing into the \cEWeaponSlotData\c- array", 
+							sn,
+							s,
+							weap.GetClassName()
+						);
 					wsd.weapons.Push(weap);
 				}
 			}
@@ -2335,6 +2349,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Always run to make sure the slot data
 		// is properly set up:
 		GetWeaponSlots();
+		if (weaponSlotData.Size() <= 0)
+			return;
 
 		double iconWidth = Clamp(c_WeaponSlotsSize.GetInt(), 4, 100);
 		Vector2 box = (iconWidth, iconWidth * 0.625);
@@ -2506,7 +2522,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			BackgroundFill(pos.x, pos.y, box.x, box.y, flags);
 		}
-		statusbar.DrawInventoryIcon(weap, pos + box*0.5, flags|StatusBarCore.DI_ITEM_CENTER, boxsize: box);
+		statusbar.DrawTexture(statusbar.GetIcon(weap, 0, true), pos + box*0.5, flags|StatusBarCore.DI_ITEM_CENTER, box: box);
 		
 		// draw small ammo bars at the bottom of the box:
 		double barheight = box.y * 0.05;
