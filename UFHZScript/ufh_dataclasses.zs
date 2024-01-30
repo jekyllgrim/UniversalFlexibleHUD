@@ -25,8 +25,11 @@ class JGPUFH_PowerupData play
 
 	// The weird hack that is meant to give icons to powerups
 	// that have no icons defined (like the Doom powerups):
-	static void CreatePowerupIcon(PowerupGiver pwrg, out array <JGPUFH_PowerupData> powerupData)
+	static void CreatePowerupIcon(class<PowerupGiver> pwrgCls, out array <JGPUFH_PowerupData> powerupData)
 	{
+		let pwrg = GetDefaultByType((class<PowerupGiver>)(pwrgCls));
+		if (!pwrg || !pwrg.powerupType)
+			return;
 		// Get PowerupGiver's powerupType field:
 		let pwr = GetDefaultByType((class<Inventory>)(pwrg.powerupType));
 		if (!pwr)
@@ -34,9 +37,10 @@ class JGPUFH_PowerupData play
 
 		if (jgphud_debug)
 			Console.Printf("\cHPOWERUPDATA\c- Trying to find icon for %s", pwr.GetClassName());
-		// Check if that powerup was already processed:
+
 		JGPUFH_PowerupData pwd;
 		let pwrCls = pwr.GetClass();
+		// Check if that powerup was already processed:
 		for (int i = 0; i < powerupData.Size(); i++)
 		{
 			pwd = powerupData[i];
@@ -47,7 +51,7 @@ class JGPUFH_PowerupData play
 				return;
 			}
 		}
-		
+
 		// Check if that powerupType has a proper icon;
 		// if so, we're good, so abort:
 		TextureID icon = pwr.Icon;
@@ -63,14 +67,12 @@ class JGPUFH_PowerupData play
 		// Try getting the icon for the powerup from its
 		// PowerupGiver:
 		icon = pwrg.icon;
-		// If that didn't work, record the PowerupGiver's
-		// spawn sprite as that powerup's icon:
-		if (!icon.isValid() || TexMan.GetName(icon) == 'TNT1A0')
+		if (!icon.IsValid() || TexMan.GetName(icon) == 'TNT1A0')
 		{
-			icon = pwrg.spawnState.GetSpriteTexture(0);
+			icon = pwrg.spawnstate.GetSpriteTexture(0);
 		}
 		// In case of success, store it:
-		if (icon.isValid())
+		if (icon.isValid() && TexMan.GetName(icon) != 'TNT1A0')
 		{
 			if (jgphud_debug)
 				Console.Printf("\cHPOWERUPDATA\c- \cDPowerup %s now has a new icon: %s", pwr.GetClassName(), TexMan.GetName(icon));

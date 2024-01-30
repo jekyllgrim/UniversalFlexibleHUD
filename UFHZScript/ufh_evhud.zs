@@ -200,11 +200,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 	override void WorldThingSpawned(worldEvent e)
 	{
 		// A wild PowerupGiver spawns!
-		let pwrg = PowerupGiver(e.thing);
+		/*let pwrg = PowerupGiver(e.thing);
 		if (pwrg)
 		{
 			JGPUFH_PowerupData.CreatePowerupIcon(pwrg, powerupData);
-		}
+		}*/
 
 		let mm = MapMarker(e.thing);
 		if (mm)
@@ -255,6 +255,25 @@ class JGPUFH_FlexibleHUD : EventHandler
 			pressedInvNext = false;
 		}
 		return false;
+	}
+
+	override void WorldLoaded(worldEvent e)
+	{
+		if (powerupData.Size() > 0)
+			return;
+		
+		for (int i = 0; i < AllActorClasses.Size(); i++)
+		{
+			let cls = AllActorClasses[i];
+			if (!cls)
+				continue;
+			
+			let pwrg = (class<PowerupGiver>)(cls);
+			if (pwrg)
+			{
+				JGPUFH_PowerupData.CreatePowerupIcon(pwrg, powerupData);
+			}
+		}
 	}
 
 	// This field only really has one purpose: it's checked
