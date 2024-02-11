@@ -2515,17 +2515,32 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	ui void DrawOneWeaponSlot(Weapon weap, Vector2 pos, int flags, Vector2 box, int slot = -1)
 	{
+		// Check for sisterweapon if the player has a PowerWeaponLevel2:
+		if (weap && CPlayer.mo.FindInventory('PowerWeaponLevel2', true) && weap.sisterWeapon)
+		{
+			// If it passes, remap the weap pointer to its sister,
+			// since that's what the player has selected now:
+			let sister = Weapon(CPlayer.mo.FindInventory(weap.sisterWeapon.GetClass()));
+			if (sister)
+			{
+				weap = sister;
+			}
+		}		
 		if (!weap)
 			return;
-		
+
 		int fntCol = Font.CR_White;
 		// Compare this weapon to readyweapon and pendingweapon:
 		Weapon rweap = Weapon(CPlayer.readyweapon);
-		// MUST explicitly cast it as Weapon, otherwise the pointer
-		// won't be properly null-checked:
+		// MUST explicitly cast pendingweapon as Weapon, otherwise
+		// the pointer won't be properly null-checked (since this 
+		// is set to WP_NOCHANGE rather than an actual Actor(null)
+		// pointer when there's no pendingweapon):
 		Weapon pweap = Weapon(CPlayer.pendingweapon);
-		// If the weapon in question is selected or being
-		// selected, invert the colors of the box:
+		// If the weapon in question is selected OR being
+		// selected, invert the colors of the box.
+		// Make sure not to highlight both ready and pending
+		// at the same time, we don't need that:
 		if ((rweap == weap && !pweap) || pweap == weap)
 		{
 			fntCol = Font.CR_Gold;
