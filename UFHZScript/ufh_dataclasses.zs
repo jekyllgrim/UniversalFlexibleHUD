@@ -129,27 +129,24 @@ class JGPUFH_DmgMarkerController : Thinker
 	// Creates a new marker:
 	void AddMarker(Actor attacker, double angle = 0, int damage = 0)
 	{
-		if (!player)
+		if (!player || !attacker)
 			return;
 		PlayerPawn ppawn = player.mo;
 		if (!ppawn)
 			return;
+		if (!c_DamageMarkersAlpha)
+			c_DamageMarkersAlpha = Cvar.GetCvar("jgphud_DamageMarkersAlpha", player);
 		
 		// If the marker for this attacker already exists,
 		// update its alpha and add damage:
-		if (attacker)
+		for (int i = markers.Size() - 1; i >= 0; i--)
 		{
-			if (!c_DamageMarkersAlpha)
-				c_DamageMarkersAlpha = Cvar.GetCvar("jgphud_DamageMarkersAlpha", player);
-			for (int i = markers.Size() - 1; i >= 0; i--)
+			let dm = JGPUFH_DmgMarker(markers[i]);
+			if (dm && dm.attacker == attacker)
 			{
-				let dm = JGPUFH_DmgMarker(markers[i]);
-				if (dm && dm.attacker == attacker)
-				{
-					dm.alpha = c_DamageMarkersAlpha.GetFloat();
-					dm.damage += damage;
-					return;
-				}
+				dm.alpha = c_DamageMarkersAlpha.GetFloat();
+				dm.damage += damage;
+				return;
 			}
 		}
 
