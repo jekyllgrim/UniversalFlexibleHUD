@@ -111,6 +111,18 @@ nosave string jgphud_mainfont = "BigUpper";
 nosave string jgphud_smallfont = "Confont";
 nosave string jgphud_numberfont = "IndexFont";
 
+// scaling:
+nosave float jgphud_BaseScale = 0.0;
+nosave float jgphud_MainBarsScale = 1.0;
+nosave float jgphud_AmmoBlockScale = 1.0;
+nosave float jgphud_AllAmmoScale = 1.0;
+nosave float jgphud_PowerupsScale = 1.0;
+nosave float jgphud_InvBarScale = 1.0;
+nosave float jgphud_KeysScale = 1.0;
+nosave float jgphud_WeaponSlotsScale = 1.0;
+nosave float jgphud_CustomItemsScale = 1.0;
+nosave float jgphud_ReticleBarsScale = 1.0;
 
+// json strings:
 nosave 			 string __jgphud_user_presets_json = "{}";
 nosave noarchive string __jgphud_save_preset_name = "";

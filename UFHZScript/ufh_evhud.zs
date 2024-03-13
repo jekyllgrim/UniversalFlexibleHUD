@@ -118,7 +118,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	}
 
 	// DrawInventoryBar():
-	const ITEMBARICONSIZE = 28;
+	const ITEMBARICONSIZE = 18;
 	ui Inventory prevInvSel;
 	ui double invbarCycleOfs;
 	ui bool pressedInvNext;
@@ -195,6 +195,22 @@ class JGPUFH_FlexibleHUD : EventHandler
 	clearscope bool IsVoodooDoll(PlayerPawn mo)
 	{
 		return !mo.player || !mo.player.mo || mo.player.mo != mo;
+	}
+
+	ui double GetElementScale(CVar check)
+	{
+		if (!check)
+		{
+			return 1.0;
+		}
+		double scale = Clamp(check.GetFloat(), 0.01, 30.0);
+		let base = c_BaseScale;
+		double baseFac = base ? base.GetFloat() : 1.0;
+		if (base && baseFac > 0.0)
+		{
+			scale *= baseFac;
+		}
+		return scale;
 	}
 	
 	override void WorldThingSpawned(worldEvent e)
@@ -435,7 +451,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!initDone)
 			return;
 
-		BeginOverlayHUD();
+		//BeginOverlayHUD();
+		statusbar.BeginHUD();
 		CreateGenericShapes(); //used by the minimap and hitmarkers
 		// These value updates need to be interpolated
 		// with deltatime, so they happen here rather
@@ -719,7 +736,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	// Draws a bar using Fill()
 	// If segments is above 0, will use multiple fills to create a segmented bar
-	ui void DrawFlatColorBar(Vector2 pos, double curValue, double maxValue, color barColor, string leftText = "", string rightText = "", int valueColor = -1, double barwidth = 64, double barheight = 8, double indent = 0.6, color backColor = color(255, 0, 0, 0), double sparsity = 1, uint segments = 0, int flags = 0)
+	ui void DrawFlatColorBar(Vector2 pos, double curValue, double maxValue, color barColor, int valueColor = -1, double barwidth = 64, double barheight = 8, double indent = 0.6, color backColor = color(255, 0, 0, 0), double sparsity = 1, uint segments = 0, int flags = 0)
 	{
 		Vector2 barpos = pos;
 		// This flag centers the bar vertically. I didn't add
@@ -728,11 +745,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (flags & StatusBarCore.DI_ITEM_CENTER)
 		{
 			barpos.y -= barheight*0.5;
-		}
-
-		if (leftText)
-		{
-			statusbar.DrawString(mainHUDFont, leftText, barpos, flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT);
 		}
 
 		// Background color (fills whole width):
@@ -790,14 +802,13 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// in the middle of the bar:
 		if (valueColor != -1)
 		{
-			double fy = numHUDFont.mFont.GetHeight();
-			fy = Clamp(fy, 2, barheight);
-			statusbar.DrawString(numHUDFont, ""..int(curvalue), barpos + (barwidth * 0.5, barheight * 0.5 - fy * 0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: valueColor);
-		}
-		
-		if (rightText)
-		{
-			statusbar.DrawString(mainHUDFont, ""..rightText, barpos + (barwidth + 1, 0), flags|StatusBarCore.DI_TEXT_ALIGN_LEFT);
+			String str = ""..int(curvalue);
+			HUDFont fnt = numHUDFont;
+			// scale it to fit the height of the bar:
+			double fontHeight = fnt.mFont.GetHeight();
+			double strScale = (barheight - indent*2) / fontheight; 
+			Vector2 strPos = barpos + (barwidth * 0.5, barheight*0.5 - fontHeight*0.5*strScale);
+			statusbar.DrawString(fnt, str, strPos, flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: valueColor, scale:(strScale, strScale));
 		}
 	}
 
@@ -974,6 +985,23 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
+	ui void DrawHealthCross(Vector2 pos, Vector2 size = (4, 10), double scale = 1.0, int flags = 0)
+	{
+		bool hasBerserk = CPlayer.mo.FindInventory('PowerStrength', true);
+		double crossWidth = size.x * scale;
+		double crossLength = size.y * scale;
+		color crossCol = hasBerserk ? color(255,255,0,0) : color(255,0,0,0);
+		statusbar.Fill(crossCol, pos.x - crossWidth*0.5,  pos.y - crossLength*0.5, crossWidth, crossLength, flags);
+		statusbar.Fill(crossCol, pos.x - crossLength*0.5, pos.y - crossWidth*0.5, crossLength, crossWidth, flags);
+		
+		double indent = crossWidth * (hasBerserk ? 0.375 : 0.5);
+		crossWidth -= indent;
+		crossLength -= indent;
+		crossCol = hasBerserk ? color(255,0,0,0) : color(255,255,255,255);
+		statusbar.Fill(crossCol, pos.x - crossWidth*0.5, pos.y - crossLength*0.5, crossWidth, crossLength, flags);
+		statusbar.Fill(crossCol, pos.x - crossLength*0.5, pos.y - crossWidth*0.5,  crossLength, crossWidth, flags);
+	}
+
 	ui void DrawHealthArmor(double height = 28, double width = 120)
 	{
 		int drawThis = c_drawMainbars.GetInt();
@@ -981,30 +1009,34 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return;
 
 		int flags = SetScreenFlags(c_MainBarsPos.GetInt());
-		int indent = 1;
+		// Figure out the sizes:
+		double scale = GetElementScale(c_MainBarsScale);
+		height *= scale;
+		width *= scale;
+		int indent = 1 * scale;
 		int faceSize = height;
-		int mainBlockWidth = width;
+		double barheight = height * 0.36;
 		bool drawbars = drawThis >= DB_DRAWBARS;
-		// Draw the mugshot only if the CVAR allows it
-		// and a mugshot is actually defined, or the
-		// default STF graphics for it exist:
-		bool drawface = c_DrawFace.GetBool() && (TexMan.CheckForTexture(CPlayer.mo.face).IsValid() || TexMan.CheckForTexture('STFST00').IsValid());
 		// If bars are replaced with numbers,
 		// the width is much shorter:
 		if (!drawbars)
 		{
-			mainBlockWidth *= 0.36;
+			width *= 0.36;
 		}
-		width = mainBlockWidth;
+		int mainBlockWidth = width;
+		
+		// Draw the mugshot only if the CVAR allows it and a mugshot is
+		// actually defined, or the default STF graphics for it exist:
+		bool drawface = c_DrawFace.GetBool() && (TexMan.CheckForTexture(CPlayer.mo.face).IsValid() || TexMan.CheckForTexture('STFST00').IsValid());
 		// Increase total width (for position/offset calculation)
 		// if we'll be drawing a mugshot:
 		if (drawface)
 		{
 			width += indent + faceSize;
 		}
+
 		Vector2 ofs = ( c_MainBarsX.GetInt(), c_MainBarsY.GetInt() );
 		Vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
-		int baseCol = GetHUDBackground();
 		// bars background:
 		BackgroundFill(pos.x, pos.y, mainBlockWidth, height, flags);
 		// face background (draw separately because there's
@@ -1013,49 +1045,38 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			Vector2 facePos = (pos.x + mainBlockWidth + indent, pos.y);
 			BackgroundFill(facePos.x, facePos.y, faceSize, faceSize, flags);
-			statusbar.DrawTexture(statusBar.GetMugShot(5), (facePos.x + faceSize*0.5, facePos.y + faceSize*0.5), flags|StatusBarCore.DI_ITEM_CENTER, box: (faceSize - 2, faceSize - 2));
+			statusbar.DrawTexture(statusBar.GetMugShot(5), (facePos.x + faceSize*0.5, facePos.y + faceSize*0.5), flags|StatusBarCore.DI_ITEM_CENTER, box: (faceSize - 2, faceSize - 2), scale:(scale,scale));
 		}
 
 		int barFlags = flags|StatusBarCore.DI_ITEM_CENTER;
-		indent = 4;
-		double iconSize = 8;
+		indent = 4 * scale;
+		double iconSize = 8 * scale;
 		Vector2 iconPos = (pos.x + indent + iconsize * 0.5, pos.y + height*0.75);
 
 		// Draw health cross shape (instead of drawing a health item):
-		bool hasBerserk = CPlayer.mo.FindInventory('PowerStrength', true);
-		double crossWidth = 4;
-		double crossLength = 10;
-		Vector2 crossPos = iconPos;
-		color crossCol = hasBerserk ? color(255,255,0,0) : color(255,0,0,0);
-		statusbar.Fill(crossCol, crossPos.x - crossWidth*0.5,  crossPos.y - crossLength*0.5, crossWidth, crossLength, barFlags);
-		statusbar.Fill(crossCol, crossPos.x - crossLength*0.5, crossPos.y - crossWidth*0.5, crossLength, crossWidth, barFlags);
-		
-		crossWidth -= hasBerserk ? 1.5 : 2;
-		crossLength -= hasBerserk ? 1.5 : 2;
-		crossCol = hasBerserk ? color(255,0,0,0) : color(255,255,255,255);
-		statusbar.Fill(crossCol, crossPos.x - crossWidth*0.5, crossPos.y - crossLength*0.5, crossWidth, crossLength, barFlags);
-		statusbar.Fill(crossCol, crossPos.x - crossLength*0.5, crossPos.y - crossWidth*0.5,  crossLength, crossWidth, barFlags);
+		DrawHealthCross(iconPos, (4, 10), scale, barflags);
 		
 		// Calculate bar width (it should be indented deeper
 		// from the edges and offset from the icon):
 		int barWidth = mainBlockWidth - iconSize - indent*3;
 		double barPosX = iconPos.x + iconsize*0.5 + indent;
-		double fy = mainHUDFont.mFont.GetHeight();
+		double fy = mainHUDFont.mFont.GetHeight() * scale;
 		// Draw health bar or numbers:
 		int health = CPlayer.mo.health;
 		int maxhealth = CPlayer.mo.GetMaxHealth(true);
+		String healthstring = String.Format("%3d", health);
 		int cRed, cGreen, cBlue, cFntCol;
 		if (drawbars)
 		{
 			cRed = LinearMap(health, 0, maxhealth, 160, 0, true);
 			cGreen = LinearMap(health, 0, maxhealth, 0, 160, true);
 			cBlue = LinearMap(health, maxhealth, maxhealth * 2, 0, 160, true);
-			DrawFlatColorBar((barPosX, iconPos.y), GetHealthInterpolated(), maxhealth, color(200, 255, 255, 255), barwidth:barWidth, barheight: 10, flags:barFlags);
-			DrawFlatColorBar((barPosX, iconPos.y), health, maxhealth, color(255, cRed, cGreen, cBlue), "", valueColor: Font.CR_White, barwidth:barWidth, barheight: 10, backColor: color(0,0,0,0), flags:barFlags);
+			DrawFlatColorBar((barPosX, iconPos.y), GetHealthInterpolated(), maxhealth, color(200, 255, 255, 255), barwidth:barWidth, barheight: barheight, flags:barFlags);
+			DrawFlatColorBar((barPosX, iconPos.y), health, maxhealth, color(255, cRed, cGreen, cBlue), valueColor: Font.CR_White, barwidth:barWidth, barheight: barheight, backColor: color(0,0,0,0), flags:barFlags);
 		}
 		else
 		{
-			statusbar.DrawString(mainHUDFont, String.Format("%3d", health), (barPosX, iconPos.y - fy*0.5), flags, translation:GetPercentageFontColor(health,maxhealth));
+			statusbar.DrawString(mainHUDFont, healthstring, (barPosX, iconPos.y - fy*0.5), flags, translation:GetPercentageFontColor(health,maxhealth), scale: (scale, scale));
 		}
 		
 		// Draw armor bar:
@@ -1063,7 +1084,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
 		let hexarm = HexenArmor(CPlayer.mo.FindInventory("HexenArmor"));
 		TextureID armTex;
-		double armTexSize = 12;
+		double armTexSize = 12 * scale;
 		if (!hasHexenArmor && barm)
 		{
 			[cRed, cGreen, cBlue, cFntCol] = GetArmorColor(barm.savePercent);
@@ -1077,7 +1098,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (armAmount > 0)
 		{
 			iconPos.y = pos.y + height * 0.25;
-			string ap = "AP";
 			// uses Hexen armor:
 			if (hasHexenArmor)
 			{
@@ -1097,12 +1117,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 				// If any icons have been pushed, draw them:
 				if (hArmTex.Size() > 0)
 				{
-					ap = "";
 					// If there's only one armor piece, draw it as usual:
 					if (hArmTex.Size() == 1)
 					{
 						armTex = hArmTex[0];
-						statusbar.DrawTexture(armTex, iconPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize));
+						statusbar.DrawTexture(armTex, iconPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize), scale:(scale,scale));
 					}
 					// If there's more, draw smaller version of them in
 					// a 2x2 pattern:
@@ -1122,7 +1141,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 								armPos.y = iconPos.y - ofs;
 							else
 								armPos.y = iconPos.y + ofs;
-							statusbar.DrawTexture(armTex, armPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize));
+							statusbar.DrawTexture(armTex, armPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize), scale:(scale,scale));
 						}
 					}
 				}
@@ -1131,18 +1150,17 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// uses normal armor:
 			else if (armTex.IsValid())
 			{
-				ap = "";
-				statusbar.DrawTexture(armTex, iconPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize));
+				statusbar.DrawTexture(armTex, iconPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize), scale:(scale,scale));
 			}
 
 			if (drawbars)
 			{
-				DrawFlatColorBar((barPosX, iconPos.y), GetArmorInterpolated(), armMaxamount, color(200, 255, 255, 255), barwidth:barWidth, barheight: 6, segments: barm.maxamount / 10, flags:barFlags);
-				DrawFlatColorBar((barPosX, iconPos.y), armAmount, armMaxamount, color(255, cRed, cGreen, cBlue), ap, valueColor: Font.CR_White, barwidth:barWidth, barheight: 6, backColor: color(0,0,0,0), segments: barm.maxamount / 10, flags:barFlags);
+				DrawFlatColorBar((barPosX, iconPos.y), GetArmorInterpolated(), armMaxamount, color(200, 255, 255, 255), barwidth:barWidth, barheight: barheight*0.8, segments: barm.maxamount / 10, flags:barFlags);
+				DrawFlatColorBar((barPosX, iconPos.y), armAmount, armMaxamount, color(255, cRed, cGreen, cBlue), valueColor: Font.CR_White, barwidth:barWidth, barheight*0.8, backColor: color(0,0,0,0), segments: barm.maxamount / 10, flags:barFlags);
 			}
 			else
 			{
-				statusbar.DrawString(mainHUDFont, String.Format("%3d", armAmount), (barPosX, iconPos.y - fy*0.5), flags, translation:cFntCol);
+				statusbar.DrawString(mainHUDFont, String.Format("%3d", armAmount), (barPosX, iconPos.y - fy*0.5), flags, translation:cFntCol, scale:(scale, scale));
 			}
 		}
 	}
@@ -1170,9 +1188,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		let weap = CPlayer.readyweapon;
 		if (!weap)
 			return;
+			
 
 		int flags = SetScreenFlags(c_AmmoBlockPos.GetInt());
 		Vector2 ofs = ( c_AmmoBlockX.GetInt(), c_AmmoBlockY.GetInt() );
+		double scale = GetElementScale(c_AmmoBlockScale);
 		
 		// As usual, calculate total block size first to do the fill.
 
@@ -1182,12 +1202,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 		[am1, am2, am1amt, am2amt] = statusbar.GetCurrentAmmo();
 
 		// X size is fixed, we'll calculate Y size from here:
-		int indent = 1;
-		Vector2 size = (66, 0);
+		int indent = 1 * scale;
+		Vector2 size = (66, 0) * scale;
 		// predefine size for the weapon icon and ammo icon boxes:
-		Vector2 weapIconBox = (size.x - indent*2, 18);
-		Vector2 ammoIconBox = (size.x * 0.25 - indent*4, 16);
-		double ammoTextHeight = mainHUDFont.mFont.GetHeight();
+		Vector2 weapIconBox = (size.x - indent*2, 18 * scale);
+		Vector2 ammoIconBox = (size.x * 0.25 - indent*4, 16 * scale);
+		double ammoTextHeight = mainHUDFont.mFont.GetHeight() * scale;
 		// If we're drawing the ammo bar, add its height and indentation
 		// to total height:
 		bool drawAmmobar = c_drawAmmoBar.GetBool();
@@ -1226,7 +1246,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		
 		if (weapIconValid)
 		{
-			statusbar.DrawTexture(weapIcon, pos + (weapIconBox.x  * 0.5 + indent, size.y - weapIconBox.y * 0.5 - indent), flags|StatusBarCore.DI_ITEM_CENTER, box: (64, 18));
+			statusbar.DrawTexture(weapIcon, pos + (weapIconBox.x  * 0.5 + indent, size.y - weapIconBox.y * 0.5 - indent), flags|StatusBarCore.DI_ITEM_CENTER, box: (64, 18) * scale, scale:(scale,scale));
 		}
 
 		// If there's no ammo, stop here:
@@ -1254,8 +1274,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if ((am1 && !am2) || (!am1 && am2) || (am1 == am2))
 		{
 			Ammo am = am1 ? am1 : am2;
-			statusbar.DrawInventoryIcon(am, ammo1pos, flags|StatusBarCore.DI_ITEM_CENTER, boxSize: ammoIconBox);
-			statusbar.DrawString(mainHUDFont, ""..am.amount, ammoTextPos, flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am.amount, am.maxamount));
+			statusbar.DrawInventoryIcon(am, ammo1pos, flags|StatusBarCore.DI_ITEM_CENTER, boxSize: ammoIconBox, scale:(scale,scale));
+			statusbar.DrawString(mainHUDFont, ""..am.amount, ammoTextPos, flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am.amount, am.maxamount), scale:(scale,scale));
 			if (drawAmmobar)
 			{
 				segments = am.maxamount <= 20 ? am.maxamount : Clamp(am.maxamount / 10.0, 20, 50);
@@ -1272,10 +1292,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// Bars will be twice as short:
 			barwidth = size.x * 0.5 - indent * 4;
 			ammoBarPos.x = ammo1Pos.x - barWidth*0.5;
-			statusbar.DrawInventoryIcon(am1, ammo1pos, flags|StatusBarCore.DI_ITEM_CENTER, boxSize: ammoIconBox);
-			statusbar.DrawString(mainHUDFont, ""..am1amt, (ammo1pos.x, ammoTextPos.y), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am1.amount, am1.maxamount));
-			statusbar.DrawInventoryIcon(am2, ammo2pos, flags|StatusBarCore.DI_ITEM_CENTER, boxSize: ammoIconBox);
-			statusbar.DrawString(mainHUDFont, ""..am2amt, (ammo2pos.x, ammoTextPos.y), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am2.amount, am2.maxamount));
+			statusbar.DrawInventoryIcon(am1, ammo1pos, flags|StatusBarCore.DI_ITEM_CENTER, boxSize: ammoIconBox, scale:(scale,scale));
+			statusbar.DrawString(mainHUDFont, ""..am1amt, (ammo1pos.x, ammoTextPos.y), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am1.amount, am1.maxamount), scale:(scale,scale));
+			statusbar.DrawInventoryIcon(am2, ammo2pos, flags|StatusBarCore.DI_ITEM_CENTER, boxSize: ammoIconBox, scale:(scale,scale));
+			statusbar.DrawString(mainHUDFont, ""..am2amt, (ammo2pos.x, ammoTextPos.y), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am2.amount, am2.maxamount), scale:(scale,scale));
 			if (drawAmmobar)
 			{
 				segments = am1.maxamount <= 10 ? am1.maxamount : Clamp(am1.maxamount / 20.0, 10, 25);
@@ -1295,13 +1315,15 @@ class JGPUFH_FlexibleHUD : EventHandler
 		int mode = c_drawAllAmmo.GetInt();
 		if (mode <= AA_None)
 			return;
+		
+		double scale = GetElementScale(c_AllAmmoScale);
 
-		double iconSize = 6;
-		int indent = 1;
+		double iconSize = 6 * scale;
+		int indent = 1 * scale;
 		int flags = SetScreenFlags(c_AllAmmoPos.GetInt());
 		Vector2 ofs = ( c_AllAmmoX.GetInt(), c_AllAmmoY.GetInt() );
 		let hfnt = mainHUDFont;
-		double fntScale = 0.6;
+		double fntScale = 0.6 * scale;
 		double fy = hfnt.mFont.GetHeight() * fntScale;
 		double width = iconsize + indent*2 + mainHUDFont.mFont.StringWidth("000/000") * fntScale;
 		double height;
@@ -1475,8 +1497,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 			}
 		}
 
-		double iconSize = Clamp(c_CustomItemsIconSize.GetFloat(), 4, 64);
-		int indent = 1;
+		double scale = GetElementScale(c_CustomItemsScale);
+		double iconSize = 12 * scale;
+		int indent = 1 * scale;
 		int flags = SetScreenFlags(c_CustomItemsPos.GetInt());
 		Vector2 ofs = ( c_CustomItemsX.GetInt(), c_CustomItemsY.GetInt() );
 		let hfnt = smallHUDFont;
@@ -1532,9 +1555,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		while (cl != -1)
 		{
 			string lumpData = Wads.ReadLump(cl);
-			//lumpData = lumpData.MakeLower();
 			// strip comments:
-			int commentPos = lumpData.IndexOf("//");
 			lumpdata = JGPUFH_StringMan.RemoveComments(lumpdata);
 			lumpData = JGPUFH_StringMan.CleanWhiteSpace(lumpdata, true);
 			if (jgphud_debug)
@@ -1639,6 +1660,22 @@ class JGPUFH_FlexibleHUD : EventHandler
 				DTA_Alpha, dm.alpha
 			);
 		}
+	}
+
+	ui Vector2 GetCrosshairPosition()
+	{
+		Vector2 screenCenter = (Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5);
+		// Compatibility with Precise Crosshair by m8f:
+		CVar pc_enable = CVar.GetCVar('pc_enable');
+		if (pc_enable && pc_enable.GetBool())
+		{
+			CVar pc = CVar.GetCVar('pc_y', CPlayer);
+			if (pc)
+			{
+				screenCenter.y = pc.GetFloat();
+			}
+		}
+		return screenCenter;
 	}
 
 	ui void RefreshEnemyHitMarker(bool killed = true)
@@ -1799,7 +1836,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!c_DrawEnemyHitMarkers.GetBool())
 			return;
 		
-		Vector2 screenCenter = (Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5);
+		Vector2 screenCenter =  GetCrosshairPosition();
 		double alpha = reticleMarkerAlpha;
 		if (alpha <= 0)
 		{
@@ -2016,10 +2053,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 
 		// Position and sizes:
-		Vector2 screenCenter = (Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5);
+		Vector2 screenCenter = GetCrosshairPosition();
 		Vector2 hudscale = statusbar.GetHudScale();
 		double widthFac = 1.0 - Clamp(c_ReticleBarsWidth.GetFloat(), 0.0, 1.0);
-		double virtualSize = c_ReticleBarsSize.GetInt();
+		double virtualSize = 18 * GetElementScale(c_ReticleBarsScale);
 		double secSizeFac = 1.05;
 		double size = virtualSize * hudscale.x;
 		double maskSize = size * widthFac;
@@ -2371,7 +2408,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (weaponSlotData.Size() <= 0)
 			return;
 
-		double iconWidth = Clamp(c_WeaponSlotsSize.GetInt(), 4, 100);
+		double scale = GetElementScale(c_WeaponSlotsScale);
+		double iconWidth = 16 * scale;
 		Vector2 box = (iconWidth, iconWidth * 0.625);
 		double indent = iconWidth * 0.05;
 
@@ -3422,8 +3460,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		int flags = SetScreenFlags(c_PowerupsPos.GetInt());
 		Vector2 ofs = (c_PowerupsX.GetInt(), c_PowerupsY.GetInt());
-		double iconSize = Clamp(c_PowerupsIconSize.GetInt(), 4, 100);
-		int indent = 1;
+		double scale = GetElementScale(c_PowerupsScale);
+		double iconSize = 20.0 * scale;
+		int indent = 1 * scale;
 		HUDFont fnt = smallHUDFont;
 		double textScale = iconSize * 0.025;
 		double fy = fnt.mFont.GetHeight() * textScale;
@@ -3506,8 +3545,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		int flags = SetScreenFlags(c_KeysPos.GetInt());
 		Vector2 ofs = (c_KeysX.GetInt(), c_KeysY.GetInt());
-		double iconSize = 10;
-		int indent = 1;
+		double scale = GetElementScale(c_KeysScale);
+		double iconSize = 10 * scale;
+		int indent = 2 * scale;
 		double width;
 		double height;
 
@@ -3586,7 +3626,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		for (int i = 0; i < keyIcons.Size(); i++)
 		{
 			let icon = keyIcons[i];
-			statusbar.DrawTexture(icon, kpos, flags|StatusBarCore.DI_ITEM_CENTER, alpha:alpha, box:(iconSize, iconSize), style:style);
+			statusbar.DrawTexture(icon, kpos, flags|StatusBarCore.DI_ITEM_CENTER, alpha:alpha, scale:ScaleToBox(icon, iconSize), style:style);
 			horKeys++;
 			// Keep going right if this isn't the final
 			// column yet:
@@ -3603,13 +3643,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 				kpos.y += iconSize;
 			}
 		}
-	}
-
-	ui double GetInvBarIconSize()
-	{
-		if (c_InvBarIconSize)
-			return c_InvBarIconSize.GetInt();
-		return ITEMBARICONSIZE;
 	}
 
 	ui bool ShouldDrawInvBar(int numfields)
@@ -3680,8 +3713,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 			}
 		}
 
-		int indent = 1;
-		double iconSize = GetInvBarIconSize();
+		double scale = GetElementScale(c_InvBarScale);
+		int indent = 1 * scale;
+		double iconSize = ITEMBARICONSIZE * scale;
 		int width = (iconSize + indent) * numfields - indent;
 		int height = iconSize;
 
@@ -3864,7 +3898,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (invbarCycleOfs == 0)
 			return;
 
-		double iconSize = GetInvBarIconSize();
+		double scale = GetElementScale(c_InvBarScale);
+		double iconSize = ITEMBARICONSIZE * scale;
 		double step = (invbarCycleOfs > 0 ? -iconSize : iconsize) * 0.25 * delta;
 		invbarCycleOfs = Clamp(invbarCycleOfs + step, min(0, invbarCycleOfs), max(0, invbarCycleOfs));
 	}
@@ -4009,6 +4044,21 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui transient CVar c_CustomItemsPos;
 	ui transient CVar c_CustomItemsX;
 	ui transient CVar c_CustomItemsY;
+
+	ui transient CVar c_scale_general;
+	ui transient CVar c_scale_mainbars;
+	ui transient CVar c_scale_weaponblock;
+
+	ui transient CVar c_BaseScale;
+	ui transient CVar c_MainBarsScale;
+	ui transient CVar c_AmmoBlockScale;
+	ui transient CVar c_AllAmmoScale;
+	ui transient CVar c_PowerupsScale;
+	ui transient CVar c_InvBarScale;
+	ui transient CVar c_KeysScale;
+	ui transient CVar c_WeaponSlotsScale;
+	ui transient CVar c_CustomItemsScale;
+	ui transient CVar c_ReticleBarsScale;
 
 	ui void CacheCvars()
 	{
@@ -4218,5 +4268,26 @@ class JGPUFH_FlexibleHUD : EventHandler
 			c_CustomItemsX = CVar.GetCvar('jgphud_CustomItemsX', CPlayer);
 		if (!c_CustomItemsY)
 			c_CustomItemsY = CVar.GetCvar('jgphud_CustomItemsY', CPlayer);
+
+		if (!c_BaseScale)
+			c_BaseScale = CVar.GetCVar('jgphud_BaseScale', CPlayer);
+		if (!c_MainBarsScale)
+			c_MainBarsScale = CVar.GetCVar('jgphud_MainBarsScale', CPlayer);
+		if (!c_AmmoBlockScale)
+			c_AmmoBlockScale = CVar.GetCVar('jgphud_AmmoBlockScale', CPlayer);
+		if (!c_AllAmmoScale)
+			c_AllAmmoScale = CVar.GetCVar('jgphud_AllAmmoScale', CPlayer);
+		if (!c_PowerupsScale)
+			c_PowerupsScale = CVar.GetCVar('jgphud_PowerupsScale', CPlayer);
+		if (!c_InvBarScale)
+			c_InvBarScale = CVar.GetCVar('jgphud_InvBarScale', CPlayer);
+		if (!c_KeysScale)
+			c_KeysScale = CVar.GetCVar('jgphud_KeysScale', CPlayer);
+		if (!c_WeaponSlotsScale)
+			c_WeaponSlotsScale = CVar.GetCVar('jgphud_WeaponSlotsScale', CPlayer);
+		if (!c_CustomItemsScale)
+			c_CustomItemsScale = CVar.GetCVar('jgphud_CustomItemsScale', CPlayer);
+		if (!c_ReticleBarsScale)
+			c_ReticleBarsScale = CVar.GetCVar('jgphud_ReticleBarsScale', CPlayer);
 	}
 }

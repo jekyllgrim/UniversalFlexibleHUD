@@ -5,6 +5,11 @@ Toggle FlexiHUD key,JGPHUD_GENERAL_ENABLEHUD_BIND,An option that lets you specif
 General,JGPHUD_GENERAL_TITLE,Title for the general options,Общее,Geral,Allgemein,General,Géneral
 Classic integer scaling (\cDhud_oldscale\c-),JGPHUD_GENERAL_OLDSCALE,"Experimental, does not need translation",,,,,
 Float-point scale factor (\cDhud_scalefactor\c-),JGPHUD_GENERAL_SCALEFACTOR,"Experimental, does not need translation",,,,,
+Appearance options,JGPHUD_GENERAL_APPEARANCE_TITLE,,,,,,
+Background,JGPHUD_GENERAL_APPEARANCE_BACKGROUND,,,,,,
+Scaling,JGPHUD_GENERAL_APPEARANCE_SCALING,,,,,,
+Base scale,JGPHUD_GENERAL_APPEARANCE_BASESCALE,,,,,,
+GZDoom HUD scaling options menu,JGPHUD_GENERAL_APPEARANCE_GZDoomScalingOptions,,,,,,
 HUD background style,JGPHUD_GENERAL_BACKSTYLE,General appearance of the background: either a flat color or a texture,Стиль фона,Estilo do fundo,Hintergrundstil,Estilo de fondo,Style d'arrière-plan de l’ATH
 Flat color,JGPHUD_GENERAL_BACKSTYLE_COLOR,Option for background appearance,Цветовая заливка,Cor sólida,Füllfarbe,Color sólido,Couleur uniforme
 Texture,JGPHUD_GENERAL_BACKSTYLE_TEXTURE,Option for background appearance,Текстура,Textura,Textur,Texturizado,Texture
@@ -24,6 +29,8 @@ Tile,JGPHUD_GENERAL_BACKSTYLE_TEXFIT_TILE,"Option for ""Texture fit mode""",За
 Stretch,JGPHUD_GENERAL_BACKSTYLE_TEXFIT_STRETCH,"Option for ""Texture fit mode""",Растянуть,Esticar,Strecken,Estirar,Étiré
 Size of icons,JGPHUD_GENERAL_ICONSIZE,"This is used for several different options: inventory bar, weapon slots, powerup display",Размер значков,Tamanho dos ícones,Icongrösse,Tamaño de los iconos,Taille des icônes
 Reset ALL FlexiHUD settings to default,JGPHUD_GENERAL_RESETALL,Label for a menu command that resets ALL console variables related to FlexiHUD to their default values,Сбросить ВСЕ настройки FlexiHUD,Restaurar TODAS as configurações aos padrões,ALLE FlexiHUD-Einstellungen auf Vorgaben zurücksetzen,Reiniciar todas las configuraciones por defecto,Réinitialiser TOUTES les configurations de FlexiHUD par défault
+Scale of the element,JGPHUD_ELEMENT_SCALE,"General string used in multiple submenus that is attached
+to a slider that controls the scale of this element.",,,,,
 Position anchor point,JGPHUD_ELEMENT_POS,Lets the player choose the anchor point on the screen for the specified HUD element,Точка привязки элемента,Ponto da âncora,Ankerpunkt,Punto de anclaje,Point d’ancrage
 Top left,JGPHUD_POS_TOPLEFT,Anchor point for the HUD element on the screen,Верхний левый угол,Canto superior esquerdo,Oben links,Superior izquierda,Haut à gauche
 Top center,JGPHUD_POS_TOPCENTER,Anchor point for the HUD element on the screen,Середина верхней границы,Centro superior,Oben mitte,Superior centrado,Haut au centre
