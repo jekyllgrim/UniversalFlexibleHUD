@@ -4,6 +4,8 @@
 class JGPUFH_OptionMenu : OptionMenu
 {}
 
+// Resets a list of CCMD provided as a string
+// CCMDs should be delimited with :
 class OptionMenuItemJGPUFHResetCCMD : OptionMenuItemSubmenu
 {
 	private array <String> ccmds;
@@ -31,6 +33,7 @@ class OptionMenuItemJGPUFHResetCCMD : OptionMenuItemSubmenu
 	}
 }
 
+// Resets all CCMDs in FlexiHUD to default values
 class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
 {
 	OptionMenuItemJGPUFHResetALLCCMD Init(String label, bool centered = false)
@@ -46,6 +49,8 @@ class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
 	}
 }
 
+// Allows specifying up to two graycheck conditions
+// with different operators and logic values:
 mixin class JGPUFHCVarChecker
 {
 	// possible cond values:
@@ -212,6 +217,9 @@ class OptionMenuItemJGPUFHOption : OptionMenuItemOption
 	}
 }
 
+// This not only allows for two conditions, but also
+// allows displaying decimal values, like default Slider,
+// which default ScaleSlider can't do for some reason.
 class OptionMenuItemJGPUFHScaleSlider : OptionMenuItemScaleSlider
 {
 	mixin JGPUFHCVarChecker;
@@ -220,23 +228,35 @@ class OptionMenuItemJGPUFHScaleSlider : OptionMenuItemScaleSlider
 	{
 		Super.Init(label, command, min, max, step, zero, negone);
 		ParseGrayConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);
+		// Infer the number of decimal places to display
+		// from the length of the decimal part of the
+		// 'step' argument:
+		String s_step = String.Format("%f", step);
+		array <String> places;
+		s_step.Split(places, ".");
+		if (places.Size() == 2)
+		{
+			String str = places[1];
+			str.Replace("0", "");
+			mShowValue = Clamp(str.Length(), 0, 8);
+		}
 		return self;
 	}
 
 	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
 	{
-		drawLabel(indent, y, selected? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColor, IsGrayed());
+		DrawLabel(indent, y, selected? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColor, IsGrayed());
 
-		int Selection = int(GetSliderValue());
-		if ((Selection == 0 || Selection == -1) && mClickVal <= 0)
+		double sliderVal = GetSliderValue();
+		if ((sliderVal <= 0.0) && mClickVal <= 0)
 		{
-			String text = Selection == 0? TextZero : Selection == -1? TextNegOne  : "";
-			drawValue(indent, y, OptionMenuSettings.mFontColorValue, text, IsGrayed());
+			String text = sliderVal <= -1 ? TextNegOne : TextZero;
+			DrawValue(indent, y, OptionMenuSettings.mFontColorValue, text, IsGrayed());
 		}
 		else
 		{
 			mDrawX = indent + CursorSpace();
-			DrawSlider (mDrawX, y, mMin, mMax, GetSliderValue(), mShowValue, indent, IsGrayed());
+			DrawSlider (mDrawX, y, mMin, mMax, sliderVal, mShowValue, indent, IsGrayed());
 		}
 		return indent;
 	}
@@ -258,10 +278,9 @@ class OptionMenuItemJGPUFHColorPicker : OptionMenuItemColorPicker
 		return self;
 	}
 
-	//=============================================================================
 	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
 	{
-		drawLabel(indent, y, selected? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColor,  IsGrayedEx());
+		DrawLabel(indent, y, selected? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColor,  IsGrayedEx());
 
 		if (mCVar != null)
 		{
@@ -298,14 +317,13 @@ class OptionMenuItemJGPUFHTextField : OptionMenuItemTextField
 	{
 		if (mEnter)
 		{
-			// reposition the text so that the cursor is visible when in entering mode.
 			String text = Represent();
 			int tlen = Menu.OptionWidth(text, false) * CleanXfac_1;
 			int newindent = screen.GetWidth() - tlen - CursorSpace();
 			if (newindent < indent) indent = newindent;
 		}
 		bool grayed = IsGrayedEx();
-		drawLabel(indent, y, selected ? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColor, grayed);
+		DrawLabel(indent, y, selected ? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColor, grayed);
 		drawValue(indent, y, OptionMenuSettings.mFontColorValue, Represent(), grayed, false);
 		return indent;
 	}
