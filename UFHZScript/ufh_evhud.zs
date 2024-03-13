@@ -1560,7 +1560,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 				if (jgphud_debug)
 					Console.Printf("\cDITEMINFO\c- Possible class name: [%s]", clsname);
 				class<Inventory> cls = clsname;
-				if (cls)
+				if (cls && customItems.Find(cls) == customItems.Size())
 				{
 					if (jgphud_debug)
 						Console.Printf("\cDITEMINFO\c- \cDFound item [%s]", cls.GetClassName());
