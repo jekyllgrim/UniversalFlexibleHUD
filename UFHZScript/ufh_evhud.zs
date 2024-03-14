@@ -3378,42 +3378,64 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// separate function to properly handle scaling:
 		if (shoulDrawKills)
 		{
-			s_left = String.Format("\cG%s", StringTable.Localize("$TXT_IMKILLS"));
-			s_right = String.Format("\cD%d\c-/\cD%d", kills, totalkills);
-			DrawMapDataElement(s_left, s_right, hfnt, pos, flags, width, scale);
+			DrawMapDataElement("$TXT_IMKILLS", kills, totalkills, hfnt, pos, flags, width, scale);
 			pos.y+=fy;
 		}
 
 		if (shoulDrawItems)
 		{
-			s_left = String.Format("\cG%s", StringTable.Localize("$TXT_IMITEMS"));
-			s_right = String.Format("\cD%d\c-/\cD%d", items, totalitems);
-			DrawMapDataElement(s_left, s_right, hfnt, pos, flags, width, scale);
+			DrawMapDataElement("$TXT_IMITEMS", items, totalitems, hfnt, pos, flags, width, scale);
 			pos.y+=fy;
 		}
 
 		if (shoulDrawSecrets)
 		{
-			s_left = String.Format("\cG%s", StringTable.Localize("$TXT_IMSECRETS"));
-			s_right = String.Format("\cD%d\c-/\cD%d", secrets, totalsecrets);
-			DrawMapDataElement(s_left, s_right, hfnt, pos, flags, width, scale);
+			DrawMapDataElement("$TXT_IMSECRETS", secrets, totalsecrets, hfnt, pos, flags, width, scale);
 			pos.y+=fy;
 		}
 
 		if (shoulDrawTime)
 		{
-			s_left = String.Format("\cG%s", StringTable.Localize("$TXT_IMTIME"));
 			int h,m,s;
 			[h,m,s] = TicsToHours(Level.time);
-			s_right = String.Format("\cD%d:%02d:%02d", h, m, s);
-			DrawMapDataElement(s_left, s_right, hfnt, pos, flags, width, scale);
+			s_right = String.Format("\cQ%d:%02d:%02d", h, m, s);
+			DrawMapDataElement("$TXT_IMTIME", 0, 0, hfnt, pos, flags, width, scale, rightside: s_right);
 		}
 	}
 
 	// Draws the actual map data element, consisting of the label
-	// (left), a colon, and the value (right):
-	ui void DrawMapDataElement(string str1, string str2, HUDFont hfnt, Vector2 pos, int flags, double width, double scale = 1.0)
+	// (left), a space, and the value (right):
+	ui void DrawMapDataElement(String label, int val1, int val2, HUDFont hfnt, Vector2 pos, int flags, double width, double scale = 1.0, String rightside = "")
 	{
+		String str1 = StringTable.Localize(label);
+		// If rightside is provided, use that text explicitly for
+		// whatever comes after the label (used for level time):
+		String str2 = rightside;
+		// Otherwise construct the right string based on the val1
+		// and val2 values, and colorize it:
+		if (!rightside)
+		{
+			String s_right;
+			// red numbers if 0:
+			if (val1 <= 0)
+			{
+				s_right = String.Format("\cA%d\c-", val1);
+			}
+			// yellow numbers if not maximum:
+			else if (val1 < val2)
+			{
+				s_right = String.Format("\cK%d\c-", val1);
+			}
+			// otherwise make both label and numbers green 
+			// if val1 reached its maximum:
+			else
+			{
+				str1 = String.Format("\cD%s\c-", str1);
+				s_right = String.Format("\cD%d\c-", val1);
+			}
+			str2 = String.Format("%s/\cD%d", s_right, val2);
+		}
+
 		Font fnt = hfnt.mFont;
 		// Scale the string down if it's too wide
 		// to account for possible long localized
@@ -3427,7 +3449,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			strScale = scale * (maxStrWidth / strWidth);
 		}
 		statusbar.DrawString(hfnt, str1, pos-(strOfs,0), flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT, scale:(strScale,scale));
-		statusbar.DrawString(hfnt, ":", pos, flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, scale:(scale,scale));
+		//statusbar.DrawString(hfnt, ":", pos, flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, scale:(scale,scale));
 		statusbar.DrawString(hfnt, str2, pos+(strOfs,0), flags|StatusBarCore.DI_TEXT_ALIGN_LEFT, scale:(scale,scale));
 	}
 
