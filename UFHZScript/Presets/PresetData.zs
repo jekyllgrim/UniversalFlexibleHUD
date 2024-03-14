@@ -107,7 +107,18 @@ extend class JGPUFH_PresetHandler
 
 		'jgphud_mainfont',
 		'jgphud_smallfont',
-		'jgphud_numberfont'
+		'jgphud_numberfont',
+	
+		'jgphud_BaseScale',
+		'jgphud_MainBarsScale',
+		'jgphud_AmmoBlockScale',
+		'jgphud_AllAmmoScale',
+		'jgphud_PowerupsScale',
+		'jgphud_InvBarScale',
+		'jgphud_KeysScale',
+		'jgphud_WeaponSlotsScale',
+		'jgphud_CustomItemsScale',
+		'jgphud_ReticleBarsScale'
 	};
 
 	static const Class<JGPUFH_JsonElement> preset_cvar_json_types[] =
@@ -217,6 +228,17 @@ extend class JGPUFH_PresetHandler
 
 		'JGPUFH_JsonString',	// jgphud_mainfont
 		'JGPUFH_JsonString',	// jgphud_smallfont
-		'JGPUFH_JsonString'		// jgphud_numberfont
+		'JGPUFH_JsonString',	// jgphud_numberfont
+
+		'JGPUFH_JsonNumber', 	//jgphud_BaseScale,
+		'JGPUFH_JsonNumber', 	//jgphud_MainBarsScale,
+		'JGPUFH_JsonNumber', 	//jgphud_AmmoBlockScale,
+		'JGPUFH_JsonNumber', 	//jgphud_AllAmmoScale,
+		'JGPUFH_JsonNumber', 	//jgphud_PowerupsScale,
+		'JGPUFH_JsonNumber', 	//jgphud_InvBarScale,
+		'JGPUFH_JsonNumber', 	//jgphud_KeysScale,
+		'JGPUFH_JsonNumber', 	//jgphud_WeaponSlotsScale,
+		'JGPUFH_JsonNumber', 	//jgphud_CustomItemsScale,
+		'JGPUFH_JsonNumber' 	//jgphud_ReticleBarsScale
 	};
 }

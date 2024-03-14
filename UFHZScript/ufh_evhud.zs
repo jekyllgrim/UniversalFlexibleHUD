@@ -53,6 +53,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 		DB_DRAWNUMBERS,
 		DB_DRAWBARS,
 	}
+	enum EArmorDisplay
+	{
+		AD_ICON,
+		AD_ABSORB,
+		AD_BOTH,
+	}
 	ui double healthAmount;
 	ui double healthMaxAmount;
 	ui double armAmount;
@@ -1148,9 +1154,21 @@ class JGPUFH_FlexibleHUD : EventHandler
 			}
 
 			// uses normal armor:
-			else if (armTex.IsValid())
+			else
 			{
-				statusbar.DrawTexture(armTex, iconPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize), scale:(scale,scale));
+				int mode = c_MainBarsArmorMode.GetInt();
+				if ((mode == AD_ICON || mode == AD_BOTH) && armTex.IsValid())
+				{
+					statusbar.DrawTexture(armTex, iconPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize), scale:(scale,scale));
+				}
+				if (mode == AD_ABSORB || mode == AD_BOTH)
+				{
+					HUDFont fnt = smallHUDFont;
+					double fntscale = scale * 0.5;
+					double fy = fnt.mFont.GetHeight() * fntscale;
+					String sp = String.Format("%d%%", round(100 * barm.savepercent));
+					statusbar.DrawString(fnt, sp, iconPos - (0, fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, scale:(fntscale, fntscale));
+				}
 			}
 
 			if (drawbars)
@@ -3956,6 +3974,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui transient CVar c_MainBarsX;
 	ui transient CVar c_MainBarsY;
 	ui transient CVar c_DrawFace;
+	ui transient CVar c_MainBarsArmorMode;
 
 	ui transient CVar c_drawAmmoBlock;
 	ui transient CVar c_AmmoBlockPos;
@@ -4100,6 +4119,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 			c_MainBarsY = CVar.GetCvar('jgphud_MainBarsY', CPlayer);
 		if (!c_DrawFace)
 			c_DrawFace = CVar.GetCvar('jgphud_Drawface', CPlayer);
+		if (!c_MainBarsArmorMode)
+			c_MainBarsArmorMode = CVar.GetCvar('jgphud_MainBarsArmorMode', CPlayer);
 
 		if (!c_drawAmmoBlock)
 			c_drawAmmoBlock = CVar.GetCvar('jgphud_DrawAmmoBlock', CPlayer);

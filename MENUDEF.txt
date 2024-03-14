@@ -102,6 +102,7 @@ OptionMenu "JGPHUD_MainBars"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_MainBarsX", -160, 160, 2, 0, "jgphud_DrawMainbars"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_MainBarsY", -100, 100, 2, 0, "jgphud_DrawMainbars"
 	Option "$JGPHUD_MAINBARS_SHOWFACE", "jgphud_DrawFace", "OnOff", "jgphud_DrawMainbars"
+	Option "$JPGHUD_MAINBARS_ARMDISPLAY", "jgphud_MainBarsArmorMode", "ArmorDisplayOptions", "jgphud_DrawMainbars"
 	StaticText ""
 	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawMainbars:jgphud_MainBarsPos:jgphud_MainBarsX:jgphud_MainBarsY:jgphud_DrawFace", 1
 }
@@ -396,6 +397,13 @@ OptionValue "BackgroundStyles"
 {
 	0, "$JGPHUD_GENERAL_BACKSTYLE_TEXTURE"
 	1, "$JGPHUD_GENERAL_BACKSTYLE_COLOR"
+}
+
+OptionValue "ArmorDisplayOptions"
+{
+	0, "$JPGHUD_MAINBARS_ARMDISPLAY_ICON"
+	1, "$JPGHUD_MAINBARS_ARMDISPLAY_ABSORB"
+	2, "$JPGHUD_MAINBARS_ARMDISPLAY_BOTH"
 }
 
 OptionValue "AllAmmoOptions"
