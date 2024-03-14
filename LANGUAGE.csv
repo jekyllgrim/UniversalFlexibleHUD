@@ -5,10 +5,11 @@ Toggle FlexiHUD key,JGPHUD_GENERAL_ENABLEHUD_BIND,An option that lets you specif
 General,JGPHUD_GENERAL_TITLE,Title for the general options,Общее,Geral,Allgemein,General,Géneral
 Classic integer scaling (\cDhud_oldscale\c-),JGPHUD_GENERAL_OLDSCALE,"Experimental, does not need translation",,,,,
 Float-point scale factor (\cDhud_scalefactor\c-),JGPHUD_GENERAL_SCALEFACTOR,"Experimental, does not need translation",,,,,
-Appearance options,JGPHUD_GENERAL_APPEARANCE_TITLE,,,,,,
+Appearance and scaling options,JGPHUD_GENERAL_APPEARANCE_TITLE,,,,,,
 Background,JGPHUD_GENERAL_APPEARANCE_BACKGROUND,,,,,,
 Scaling,JGPHUD_GENERAL_APPEARANCE_SCALING,,,,,,
-Base scale,JGPHUD_GENERAL_APPEARANCE_BASESCALE,,,,,,
+Base FlexiHUD scale,JGPHUD_GENERAL_APPEARANCE_BASESCALE,,,,,,
+Use built-in HUD scaling,JGPHUD_GENERAL_APPEARANCE_BASESCALE_DEF,,,,,,
 GZDoom HUD scaling options menu,JGPHUD_GENERAL_APPEARANCE_GZDoomScalingOptions,,,,,,
 HUD background style,JGPHUD_GENERAL_BACKSTYLE,General appearance of the background: either a flat color or a texture,Стиль фона,Estilo do fundo,Hintergrundstil,Estilo de fondo,Style d'arrière-plan de l’ATH
 Flat color,JGPHUD_GENERAL_BACKSTYLE_COLOR,Option for background appearance,Цветовая заливка,Cor sólida,Füllfarbe,Color sólido,Couleur uniforme
@@ -53,6 +54,10 @@ Health and armor display,JGPHUD_MAINBARS_ENABLE,Whether health/armor is displaye
 Mugshot display (if exists),JGPHUD_MAINBARS_SHOWFACE,Whether mugshot is displayed,Показывать лицо персонажа (при наличии),Mostrar rosto do personagem (se existe),Gesicht anzeigen (falls vorhanden),Mostrar cara de jugador (si existe),Affichage du visage (si existant)
 Numbers,JGPHUD_MAINBARS_OPT_NUMBERS,Option for how health/armor is displayed: numbers or bars,Цифры,Números,Nummern,Numérico,Nombres
 Bars,JGPHUD_MAINBARS_OPT_BARS,Option for how health/armor is displayed: numbers or bars,Шкалы,Barras,Leisten,Barra,Barres
+Armor icon/absorption display,JPGHUD_MAINBARS_ARMDISPLAY,"Option that controls what is displayed next to the armor numbers: the armor's icon, its absorption percentage, or both (icon below, percentage on top)",,,,,
+Armor icon,JPGHUD_MAINBARS_ARMDISPLAY_ICON,Option for Armor icon/absorption display,,,,,
+Armor absorption %,JPGHUD_MAINBARS_ARMDISPLAY_ABSORB,Option for Armor icon/absorption display,,,,,
+Armor icon and absorption %,JPGHUD_MAINBARS_ARMDISPLAY_BOTH,Option for Armor icon/absorption display,,,,,
 Current ammo and weapon,JGPHUD_AMMOBLOCK_TITLE,,Текущий боезапас и оружие,Munição e arma atual,Aktuelle Munition und Waffe,Arma y munición actual,Armes et munitions actuelles
 Current ammo display,JGPHUD_AMMOBLOCK_ENABLE,Whether current ammo is displayed,Показывать патроны для текущего оружия,Mostrar munição atual,Aktuelle Munition anzeigen,Mostrar munición actual,Affichage des munitions actuelles
 Display weapon icon,JGPHUD_AMMOBLOCK_SHOWWEAP,Whether selected weapon icon is displayed,Показывать значок текущего оружия,Mostrar ícone de arma,Aktuelle Waffe anzeigen,Mostrar icono del arma,Affichage des icônes d’armes
