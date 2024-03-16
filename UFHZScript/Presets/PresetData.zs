@@ -118,7 +118,29 @@ extend class JGPUFH_PresetHandler
 		'jgphud_KeysScale',
 		'jgphud_WeaponSlotsScale',
 		'jgphud_CustomItemsScale',
-		'jgphud_ReticleBarsScale'
+		'jgphud_ReticleBarsScale',
+
+		'jgphud_MainBarsHealthColorMode',
+		'jgphud_MainBarsHealthColor',
+		'jgphud_MainbarsHealthRange_25',
+		'jgphud_MainbarsHealthRange_50',
+		'jgphud_MainbarsHealthRange_75',
+		'jgphud_MainbarsHealthRange_100',
+		'jgphud_MainbarsHealthRange_101',
+
+		'jgphud_MainBarsArmorMode',
+		'jgphud_MainBarsArmorColorMode',
+		'jgphud_MainBarsArmorColor',
+		'jgphud_MainbarsArmorRange_25',
+		'jgphud_MainbarsArmorRange_50',
+		'jgphud_MainbarsArmorRange_75',
+		'jgphud_MainbarsArmorRange_100',
+		'jgphud_MainbarsArmorRange_101',
+		'jgphud_MainbarsAbsorbRange_33',
+		'jgphud_MainbarsAbsorbRange_50',
+		'jgphud_MainbarsAbsorbRange_66',
+		'jgphud_MainbarsAbsorbRange_80',
+		'jgphud_MainbarsAbsorbRange_100'
 	};
 
 	static const Class<JGPUFH_JsonElement> preset_cvar_json_types[] =
@@ -239,6 +261,28 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonNumber', 	//jgphud_KeysScale,
 		'JGPUFH_JsonNumber', 	//jgphud_WeaponSlotsScale,
 		'JGPUFH_JsonNumber', 	//jgphud_CustomItemsScale,
-		'JGPUFH_JsonNumber' 	//jgphud_ReticleBarsScale
+		'JGPUFH_JsonNumber', 	//jgphud_ReticleBarsScale
+
+		'JGPUFH_JsonNumber', 	//jgphud_MainBarsHealthColorMode,
+		'JGPUFH_JsonNumber', 	//jgphud_MainBarsHealthColor,
+		'JGPUFH_JsonNumber', 	//jgphud_MainbarsHealthRange_25,
+		'JGPUFH_JsonNumber',	 //jgphud_MainbarsHealthRange_50,
+		'JGPUFH_JsonNumber', 	//jgphud_MainbarsHealthRange_75,
+		'JGPUFH_JsonNumber', 	//jgphud_MainbarsHealthRange_100,
+		'JGPUFH_JsonNumber', 	//jgphud_MainbarsHealthRange_101,
+
+		'JGPUFH_JsonNumber',	 //jgphud_MainBarsArmorMode,
+		'JGPUFH_JsonNumber',	 //jgphud_MainBarsArmorColorMode,
+		'JGPUFH_JsonNumber',	 //jgphud_MainBarsArmorColor,
+		'JGPUFH_JsonNumber',	 //jgphud_MainbarsArmorRange_25,
+		'JGPUFH_JsonNumber',	 //jgphud_MainbarsArmorRange_50,
+		'JGPUFH_JsonNumber',	 //jgphud_MainbarsArmorRange_75,
+		'JGPUFH_JsonNumber', 	//jgphud_MainbarsArmorRange_100,
+		'JGPUFH_JsonNumber', 	//jgphud_MainbarsArmorRange_101,
+		'JGPUFH_JsonNumber',	//jgphud_MainbarsAbsorbRange_33,
+		'JGPUFH_JsonNumber', 	//jgphud_MainbarsAbsorbRange_50,
+		'JGPUFH_JsonNumber', 	//jgphud_MainbarsAbsorbRange_66,
+		'JGPUFH_JsonNumber', 	//jgphud_MainbarsAbsorbRange_80,
+		'JGPUFH_JsonNumber' 	//jgphud_MainbarsAbsorbRange_100
 	};
 }

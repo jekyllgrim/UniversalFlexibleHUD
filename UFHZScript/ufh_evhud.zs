@@ -44,6 +44,38 @@ class JGPUFH_FlexibleHUD : EventHandler
 		StatusBarCore.DI_SCREEN_RIGHT_BOTTOM
 	};
 
+	static const color RealFontColors[] =
+	{
+		0xFFcc3333,	// CR_BRICK
+		0xFFd2b48c,	// CR_TAN
+		0xFFcccccc,	// CR_GREY = CR_GRAY
+		0xFF00cc00,	// CR_GREEN
+		0xFF996633,	// CR_BROWN
+		0xFFffcc00,	// CR_GOLD
+		0xFFff0000,	// CR_RED
+		0xFF0000FF,	// CR_BLUE
+		0xFFffaa00,	// CR_ORANGE
+		0xFFFFFFFF,	// CR_WHITE
+		0xFFeeee33,	// CR_YELLOW
+		-1,			// CR_UNTRANSLATED
+		0xFF000000,	// CR_BLACK
+		0xFFB4B4FF,	// CR_LIGHTBLUE
+		0xFFffcc99,	// CR_CREAM
+		0xFFd1d8a8,	// CR_OLIVE
+		0xFF008c00,	// CR_DARKGREEN
+		0xFF800000,	// CR_DARKRED
+		0xFF663333,	// CR_DARKBROWN
+		0xFFFF00FF,	// CR_PURPLE
+		0xFF808080,	// CR_DARKGRAY
+		0xFF00FFFF,	// CR_CYAN
+		0xFF343450,	// CR_ICE
+		0xFFd57604,	// CR_FIRE
+		0xFF506cfc,	// CR_SAPPHIRE
+		0xFF236773,	// CR_TEAL
+		-1
+	};
+
+
 	// Health/armor bars CVAR values:
 	ui LinearValueInterpolator healthIntr;
 	ui LinearValueInterpolator armorIntr;
@@ -58,6 +90,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 		AD_ICON,
 		AD_ABSORB,
 		AD_BOTH,
+	}
+	enum ENumberDisplayModes
+	{
+		ND_FIXED,
+		ND_AMOUNT,
+		ND_ABSORB,
 	}
 	ui double healthAmount;
 	ui double healthMaxAmount;
@@ -818,36 +856,132 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
+	ui color, int GetHealthColor(int health, int maxhealth)
+	{
+		double ratio = double(health) / double(maxhealth);
+		color col;
+		int fontColor;
+		if (c_MainBarsHealthColorMode.GetInt() == ND_FIXED)
+		{
+			fontColor = c_MainBarsHealthColor.GetInt();
+			int i = Clamp(fontColor, 0, RealFontColors.Size() - 1);
+			col = RealFontColors[i];
+			return col, fontColor;
+		}
+		int startcol, endcol;
+		double colorDist;
+		if (ratio <= 0.25)
+		{
+			startcol = c_MainbarsHealthRange_25.GetInt();
+			endcol = c_MainbarsHealthRange_25.GetInt();
+			colorDist = LinearMap(ratio, 0, 0.25, 0.0, 1.0);
+		}
+		else if (ratio <= 0.5)
+		{
+			startcol = c_MainbarsHealthRange_25.GetInt();
+			endcol = c_MainbarsHealthRange_50.GetInt();
+			colorDist = LinearMap(ratio, 0.25, 0.5, 0.0, 1.0);
+		}
+		else if (ratio <= 0.75)
+		{
+			startcol = c_MainbarsHealthRange_50.GetInt();
+			endcol = c_MainbarsHealthRange_75.GetInt();
+			colorDist = LinearMap(ratio, 0.5, 0.75, 0.0, 1.0);
+		}
+		else if (ratio <= 1.0)
+		{
+			startcol = c_MainbarsHealthRange_75.GetInt();
+			endcol = c_MainbarsHealthRange_100.GetInt();
+			colorDist = LinearMap(ratio, 0.75, 1.0, 0.0, 1.0);
+		}
+		else
+		{
+			startcol = c_MainbarsHealthRange_100.GetInt();
+			endcol = c_MainbarsHealthRange_101.GetInt();
+			colorDist = LinearMap(ratio, 1.0, 1.1, 0.0, 1.0);
+		}
+		fontColor = endcol;
+		startcol = Clamp(startcol, 0, RealFontColors.Size() - 1);
+		endcol = Clamp(endcol, 0, RealFontColors.Size() - 1);
+		Color C1 = RealFontColors[startcol];
+		Color C2 = RealFontColors[endcol];
+		Color finalColor = GetIntermediateColor(C1, C2, colorDist);
+		//Console.MidPrint(smallfont, String.Format("Font color ID: %d\nColor range: %x - %x\nFinal color: %x", fontColor, C1, C2, finalColor));
+		/*Color interColor = color(
+			sqrt((C1.R**2+C2.R**2)/2),
+			sqrt((C1.G**2+C2.G**2)/2),
+			sqrt((C1.B**2+C2.B**2)/2)
+		);*/
+		return finalColor, fontColor;
+	}
+
+	clearscope color GetIntermediateColor(color c1, color c2, double colordistance)
+	{
+		colordistance = Clamp(colordistance, 0.0, 1.0);
+		Color finalColor = color(
+			255,
+			int(round(C1.r + (C2.r - C1.r)*colordistance)),
+			int(round(C1.g + (C2.g - C1.g)*colordistance)),
+			int(round(C1.b + (C2.b - C1.b)*colordistance))
+		);
+		return finalcolor;
+	}
+
 	// Returns a color and font colors based on the provided
 	// percentage value (either in the 0.0-1.0 or 0-100 range).
 	// Meant to be used for armor's savepercent, so it's tuned
 	// to common savepercent values (50, 80 and 33):
-	clearscope int, int, int, int GetArmorColor(double savePercent)
+	ui color, int GetArmorColor(double savePercent)
 	{
-		int cRed, cGreen, cBlue, cFntCol;
-		if (savePercent <= 1.0)
-			savePercent *= 100;
-		if (savePercent >= 50)
+		color col;
+		int fontColor;
+		if (c_MainBarsArmorColorMode.GetInt() == ND_FIXED)
 		{
-			cBlue = 255;
-			cFntCol = Font.CR_Blue;
-			if (savePercent >= 80)
-			{
-				cGreen = 255;
-				cFntCol = Font.CR_Cyan;
-			}
+			fontColor = c_MainBarsArmorColor.GetInt();
+			int i = Clamp(fontColor, 0, RealFontColors.Size() - 1);
+			col = RealFontColors[i];
+			return col, fontColor;
 		}
-		else 
+		int startcol;
+		int endcol;
+		double colorDist;
+		if (savePercent <= 0.33)
 		{
-			cFntCol = Font.CR_Brown;
-			cRed = 72;
-			if (savePercent >= 33)
-			{
-				cGreen = 160;
-				cFntCol = Font.CR_Green;
-			}
+			startcol = c_MainbarsAbsorbRange_33.GetInt();
+			endcol = c_MainbarsAbsorbRange_33.GetInt();
+			colorDist = LinearMap(savePercent, 0, 0.33, 0.0, 1.0);
 		}
-		return cRed, cGreen, cBlue, cFntCol;
+		else if (savePercent <= 0.5)
+		{
+			startcol = c_MainbarsAbsorbRange_33.GetInt();
+			endcol = c_MainbarsAbsorbRange_50.GetInt();
+			colorDist = LinearMap(savePercent, 0, 0.33, 0.5, 1.0);
+		}
+		else if (savePercent <= 0.66)
+		{
+			startcol = c_MainbarsAbsorbRange_50.GetInt();
+			endcol = c_MainbarsAbsorbRange_66.GetInt();
+			colorDist = LinearMap(savePercent, 0, 0.5, 0.66, 1.0);
+		}
+		else if (savePercent <= 0.8)
+		{
+			startcol = c_MainbarsAbsorbRange_66.GetInt();
+			endcol = c_MainbarsAbsorbRange_80.GetInt();
+			colorDist = LinearMap(savePercent, 0, 0.66, 0.8, 1.0);
+		}
+		else
+		{
+			startcol = c_MainbarsAbsorbRange_80.GetInt();
+			endcol = c_MainbarsAbsorbRange_100.GetInt();
+			colorDist = LinearMap(savePercent, 0, 0.8, 1.0, 1.0);
+		}
+		fontColor = endcol;
+		startcol = Clamp(startcol, 0, RealFontColors.Size() - 1);
+		endcol = Clamp(endcol, 0, RealFontColors.Size() - 1);
+		Color C1 = RealFontColors[startcol];
+		Color C2 = RealFontColors[endcol];
+		Color finalColor = GetIntermediateColor(C1, C2, colorDist);
+		return finalColor, fontColor;
 	}
 
 	clearscope int GetPercentageFontColor(int amount, int maxamount)
@@ -960,13 +1094,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		let hexarm = HexenArmor(CPlayer.mo.FindInventory("HexenArmor"));
 		armMaxAmount = 0;
 		hasHexenArmor = false;
-		int r,g,b;
 		if (barm)
 		{
 			armAmount = barm.amount;
 			armMaxAmount = barm.maxamount;
-			[r,g,b] = GetArmorColor(barm.savePercent);
-			armorColor = color(r, g, b);
+			armorColor = GetArmorColor(barm.savePercent);
 		}
 		if (hexArm)
 		{
@@ -985,8 +1117,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 					armMaxamount += hexarm.slotsIncrement[i];
 				}
 				armMaxamount += hexarm.slots[4];
-				[r,g,b] = GetArmorColor(barm.savePercent);
-				armorColor = color(r, g, b);
+				armorColor = GetArmorColor(armAmount / armMaxAmount);
 			}
 		}
 	}
@@ -1012,6 +1143,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 	{
 		int drawThis = c_drawMainbars.GetInt();
 		if (drawThis <= DB_NONE)
+			return;
+		
+		if (!healthAmount || !healthMaxAmount)
 			return;
 
 		int flags = SetScreenFlags(c_MainBarsPos.GetInt());
@@ -1067,119 +1201,118 @@ class JGPUFH_FlexibleHUD : EventHandler
 		int barWidth = mainBlockWidth - iconSize - indent*3;
 		double barPosX = iconPos.x + iconsize*0.5 + indent;
 		double fy = mainHUDFont.mFont.GetHeight() * scale;
+		// Get general data:
+		color cColor; int cFntCol;
+		[cColor, cFntCol] = GetHealthColor(healthAmount, healthMaxAmount);
 		// Draw health bar or numbers:
-		int health = CPlayer.mo.health;
-		int maxhealth = CPlayer.mo.GetMaxHealth(true);
-		String healthstring = String.Format("%3d", health);
-		int cRed, cGreen, cBlue, cFntCol;
 		if (drawbars)
 		{
-			cRed = LinearMap(health, 0, maxhealth, 160, 0, true);
-			cGreen = LinearMap(health, 0, maxhealth, 0, 160, true);
-			cBlue = LinearMap(health, maxhealth, maxhealth * 2, 0, 160, true);
-			DrawFlatColorBar((barPosX, iconPos.y), GetHealthInterpolated(), maxhealth, color(200, 255, 255, 255), barwidth:barWidth, barheight: barheight, flags:barFlags);
-			DrawFlatColorBar((barPosX, iconPos.y), health, maxhealth, color(255, cRed, cGreen, cBlue), valueColor: Font.CR_White, barwidth:barWidth, barheight: barheight, backColor: color(0,0,0,0), flags:barFlags);
+			DrawFlatColorBar((barPosX, iconPos.y), GetHealthInterpolated(), healthMaxAmount, color(200, 255, 255, 255), barwidth:barWidth, barheight: barheight, flags:barFlags);
+			DrawFlatColorBar((barPosX, iconPos.y), healthAmount, healthMaxAmount, cColor, valueColor: Font.CR_White, barwidth:barWidth, barheight: barheight, backColor: color(0,0,0,0), flags:barFlags);
 		}
 		else
 		{
-			statusbar.DrawString(mainHUDFont, healthstring, (barPosX, iconPos.y - fy*0.5), flags, translation:GetPercentageFontColor(health,maxhealth), scale: (scale, scale));
+			String healthstring = String.Format("%3d", healthAmount);
+			statusbar.DrawString(mainHUDFont, healthstring, (barPosX, iconPos.y - fy*0.5), flags, translation:cFntCol, scale: (scale, scale));
 		}
 		
 		// Draw armor bar:
 		// Check if armor exists and is above 0
+		if (armAmount <= 0)
+		{
+			return;
+		}
+
 		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
 		let hexarm = HexenArmor(CPlayer.mo.FindInventory("HexenArmor"));
 		TextureID armTex;
 		double armTexSize = 12 * scale;
 		if (!hasHexenArmor && barm)
 		{
-			[cRed, cGreen, cBlue, cFntCol] = GetArmorColor(barm.savePercent);
+			[cColor, cFntCol] = GetArmorColor(barm.savePercent);
 			armTex = barm.icon;
 		}
 		if (hasHexenArmor && hexArm)
 		{
-			[cRed, cGreen, cBlue, cFntCol] = GetArmorColor(armAmount / armMaxAmount);
+			[cColor, cFntCol] = GetArmorColor(armAmount / armMaxAmount);
 		}
 
-		if (armAmount > 0)
+		iconPos.y = pos.y + height * 0.25;
+		// uses Hexen armor:
+		if (hasHexenArmor)
 		{
-			iconPos.y = pos.y + height * 0.25;
-			// uses Hexen armor:
-			if (hasHexenArmor)
+			// Build an array of icons from the array previously
+			// set up by SetupHexenArmorIcons():
+			array <TextureID> hArmTex;
+			for (int i = WEAKEST_HEXEN_ARMOR_PIECE; i >= 0; i--)
 			{
-				// Build an array of icons from the array previously
-				// set up by SetupHexenArmorIcons():
-				array <TextureID> hArmTex;
-				for (int i = WEAKEST_HEXEN_ARMOR_PIECE; i >= 0; i--)
-				{
-					TextureID icon;
-					if (hexArm.Slots[i] <= 0)
-						continue;
-					// cache the icon for the slot if the amount of armor
-					// in that slot is over 0 (since Hexen doesn't use
-					// armor items or icons at all, only amounts):
-					hArmTex.Push(hexenArmorIcons[i]);
-				}
-				// If any icons have been pushed, draw them:
-				if (hArmTex.Size() > 0)
-				{
-					// If there's only one armor piece, draw it as usual:
-					if (hArmTex.Size() == 1)
-					{
-						armTex = hArmTex[0];
-						statusbar.DrawTexture(armTex, iconPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize), scale:(scale,scale));
-					}
-					// If there's more, draw smaller version of them in
-					// a 2x2 pattern:
-					else
-					{
-						armTexSize *= 0.5;
-						double ofs = armTexSize*0.5;
-						Vector2 armPos;
-						for (int i = 0; i < hArmTex.Size(); i++)
-						{
-							armTex = hArmTex[i];
-							if (i == 0 || i == 2)
-								armPos.x = iconPos.x - ofs;
-							else
-								armPos.x = iconPos.x + ofs;
-							if (i == 0 || i == 1)
-								armPos.y = iconPos.y - ofs;
-							else
-								armPos.y = iconPos.y + ofs;
-							statusbar.DrawTexture(armTex, armPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize), scale:(scale,scale));
-						}
-					}
-				}
+				TextureID icon;
+				if (hexArm.Slots[i] <= 0)
+					continue;
+				// cache the icon for the slot if the amount of armor
+				// in that slot is over 0 (since Hexen doesn't use
+				// armor items or icons at all, only amounts):
+				hArmTex.Push(hexenArmorIcons[i]);
 			}
-
-			// uses normal armor:
-			else
+			// If any icons have been pushed, draw them:
+			if (hArmTex.Size() > 0)
 			{
-				int mode = c_MainBarsArmorMode.GetInt();
-				if ((mode == AD_ICON || mode == AD_BOTH) && armTex.IsValid())
+				// If there's only one armor piece, draw it as usual:
+				if (hArmTex.Size() == 1)
 				{
+					armTex = hArmTex[0];
 					statusbar.DrawTexture(armTex, iconPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize), scale:(scale,scale));
 				}
-				if (mode == AD_ABSORB || mode == AD_BOTH)
+				// If there's more, draw smaller version of them in
+				// a 2x2 pattern:
+				else
 				{
-					HUDFont fnt = smallHUDFont;
-					double fntscale = scale * 0.5;
-					double fy = fnt.mFont.GetHeight() * fntscale;
-					String sp = String.Format("%d%%", round(100 * barm.savepercent));
-					statusbar.DrawString(fnt, sp, iconPos - (0, fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, scale:(fntscale, fntscale));
+					armTexSize *= 0.5;
+					double ofs = armTexSize*0.5;
+					Vector2 armPos;
+					for (int i = 0; i < hArmTex.Size(); i++)
+					{
+						armTex = hArmTex[i];
+						if (i == 0 || i == 2)
+							armPos.x = iconPos.x - ofs;
+						else
+							armPos.x = iconPos.x + ofs;
+						if (i == 0 || i == 1)
+							armPos.y = iconPos.y - ofs;
+						else
+							armPos.y = iconPos.y + ofs;
+						statusbar.DrawTexture(armTex, armPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize), scale:(scale,scale));
+					}
 				}
 			}
+		}
 
-			if (drawbars)
+		// uses normal armor:
+		else
+		{
+			int mode = c_MainBarsArmorMode.GetInt();
+			if ((mode == AD_ICON || mode == AD_BOTH) && armTex.IsValid())
 			{
-				DrawFlatColorBar((barPosX, iconPos.y), GetArmorInterpolated(), armMaxamount, color(200, 255, 255, 255), barwidth:barWidth, barheight: barheight*0.8, segments: barm.maxamount / 10, flags:barFlags);
-				DrawFlatColorBar((barPosX, iconPos.y), armAmount, armMaxamount, color(255, cRed, cGreen, cBlue), valueColor: Font.CR_White, barwidth:barWidth, barheight*0.8, backColor: color(0,0,0,0), segments: barm.maxamount / 10, flags:barFlags);
+				statusbar.DrawTexture(armTex, iconPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize), scale:(scale,scale));
 			}
-			else
+			if (mode == AD_ABSORB || mode == AD_BOTH)
 			{
-				statusbar.DrawString(mainHUDFont, String.Format("%3d", armAmount), (barPosX, iconPos.y - fy*0.5), flags, translation:cFntCol, scale:(scale, scale));
+				HUDFont fnt = smallHUDFont;
+				double fntscale = scale * 0.5;
+				double fy = fnt.mFont.GetHeight() * fntscale;
+				String sp = String.Format("%d%%", round(100 * barm.savepercent));
+				statusbar.DrawString(fnt, sp, iconPos - (0, fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, scale:(fntscale, fntscale));
 			}
+		}
+
+		if (drawbars)
+		{
+			DrawFlatColorBar((barPosX, iconPos.y), GetArmorInterpolated(), armMaxamount, color(200, 255, 255, 255), barwidth:barWidth, barheight: barheight*0.8, segments: barm.maxamount / 10, flags:barFlags);
+			DrawFlatColorBar((barPosX, iconPos.y), armAmount, armMaxamount, cColor, valueColor: Font.CR_White, barwidth:barWidth, barheight*0.8, backColor: color(0,0,0,0), segments: barm.maxamount / 10, flags:barFlags);
+		}
+		else
+		{
+			statusbar.DrawString(mainHUDFont, String.Format("%3d", armAmount), (barPosX, iconPos.y - fy*0.5), flags, translation:cFntCol, scale:(scale, scale));
 		}
 	}
 
@@ -4101,6 +4234,26 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui transient CVar c_CustomItemsScale;
 	ui transient CVar c_ReticleBarsScale;
 
+	ui transient CVar c_MainBarsArmorColorMode;
+	ui transient CVar c_MainBarsHealthColorMode;
+	ui transient CVar c_MainBarsArmorColor;
+	ui transient CVar c_MainBarsHealthColor;
+	ui transient CVar c_MainbarsHealthRange_25;
+	ui transient CVar c_MainbarsHealthRange_50;
+	ui transient CVar c_MainbarsHealthRange_75;
+	ui transient CVar c_MainbarsHealthRange_100;
+	ui transient CVar c_MainbarsHealthRange_101;
+	ui transient CVar c_MainbarsArmorRange_25;
+	ui transient CVar c_MainbarsArmorRange_50;
+	ui transient CVar c_MainbarsArmorRange_75;
+	ui transient CVar c_MainbarsArmorRange_100;
+	ui transient CVar c_MainbarsArmorRange_101;
+	ui transient CVar c_MainbarsAbsorbRange_33;
+	ui transient CVar c_MainbarsAbsorbRange_50;
+	ui transient CVar c_MainbarsAbsorbRange_66;
+	ui transient CVar c_MainbarsAbsorbRange_80;
+	ui transient CVar c_MainbarsAbsorbRange_100;
+
 	ui void CacheCvars()
 	{
 		if (!CPlayer)
@@ -4332,5 +4485,47 @@ class JGPUFH_FlexibleHUD : EventHandler
 			c_CustomItemsScale = CVar.GetCVar('jgphud_CustomItemsScale', CPlayer);
 		if (!c_ReticleBarsScale)
 			c_ReticleBarsScale = CVar.GetCVar('jgphud_ReticleBarsScale', CPlayer);
+
+		if (!c_MainBarsArmorColorMode)
+			c_MainBarsArmorColorMode = CVar.GetCvar('jgphud_MainBarsArmorColorMode', CPlayer);
+		if (!c_MainBarsHealthColorMode)
+			c_MainBarsHealthColorMode = CVar.GetCvar('jgphud_MainBarsHealthColorMode', CPlayer);
+		if (!c_MainBarsArmorColor)
+			c_MainBarsArmorColor = CVar.GetCvar('jgphud_MainBarsArmorColor', CPlayer);
+		if (!c_MainBarsHealthColor)
+			c_MainBarsHealthColor = CVar.GetCvar('jgphud_MainBarsHealthColor', CPlayer);
+
+		if (!c_MainbarsHealthRange_25)
+			c_MainbarsHealthRange_25 = CVar.GetCvar('jgphud_MainbarsHealthRange_25', CPlayer);
+		if (!c_MainbarsHealthRange_50)
+			c_MainbarsHealthRange_50 = CVar.GetCvar('jgphud_MainbarsHealthRange_50', CPlayer);
+		if (!c_MainbarsHealthRange_75)
+			c_MainbarsHealthRange_75 = CVar.GetCvar('jgphud_MainbarsHealthRange_75', CPlayer);
+		if (!c_MainbarsHealthRange_100)
+			c_MainbarsHealthRange_100 = CVar.GetCvar('jgphud_MainbarsHealthRange_100', CPlayer);
+		if (!c_MainbarsHealthRange_101)
+			c_MainbarsHealthRange_101 = CVar.GetCvar('jgphud_MainbarsHealthRange_101', CPlayer);
+
+		if (!c_MainbarsArmorRange_25)
+			c_MainbarsArmorRange_25 = CVar.GetCvar('jgphud_MainbarsArmorRange_25', CPlayer);
+		if (!c_MainbarsArmorRange_50)
+			c_MainbarsArmorRange_50 = CVar.GetCvar('jgphud_MainbarsArmorRange_50', CPlayer);
+		if (!c_MainbarsArmorRange_75)
+			c_MainbarsArmorRange_75 = CVar.GetCvar('jgphud_MainbarsArmorRange_75', CPlayer);
+		if (!c_MainbarsArmorRange_100)
+			c_MainbarsArmorRange_100 = CVar.GetCvar('jgphud_MainbarsArmorRange_100', CPlayer);
+		if (!c_MainbarsArmorRange_101)
+			c_MainbarsArmorRange_101 = CVar.GetCvar('jgphud_MainbarsArmorRange_101', CPlayer);
+
+		if (!c_MainbarsAbsorbRange_33)
+			c_MainbarsAbsorbRange_33 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_33', CPlayer);
+		if (!c_MainbarsAbsorbRange_50)
+			c_MainbarsAbsorbRange_50 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_50', CPlayer);
+		if (!c_MainbarsAbsorbRange_66)
+			c_MainbarsAbsorbRange_66 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_66', CPlayer);
+		if (!c_MainbarsAbsorbRange_80)
+			c_MainbarsAbsorbRange_80 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_80', CPlayer);
+		if (!c_MainbarsAbsorbRange_100)
+			c_MainbarsAbsorbRange_100 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_100', CPlayer);
 	}
 }

@@ -104,7 +104,45 @@ OptionMenu "JGPHUD_MainBars"
 	Option "$JGPHUD_MAINBARS_SHOWFACE", "jgphud_DrawFace", "OnOff", "jgphud_DrawMainbars"
 	Option "$JPGHUD_MAINBARS_ARMDISPLAY", "jgphud_MainBarsArmorMode", "ArmorDisplayOptions", "jgphud_DrawMainbars"
 	StaticText ""
-	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawMainbars:jgphud_MainBarsPos:jgphud_MainBarsX:jgphud_MainBarsY:jgphud_DrawFace", 1
+	Submenu "$JGPHUD_MAINBARS_NUMCOL_TITLE", "JGPUFH_HealthArmorColorMenu"
+}
+
+OptionMenu "JGPUFH_HealthArmorColorMenu"
+{
+	Class "JGPUFH_OptionMenu"
+	Title "$JGPHUD_SETTINGS_TITLE"
+	StaticText "$JGPHUD_MAINBARS_NUMCOL_TITLE", yellow
+	StaticText ""
+
+	StaticText "$JGPHUD_MAINBARS_NUMCOL_HEALTH_TITLE", gold
+	Option "$JGPHUD_MAINBARS_NUMCOL", "jgphud_MainBarsHealthColorMode", "HealthColorizationMode"
+	JGPUFHOption "Single health color", "jgphud_MainBarsHealthColor", "MainBarsColors", "jgphud_MainBarsHealthColorMode", "!:0"
+	StaticText ""
+	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_25", "jgphud_MainbarsHealthRange_25", "MainBarsColors", "jgphud_MainBarsHealthColorMode", "0"
+	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_50", "jgphud_MainbarsHealthRange_50", "MainBarsColors", "jgphud_MainBarsHealthColorMode", "0"
+	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_75", "jgphud_MainbarsHealthRange_75", "MainBarsColors", "jgphud_MainBarsHealthColorMode", "0"
+	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_100", "jgphud_MainbarsHealthRange_100", "MainBarsColors", "jgphud_MainBarsHealthColorMode", "0"
+	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_101", "jgphud_MainbarsHealthRange_101", "MainBarsColors", "jgphud_MainBarsHealthColorMode", "0"
+	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_MainBarsHealthColorMode:jgphud_MainBarsHealthColor:jgphud_MainbarsHealthRange_25:jgphud_MainbarsHealthRange_50:jgphud_MainbarsHealthRange_75:jgphud_MainbarsHealthRange_100:jgphud_MainbarsHealthRange_101"
+	StaticText ""
+	StaticText ""
+
+	StaticText "$JGPHUD_MAINBARS_NUMCOL_ARMOR_TITLE", gold
+	Option "$JGPHUD_MAINBARS_NUMCOL", "jgphud_MainBarsArmorColorMode", "ArmorColorizationMode"
+	JGPUFHOption "Single armor color", "jgphud_MainBarsArmorColor", "MainBarsColors" , "jgphud_MainBarsArmorColorMode", "!:0"
+	StaticText ""
+	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_33", "jgphud_MainbarsAbsorbRange_33", "MainBarsColors","jgphud_MainBarsArmorColorMode", "!:2"
+	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_50", "jgphud_MainbarsAbsorbRange_50", "MainBarsColors","jgphud_MainBarsArmorColorMode", "!:2"
+	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_66", "jgphud_MainbarsAbsorbRange_66", "MainBarsColors","jgphud_MainBarsArmorColorMode", "!:2"
+	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_80", "jgphud_MainbarsAbsorbRange_80", "MainBarsColors","jgphud_MainBarsArmorColorMode", "!:2"
+	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_100", "jgphud_MainbarsAbsorbRange_100", "MainBarsColors","jgphud_MainBarsArmorColorMode", "!:2"
+	StaticText ""
+	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_25", "jgphud_MainbarsArmorRange_25", "MainBarsColors", "jgphud_MainBarsArmorColorMode", "!:1"
+	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_50", "jgphud_MainbarsArmorRange_50", "MainBarsColors", "jgphud_MainBarsArmorColorMode", "!:1"
+	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_75", "jgphud_MainbarsArmorRange_75", "MainBarsColors", "jgphud_MainBarsArmorColorMode", "!:1"
+	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_100", "jgphud_MainbarsArmorRange_100", "MainBarsColors", "jgphud_MainBarsArmorColorMode", "!:1"
+	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_101", "jgphud_MainbarsArmorRange_101", "MainBarsColors", "jgphud_MainBarsArmorColorMode", "!:1"
+	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_MainBarsArmorColorMode:jgphud_MainBarsArmorColor:jgphud_MainbarsAbsorbRange_33:jgphud_MainbarsAbsorbRange_50:jgphud_MainbarsAbsorbRange_66:jgphud_MainbarsAbsorbRange_80:jgphud_MainbarsAbsorbRange_80:jgphud_MainbarsAbsorbRange_100:jgphud_MainbarsArmorRange_25:jgphud_MainbarsArmorRange_50:jgphud_MainbarsArmorRange_75:jgphud_MainbarsArmorRange_100:jgphud_MainbarsArmorRange_101"
 }
 
 OptionMenu "JGPHUD_AmmoBlock"
@@ -487,4 +525,52 @@ OptionValue "HideAutohideShow"
 	0, "$OPTVAL_OFF"
 	1, "$JGPHUD_CROSSHAIR_BARS_AUTOHIDE"
 	2, "$JGPHUD_CROSSHAIR_BARS_ALWAYS"
+}
+
+OptionValue "MainBarsColors"
+{
+	12.0, "$C_BLACK"
+	20.0, "$C_DARKGRAY"
+	2.0, "$C_GRAY"
+	9.0, "$C_WHITE"
+
+	18.0, "$C_DARKBROWN"
+	4.0, "$C_BROWN"
+	1.0, "$C_TAN"
+	14.0, "$C_CREAM"
+	
+	17.0, "$C_DARKRED"
+	6.0, "$C_RED"
+	0.0, "$C_BRICK"
+	
+	23.0, "$C_FIRE"
+	8.0, "$C_ORANGE"
+	5.0, "$C_GOLD"
+	10.0, "$C_YELLOW"
+
+	19.0, "$C_PURPLE"
+
+	22.0, "$C_ICE"
+	25.0, "$C_TEAL"
+	7.0, "$C_BLUE"
+	24.0, "$C_SAPPHIRE"
+	13.0, "$C_LIGHTBLUE"
+	21.0, "$C_CYAN"
+
+	16.0, "$C_DARKGREEN"
+	3.0, "$C_GREEN"
+	15.0, "$C_OLIVE"
+}
+
+OptionValue "ArmorColorizationMode"
+{
+	0, "$JGPHUD_MAINBARS_NUMCOL_FIXED"
+	1, "$JGPHUD_MAINBARS_NUMCOL_AMOUNT"
+	2, "$JGPHUD_MAINBARS_NUMCOL_ABSORB"
+}
+
+OptionValue "HealthColorizationMode"
+{
+	0, "$JGPHUD_MAINBARS_NUMCOL_FIXED"
+	1, "$JGPHUD_MAINBARS_NUMCOL_AMOUNT"
 }

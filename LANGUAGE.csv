@@ -58,6 +58,23 @@ Armor icon/absorption display,JPGHUD_MAINBARS_ARMDISPLAY,"Option that controls w
 Armor icon,JPGHUD_MAINBARS_ARMDISPLAY_ICON,Option for Armor icon/absorption display,,,,,
 Armor absorption %,JPGHUD_MAINBARS_ARMDISPLAY_ABSORB,Option for Armor icon/absorption display,,,,,
 Armor icon and absorption %,JPGHUD_MAINBARS_ARMDISPLAY_BOTH,Option for Armor icon/absorption display,,,,,
+Health and armor color settings,JGPHUD_MAINBARS_NUMCOL_TITLE,"Title for a submenu with health/armor color settings. Located under ""Health and armor display"" menu",,,,,
+Armor colors,JGPHUD_MAINBARS_NUMCOL_ARMOR_TITLE,Subtitle for Health and armor color settings menu,,,,,
+Health colors,JGPHUD_MAINBARS_NUMCOL_HEALTH_TITLE,Subtitle for Health and armor color settings menu,,,,,
+Colorization rules,JGPHUD_MAINBARS_NUMCOL,This option allows adjusting the rules by which the Armor colors and Health colors are colorized. The options for Armor and Health are separate but their names are identical (they're just positioned in different sections).,,,,,
+Color reflects armor absorption,JGPHUD_MAINBARS_NUMCOL_ABSORB,Option for Number colorization rules (this one is only for Armor: color reflects the damage absorption of the current armor),,,,,
+Color reflects remaining amount,JGPHUD_MAINBARS_NUMCOL_AMOUNT,Option for Number colorization rules: color changes based on the remaining amount of Armor/Health,,,,,
+Always single color,JGPHUD_MAINBARS_NUMCOL_FIXED,Option for Number colorization rules: one fixed color,,,,,
+0-25% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_25,The color used when the AMOUNT is in this range,,,,,
+26-50% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_50,The color used when the AMOUNT is in this range,,,,,
+51-75% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_75,The color used when the AMOUNT is in this range,,,,,
+76-100% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_100,The color used when the AMOUNT is in this range,,,,,
+101+% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_101,The color used when the AMOUNT is in this range,,,,,
+33% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_33,The color used when the ABSORPTION is in this range,,,,,
+50% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_50,The color used when the ABSORPTION is in this range,,,,,
+66% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_66,The color used when the ABSORPTION is in this range,,,,,
+80% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_80,The color used when the ABSORPTION is in this range,,,,,
+100% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_100,The color used when the ABSORPTION is in this range,,,,,
 Current ammo and weapon,JGPHUD_AMMOBLOCK_TITLE,,Текущий боезапас и оружие,Munição e arma atual,Aktuelle Munition und Waffe,Arma y munición actual,Armes et munitions actuelles
 Current ammo display,JGPHUD_AMMOBLOCK_ENABLE,Whether current ammo is displayed,Показывать патроны для текущего оружия,Mostrar munição atual,Aktuelle Munition anzeigen,Mostrar munición actual,Affichage des munitions actuelles
 Display weapon icon,JGPHUD_AMMOBLOCK_SHOWWEAP,Whether selected weapon icon is displayed,Показывать значок текущего оружия,Mostrar ícone de arma,Aktuelle Waffe anzeigen,Mostrar icono del arma,Affichage des icônes d’armes
