@@ -91,73 +91,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		-1
 	};
 
-	ui void SetupHUDFont()
-	{
-		CVar cv;
-
-		cv = CVar.GetCVar('jgphud_mainfont', CPlayer);
-		if (cv && !cv.GetString())
-		{
-			cv.SetString(DEFFONT_Main);
-		}
-		mainHUDFont = JGPUFH_FontData.Create(DEFFONT_Main, (0.8,0.8));
-
-		cv = CVar.GetCVar('jgphud_smallfont', CPlayer);
-		if (cv && !cv.GetString())
-		{
-			cv.SetString(DEFFONT_Small);
-		}
-		smallHUDFont = JGPUFH_FontData.Create(DEFFONT_Small, (1, 1));
-		
-		cv = CVar.GetCVar('jgphud_numberfont', CPlayer);
-		if (cv && !cv.GetString())
-		{
-			cv.SetString(DEFFONT_Num);
-		}
-		numHUDFont = JGPUFH_FontData.Create(DEFFONT_Num, (0.4, 0.4));
-	}
-
-	ui double GetFontHeight(JGPUFH_FontData fdata, double scale = 1.0)
-	{
-		if (!fdata)
-			fdata = mainHUDFont;
-
-		return fdata.d_font.GetGlyphHeight("0") * fdata.d_scale.y * scale;
-	}
-
-	ui HUDFont, Vector2 GetHUDFont(JGPUFH_FontData fdata)
-	{
-		if (!fdata)
-			fdata = mainHUDFont; //safeguard
-
-		CVar cv;
-		if (fdata == mainHUDFont)
-		{
-			cv = CVar.GetCVar('jgphud_mainfont', CPlayer);
-			if (!mainHUDFont.Update(cv.GetString()))
-			{
-				cv.SetString(mainHUDFont.d_fontname);
-			}
-		}
-		else if (fdata == smallHUDFont)
-		{
-			cv = CVar.GetCVar('jgphud_smallfont', CPlayer);
-			if (!smallHUDFont.Update(cv.GetString()))
-			{
-				cv.SetString(smallHUDFont.d_fontname);
-			}
-		}
-		else if (fdata == numHUDFont)
-		{
-			cv = CVar.GetCVar('jgphud_numberfont', CPlayer);
-			if (!numHUDFont.Update(cv.GetString()))
-			{
-				cv.SetString(numHUDFont.d_fontname);
-			}
-		}
-		return fdata.d_hudfont, fdata.d_scale;
-	}
-
 	// Health/armor bars CVAR values:
 	ui LinearValueInterpolator healthIntr;
 	ui LinearValueInterpolator armorIntr;
@@ -243,6 +176,42 @@ class JGPUFH_FlexibleHUD : EventHandler
 		MDD_MAPONLY,
 		MDD_BOTH,
 	}
+	enum EMapColorType
+	{
+		MCT_Background,
+		MCT_You,
+		MCT_Wall,
+		MCT_IntWall,
+		MCT_Enemy,
+		MCT_Friend,
+	}
+	static const color tradmapcol_DoomColors[] =
+	{
+		0xff000000, //background
+		0xffffffff, //you
+		0xfffc0000, //walls
+		0xffffffff, //special walls
+		0xff74fc6c, //monster
+		0xff74fc6c  //friend
+	};
+	static const color tradmapcol_StrifeColors[] =
+	{
+		0xff000000, //background
+		0xffefef00, //you
+		0xffc7c3c3, //walls
+		0xffffffff, //special walls
+		0xfffc0000, //monster
+		0xfffc0000  //friend
+	};
+	static const color tradmapcol_RavenColors[] =
+	{
+		0xff6c5440, //background
+		0xffffffff, //you
+		0xff4b3210, //walls
+		0xffffffff, //special walls
+		0xffececec, //monster
+		0xffececec  //friend
+	};
 
 	// DrawInventoryBar():
 	const ITEMBARICONSIZE = 18;
@@ -710,6 +679,73 @@ class JGPUFH_FlexibleHUD : EventHandler
 	{
 		val = Clamp(val, 0, ScreenFlags.Size() - 1);
 		return ScreenFlags[val];
+	}
+
+	ui void SetupHUDFont()
+	{
+		CVar cv;
+
+		cv = CVar.GetCVar('jgphud_mainfont', CPlayer);
+		if (cv && !cv.GetString())
+		{
+			cv.SetString(DEFFONT_Main);
+		}
+		mainHUDFont = JGPUFH_FontData.Create(DEFFONT_Main, (0.8,0.8));
+
+		cv = CVar.GetCVar('jgphud_smallfont', CPlayer);
+		if (cv && !cv.GetString())
+		{
+			cv.SetString(DEFFONT_Small);
+		}
+		smallHUDFont = JGPUFH_FontData.Create(DEFFONT_Small, (1, 1));
+		
+		cv = CVar.GetCVar('jgphud_numberfont', CPlayer);
+		if (cv && !cv.GetString())
+		{
+			cv.SetString(DEFFONT_Num);
+		}
+		numHUDFont = JGPUFH_FontData.Create(DEFFONT_Num, (0.4, 0.4));
+	}
+
+	ui double GetFontHeight(JGPUFH_FontData fdata, double scale = 1.0)
+	{
+		if (!fdata)
+			fdata = mainHUDFont;
+
+		return fdata.d_font.GetGlyphHeight("0") * fdata.d_scale.y * scale;
+	}
+
+	ui HUDFont, Vector2 GetHUDFont(JGPUFH_FontData fdata)
+	{
+		if (!fdata)
+			fdata = mainHUDFont; //safeguard
+
+		CVar cv;
+		if (fdata == mainHUDFont)
+		{
+			cv = CVar.GetCVar('jgphud_mainfont', CPlayer);
+			if (!mainHUDFont.Update(cv.GetString()))
+			{
+				cv.SetString(mainHUDFont.d_fontname);
+			}
+		}
+		else if (fdata == smallHUDFont)
+		{
+			cv = CVar.GetCVar('jgphud_smallfont', CPlayer);
+			if (!smallHUDFont.Update(cv.GetString()))
+			{
+				cv.SetString(smallHUDFont.d_fontname);
+			}
+		}
+		else if (fdata == numHUDFont)
+		{
+			cv = CVar.GetCVar('jgphud_numberfont', CPlayer);
+			if (!numHUDFont.Update(cv.GetString()))
+			{
+				cv.SetString(numHUDFont.d_fontname);
+			}
+		}
+		return fdata.d_hudfont, fdata.d_scale;
 	}
 
 	// Returns the color (or texture, if available)

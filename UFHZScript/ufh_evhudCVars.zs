@@ -458,44 +458,4 @@ extend class JGPUFH_FlexibleHUD
 		if (!c_am_thingcolor_friend)
 			c_am_thingcolor_friend = CVar.GetCvar('am_thingcolor_friend', CPlayer);
 	}
-
-	enum EMapColorType
-	{
-		MCT_Background,
-		MCT_You,
-		MCT_Wall,
-		MCT_IntWall,
-		MCT_Enemy,
-		MCT_Friend,
-	}
-
-	static const color tradmapcol_DoomColors[] =
-	{
-		0xff000000, //background
-		0xffffffff, //you
-		0xfffc0000, //walls
-		0xffffffff, //special walls
-		0xff74fc6c, //monster
-		0xff74fc6c  //friend
-	};
-
-	static const color tradmapcol_StrifeColors[] =
-	{
-		0xff000000, //background
-		0xffefef00, //you
-		0xffc7c3c3, //walls
-		0xffffffff, //special walls
-		0xfffc0000, //monster
-		0xfffc0000  //friend
-	};
-
-	static const color tradmapcol_RavenColors[] =
-	{
-		0xff6c5440, //background
-		0xffffffff, //you
-		0xff4b3210, //walls
-		0xffffffff, //special walls
-		0xffececec, //monster
-		0xffececec  //friend
-	};
 }
