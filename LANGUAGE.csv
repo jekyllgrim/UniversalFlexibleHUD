@@ -149,6 +149,8 @@ Background opacity,JGPHUD_MINIMAP_OPACITY,A 0.0-1.0 slider that determines the o
 Minimap/radar size,JGPHUD_MINIMAP_SIZE,A slider,Размер мини-карты/радара,Tamanho do minimapa e radar,Minikarten- und Radargrösse,Tamaño del mapa y radar,Taille de la mini-carte/radar
 Minimap/radar shape,JGPHUD_MINIMAP_SHAPE,Square or circle,Форма мини-карты/радара,Formato do minimapa e radar,Minikarten- und Radarform,Forma del mapa y radar,Forme de la mini-carte/radar
 Minimap/radar zoom,JGPHUD_MINIMAP_ZOOM,A slider for the zoom value,Приближение мини-карты/радара,Zoom do minimapa e radar,Minikarten- und Radarzoom,Zoom del mapa y radar,Zoom de la mini-carte/radar
+Minimap/radar color set,JGPHUD_MINIMAP_COLORSET,"General option for the minimap that determines which colors will be used. At 0 uses same colors as the automap, at 1 uses custom colors.",Цвета миникарты/радара,,,,
+Same as automap,JGPHUD_MINIMAP_DEFAULTCOLORS,"Option for ""Minimap/radar color set"". If this is set, the minimap will use the same colors as GZDoom's automap.","Те же, что в автокарте",,,,
 Circle,JGPHUD_MINIMAP_SHAPE_CIRCLE,possible minimap shape,Круг,Círculo,Kreis,Circular,Cercle
 Square,JGPHUD_MINIMAP_SHAPE_SQUARE,possible minimap shape,Квадрат,Quadrado,Quadrat,Cuadrada,Carré
 Monster markers display,JGPHUD_MINIMAP_ENEMIES,"Whether to show enemies on the minimap. Possible options: Only alerted enemies / All enemies

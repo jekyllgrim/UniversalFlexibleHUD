@@ -67,6 +67,7 @@ nosave float jgphud_MinimapDrawUnseen = 0.3;
 nosave bool jgphud_MinimapDrawFloorDiff = true;
 nosave bool jgphud_MinimapDrawCeilingDiff = false;
 nosave int jgphud_MinimapMapMarkersSize = 0;
+nosave int jgphud_MinimapColorMode = 0;
 nosave color jgphud_MinimapBackColor = "000000";
 nosave color jgphud_MinimapLineColor = "80FF80";
 nosave color jgphud_MinimapIntLineColor = "FFFFFF";

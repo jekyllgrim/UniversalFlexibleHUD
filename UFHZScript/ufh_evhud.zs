@@ -3115,7 +3115,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			EnableMask(1, shapeToUse);
 		}
 		// Draw background:
-		color backCol = c_minimapBackColor.GetInt();
+		color backCol = GetMinimapColor(MCT_Background);
 		Screen.DrawShapeFill(RGB2BGR(backCol), backAlpha, shapeToUse);
 		
 		// Draw the minimap lines:
@@ -3151,7 +3151,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		minimapTransform.Scale((arrowSize, arrowSize));
 		minimapTransform.Translate(pos + (size*0.5,size*0.5));
 		minimapShape_Arrow.SetTransform(minimapTransform);
-		color youColor = c_minimapYouColor.GetInt();
+		color youColor = GetMinimapColor(MCT_You);
 		Screen.DrawShapeFill(RGB2BGR(youcolor), 1.0, minimapShape_Arrow);
 
 		DrawCardinalDirections(pos, playerAngle, size);
@@ -3180,6 +3180,50 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return 64;
 		
 		return c_MinimapSize.GetFloat();
+	}
+
+	ui color GetMinimapColor(int type)
+	{
+		// Use FlexiHUD minimap colors:
+		if(c_MinimapColorMode.GetInt())
+		{
+			color col;
+			switch (type)
+			{
+			case MCT_Background:	col = c_minimapBackColor.GetInt();		break;
+			case MCT_You:			col = c_minimapYouColor.GetInt();		break;
+			case MCT_Wall:			col = c_minimapLineColor.GetInt();		break;
+			case MCT_IntWall:		col = c_MinimapIntLineColor.GetInt();	break;
+			case MCT_Enemy:			col = c_minimapMonsterColor.GetInt();	break;
+			default:				col = c_minimapFriendColor.GetInt();	break;
+			}
+			return col;
+		}
+		// Use GZDoom colors, set to 'Custom':
+		else if (c_am_colorset.GetInt() <= 0)
+		{
+			color col;
+			switch (type)
+			{
+			case MCT_Background:	col = c_am_backcolor.GetInt();			break;
+			case MCT_You:			col = c_am_yourcolor.GetInt();			break;
+			case MCT_Wall:			col = c_am_wallcolor.GetInt();			break;
+			case MCT_IntWall:		col = c_am_specialwallcolor.GetInt();	break;
+			case MCT_Enemy:			col = c_am_thingcolor_monster.GetInt();	break;
+			default:				col = c_am_thingcolor_friend.GetInt();	break;
+			}
+			return col;
+		}
+		else
+		{
+			// Use GZDoom colors, set to one of the 'traditional' colors:
+			switch (c_am_colorset.GetInt())
+			{
+			default:	return tradmapcol_DoomColors[type];
+			case 2:		return tradmapcol_StrifeColors[type];
+			case 3:		return tradmapcol_RavenColors[type];
+			}
+		}
 	}
 
 	ui void UpdateMinimapLines()
@@ -3321,8 +3365,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 	//  zoom - current minimap zoom value
 	ui void DrawMinimapLines(Vector2 pos, Vector2 ofs, double angle, double radius, double scale = 1.0, double zoom = 1.0)
 	{
-		color lineCol = c_minimapLineColor.GetInt();
-		color intLineCol = c_MinimapIntLineColor.GetInt();
+		color lineCol = GetMinimapColor(MCT_Wall);
+		color intLineCol = GetMinimapColor(MCT_IntWall);
 
 		for (int i = 0; i < mapLines.Size(); i++)
 		{
@@ -3498,8 +3542,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		bool drawAll = c_MinimapEnemyDisplay.GetBool();
 		Shape2D shapeTouse = c_MinimapEnemyShape.GetBool() ? shape_disk : minimapShape_Arrow;
 
-		color foeColor = c_minimapMonsterColor.GetInt();
-		color friendColor = c_minimapFriendColor.GetInt();
+		color foeColor = GetMinimapColor(MCT_Enemy);
+		color friendColor = GetMinimapColor(MCT_Friend);
 		for (int i = 0; i < radarMonsters.Size(); i++)
 		{
 			let thing = radarMonsters[i];

@@ -65,6 +65,7 @@ extend class JGPUFH_PresetHandler
 		'jgphud_MinimapDrawFloorDiff',
 		'jgphud_MinimapDrawCeilingDiff',
 		'jgphud_MinimapMapMarkersSize',
+		'jgphud_MinimapColorMode',
 		'jgphud_MinimapBackColor',
 		'jgphud_MinimapLineColor',
 		'jgphud_MinimapIntLineColor',
@@ -210,6 +211,7 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonBool',		// jgphud_MinimapDrawFloorDiff
 		'JGPUFH_JsonBool',		// jgphud_MinimapDrawCeilingDiff
 		'JGPUFH_JsonNumber',	// jgphud_MinimapMapMarkersSize
+		'JGPUFH_JsonNumber',	// jgphud_MinimapColorMode
 		'JGPUFH_JsonNumber',	// jgphud_MinimapBackColor
 		'JGPUFH_JsonNumber',	// jgphud_MinimapLineColor
 		'JGPUFH_JsonNumber',	// jgphud_MinimapIntLineColor

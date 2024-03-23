@@ -77,6 +77,7 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_minimapDrawFloorDiff;
 	ui transient CVar c_minimapDrawCeilingDiff;
 	ui transient CVar c_MinimapMapMarkersSize;
+	ui transient CVar c_MinimapColorMode;
 	ui transient CVar c_minimapBackColor;
 	ui transient CVar c_minimapLineColor;
 	ui transient CVar c_minimapIntLineColor;
@@ -146,6 +147,15 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_MainbarsAbsorbRange_66;
 	ui transient CVar c_MainbarsAbsorbRange_80;
 	ui transient CVar c_MainbarsAbsorbRange_100;
+
+	// default map color cvars (not stored in FlexiHUD settings):
+	ui transient CVar c_am_colorset;
+	ui transient CVar c_am_backcolor;
+	ui transient CVar c_am_yourcolor;
+	ui transient CVar c_am_wallcolor;
+	ui transient CVar c_am_specialwallcolor;
+	ui transient CVar c_am_thingcolor_monster;
+	ui transient CVar c_am_thingcolor_friend;
 
 	ui void CacheCvars()
 	{
@@ -304,6 +314,8 @@ extend class JGPUFH_FlexibleHUD
 			c_minimapDrawCeilingDiff = CVar.GetCvar('jgphud_MinimapDrawCeilingDiff', CPlayer);
 		if (!c_minimapMapMarkersSize)
 			c_minimapMapMarkersSize = CVar.GetCvar('jgphud_minimapMapMarkersSize', CPlayer);
+		if (!c_MinimapColorMode)
+			c_MinimapColorMode = CVar.GetCvar('jgphud_MinimapColorMode', CPlayer);
 		if (!c_minimapBackColor)
 			c_minimapBackColor = CVar.GetCvar('jgphud_MinimapBackColor', CPlayer);
 		if (!c_minimapLineColor)
@@ -424,5 +436,66 @@ extend class JGPUFH_FlexibleHUD
 			c_MainbarsAbsorbRange_80 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_80', CPlayer);
 		if (!c_MainbarsAbsorbRange_100)
 			c_MainbarsAbsorbRange_100 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_100', CPlayer);
+		
+		// default map color cvars (not stored in FlexiHUD settings):
+		// which color set GZDoom uses (0 - custom, 1 - Doom, 2 - Strife, 3 - Raven):
+		if (!c_am_colorset)
+			c_am_colorset = CVar.GetCvar('am_colorset', CPlayer);
+		// background:
+		if (!c_am_backcolor)
+			c_am_backcolor = CVar.GetCvar('am_backcolor', CPlayer);
+		// you:
+		if (!c_am_yourcolor)
+			c_am_yourcolor = CVar.GetCvar('am_yourcolor', CPlayer);
+		// one-sided walls (used for all walls on minimap):
+		if (!c_am_wallcolor)
+			c_am_wallcolor = CVar.GetCvar('am_wallcolor', CPlayer);
+		// interactive walls
+		if (!c_am_specialwallcolor)
+			c_am_specialwallcolor = CVar.GetCvar('am_specialwallcolor', CPlayer);
+		if (!c_am_thingcolor_monster)
+			c_am_thingcolor_monster = CVar.GetCvar('am_thingcolor_monster', CPlayer);
+		if (!c_am_thingcolor_friend)
+			c_am_thingcolor_friend = CVar.GetCvar('am_thingcolor_friend', CPlayer);
 	}
+
+	enum EMapColorType
+	{
+		MCT_Background,
+		MCT_You,
+		MCT_Wall,
+		MCT_IntWall,
+		MCT_Enemy,
+		MCT_Friend,
+	}
+
+	static const color tradmapcol_DoomColors[] =
+	{
+		0xff000000, //background
+		0xffffffff, //you
+		0xfffc0000, //walls
+		0xffffffff, //special walls
+		0xff74fc6c, //monster
+		0xff74fc6c  //friend
+	};
+
+	static const color tradmapcol_StrifeColors[] =
+	{
+		0xff000000, //background
+		0xffefef00, //you
+		0xffc7c3c3, //walls
+		0xffffffff, //special walls
+		0xfffc0000, //monster
+		0xfffc0000  //friend
+	};
+
+	static const color tradmapcol_RavenColors[] =
+	{
+		0xff6c5440, //background
+		0xffffffff, //you
+		0xff4b3210, //walls
+		0xffffffff, //special walls
+		0xffececec, //monster
+		0xffececec  //friend
+	};
 }
