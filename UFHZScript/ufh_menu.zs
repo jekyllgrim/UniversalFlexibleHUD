@@ -261,6 +261,46 @@ mixin class JGPUFHCVarChecker
 	}
 }
 
+// Resets all CCMDs in FlexiHUD to default values
+class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
+{
+	String m_CVarCategory;
+
+	OptionMenuItemJGPUFHResetALLCCMD Init(String label, bool centered = false, String type = "")
+	{
+		Super.Init(label, '', 0, centered);
+		m_CVarCategory = type;
+		return self;
+	}
+
+	override bool Activate()
+	{
+		if (!m_CVarCategory)
+		{
+			JGPUFH_PresetHandler.ResetToDefault();
+		}
+		else
+		{
+			for (int i = 0; i < JGPUFH_PresetHandler.preset_cvar_data_types.Size(); i++)
+			{
+				String str = JGPUFH_PresetHandler.preset_cvar_data_types[i];
+				array<String> cvarTypes;
+				str.Split(cvarTypes, ":");
+				if (cvarTypes.Size() != 2)
+					continue;
+				
+				if (cvarTypes[0] == m_CVarCategory)
+				{
+					CVar c = CVar.FindCVar(cvarTypes[1]);
+					if (c)
+						c.ResetToDefault();
+				}
+			}
+		}
+		return true;
+	}
+}
+
 // Resets a list of CCMD provided as a string
 // CCMDs should be delimited with :
 class OptionMenuItemJGPUFHResetCCMD : OptionMenuItemSubmenu
@@ -286,22 +326,6 @@ class OptionMenuItemJGPUFHResetCCMD : OptionMenuItemSubmenu
 				cmd.ResetToDefault();
 			}
 		}
-		return true;
-	}
-}
-
-// Resets all CCMDs in FlexiHUD to default values
-class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
-{
-	OptionMenuItemJGPUFHResetALLCCMD Init(String label, bool centered = false)
-	{
-		Super.Init(label, '', 0, centered);
-		return self;
-	}
-
-	override bool Activate()
-	{
-		JGPUFH_PresetHandler.ResetToDefault();
 		return true;
 	}
 }
