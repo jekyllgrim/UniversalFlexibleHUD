@@ -373,3 +373,72 @@ class JGPUFH_StringMan
 		return workstring;
 	}
 }
+
+class JGPUFH_FontData ui
+{
+	protected name		d_fontname_def;
+	protected Font 		d_font_def;
+	protected HUDFont 	d_hudfont_def;
+	protected Vector2 	d_scale_def;
+
+	name				d_fontname;
+	Font 				d_font;
+	HUDFont 			d_hudfont;
+	Vector2 			d_scale;
+
+	static JGPUFH_FontData Create(name fontname, Vector2 scale)
+	{
+		Font fnt = Font.FindFont(fontname);
+		if (!fnt)
+			return null;
+
+		let fd = New('JGPUFH_FontData');
+		fd.d_fontname		= fontname;
+		fd.d_font			= fnt;
+		fd.d_hudfont 		= HUDFont.Create(fnt);
+		fd.d_scale			= scale;
+
+		fd.d_fontname_def	= fd.d_fontname;
+		fd.d_font_def		= fd.d_font;
+		fd.d_hudfont_def 	= fd.d_hudfont;
+		fd.d_scale_def		= fd.d_scale;
+		return fd;
+	}
+
+	bool IsValid()
+	{
+		return self && self.d_font && self.d_hudfont && self.d_font_def && self.d_hudfont_def;
+	}
+
+	void Reset()
+	{
+		d_fontname		= d_fontname_def;
+		d_font			= d_font_def;
+		d_hudfont		= d_hudfont_def;
+		d_scale			= d_scale_def;
+	}
+
+	bool Update(name newFontName)
+	{
+		if (newFontName == d_fontname)
+		{
+			return true;
+		}
+
+		Font fnt = Font.FindFont(newFontName);
+		if (!fnt)
+		{
+			Reset();
+			return false;
+		}
+		
+		d_font = fnt;
+		d_fontname = newFontName;
+		d_hudfont = HUDFont.Create(fnt);
+		Vector2 size = (d_font_def.GetCharWidth("0"), d_font_def.GetGlyphHeight("0"));
+		Vector2 altSize = (fnt.GetCharWidth("0"), fnt.GetGlyphHeight("0"));
+		d_scale.x = d_scale_def.x * (size.x / altSize.x);
+		d_scale.y = d_scale_def.y * (size.y / altSize.y);
+		return true;
+	}
+}

@@ -7,18 +7,29 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	ui PlayerInfo CPlayer;
 	ui transient bool gamePaused;
-
-	// Apparently, HUDFont is not properly serializable,
-	// so these need to be transient:
-	ui transient bool initDone;
-	ui transient HUDFont mainHUDFont;
-	ui transient HUDFont smallHUDFont;
-	ui transient HUDFont numHUDFont;
-
 	ui transient double prevMSTime;
 	ui transient double deltaTime;
 	ui transient double fracTic;
 	ui transient int HUDTics; //incremented all the time, including while paused
+
+	// Apparently, HUDFont is not properly serializable,
+	// so these need to be transient:
+	ui transient bool initDone;
+	// Allow dynamic changing of the fonts:
+	ui transient int fontTypeCheck;
+	enum EFontTypes
+	{
+		FT_All,
+		FT_Main,
+		FT_Small,
+		FT_Num,
+	}
+	const DEFFONT_Main = "BigFont";
+	const DEFFONT_Small = "SmallFont";
+	const DEFFONT_Num = "NewConsoleFont";
+	ui transient JGPUFH_FontData mainHUDFont;
+	ui transient JGPUFH_FontData smallHUDFont;
+	ui transient JGPUFH_FontData numHUDFont;
 
 	array <JGPUFH_PowerupData> powerupData;
 	array <MapMarker> mapMarkers;
@@ -44,6 +55,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		StatusBarCore.DI_SCREEN_RIGHT_BOTTOM
 	};
 
+	// RGB values for the default text colors from the Font struct
+	// Most of these are the 'flat' values as defined in TEXTCOLO,
+	// but a few are adjusted because visual inspection showed that
+	// in some cases flat values don't look right when transplanted
+	// onto a pure color fill.
 	static const color RealFontColors[] =
 	{
 		0xFFcc3333,	// CR_BRICK
@@ -75,6 +91,72 @@ class JGPUFH_FlexibleHUD : EventHandler
 		-1
 	};
 
+	ui void SetupHUDFont()
+	{
+		CVar cv;
+
+		cv = CVar.GetCVar('jgphud_mainfont', CPlayer);
+		if (cv && !cv.GetString())
+		{
+			cv.SetString(DEFFONT_Main);
+		}
+		mainHUDFont = JGPUFH_FontData.Create(DEFFONT_Main, (0.8,0.8));
+
+		cv = CVar.GetCVar('jgphud_smallfont', CPlayer);
+		if (cv && !cv.GetString())
+		{
+			cv.SetString(DEFFONT_Small);
+		}
+		smallHUDFont = JGPUFH_FontData.Create(DEFFONT_Small, (1, 1));
+		
+		cv = CVar.GetCVar('jgphud_numberfont', CPlayer);
+		if (cv && !cv.GetString())
+		{
+			cv.SetString(DEFFONT_Num);
+		}
+		numHUDFont = JGPUFH_FontData.Create(DEFFONT_Num, (0.4, 0.4));
+	}
+
+	ui double GetFontHeight(JGPUFH_FontData fdata, double scale = 1.0)
+	{
+		if (!fdata)
+			fdata = mainHUDFont;
+
+		return fdata.d_font.GetGlyphHeight("0") * fdata.d_scale.y * scale;
+	}
+
+	ui HUDFont, Vector2 GetHUDFont(JGPUFH_FontData fdata)
+	{
+		if (!fdata)
+			fdata = mainHUDFont; //safeguard
+
+		CVar cv;
+		if (fdata == mainHUDFont)
+		{
+			cv = CVar.GetCVar('jgphud_mainfont', CPlayer);
+			if (!mainHUDFont.Update(cv.GetString()))
+			{
+				cv.SetString(mainHUDFont.d_fontname);
+			}
+		}
+		else if (fdata == smallHUDFont)
+		{
+			cv = CVar.GetCVar('jgphud_smallfont', CPlayer);
+			if (!smallHUDFont.Update(cv.GetString()))
+			{
+				cv.SetString(smallHUDFont.d_fontname);
+			}
+		}
+		else if (fdata == numHUDFont)
+		{
+			cv = CVar.GetCVar('jgphud_numberfont', CPlayer);
+			if (!numHUDFont.Update(cv.GetString()))
+			{
+				cv.SetString(numHUDFont.d_fontname);
+			}
+		}
+		return fdata.d_hudfont, fdata.d_scale;
+	}
 
 	// Health/armor bars CVAR values:
 	ui LinearValueInterpolator healthIntr;
@@ -132,6 +214,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui double reticleMarkerScale;
 	
 	// Weapon slots
+	const WEAPONBARICONSIZE = 16;
 	const MAXWEAPONSLOTS = 10;
 	const SLOTSDISPLAYDELAY = TICRATE * 2;
 	ui array <JGPUFH_WeaponSlotData> weaponSlotData;
@@ -189,6 +272,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui int prevAmmo1MaxAmount;
 	ui int prevAmmo2Amount;
 	ui int prevAmmo2MaxAmount;
+	ui int largestAmmoAmt;
+	ui int largestAmmoMaxAmt;
 	ui double reticleMarkersDelay[4];
 	enum EReticleBarTypes
 	{
@@ -236,36 +321,18 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return (from * (1.0 - frac)) + (to * frac);
 	}
 
+	clearscope double RoundToDecimal(double val, int places = 1)
+	{
+		int i = places**10;
+		return round (val * i) / i;
+	}
+
 	clearscope bool IsVoodooDoll(PlayerPawn mo)
 	{
 		return !mo.player || !mo.player.mo || mo.player.mo != mo;
 	}
-
-	ui double GetElementScale(CVar check)
-	{
-		if (!check)
-		{
-			return 1.0;
-		}
-		double scale = Clamp(check.GetFloat(), 0.01, 30.0);
-		let base = c_BaseScale;
-		double baseFac = base ? base.GetFloat() : 1.0;
-		if (base && baseFac > 0.0)
-		{
-			scale *= baseFac;
-		}
-		return scale;
-	}
-	
 	override void WorldThingSpawned(worldEvent e)
 	{
-		// A wild PowerupGiver spawns!
-		/*let pwrg = PowerupGiver(e.thing);
-		if (pwrg)
-		{
-			JGPUFH_PowerupData.CreatePowerupIcon(pwrg, powerupData);
-		}*/
-
 		let mm = MapMarker(e.thing);
 		if (mm)
 		{
@@ -430,16 +497,13 @@ class JGPUFH_FlexibleHUD : EventHandler
 	{
 		if (initDone)
 			return;
-		
-		smallHUDFont = HUDFont.Create(newConsoleFont);
-		Font fnt = "Confont";
-		mainHUDFont = HUDFont.Create(fnt);
-		fnt = "IndexFont";
-		numHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
-		
+
+		SetupHUDFont();
 		GetCustomItemsList();
 
-		initDone = smallHUDFont && smallHUDFont.mFont && mainHUDFont && mainHUDFont.mFont && numHUDFont && numHUDFont.mFont;
+		initDone = 	mainHUDFont && mainHUDFont.IsValid() && 
+					smallHUDFont && smallHUDFont.IsValid() && 
+					numHUDFont && numHUDFont.IsValid();
 	}
 
 	override void UiTick()
@@ -481,11 +545,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		CacheCvars();
 		UpdateDeltaTime();
 		fracTic = e.fracTic;
-		/*Console.Printf("smallHUDFont: %s/%s | mainHUDFont: %s/%s | numHUDFont: %s/%s",
-			smallHUDFont ? "valid" : "invalid", smallHUDFont && smallHUDFont.mFont ? "valid" : "invalid",
-			mainHUDFont ? "valid" : "invalid", mainHUDFont && mainHUDFont.mFont ? "valid" : "invalid",
-			numHUDFont ? "valid" : "invalid", numHUDFont && numHUDFont.mFont ? "valid" : "invalid"
-		);*/
 		if (!c_enable.GetBool() || !CPlayer || !CPlayer.mo || CPlayer.camera != CPlayer.mo)
 		{
 			return;
@@ -614,6 +673,22 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		pos += ofs;
 		return pos;
+	}
+
+	ui double GetElementScale(CVar check)
+	{
+		if (!check)
+		{
+			return 1.0;
+		}
+		double scale = Clamp(check.GetFloat(), 0.01, 30.0);
+		let base = c_BaseScale;
+		double baseFac = base ? base.GetFloat() : 1.0;
+		if (base && baseFac > 0.0)
+		{
+			scale *= baseFac;
+		}
+		return scale;
 	}
 
 	// To use with DrawShapeFill which uses BGR:
@@ -847,12 +922,19 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (valueColor != -1)
 		{
 			String str = ""..int(curvalue);
-			HUDFont fnt = numHUDFont;
-			// scale it to fit the height of the bar:
-			double fontHeight = fnt.mFont.GetHeight();
-			double strScale = (barheight - indent*2) / fontheight; 
-			Vector2 strPos = barpos + (barwidth * 0.5, barheight*0.5 - fontHeight*0.5*strScale);
-			statusbar.DrawString(fnt, str, strPos, flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: valueColor, scale:(strScale, strScale));
+			HUDFont fnt = GetHUDFont(mainHUDFont);
+			// Scale the font to fit the height of the bar (minus indent).
+			// This is the only place in FlexiHUD where we're not using
+			// GetFontHeight() and instead getting the physical height of
+			// the font directly, to match it precisely to the height of the bar:
+			
+			// real height:
+			double fontHeight = fnt.mFont.GetGlyphHeight("0");
+			// multiplier to match it to the bar height minus indent:
+			double fntScale = (barheight - indent*2) / fontHeight;
+			// position the string exactly at the middle:
+			Vector2 strPos = barpos + (barwidth * 0.5, barheight*0.5 - fontHeight*fntscale*0.5); 
+			statusbar.DrawString(fnt, str, strPos, flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: valueColor, scale:(fntScale,fntScale));
 		}
 	}
 
@@ -903,15 +985,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		fontColor = endcol;
 		startcol = Clamp(startcol, 0, RealFontColors.Size() - 1);
 		endcol = Clamp(endcol, 0, RealFontColors.Size() - 1);
-		Color C1 = RealFontColors[startcol];
-		Color C2 = RealFontColors[endcol];
-		Color finalColor = GetIntermediateColor(C1, C2, colorDist);
-		//Console.MidPrint(smallfont, String.Format("Font color ID: %d\nColor range: %x - %x\nFinal color: %x", fontColor, C1, C2, finalColor));
-		/*Color interColor = color(
-			sqrt((C1.R**2+C2.R**2)/2),
-			sqrt((C1.G**2+C2.G**2)/2),
-			sqrt((C1.B**2+C2.B**2)/2)
-		);*/
+		Color finalColor = GetIntermediateColor(RealFontColors[startcol], RealFontColors[endcol], colorDist);
 		return finalColor, fontColor;
 	}
 
@@ -978,9 +1052,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		fontColor = endcol;
 		startcol = Clamp(startcol, 0, RealFontColors.Size() - 1);
 		endcol = Clamp(endcol, 0, RealFontColors.Size() - 1);
-		Color C1 = RealFontColors[startcol];
-		Color C2 = RealFontColors[endcol];
-		Color finalColor = GetIntermediateColor(C1, C2, colorDist);
+		Color finalColor = GetIntermediateColor(RealFontColors[startcol], RealFontColors[endcol], colorDist);
 		return finalColor, fontColor;
 	}
 
@@ -1161,7 +1233,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// the width is much shorter:
 		if (!drawbars)
 		{
-			width *= 0.36;
+			width *= 0.4;
 		}
 		int mainBlockWidth = width;
 		
@@ -1200,8 +1272,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// from the edges and offset from the icon):
 		int barWidth = mainBlockWidth - iconSize - indent*3;
 		double barPosX = iconPos.x + iconsize*0.5 + indent;
-		double fy = mainHUDFont.mFont.GetHeight() * scale;
-		// Get general data:
+		// Color/font data:
+		HUDFont fnt; Vector2 fntscale;
+		[fnt, fntscale] = GetHUDFont(mainHUDFont);
+		fntScale *= scale;
+		double fy = GetFontHeight(mainHUDFont, scale);
 		color cColor; int cFntCol;
 		[cColor, cFntCol] = GetHealthColor(healthAmount, healthMaxAmount);
 		// Draw health bar or numbers:
@@ -1213,7 +1288,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		else
 		{
 			String healthstring = String.Format("%3d", healthAmount);
-			statusbar.DrawString(mainHUDFont, healthstring, (barPosX, iconPos.y - fy*0.5), flags, translation:cFntCol, scale: (scale, scale));
+			statusbar.DrawString(fnt, healthstring, (barPosX, iconPos.y - fy*0.5), flags, translation:cFntCol, scale: fntScale);
 		}
 		
 		// Draw armor bar:
@@ -1281,6 +1356,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 							armPos.y = iconPos.y - ofs;
 						else
 							armPos.y = iconPos.y + ofs;
+
 						statusbar.DrawTexture(armTex, armPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize), scale:(scale,scale));
 					}
 				}
@@ -1297,11 +1373,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 			}
 			if (mode == AD_ABSORB || mode == AD_BOTH)
 			{
-				HUDFont fnt = smallHUDFont;
-				double fntscale = scale * 0.5;
-				double fy = fnt.mFont.GetHeight() * fntscale;
+				HUDFont fnt2; Vector2 fntscale2;
+				[fnt2, fntscale2] = GetHUDFont(numHUDFont);
+				fntscale2 *= scale;
+				double fy = GetFontHeight(numHUDFont, scale);
 				String sp = String.Format("%d%%", round(100 * barm.savepercent));
-				statusbar.DrawString(fnt, sp, iconPos - (0, fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, scale:(fntscale, fntscale));
+				statusbar.DrawString(fnt2, sp, iconPos - (0, fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, scale:fntscale2);
 			}
 		}
 
@@ -1312,7 +1389,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		else
 		{
-			statusbar.DrawString(mainHUDFont, String.Format("%3d", armAmount), (barPosX, iconPos.y - fy*0.5), flags, translation:cFntCol, scale:(scale, scale));
+			statusbar.DrawString(fnt, String.Format("%3d", armAmount), (barPosX, iconPos.y - fy*0.5), flags, translation:cFntCol, scale:fntScale);
 		}
 	}
 
@@ -1339,7 +1416,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		let weap = CPlayer.readyweapon;
 		if (!weap)
 			return;
-			
 
 		int flags = SetScreenFlags(c_AmmoBlockPos.GetInt());
 		Vector2 ofs = ( c_AmmoBlockX.GetInt(), c_AmmoBlockY.GetInt() );
@@ -1358,7 +1434,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// predefine size for the weapon icon and ammo icon boxes:
 		Vector2 weapIconBox = (size.x - indent*2, 18 * scale);
 		Vector2 ammoIconBox = (size.x * 0.25 - indent*4, 16 * scale);
-		double ammoTextHeight = mainHUDFont.mFont.GetHeight() * scale;
+		double ammoTextHeight = GetFontHeight(mainHUDFont, scale);
 		// If we're drawing the ammo bar, add its height and indentation
 		// to total height:
 		bool drawAmmobar = c_drawAmmoBar.GetBool();
@@ -1420,13 +1496,17 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// and the ammo bar pos:
 		Vector2 ammoBarPos = ammoTextPos + (-barwidth*0.5, ammoTextHeight + indent);
 		int segments;
+		
+		HUDFont fnt; Vector2 fntScale;
+		[fnt, fntscale] = GetHUDFont(mainHUDFont);
+		fntScale *= scale;
 
 		// Uses only 1 ammo type - draw as calculated:
 		if ((am1 && !am2) || (!am1 && am2) || (am1 == am2))
 		{
 			Ammo am = am1 ? am1 : am2;
 			statusbar.DrawInventoryIcon(am, ammo1pos, flags|StatusBarCore.DI_ITEM_CENTER, boxSize: ammoIconBox, scale:(scale,scale));
-			statusbar.DrawString(mainHUDFont, ""..am.amount, ammoTextPos, flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am.amount, am.maxamount), scale:(scale,scale));
+			statusbar.DrawString(fnt, ""..am.amount, ammoTextPos, flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am.amount, am.maxamount), scale:fntScale);
 			if (drawAmmobar)
 			{
 				segments = am.maxamount <= 20 ? am.maxamount : Clamp(am.maxamount / 10.0, 20, 50);
@@ -1444,9 +1524,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 			barwidth = size.x * 0.5 - indent * 4;
 			ammoBarPos.x = ammo1Pos.x - barWidth*0.5;
 			statusbar.DrawInventoryIcon(am1, ammo1pos, flags|StatusBarCore.DI_ITEM_CENTER, boxSize: ammoIconBox, scale:(scale,scale));
-			statusbar.DrawString(mainHUDFont, ""..am1amt, (ammo1pos.x, ammoTextPos.y), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am1.amount, am1.maxamount), scale:(scale,scale));
+			statusbar.DrawString(fnt, ""..am1amt, (ammo1pos.x, ammoTextPos.y), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am1.amount, am1.maxamount), scale:fntScale);
 			statusbar.DrawInventoryIcon(am2, ammo2pos, flags|StatusBarCore.DI_ITEM_CENTER, boxSize: ammoIconBox, scale:(scale,scale));
-			statusbar.DrawString(mainHUDFont, ""..am2amt, (ammo2pos.x, ammoTextPos.y), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am2.amount, am2.maxamount), scale:(scale,scale));
+			statusbar.DrawString(fnt, ""..am2amt, (ammo2pos.x, ammoTextPos.y), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: GetPercentageFontColor(am2.amount, am2.maxamount), scale:fntScale);
 			if (drawAmmobar)
 			{
 				segments = am1.maxamount <= 10 ? am1.maxamount : Clamp(am1.maxamount / 20.0, 10, 25);
@@ -1466,18 +1546,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		int mode = c_drawAllAmmo.GetInt();
 		if (mode <= AA_None)
 			return;
-		
-		double scale = GetElementScale(c_AllAmmoScale);
-
-		double iconSize = 6 * scale;
-		int indent = 1 * scale;
-		int flags = SetScreenFlags(c_AllAmmoPos.GetInt());
-		Vector2 ofs = ( c_AllAmmoX.GetInt(), c_AllAmmoY.GetInt() );
-		let hfnt = mainHUDFont;
-		double fntScale = 0.6 * scale;
-		double fy = hfnt.mFont.GetHeight() * fntScale;
-		double width = iconsize + indent*2 + mainHUDFont.mFont.StringWidth("000/000") * fntScale;
-		double height;
 
 		// We'll iterate over ammo first to calculate the total
 		// height of the block, put them in the array,
@@ -1486,6 +1554,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		WeaponSlots wslots = CPlayer.weapons;
 		if (!wslots)
 			return;
+
 		array <Ammo> ammoItems;
 		// Sort ammo by weapon slots, not by the order of
 		// receiving them!
@@ -1502,8 +1571,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 				class<Weapon> weap = wslots.GetWeapon(sn, s);
 				if (!weap)
 					continue;
-				int added = AddWeaponAmmoToList(weap, ammoItems, mode);
-				height += (iconsize + indent) * added;
+				AddWeaponAmmoToList(weap, ammoItems, mode);
 			}
 		}
 
@@ -1516,22 +1584,52 @@ class JGPUFH_FlexibleHUD : EventHandler
 			if (item is 'Weapon')
 			{
 				class<Weapon> weap = (class<Weapon>)(item.GetClass());
-				int added = AddWeaponAmmoToList(weap, ammoItems, mode);
-				height += (iconsize + indent) * added;
+				AddWeaponAmmoToList(weap, ammoItems, mode);
 			}
 		}
 
-		if (ammoItems.Size() <= 0)
+		int totalAmmo = ammoItems.Size();
+		if (totalAmmo <= 0)
 			return;
+		
+		// base scale, position and offsets:
+		double scale = GetElementScale(c_AllAmmoScale);
+		double iconSize = 6 * scale;
+		int indent = 1 * scale;
+		int flags = SetScreenFlags(c_AllAmmoPos.GetInt());
+		Vector2 ofs = ( c_AllAmmoX.GetInt(), c_AllAmmoY.GetInt() );
+
+		// font and font scale:
+		HUDFont hfnt; Vector2 fntScale;
+		[hfnt, fntscale] = GetHUDFont(numHUDFont);
+		fntscale *= scale;
+		double fy = GetFontHeight(numHUDFont, scale);
+
+		// columns, padding, total width and height of the element:
+		int columns = Clamp(c_AllAmmoColumns.GetInt(), 1, totalAmmo);
+		int rows = ceil(totalAmmo / double(columns));
+		bool showMax = c_AllAmmoShowMax.GetBool();
+		int largestAmt = max(largestAmmoAmt, largestAmmoMaxAmt);
+		String ammoString = showmax? String.Format("%d/%d", largestAmt, largestAmt) : String.Format("%d", largestAmt);
+		double ammoStrWidth = hfnt.mFont.StringWidth(ammoString) * fntScale.x;
+		double singleColumnWidth = iconsize + indent*4 + ammoStrWidth;
+		double singleRowHeight = max(fy, iconsize) + indent;
+		double width = singleColumnWidth * columns;
+		double height = singleRowHeight * rows;
+
+		// set position:
+		Vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 
 		// Finally, draw the ammo:
-		Vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 		// Get current HUD background color
 		// and current weapon's ammo:
 		color col = GetHUDBackground();
 		Ammo a1, a2;
 		[a1, a2] = statusbar.GetCurrentAmmo();
-		for (int i = 0; i < ammoItems.Size(); i++)
+		Vector2 curPos = pos;
+		int curRow = 0;
+		int padding = String.Format("%d", largestAmt).Length();
+		for (int i = 0; i < ammoitems.Size(); i++)
 		{			
 			Ammo am = ammoItems[i];
 			if (!am)
@@ -1543,15 +1641,34 @@ class JGPUFH_FlexibleHUD : EventHandler
 				statusbar.Fill(color(128, 255 - col.r, 255 - col.g, 255 - col.b), pos.x, pos.y, width, iconSize, flags);
 			}
 			// Draw ammo:
-			statusbar.DrawInventoryIcon(am, pos + (iconSize*0.5,iconSize*0.5), flags|StatusBarCore.DI_ITEM_CENTER, boxsize:(iconSize, iconSize));
+			statusbar.DrawInventoryIcon(am, curPos + (iconSize*0.5,iconSize*0.5), flags|StatusBarCore.DI_ITEM_CENTER, boxsize:(iconSize, iconSize));
+			String curAmmoString;
+			if (showMax)
+			{
+				curAmmoString = String.Format("%*d\cJ/\c-%*d", padding, am.amount, padding, am.maxamount);
+			}
+			else
+			{
+				curAmmoString = String.Format("%*d", padding, am.amount);
+			}
 			statusbar.DrawString(hfnt, 
-				String.Format("%3d\cJ/\c-%3d", am.amount, am.maxamount), 
-				pos + (iconSize + indent, iconsize*0.5 -fy*0.5), 
+				curAmmoString,
+				curPos + (iconSize + indent, iconsize*0.5 -fy*0.5), 
 				flags|StatusBarCore.DI_TEXT_ALIGN_LEFT, 
 				translation: GetPercentageFontColor(am.amount, am.maxamount), 
-				scale:(fntScale,fntScale)
+				scale:fntScale
 			);
-			pos.y += max(fy, iconsize) + indent;
+			curRow++;
+			if (curRow < rows)
+			{
+				curPos.y += singleRowHeight;
+			}
+			else
+			{
+				curRow = 0;
+				curPos.y = pos.y;
+				curPos.x += singleColumnWidth;
+			}
 		}
 	}
 
@@ -1615,6 +1732,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 				continue;
 			added++;
 			ammoItems.Push(am);
+			largestAmmoAmt = max(largestAmmoAmt, am.amount);
+			largestAmmoMaxAmt = max(largestAmmoMaxAmt, am.maxamount); 
 		}
 		return added;
 	}
@@ -1653,10 +1772,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		int indent = 1 * scale;
 		int flags = SetScreenFlags(c_CustomItemsPos.GetInt());
 		Vector2 ofs = ( c_CustomItemsX.GetInt(), c_CustomItemsY.GetInt() );
-		let hfnt = smallHUDFont;
-		double fntScale = iconSize * 0.025;
-		double fy = hfnt.mFont.GetHeight() * fntScale;
-		double width = iconsize + indent*4 + hfnt.mFont.StringWidth("000/000") * fntScale;
+		HUDFont hfnt; Vector2 fntscale;
+		[hfnt, fntscale] = GetHUDFont(numHUDFont);
+		fntscale *= scale;
+		double fy = GetFontHeight(numHUDFont, scale);
+		double width = iconsize + indent*4 + numHUDFont.d_font.StringWidth("000/000") * fntScale.x;
 		double height = itemNum * (iconsize + indent);
 		
 		Vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
@@ -1695,7 +1815,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 				translation = GetPercentageFontColor(item.amount, item.maxamount);
 			}
 			statusbar.DrawTexture(icon, pos + (iconSize*0.5,iconSize*0.5), flags|StatusBarCore.DI_ITEM_CENTER, alpha:alpha, scale:ScaleToBox(icon, iconSize), style:style);
-			statusbar.DrawString(hfnt, text, pos + (iconSize + indent, iconsize*0.5 -fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_LEFT, translation: translation, scale:(fntScale,fntScale));
+			statusbar.DrawString(hfnt, text, pos + (iconSize + indent, iconsize*0.5 -fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_LEFT, translation: translation, scale: fntScale);
 			pos.y += max(fy, iconsize) + indent;
 		}
 	}
@@ -1813,19 +1933,25 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui Vector2 GetCrosshairPosition()
+	ui double GetCrosshairVertOfs()
 	{
-		Vector2 screenCenter = (Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5);
 		// Compatibility with Precise Crosshair by m8f:
-		CVar pc_enable = CVar.GetCVar('pc_enable');
+		CVar pc_enable = CVar.GetCVar('pc_enable', CPlayer);
 		if (pc_enable && pc_enable.GetBool())
 		{
 			CVar pc = CVar.GetCVar('pc_y', CPlayer);
 			if (pc)
 			{
-				screenCenter.y = pc.GetFloat();
+				return pc.GetFloat() - Screen.GetHeight() * 0.5;
 			}
 		}
+		return 0;
+	}
+
+	ui Vector2 GetCrosshairPosition()
+	{
+		Vector2 screenCenter = (Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5);
+		screenCenter.y += GetCrosshairVertOfs();
 		return screenCenter;
 	}
 
@@ -2141,6 +2267,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 			posIn.y /= ASPECTSCALE;
 			posOut.y /= ASPECTSCALE;
 		}
+		Vector2 hudscale = statusbar.GetHudScale();
+		posIn.y += GetCrosshairVertOfs() / hudscale.y;
+		posOut.y += GetCrosshairVertOfs() / hudscale.y;
 		return angle, posIn, posOut, inFlags|StatusBarCore.DI_SCREEN_CENTER, outFlags|StatusBarCore.DI_SCREEN_CENTER;
 	}
 
@@ -2224,8 +2353,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		genRoundMaskTransfOuter.Translate(screenCenter);
 		
 		// Font position and scale setup:
-		HUDFont hfnt = numHUDFont;
-		Font fnt = hfnt.mFont;
+		HUDFont hfnt; Vector2 fntScale;
+		[hfnt, fntScale] = GetHUDFont(numHUDFont);
 		// We need to do a lot here. The text strings, if shown, have to be shown
 		// in specific places, depending on where the bar is located (left, top,
 		// right, bottom), and also whether it's an inner bar or an outer bar.
@@ -2234,8 +2363,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// And, obviously, the angle at which the bar is rotated. All of this
 		// can be set up by the player by changing the appropriate CVar.
 		// See GetReticleBarsPos() with a whopping 5 return values.
-		double fntScale = LinearMap(virtualSize, 12, 200, 0.5, 5, true);
-		double fy = fnt.GetHeight() * fntScale;
+		double fntScaleMul = LinearMap(virtualSize, 12, 200, 0.5, 5, true);
+		fntScale *= fntScaleMul;
+		double fy = GetFontHeight(numHUDFont, fntScaleMul);
 		double fontOfsIn = maskSize / hudscale.x - 1;
 		double fontOfsOut = secondarySize / hudscale.x + 1;
 		Vector2 fntPosIn, fntPosOut;
@@ -2261,9 +2391,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 			DrawCircleSegmentShape(color(60,160,60), screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
 			if (drawBarText)
 			{
-				double s = 0.35;
-				statusbar.DrawString(smallHUDFont, String.Format("%s", lt.GetTag()), fntPosOut, fntFlagsOut, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75) * s);
-				statusbar.DrawString(hfnt, String.Format("%d", health), fntPosIn, fntFlagsIn, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
+				statusbar.DrawString(hfnt, String.Format("%s", lt.GetTag()), fntPosOut, fntFlagsOut, Font.CR_White, fadeAlph, scale: fntScale);
+				statusbar.DrawString(hfnt, String.Format("%d", health), fntPosIn, fntFlagsIn, Font.CR_White, fadeAlph, scale: fntScale);
 			}
 			DisableMask();
 		}
@@ -2285,7 +2414,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 				DrawCircleSegmentShape(color(215,100,100), screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
 				if (drawBarText)
 				{
-					statusbar.DrawString(hfnt, String.Format("%d", health), fntPosIn, fntFlagsIn, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
+					statusbar.DrawString(hfnt, String.Format("%d", health), fntPosIn, fntFlagsIn, Font.CR_White, fadeAlph, scale: fntScale);
 				}
 				DisableMask();
 			}
@@ -2301,12 +2430,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 				DrawCircleSegmentShape(color(armorColor.a, armorcolor.r+32, armorcolor.g+32, armorcolor.b+32), screenCenter, secondarySize, steps, angle, coverAngle, valueFrac, fadeAlph);
 				if (drawBarText)
 				{
-					statusbar.DrawString(hfnt, String.Format("%d", armAmount), fntPosOut, fntFlagsOut, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
+					statusbar.DrawString(hfnt, String.Format("%d", armAmount), fntPosOut, fntFlagsOut, Font.CR_White, fadeAlph, scale: fntScale);
 				}
 				DisableMask();
 			}
 		}
-		
 
 		Ammo am1, am2;
 		[am1, am2] = statusbar.GetCurrentAmmo();
@@ -2328,7 +2456,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 					DrawCircleSegmentShape(amCol, screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
 					if (drawBarText)
 					{
-						statusbar.DrawString(hfnt, String.Format("%d", am1.amount), fntPosIn, fntFlagsIn, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
+						statusbar.DrawString(hfnt, String.Format("%d", am1.amount), fntPosIn, fntFlagsIn, Font.CR_White, fadeAlph, scale: fntScale);
 					}
 					DisableMask();
 				}
@@ -2336,7 +2464,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// Ammo 2 (outer):
 			if (am2 && am2 != am1)
 			{
+				// check special rules for ammo color:
 				color amCol2 = GetAmmoColor(am2);
+				// if no special rules were applied (color
+				// is same as ammo1), make it faded compared
+				// to main color:
 				if (amCol2 == amCol)
 				{
 					amCol2 = color(int(amCol.r*0.7), int(amCol.g*0.7), int(amCol.b*0.7));
@@ -2350,7 +2482,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 					DrawCircleSegmentShape(amCol2, screenCenter, secondarySize, steps, angle, coverAngle, valueFrac, fadeAlph);
 					if (drawBarText)
 					{
-						statusbar.DrawString(hfnt, String.Format("%d", am2.amount), fntPosOut, fntFlagsOut, Font.CR_White, fadeAlph, scale: (fntScale,fntScale*0.75));
+						statusbar.DrawString(hfnt, String.Format("%d", am2.amount), fntPosOut, fntFlagsOut, Font.CR_White, fadeAlph, scale: fntScale);
 					}
 					DisableMask();
 				}
@@ -2560,7 +2692,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return;
 
 		double scale = GetElementScale(c_WeaponSlotsScale);
-		double iconWidth = 16 * scale;
+		double iconWidth = WEAPONBARICONSIZE * scale;
 		Vector2 box = (iconWidth, iconWidth * 0.625);
 		double indent = iconWidth * 0.05;
 
@@ -2732,7 +2864,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// at the same time, we don't need that:
 		if ((rweap == weap && !pweap) || pweap == weap)
 		{
-			fntCol = Font.CR_Gold;
+			fntCol = Font.CR_RED;
 			color col = GetHUDBackground();
 			// Clamp the alpha, so it's not too low:
 			int a = Clamp(col.a, 180, 255);
@@ -2771,9 +2903,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// draw slot number in the bottom right corner of the box:
 		if (slot != -1)
 		{
-			double fs = 0.4;
 			string slotNum = ""..slot;
-			statusbar.DrawString(mainHUDFont, slotNum, (pos.x+box.x*0.95, pos.y), flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT, fntCol, 0.8, scale:(fs, fs));
+			HUDFont hfnt; Vector2 fntscale;
+			[hfnt, fntscale] = GetHUDFont(numHUDFont);
+			fntscale *= (box.y / WEAPONBARICONSIZE) * 1.2;
+			statusbar.DrawString(hfnt, slotNum, (pos.x+box.x*0.95, pos.y), flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT, fntCol, 0.8, scale:fntscale);
 		}
 	}
 
@@ -3468,9 +3602,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// attached to the same position):
 	ui void DrawMapData(Vector2 pos, int flags, double width, double scale = 1.0)
 	{
-		HUDFont hfnt = mainHUDFont;
-		Font fnt = hfnt.mFont;
-		let fy = fnt.GetHeight() * scale;
+		double indent = 1 * scale;
+
+		HUDFont hfnt; Vector2 fntscale;
+		[hfnt, fntscale] = GetHUDFont(smallHUDFont);
+		fntscale *= scale;
+		let fy = GetFontHeight(smallHUDFont, scale);
 
 		pos.x += width*0.5;
 		bool shoulDrawKills = c_DrawKills.GetBool();
@@ -3489,7 +3626,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 				vofs++;
 			if (shoulDrawTime)
 				vofs++;
-			pos.y -= (fy * vofs + 1);
+			pos.y -= ((fy + indent) * vofs + indent);
 		}
 
 		int secrets = Level.found_secrets;
@@ -3511,20 +3648,20 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// separate function to properly handle scaling:
 		if (shoulDrawKills)
 		{
-			DrawMapDataElement("$TXT_IMKILLS", kills, totalkills, hfnt, pos, flags, width, scale);
-			pos.y+=fy;
+			DrawMapDataElement("$TXT_IMKILLS", kills, totalkills, hfnt, pos, flags, width, fntscale);
+			pos.y += fy + indent;
 		}
 
 		if (shoulDrawItems)
 		{
-			DrawMapDataElement("$TXT_IMITEMS", items, totalitems, hfnt, pos, flags, width, scale);
-			pos.y+=fy;
+			DrawMapDataElement("$TXT_IMITEMS", items, totalitems, hfnt, pos, flags, width, fntscale);
+			pos.y += fy + indent;
 		}
 
 		if (shoulDrawSecrets)
 		{
-			DrawMapDataElement("$TXT_IMSECRETS", secrets, totalsecrets, hfnt, pos, flags, width, scale);
-			pos.y+=fy;
+			DrawMapDataElement("$TXT_IMSECRETS", secrets, totalsecrets, hfnt, pos, flags, width, fntscale);
+			pos.y += fy + indent;
 		}
 
 		if (shoulDrawTime)
@@ -3532,13 +3669,13 @@ class JGPUFH_FlexibleHUD : EventHandler
 			int h,m,s;
 			[h,m,s] = TicsToHours(Level.time);
 			s_right = String.Format("\cQ%d:%02d:%02d", h, m, s);
-			DrawMapDataElement("$TXT_IMTIME", 0, 0, hfnt, pos, flags, width, scale, rightside: s_right);
+			DrawMapDataElement("$TXT_IMTIME", 0, 0, hfnt, pos, flags, width, fntscale, rightside: s_right);
 		}
 	}
 
 	// Draws the actual map data element, consisting of the label
 	// (left), a space, and the value (right):
-	ui void DrawMapDataElement(String label, int val1, int val2, HUDFont hfnt, Vector2 pos, int flags, double width, double scale = 1.0, String rightside = "")
+	ui void DrawMapDataElement(String label, int val1, int val2, HUDFont hfnt, Vector2 pos, int flags, double width, Vector2 scale = (1,1), String rightside = "")
 	{
 		String str1 = StringTable.Localize(label);
 		// If rightside is provided, use that text explicitly for
@@ -3573,17 +3710,23 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Scale the string down if it's too wide
 		// to account for possible long localized
 		// strings (I wish more games would do that):
-		double strOfs = 3 * scale;
+		double strOfs = 3 * scale.x;
 		double maxStrWidth = width*0.5 - strOfs;
-		double strScale = scale;
-		double strWidth = fnt.StringWidth(str1) * scale;
+		double strScale = scale.x;
+		double strWidth = fnt.StringWidth(str1) * scale.x;
 		if (strWidth > maxStrWidth)
 		{
-			strScale = scale * (maxStrWidth / strWidth);
+			strScale = (maxStrWidth / strWidth) * scale.x;
 		}
-		statusbar.DrawString(hfnt, str1, pos-(strOfs,0), flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT, scale:(strScale,scale));
+		double strScale2 = scale.x;
+		double strWidth2 = fnt.StringWidth(str2) * scale.x;
+		if (strWidth2 > maxStrWidth)
+		{
+			strScale2 = (maxStrWidth / strWidth2) * scale.x;
+		}
+		statusbar.DrawString(hfnt, str1, pos-(strOfs,0), flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT, scale:(strScale,scale.y));
 		//statusbar.DrawString(hfnt, ":", pos, flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, scale:(scale,scale));
-		statusbar.DrawString(hfnt, str2, pos+(strOfs,0), flags|StatusBarCore.DI_TEXT_ALIGN_LEFT, scale:(scale,scale));
+		statusbar.DrawString(hfnt, str2, pos+(strOfs,0), flags|StatusBarCore.DI_TEXT_ALIGN_LEFT, scale:(strScale2, scale.y));
 	}
 
 	clearscope int, int, int TicsToHours(int tics)
@@ -3636,9 +3779,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 		double scale = GetElementScale(c_PowerupsScale);
 		double iconSize = 20.0 * scale;
 		int indent = 1 * scale;
-		HUDFont fnt = smallHUDFont;
-		double textScale = iconSize * 0.025;
-		double fy = fnt.mFont.GetHeight() * textScale;
+		
+		HUDFont fnt; Vector2 fntscale;
+		[fnt, fntscale] = GetHUDFont(numHUDFont);
+		fntScale *= scale;
+		double fy = GetFontHeight(numHUDFont, scale);
+		
 		double shortsize = iconSize + indent;
 		double longsize = (iconsize + indent) * powerNum + indent;
 		double width = vertical ? shortsize : longsize;
@@ -3682,8 +3828,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 				{
 					s_time = String.Format("%d:%02d", m, s);
 				}
-				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5) - (0.5,0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation:Font.CR_Black, scale:(textscale,textscale));
-				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation:Font.CR_Yellow, scale:(textscale,textscale));
+				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5) - (0.5,0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation:Font.CR_Black, scale:fntScale);
+				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation:Font.CR_Yellow, scale:fntScale);
 				if (vertical)
 				{
 					pos.y += iconSize + indent;
@@ -3994,7 +4140,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Scale the font (indexfont is made for 32x32 icons, so divide
 		// the current icon size by that value to get the right scale):
 		double fntScale = iconSize / 32.;
-		double fy = numHUDFont.mFont.GetHeight() * fntScale;
+		double fy = GetFontHeight(numHUDFont, scale);
 		while (item)
 		{
 			// Modify alpha and scale based on how far the icon is from the center:
@@ -4013,7 +4159,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// Scale the icons to fit into the box (but without breaking their
 			// aspect ratio):
 			statusbar.DrawTexture(icon, itemPos, flags|StatusBarCore.DI_ITEM_CENTER, alph, scale:ScaleToBox(icon, boxSize));
-			statusbar.DrawString(numHUDFont, ""..item.amount, itemPos + (boxsize*0.5, boxsize*0.5 - fy), flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT, Font.CR_Gold, alpha: alph, scale:(fntscale, fntscale));
+			statusbar.DrawString(GetHUDFont(numHUDFont), ""..item.amount, itemPos + (boxsize*0.5, boxsize*0.5 - fy), flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT, Font.CR_Gold, alpha: alph, scale:(fntscale, fntscale));
 			// If the bar is not visible, stop here:
 			if (!statusbar.IsInventoryBarVisible() && !c_AlwaysShowInvBar.GetBool())
 			{
@@ -4107,425 +4253,5 @@ class JGPUFH_FlexibleHUD : EventHandler
 			lastgood = lastgood.NextInv();
 		}
 		return lastgood;
-	}
-
-	ui transient CVar c_enable;
-	
-	ui transient CVar c_BackColor;
-	ui transient CVar c_BackAlpha;
-	ui transient CVar c_BackTexture;
-	ui transient CVar c_BackStyle;
-	ui transient CVar c_BackTextureStretch;
-
-	ui transient CVar c_aspectscale;
-	ui transient CVar c_crosshairScale;
-
-	ui transient CVar c_mainfont;
-	ui transient CVar c_smallfont;
-	ui transient CVar c_numberfont;
-
-	ui transient CVar c_drawMainbars;
-	ui transient CVar c_MainBarsPos;
-	ui transient CVar c_MainBarsX;
-	ui transient CVar c_MainBarsY;
-	ui transient CVar c_DrawFace;
-	ui transient CVar c_MainBarsArmorMode;
-
-	ui transient CVar c_drawAmmoBlock;
-	ui transient CVar c_AmmoBlockPos;
-	ui transient CVar c_AmmoBlockX;
-	ui transient CVar c_AmmoBlockY;
-	ui transient CVar c_drawAmmoBar;
-	ui transient CVar c_DrawWeapon;
-
-	ui transient CVar c_drawAllAmmo;
-	ui transient CVar c_AllAmmoShowDepleted;
-	ui transient CVar c_AllAmmoPos;
-	ui transient CVar c_AllAmmoX;
-	ui transient CVar c_AllAmmoY;
-
-	ui transient CVar c_drawInvBar;
-	ui transient CVar c_AlwaysShowInvBar;
-	ui transient CVar c_InvBarIconSize;
-	ui transient CVar c_InvBarPos;
-	ui transient CVar c_InvBarX;
-	ui transient CVar c_InvBarY;
-	
-	ui transient CVar c_drawDamageMarkers;
-
-	ui transient CVar c_drawWeaponSlots;
-	ui transient CVar c_WeaponSlotsSize;
-	ui transient CVar c_WeaponSlotsAlign;
-	ui transient CVar c_WeaponSlotsPos;
-	ui transient CVar c_WeaponSlotsX;
-	ui transient CVar c_WeaponSlotsY;
-
-	ui transient CVar c_drawPowerups;
-	ui transient CVar c_PowerupsIconSize;
-	ui transient CVar c_PowerupsPos;
-	ui transient CVar c_PowerupsX;
-	ui transient CVar c_PowerupsY;
-
-	ui transient CVar c_drawKeys;
-	ui transient CVar c_KeysPos;
-	ui transient CVar c_KeysX;
-	ui transient CVar c_KeysY;
-
-	ui transient CVar c_drawMinimap;
-	ui transient CVar c_MinimapEnemyDisplay;
-	ui transient CVar c_MinimapEnemyShape;
-	ui transient CVar c_CircularMinimap;
-	ui transient CVar c_minimapSize;
-	ui transient CVar c_minimapPos;
-	ui transient CVar c_minimapPosX;
-	ui transient CVar c_minimapPosY;
-	ui transient CVar c_minimapZoom;
-	ui transient CVar c_minimapDrawUnseen;
-	ui transient CVar c_minimapDrawFloorDiff;
-	ui transient CVar c_minimapDrawCeilingDiff;
-	ui transient CVar c_MinimapMapMarkersSize;
-	ui transient CVar c_minimapBackColor;
-	ui transient CVar c_minimapLineColor;
-	ui transient CVar c_minimapIntLineColor;
-	ui transient CVar c_minimapYouColor;
-	ui transient CVar c_minimapMonsterColor;
-	ui transient CVar c_minimapFriendColor;
-	ui transient CVar c_MinimapCardinalDir;
-	ui transient CVar c_MinimapCardinalDirSize;
-	ui transient CVar c_MinimapCardinalDirColor;
-	ui transient CVar c_MinimapOpacity;
-
-	ui transient CVar c_DrawKills;
-	ui transient CVar c_DrawItems;
-	ui transient CVar c_DrawSecrets;
-	ui transient CVar c_DrawTime;
-
-	ui transient CVar c_DrawEnemyHitMarkers;
-	ui transient CVar c_EnemyHitMarkersColor;
-	ui transient CVar c_EnemyHitMarkersSize;
-	ui transient CVar c_EnemyHitMarkersShape;
-	ui transient CVar c_DrawReticleBars;
-	ui transient CVar c_ReticleBarsHealthArmor;
-	ui transient CVar c_ReticleBarsAmmo;
-	ui transient CVar c_ReticleBarsEnemy;
-	ui transient CVar c_ReticleBarsText;
-	ui transient CVar c_ReticleBarsAlpha;
-	ui transient CVar c_ReticleBarsSize;
-	ui transient CVar c_ReticleBarsWidth;
-
-	ui transient CVar c_drawCustomItems;
-	ui transient CVar c_CustomItemsIconSize;
-	ui transient CVar c_CustomItemsPos;
-	ui transient CVar c_CustomItemsX;
-	ui transient CVar c_CustomItemsY;
-
-	ui transient CVar c_scale_general;
-	ui transient CVar c_scale_mainbars;
-	ui transient CVar c_scale_weaponblock;
-
-	ui transient CVar c_BaseScale;
-	ui transient CVar c_MainBarsScale;
-	ui transient CVar c_AmmoBlockScale;
-	ui transient CVar c_AllAmmoScale;
-	ui transient CVar c_PowerupsScale;
-	ui transient CVar c_InvBarScale;
-	ui transient CVar c_KeysScale;
-	ui transient CVar c_WeaponSlotsScale;
-	ui transient CVar c_CustomItemsScale;
-	ui transient CVar c_ReticleBarsScale;
-
-	ui transient CVar c_MainBarsArmorColorMode;
-	ui transient CVar c_MainBarsHealthColorMode;
-	ui transient CVar c_MainBarsArmorColor;
-	ui transient CVar c_MainBarsHealthColor;
-	ui transient CVar c_MainbarsHealthRange_25;
-	ui transient CVar c_MainbarsHealthRange_50;
-	ui transient CVar c_MainbarsHealthRange_75;
-	ui transient CVar c_MainbarsHealthRange_100;
-	ui transient CVar c_MainbarsHealthRange_101;
-	ui transient CVar c_MainbarsArmorRange_25;
-	ui transient CVar c_MainbarsArmorRange_50;
-	ui transient CVar c_MainbarsArmorRange_75;
-	ui transient CVar c_MainbarsArmorRange_100;
-	ui transient CVar c_MainbarsArmorRange_101;
-	ui transient CVar c_MainbarsAbsorbRange_33;
-	ui transient CVar c_MainbarsAbsorbRange_50;
-	ui transient CVar c_MainbarsAbsorbRange_66;
-	ui transient CVar c_MainbarsAbsorbRange_80;
-	ui transient CVar c_MainbarsAbsorbRange_100;
-
-	ui void CacheCvars()
-	{
-		if (!CPlayer)
-			CPlayer = players[consoleplayer];
-
-		if (!c_enable)
-			c_enable = CVar.GetCVar('jgphud_enable', CPlayer);
-		if (!c_BackColor)
-			c_BackColor = CVar.GetCVar('jgphud_BackColor', CPlayer);
-		if (!c_BackAlpha)
-			c_BackAlpha = CVar.GetCVar('jgphud_BackAlpha', CPlayer);
-		if (!c_BackStyle)
-			c_BackStyle = CVar.GetCVar('jgphud_BackStyle', CPlayer);
-		if (!c_BackTexture)
-			c_BackTexture = CVar.GetCVar('jgphud_BackTexture', CPlayer);
-		if (!c_BackTextureStretch)
-			c_BackTextureStretch = CVar.GetCVar('jgphud_BackTextureStretch', CPlayer);
-
-		if (!c_aspectscale)
-			c_aspectscale = CVar.GetCvar('hud_aspectscale', CPlayer);
-		if (!c_crosshairScale)
-			c_crosshairScale = CVar.GetCvar('CrosshairScale', CPlayer);
-
-		if (!c_mainfont)
-			c_mainfont = CVar.GetCvar('jgphud_mainfont', CPlayer);
-		if (!c_smallfont)
-			c_smallfont = CVar.GetCvar('jgphud_smallfont', CPlayer);
-		if (!c_numberfont)
-			c_numberfont = CVar.GetCvar('jgphud_numberfont', CPlayer);
-
-		if (!c_drawMainbars)
-			c_drawMainbars = CVar.GetCvar('jgphud_DrawMainbars', CPlayer);
-		if (!c_MainBarsPos)
-			c_MainBarsPos = CVar.GetCvar('jgphud_MainBarsPos', CPlayer);
-		if (!c_MainBarsX)
-			c_MainBarsX = CVar.GetCvar('jgphud_MainBarsX', CPlayer);
-		if (!c_MainBarsY)
-			c_MainBarsY = CVar.GetCvar('jgphud_MainBarsY', CPlayer);
-		if (!c_DrawFace)
-			c_DrawFace = CVar.GetCvar('jgphud_Drawface', CPlayer);
-		if (!c_MainBarsArmorMode)
-			c_MainBarsArmorMode = CVar.GetCvar('jgphud_MainBarsArmorMode', CPlayer);
-
-		if (!c_drawAmmoBlock)
-			c_drawAmmoBlock = CVar.GetCvar('jgphud_DrawAmmoBlock', CPlayer);
-		if (!c_AmmoBlockPos)
-			c_AmmoBlockPos = CVar.GetCvar('jgphud_AmmoBlockPos', CPlayer);
-		if (!c_AmmoBlockX)
-			c_AmmoBlockX = CVar.GetCvar('jgphud_AmmoBlockX', CPlayer);
-		if (!c_AmmoBlockY)
-			c_AmmoBlockY = CVar.GetCvar('jgphud_AmmoBlockY', CPlayer);
-		if (!c_DrawAmmoBar)
-			c_DrawAmmoBar = CVar.GetCvar('jgphud_DrawAmmoBar', CPlayer);
-		if (!c_DrawWeapon)
-			c_DrawWeapon = CVar.GetCvar('jgphud_DrawWeapon', CPlayer);
-
-		if (!c_drawDamageMarkers)
-			c_drawDamageMarkers = CVar.GetCvar('jgphud_DrawDamageMarkers', CPlayer);
-		if (!c_DrawEnemyHitMarkers)
-			c_DrawEnemyHitMarkers = CVar.GetCvar('jgphud_DrawEnemyHitMarkers', CPlayer);
-		if (!c_EnemyHitMarkersColor)
-			c_EnemyHitMarkersColor = CVar.GetCvar('jgphud_EnemyHitMarkersColor', CPlayer);
-		if (!c_EnemyHitMarkersSize)
-			c_EnemyHitMarkersSize = CVar.GetCvar('jgphud_EnemyHitMarkersSize', CPlayer);
-		if (!c_EnemyHitMarkersShape)
-			c_EnemyHitMarkersShape = CVar.GetCvar('jgphud_EnemyHitMarkersShape', CPlayer);
-
-		if (!c_drawAmmoBar)
-			c_drawAmmoBar = CVar.GetCvar('jgphud_DrawAmmoBar', CPlayer);
-
-		if (!c_drawAllAmmo)
-			c_drawAllAmmo = CVar.GetCvar('jgphud_DrawAllAmmo', CPlayer);
-		if (!c_AllAmmoShowDepleted)
-			c_AllAmmoShowDepleted = CVar.GetCvar('jgphud_AllAmmoShowDepleted', CPlayer);
-		if (!c_AllAmmoPos)
-			c_AllAmmoPos = CVar.GetCvar('jgphud_AllAmmoPos', CPlayer);
-		if (!c_AllAmmoX)
-			c_AllAmmoX = CVar.GetCvar('jgphud_AllAmmoX', CPlayer);
-		if (!c_AllAmmoY)
-			c_AllAmmoY = CVar.GetCvar('jgphud_AllAmmoY', CPlayer);
-
-		if (!c_drawInvBar)
-			c_drawInvBar = CVar.GetCvar('jgphud_DrawInvBar', CPlayer);
-		if (!c_AlwaysShowInvBar)
-			c_AlwaysShowInvBar = CVar.GetCvar('jgphud_AlwaysShowInvBar', CPlayer);
-		if (!c_InvBarIconSize)
-			c_InvBarIconSize = CVar.GetCvar('jgphud_InvBarIconSize', CPlayer);
-		if (!c_InvBarPos)
-			c_InvBarPos = CVar.GetCvar('jgphud_InvBarPos', CPlayer);
-		if (!c_InvBarX)
-			c_InvBarX = CVar.GetCvar('jgphud_InvBarX', CPlayer);
-		if (!c_InvBarY)
-			c_InvBarY = CVar.GetCvar('jgphud_InvBarY', CPlayer);
-
-		if (!c_drawWeaponSlots)
-			c_drawWeaponSlots = CVar.GetCvar('jgphud_DrawWeaponSlots', CPlayer);
-		if (!c_WeaponSlotsSize)
-			c_WeaponSlotsSize = CVar.GetCvar('jgphud_WeaponSlotsSize', CPlayer);
-		if (!c_WeaponSlotsAlign)
-			c_WeaponSlotsAlign = CVar.GetCvar('jgphud_WeaponSlotsAlign', CPlayer);
-		if (!c_WeaponSlotsPos)
-			c_WeaponSlotsPos = CVar.GetCvar('jgphud_WeaponSlotsPos', CPlayer);
-		if (!c_WeaponSlotsX)
-			c_WeaponSlotsX = CVar.GetCvar('jgphud_WeaponSlotsX', CPlayer);
-		if (!c_WeaponSlotsY)
-			c_WeaponSlotsY = CVar.GetCvar('jgphud_WeaponSlotsY', CPlayer);
-
-		if (!c_drawPowerups)
-			c_drawPowerups = CVar.GetCvar('jgphud_DrawPowerups', CPlayer);
-		if (!c_PowerupsIconSize)
-			c_PowerupsIconSize = CVar.GetCvar('jgphud_PowerupsIconSize', CPlayer);
-		if (!c_PowerupsPos)
-			c_PowerupsPos = CVar.GetCvar('jgphud_PowerupsPos', CPlayer);
-		if (!c_PowerupsX)
-			c_PowerupsX = CVar.GetCvar('jgphud_PowerupsX', CPlayer);
-		if (!c_PowerupsY)
-			c_PowerupsY = CVar.GetCvar('jgphud_PowerupsY', CPlayer);
-
-		if (!c_drawKeys)
-			c_drawKeys = CVar.GetCvar('jgphud_DrawKeys', CPlayer);
-		if (!c_KeysPos)
-			c_KeysPos = CVar.GetCvar('jgphud_KeysPos', CPlayer);
-		if (!c_KeysX)
-			c_KeysX = CVar.GetCvar('jgphud_KeysX', CPlayer);
-		if (!c_KeysY)
-			c_KeysY = CVar.GetCvar('jgphud_KeysY', CPlayer);
-
-		if (!c_drawMinimap)
-			c_drawMinimap = CVar.GetCvar('jgphud_DrawMinimap', CPlayer);
-		if (!c_MinimapEnemyDisplay)
-			c_MinimapEnemyDisplay = CVar.GetCvar('jgphud_MinimapEnemyDisplay', CPlayer);
-		if (!c_MinimapEnemyShape)
-			c_MinimapEnemyShape = CVar.GetCvar('jgphud_MinimapEnemyShape', CPlayer);
-		if (!c_CircularMinimap)
-			c_CircularMinimap = CVar.GetCvar('jgphud_CircularMinimap', CPlayer);
-		if (!c_minimapSize)
-			c_minimapSize = CVar.GetCvar('jgphud_MinimapSize', CPlayer);
-		if (!c_minimapPos)
-			c_minimapPos = CVar.GetCvar('jgphud_MinimapPos', CPlayer);
-		if (!c_minimapPosX)
-			c_minimapPosX = CVar.GetCvar('jgphud_MinimapPosX', CPlayer);
-		if (!c_minimapPosY)
-			c_minimapPosY = CVar.GetCvar('jgphud_MinimapPosY', CPlayer);
-		if (!c_minimapZoom)
-			c_minimapZoom = CVar.GetCvar('jgphud_MinimapZoom', CPlayer);
-		if (!c_minimapDrawUnseen)
-			c_minimapDrawUnseen = CVar.GetCvar('jgphud_MinimapDrawUnseen', CPlayer);
-		if (!c_minimapDrawFloorDiff)
-			c_minimapDrawFloorDiff = CVar.GetCvar('jgphud_MinimapDrawFloorDiff', CPlayer);
-		if (!c_minimapDrawCeilingDiff)
-			c_minimapDrawCeilingDiff = CVar.GetCvar('jgphud_MinimapDrawCeilingDiff', CPlayer);
-		if (!c_minimapMapMarkersSize)
-			c_minimapMapMarkersSize = CVar.GetCvar('jgphud_minimapMapMarkersSize', CPlayer);
-		if (!c_minimapBackColor)
-			c_minimapBackColor = CVar.GetCvar('jgphud_MinimapBackColor', CPlayer);
-		if (!c_minimapLineColor)
-			c_minimapLineColor = CVar.GetCvar('jgphud_MinimapLineColor', CPlayer);
-		if (!c_minimapIntLineColor)
-			c_minimapIntLineColor = CVar.GetCvar('jgphud_MinimapIntLineColor', CPlayer);
-		if (!c_minimapYouColor)
-			c_minimapYouColor = CVar.GetCvar('jgphud_MinimapYouColor', CPlayer);
-		if (!c_minimapMonsterColor)
-			c_minimapMonsterColor = CVar.GetCvar('jgphud_MinimapMonsterColor', CPlayer);
-		if (!c_minimapFriendColor)
-			c_minimapFriendColor = CVar.GetCvar('jgphud_MinimapFriendColor', CPlayer);
-		if (!c_MinimapCardinalDir)
-			c_MinimapCardinalDir = CVar.GetCvar('jgphud_MinimapCardinalDir', CPlayer);
-		if (!c_MinimapCardinalDirSize)
-			c_MinimapCardinalDirSize = CVar.GetCvar('jgphud_MinimapCardinalDirSize', CPlayer);
-		if (!c_MinimapCardinalDirColor)
-			c_MinimapCardinalDirColor = CVar.GetCvar('jgphud_MinimapCardinalDirColor', CPlayer);
-		if (!c_MinimapOpacity)
-			c_MinimapOpacity = CVar.GetCvar('jgphud_MinimapOpacity', CPlayer);
-
-		if (!c_DrawKills)
-			c_DrawKills = CVar.GetCvar('jgphud_DrawKills', CPlayer);
-		if (!c_DrawItems)
-			c_DrawItems = CVar.GetCvar('jgphud_DrawItems', CPlayer);
-		if (!c_DrawSecrets)
-			c_DrawSecrets = CVar.GetCvar('jgphud_DrawSecrets', CPlayer);
-		if (!c_DrawTime)
-			c_DrawTime = CVar.GetCvar('jgphud_DrawTime', CPlayer);
-
-		if (!c_DrawReticleBars)
-			c_DrawReticleBars = CVar.GetCvar('jgphud_DrawReticleBars', CPlayer);
-		if (!c_ReticleBarsText)
-			c_ReticleBarsText = CVar.GetCvar('jgphud_ReticleBarsText', CPlayer);
-		if (!c_ReticleBarsAlpha)
-			c_ReticleBarsAlpha = CVar.GetCvar('jgphud_ReticleBarsAlpha', CPlayer);
-		if (!c_ReticleBarsSize)
-			c_ReticleBarsSize = CVar.GetCvar('jgphud_ReticleBarsSize', CPlayer);
-		if (!c_ReticleBarsHealthArmor)
-			c_ReticleBarsHealthArmor = CVar.GetCvar('jgphud_ReticleBarsHealthArmor', CPlayer);
-		if (!c_ReticleBarsAmmo)
-			c_ReticleBarsAmmo = CVar.GetCvar('jgphud_ReticleBarsAmmo', CPlayer);
-		if (!c_ReticleBarsEnemy)
-			c_ReticleBarsEnemy = CVar.GetCvar('jgphud_ReticleBarsEnemy', CPlayer);
-		if (!c_ReticleBarsWidth)
-			c_ReticleBarsWidth = CVar.GetCvar('jgphud_ReticleBarsWidth', CPlayer);
-			
-		if (!c_drawCustomItems)
-			c_drawCustomItems = CVar.GetCvar('jgphud_DrawCustomItems', CPlayer);
-		if (!c_CustomItemsIconSize)
-			c_CustomItemsIconSize = CVar.GetCvar('jgphud_CustomItemsIconSize', CPlayer);
-		if (!c_CustomItemsPos)
-			c_CustomItemsPos = CVar.GetCvar('jgphud_CustomItemsPos', CPlayer);
-		if (!c_CustomItemsX)
-			c_CustomItemsX = CVar.GetCvar('jgphud_CustomItemsX', CPlayer);
-		if (!c_CustomItemsY)
-			c_CustomItemsY = CVar.GetCvar('jgphud_CustomItemsY', CPlayer);
-
-		if (!c_BaseScale)
-			c_BaseScale = CVar.GetCVar('jgphud_BaseScale', CPlayer);
-		if (!c_MainBarsScale)
-			c_MainBarsScale = CVar.GetCVar('jgphud_MainBarsScale', CPlayer);
-		if (!c_AmmoBlockScale)
-			c_AmmoBlockScale = CVar.GetCVar('jgphud_AmmoBlockScale', CPlayer);
-		if (!c_AllAmmoScale)
-			c_AllAmmoScale = CVar.GetCVar('jgphud_AllAmmoScale', CPlayer);
-		if (!c_PowerupsScale)
-			c_PowerupsScale = CVar.GetCVar('jgphud_PowerupsScale', CPlayer);
-		if (!c_InvBarScale)
-			c_InvBarScale = CVar.GetCVar('jgphud_InvBarScale', CPlayer);
-		if (!c_KeysScale)
-			c_KeysScale = CVar.GetCVar('jgphud_KeysScale', CPlayer);
-		if (!c_WeaponSlotsScale)
-			c_WeaponSlotsScale = CVar.GetCVar('jgphud_WeaponSlotsScale', CPlayer);
-		if (!c_CustomItemsScale)
-			c_CustomItemsScale = CVar.GetCVar('jgphud_CustomItemsScale', CPlayer);
-		if (!c_ReticleBarsScale)
-			c_ReticleBarsScale = CVar.GetCVar('jgphud_ReticleBarsScale', CPlayer);
-
-		if (!c_MainBarsArmorColorMode)
-			c_MainBarsArmorColorMode = CVar.GetCvar('jgphud_MainBarsArmorColorMode', CPlayer);
-		if (!c_MainBarsHealthColorMode)
-			c_MainBarsHealthColorMode = CVar.GetCvar('jgphud_MainBarsHealthColorMode', CPlayer);
-		if (!c_MainBarsArmorColor)
-			c_MainBarsArmorColor = CVar.GetCvar('jgphud_MainBarsArmorColor', CPlayer);
-		if (!c_MainBarsHealthColor)
-			c_MainBarsHealthColor = CVar.GetCvar('jgphud_MainBarsHealthColor', CPlayer);
-
-		if (!c_MainbarsHealthRange_25)
-			c_MainbarsHealthRange_25 = CVar.GetCvar('jgphud_MainbarsHealthRange_25', CPlayer);
-		if (!c_MainbarsHealthRange_50)
-			c_MainbarsHealthRange_50 = CVar.GetCvar('jgphud_MainbarsHealthRange_50', CPlayer);
-		if (!c_MainbarsHealthRange_75)
-			c_MainbarsHealthRange_75 = CVar.GetCvar('jgphud_MainbarsHealthRange_75', CPlayer);
-		if (!c_MainbarsHealthRange_100)
-			c_MainbarsHealthRange_100 = CVar.GetCvar('jgphud_MainbarsHealthRange_100', CPlayer);
-		if (!c_MainbarsHealthRange_101)
-			c_MainbarsHealthRange_101 = CVar.GetCvar('jgphud_MainbarsHealthRange_101', CPlayer);
-
-		if (!c_MainbarsArmorRange_25)
-			c_MainbarsArmorRange_25 = CVar.GetCvar('jgphud_MainbarsArmorRange_25', CPlayer);
-		if (!c_MainbarsArmorRange_50)
-			c_MainbarsArmorRange_50 = CVar.GetCvar('jgphud_MainbarsArmorRange_50', CPlayer);
-		if (!c_MainbarsArmorRange_75)
-			c_MainbarsArmorRange_75 = CVar.GetCvar('jgphud_MainbarsArmorRange_75', CPlayer);
-		if (!c_MainbarsArmorRange_100)
-			c_MainbarsArmorRange_100 = CVar.GetCvar('jgphud_MainbarsArmorRange_100', CPlayer);
-		if (!c_MainbarsArmorRange_101)
-			c_MainbarsArmorRange_101 = CVar.GetCvar('jgphud_MainbarsArmorRange_101', CPlayer);
-
-		if (!c_MainbarsAbsorbRange_33)
-			c_MainbarsAbsorbRange_33 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_33', CPlayer);
-		if (!c_MainbarsAbsorbRange_50)
-			c_MainbarsAbsorbRange_50 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_50', CPlayer);
-		if (!c_MainbarsAbsorbRange_66)
-			c_MainbarsAbsorbRange_66 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_66', CPlayer);
-		if (!c_MainbarsAbsorbRange_80)
-			c_MainbarsAbsorbRange_80 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_80', CPlayer);
-		if (!c_MainbarsAbsorbRange_100)
-			c_MainbarsAbsorbRange_100 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_100', CPlayer);
 	}
 }

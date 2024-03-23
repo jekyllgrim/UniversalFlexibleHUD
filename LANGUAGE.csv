@@ -65,6 +65,8 @@ Colorization rules,JGPHUD_MAINBARS_NUMCOL,This option allows adjusting the rules
 Color reflects armor absorption,JGPHUD_MAINBARS_NUMCOL_ABSORB,Option for Number colorization rules (this one is only for Armor: color reflects the damage absorption of the current armor),,,,,
 Color reflects remaining amount,JGPHUD_MAINBARS_NUMCOL_AMOUNT,Option for Number colorization rules: color changes based on the remaining amount of Armor/Health,,,,,
 Always single color,JGPHUD_MAINBARS_NUMCOL_FIXED,Option for Number colorization rules: one fixed color,,,,,
+Single color,JGPHUD_MAINBARS_NUMCOL_FIXED_LABEL,,,,,,
+Choose colors:,JGPHUD_MAINBARS_NUMCOL_CHOOSE,,,,,,
 0-25% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_25,The color used when the AMOUNT is in this range,,,,,
 26-50% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_50,The color used when the AMOUNT is in this range,,,,,
 51-75% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_75,The color used when the AMOUNT is in this range,,,,,
@@ -84,6 +86,10 @@ Display all ammo,JGPHUD_ALLAMMO_ENABLE,Whether to display a separate block with 
 For the weapons you have,JGPHUD_ALLAMMO_OWNEDWEAPONS,All Ammo block option: only draw ammo icons/amounts for the weapons the player has in their inventory,Только для оружия в инвентаре,Para as armas que você tem,Nur für mitgeführte Waffen,Para armas en posesión,Pour les armes que vous avez
 For all weapons in the game,JGPHUD_ALLAMMO_ALLWEAPONS,All Ammo block options: draw ammo for all weapons that exist in the current game,Для всех видов оружия в игре,Para todas as armas no jogo,Für alle Waffen im Spiel,Para todas las armas,Pour toutes les armes du jeu
 Show depleted ammo,JGPHUD_ALLAMMO_SHOWDEPLETED,Whether to show the ammo you've run out of in the All Ammo block (On/Off),Показывать израсходованные патроны,Mostrar tipos de munição esgotados,Verbrauchte Munition anzeigen,Mostrar municiones vacias,Afficher les munitions épuisées
+Number of columns,JGPHUD_ALLAMMO_COLUMNS,,,,,,
+Display format,JGPHUD_ALLAMMO_DISPLAYFORMAT,,,,,,
+Current amount only,JGPHUD_ALLAMMO_DISPLAYFORMAT_NOMAX,,,,,,
+Current amount / Max amount,JGPHUD_ALLAMMO_DISPLAYFORMAT_MAX,,,,,,
 Keys,JGPHUD_KEYS_TITLE,,Ключи,Chaves,Schlüssel,Llaves,Clés
 Keys display,JGPHUD_KEYS_ENABLE,Whether to show keys on the HUD,Показывать ключи,Mostrar chaves,Schlüssel anzeigen,Mostrar llaves,Affichage des clés
 Weapon slots,JGPHUD_WEAPSLOTS_TITLE,,Ячейки оружия,Ícones de arma,Waffenplätze,Slots de armas,Emplacements d'armes

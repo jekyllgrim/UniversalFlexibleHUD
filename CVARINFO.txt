@@ -33,6 +33,8 @@ nosave bool jgphud_AllAmmoShowDepleted = false;
 nosave int jgphud_AllAmmoPos = 5;
 nosave int jgphud_AllAmmoX = 2;
 nosave int jgphud_AllAmmoY = 0;
+nosave int jgphud_AllAmmoColumns = 1;
+nosave bool jgphud_AllAmmoShowMax = true;
 
 nosave bool jgphud_DrawKeys = true;
 nosave int jgphud_KeysPos = 8;
@@ -107,9 +109,9 @@ nosave int jgphud_CustomItemsPos = 6;
 nosave int jgphud_CustomItemsX = 160;
 nosave int jgphud_CustomItemsY = 2;
 
-nosave string jgphud_mainfont = "BigUpper";
-nosave string jgphud_smallfont = "Confont";
-nosave string jgphud_numberfont = "IndexFont";
+nosave string jgphud_mainfont = "";
+nosave string jgphud_smallfont = "";
+nosave string jgphud_numberfont = "";
 
 // scaling:
 nosave float jgphud_BaseScale = 0.0;

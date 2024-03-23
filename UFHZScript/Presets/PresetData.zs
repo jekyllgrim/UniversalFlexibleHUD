@@ -31,6 +31,8 @@ extend class JGPUFH_PresetHandler
 		'jgphud_AllAmmoPos',
 		'jgphud_AllAmmoX',
 		'jgphud_AllAmmoY',
+		'jgphud_AllAmmoColumns',
+		'jgphud_AllAmmoShowMax',
 
 		'jgphud_DrawKeys',
 		'jgphud_KeysPos',
@@ -174,6 +176,8 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonNumber',	// jgphud_AllAmmoPos
 		'JGPUFH_JsonNumber',	// jgphud_AllAmmoX
 		'JGPUFH_JsonNumber',	// jgphud_AllAmmoY
+		'JGPUFH_JsonNumber',	// jgphud_AllAmmoColumns
+		'JGPUFH_JsonBool',		// jgphud_AllAmmoShowMax
 
 		'JGPUFH_JsonBool',		// jgphud_DrawKeys
 		'JGPUFH_JsonNumber',	// jgphud_KeysPos
@@ -187,7 +191,7 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsX
 		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsY
 
-		'JGPUFH_JsonNumber',		// jgphud_DrawPowerups
+		'JGPUFH_JsonNumber',	// jgphud_DrawPowerups
 		'JGPUFH_JsonNumber',	// jgphud_PowerupsIconSize
 		'JGPUFH_JsonNumber',	// jgphud_PowerupsPos
 		'JGPUFH_JsonNumber',	// jgphud_PowerupsX
@@ -266,17 +270,17 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonNumber', 	//jgphud_MainBarsHealthColorMode,
 		'JGPUFH_JsonNumber', 	//jgphud_MainBarsHealthColor,
 		'JGPUFH_JsonNumber', 	//jgphud_MainbarsHealthRange_25,
-		'JGPUFH_JsonNumber',	 //jgphud_MainbarsHealthRange_50,
+		'JGPUFH_JsonNumber',	//jgphud_MainbarsHealthRange_50,
 		'JGPUFH_JsonNumber', 	//jgphud_MainbarsHealthRange_75,
 		'JGPUFH_JsonNumber', 	//jgphud_MainbarsHealthRange_100,
 		'JGPUFH_JsonNumber', 	//jgphud_MainbarsHealthRange_101,
 
-		'JGPUFH_JsonNumber',	 //jgphud_MainBarsArmorMode,
-		'JGPUFH_JsonNumber',	 //jgphud_MainBarsArmorColorMode,
-		'JGPUFH_JsonNumber',	 //jgphud_MainBarsArmorColor,
-		'JGPUFH_JsonNumber',	 //jgphud_MainbarsArmorRange_25,
-		'JGPUFH_JsonNumber',	 //jgphud_MainbarsArmorRange_50,
-		'JGPUFH_JsonNumber',	 //jgphud_MainbarsArmorRange_75,
+		'JGPUFH_JsonNumber',	//jgphud_MainBarsArmorMode,
+		'JGPUFH_JsonNumber',	//jgphud_MainBarsArmorColorMode,
+		'JGPUFH_JsonNumber',	//jgphud_MainBarsArmorColor,
+		'JGPUFH_JsonNumber',	//jgphud_MainbarsArmorRange_25,
+		'JGPUFH_JsonNumber',	//jgphud_MainbarsArmorRange_50,
+		'JGPUFH_JsonNumber',	//jgphud_MainbarsArmorRange_75,
 		'JGPUFH_JsonNumber', 	//jgphud_MainbarsArmorRange_100,
 		'JGPUFH_JsonNumber', 	//jgphud_MainbarsArmorRange_101,
 		'JGPUFH_JsonNumber',	//jgphud_MainbarsAbsorbRange_33,

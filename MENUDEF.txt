@@ -49,14 +49,24 @@ OptionMenu "JGPHUD_Appearance"
 	StaticText ""
 
 	Option "$JGPHUD_GENERAL_BACKSTYLE", "jgphud_BackStyle", "BackgroundStyles"
-	JGPUFHColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor", "jgphud_BackStyle"
 	Slider "$JGPHUD_GENERAL_BACKALPHA", "jgphud_BackAlpha", 0.00, 1.0, 0.05, 2
-	JGPUFHTextField "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME", "jgphud_BackTexture", "jgphud_BackStyle", "!:0"
-	StaticText "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME_NOTE", gray
-	StaticText ""
-	StaticText ""
-	JGPUFHOption "$JGPHUD_GENERAL_BACKSTYLE_TEXFIT", "jgphud_BackTextureStretch", "BackTextureFitMode", "jgphud_BackStyle", "!:0"
+	JGPUFH_CheckCVar "$JGPHUD_GENERAL_BACKSTYLE_COLOR", sapphire, "jgphud_BackStyle", "1"
+		ColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor", "jgphud_BackStyle"
+	JGPUFH_Else "$JGPHUD_GENERAL_BACKSTYLE_TEXTURE", sapphire
+		TextField "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME", "jgphud_BackTexture"
+		StaticText "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME_NOTE", gray
+		StaticText ""
+		StaticText ""
+		Option "$JGPHUD_GENERAL_BACKSTYLE_TEXFIT", "jgphud_BackTextureStretch", "BackTextureFitMode"
+	JGPUFH_EndIf ""
 	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_BackStyle:jgphud_BackTexture:jgphud_BackColor:jgphud_BackAlpha", 1
+	
+	StaticText ""
+	StaticText "$Fonts", yellow
+	StaticText ""
+	TextField "Main font", "jgphud_mainfont"
+	TextField "Medium font", "jgphud_smallfont"
+	TextField "Small numeric font", "jgphud_numberfont"
 	
 	StaticText ""
 	StaticText "$JGPHUD_GENERAL_APPEARANCE_SCALING", yellow
@@ -104,44 +114,40 @@ OptionMenu "JGPHUD_MainBars"
 	Option "$JGPHUD_MAINBARS_SHOWFACE", "jgphud_DrawFace", "OnOff", "jgphud_DrawMainbars"
 	Option "$JPGHUD_MAINBARS_ARMDISPLAY", "jgphud_MainBarsArmorMode", "ArmorDisplayOptions", "jgphud_DrawMainbars"
 	StaticText ""
-	Submenu "$JGPHUD_MAINBARS_NUMCOL_TITLE", "JGPUFH_HealthArmorColorMenu"
-}
 
-OptionMenu "JGPUFH_HealthArmorColorMenu"
-{
-	Class "JGPUFH_OptionMenu"
-	Title "$JGPHUD_SETTINGS_TITLE"
-	StaticText "$JGPHUD_MAINBARS_NUMCOL_TITLE", yellow
-	StaticText ""
-
-	StaticText "$JGPHUD_MAINBARS_NUMCOL_HEALTH_TITLE", gold
+	StaticText "$JGPHUD_MAINBARS_NUMCOL_HEALTH_TITLE", yellow
 	Option "$JGPHUD_MAINBARS_NUMCOL", "jgphud_MainBarsHealthColorMode", "HealthColorizationMode"
-	JGPUFHOption "Single health color", "jgphud_MainBarsHealthColor", "MainBarsColors", "jgphud_MainBarsHealthColorMode", "!:0"
-	StaticText ""
-	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_25", "jgphud_MainbarsHealthRange_25", "MainBarsColors", "jgphud_MainBarsHealthColorMode", "0"
-	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_50", "jgphud_MainbarsHealthRange_50", "MainBarsColors", "jgphud_MainBarsHealthColorMode", "0"
-	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_75", "jgphud_MainbarsHealthRange_75", "MainBarsColors", "jgphud_MainBarsHealthColorMode", "0"
-	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_100", "jgphud_MainbarsHealthRange_100", "MainBarsColors", "jgphud_MainBarsHealthColorMode", "0"
-	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_101", "jgphud_MainbarsHealthRange_101", "MainBarsColors", "jgphud_MainBarsHealthColorMode", "0"
+	JGPUFH_CheckCVar "$JGPHUD_MAINBARS_NUMCOL_CHOOSE", sapphire, "jgphud_MainBarsHealthColorMode", "0"
+		Option "$JGPHUD_MAINBARS_NUMCOL_FIXED_LABEL", "jgphud_MainBarsHealthColor", "CleanTextColors"
+	JGPUFH_Else "$JGPHUD_MAINBARS_NUMCOL_CHOOSE", sapphire
+		Option "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_25", "jgphud_MainbarsHealthRange_25", "CleanTextColors"
+		Option "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_50", "jgphud_MainbarsHealthRange_50", "CleanTextColors"
+		Option "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_75", "jgphud_MainbarsHealthRange_75", "CleanTextColors"
+		Option "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_100", "jgphud_MainbarsHealthRange_100", "CleanTextColors"
+		Option "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_101", "jgphud_MainbarsHealthRange_101", "CleanTextColors"
+	JGPUFH_EndIf ""
 	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_MainBarsHealthColorMode:jgphud_MainBarsHealthColor:jgphud_MainbarsHealthRange_25:jgphud_MainbarsHealthRange_50:jgphud_MainbarsHealthRange_75:jgphud_MainbarsHealthRange_100:jgphud_MainbarsHealthRange_101"
 	StaticText ""
-	StaticText ""
 
-	StaticText "$JGPHUD_MAINBARS_NUMCOL_ARMOR_TITLE", gold
+	StaticText "$JGPHUD_MAINBARS_NUMCOL_ARMOR_TITLE", yellow
 	Option "$JGPHUD_MAINBARS_NUMCOL", "jgphud_MainBarsArmorColorMode", "ArmorColorizationMode"
-	JGPUFHOption "Single armor color", "jgphud_MainBarsArmorColor", "MainBarsColors" , "jgphud_MainBarsArmorColorMode", "!:0"
-	StaticText ""
-	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_33", "jgphud_MainbarsAbsorbRange_33", "MainBarsColors","jgphud_MainBarsArmorColorMode", "!:2"
-	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_50", "jgphud_MainbarsAbsorbRange_50", "MainBarsColors","jgphud_MainBarsArmorColorMode", "!:2"
-	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_66", "jgphud_MainbarsAbsorbRange_66", "MainBarsColors","jgphud_MainBarsArmorColorMode", "!:2"
-	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_80", "jgphud_MainbarsAbsorbRange_80", "MainBarsColors","jgphud_MainBarsArmorColorMode", "!:2"
-	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_100", "jgphud_MainbarsAbsorbRange_100", "MainBarsColors","jgphud_MainBarsArmorColorMode", "!:2"
-	StaticText ""
-	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_25", "jgphud_MainbarsArmorRange_25", "MainBarsColors", "jgphud_MainBarsArmorColorMode", "!:1"
-	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_50", "jgphud_MainbarsArmorRange_50", "MainBarsColors", "jgphud_MainBarsArmorColorMode", "!:1"
-	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_75", "jgphud_MainbarsArmorRange_75", "MainBarsColors", "jgphud_MainBarsArmorColorMode", "!:1"
-	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_100", "jgphud_MainbarsArmorRange_100", "MainBarsColors", "jgphud_MainBarsArmorColorMode", "!:1"
-	JGPUFHOption "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_101", "jgphud_MainbarsArmorRange_101", "MainBarsColors", "jgphud_MainBarsArmorColorMode", "!:1"
+	JGPUFH_CheckCVar "$JGPHUD_MAINBARS_NUMCOL_CHOOSE", sapphire, "jgphud_MainBarsArmorColorMode", "0"
+		Option "Single armor color", "jgphud_MainBarsArmorColor", "CleanTextColors"
+	JGPUFH_EndIf ""
+	JGPUFH_CheckCVar "$JGPHUD_MAINBARS_NUMCOL_CHOOSE", sapphire, "jgphud_MainBarsArmorColorMode", "1"
+		Option "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_25", "jgphud_MainbarsArmorRange_25", "CleanTextColors"
+		Option "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_50", "jgphud_MainbarsArmorRange_50", "CleanTextColors"
+		Option "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_75", "jgphud_MainbarsArmorRange_75", "CleanTextColors"
+		Option "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_100", "jgphud_MainbarsArmorRange_100", "CleanTextColors"
+		Option "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_101", "jgphud_MainbarsArmorRange_101", "CleanTextColors"
+	JGPUFH_EndIf ""
+	JGPUFH_CheckCVar "$JGPHUD_MAINBARS_NUMCOL_CHOOSE", sapphire, "jgphud_MainBarsArmorColorMode", "2"
+		Option "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_33", "jgphud_MainbarsAbsorbRange_33", "CleanTextColors"
+		Option "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_50", "jgphud_MainbarsAbsorbRange_50", "CleanTextColors"
+		Option "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_66", "jgphud_MainbarsAbsorbRange_66", "CleanTextColors"
+		Option "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_80", "jgphud_MainbarsAbsorbRange_80", "CleanTextColors"
+		Option "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_100", "jgphud_MainbarsAbsorbRange_100", "CleanTextColors"
+	JGPUFH_EndIf ""
 	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_MainBarsArmorColorMode:jgphud_MainBarsArmorColor:jgphud_MainbarsAbsorbRange_33:jgphud_MainbarsAbsorbRange_50:jgphud_MainbarsAbsorbRange_66:jgphud_MainbarsAbsorbRange_80:jgphud_MainbarsAbsorbRange_80:jgphud_MainbarsAbsorbRange_100:jgphud_MainbarsArmorRange_25:jgphud_MainbarsArmorRange_50:jgphud_MainbarsArmorRange_75:jgphud_MainbarsArmorRange_100:jgphud_MainbarsArmorRange_101"
 }
 
@@ -173,7 +179,8 @@ OptionMenu "JGPHUD_AllAmmo"
 	Slider "$JGPHUD_ELEMENT_SCALE", "jgphud_AllAmmoScale", 0.0, 4.0, 0.1, 1, "jgphud_DrawAllAmmo"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_AllAmmoPos", "ElementScreenPos", "jgphud_drawAllAmmo"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_AllAmmoX", -160, 160, 2, 0, "jgphud_drawAllAmmo"
-	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_AllAmmoY", -100, 100, 2, 0, "jgphud_drawAllAmmo"
+	NumberField "$JGPHUD_ALLAMMO_COLUMNS", "jgphud_AllAmmoColumns", 1, 20, 1, "jgphud_drawAllAmmo"
+	Option "$JGPHUD_ALLAMMO_DISPLAYFORMAT", "jgphud_AllAmmoShowMax", "AllAmmoFormat", "jgphud_drawAllAmmo"
 	StaticText ""
 	JGPUFHResetCCMD "$OPTMNU_DEFAULTS", "jgphud_DrawAllAmmo:jgphud_AllAmmoShowDepleted:jgphud_AllAmmoPos:jgphud_AllAmmoX:jgphud_AllAmmoY", 1
 }
@@ -214,17 +221,20 @@ OptionMenu "JGPHUD_InvBar"
 	Class "JGPUFH_OptionMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_INVBAR_TITLE", yellow
-	StaticText ""
-	StaticText "$JGPHUD_INVBAR_NOTE", gray
-	StaticText "" // make space for the note
-	StaticText ""
-	StaticText ""
 	Option "$JGPHUD_INVBAR_ENABLE", "jgphud_DrawInvBar", "OnOff"
+	JGPUFH_CheckCVar "", sapphire, "jgphud_DrawInvBar", "1"
+		StaticText "$JGPHUD_INVBAR_NOTE", gray
+		StaticText "" // make space for the note
+		StaticText ""
+		StaticText ""
+	JGPUFH_EndIf ""
 	Option "$JGPHUD_INVBAR_ENABLEALWAYS", "jgphud_AlwaysShowInvBar", "OnOff", "jgphud_DrawInvBar"
-	StaticText "$JGPHUD_INVBAR_ENABLEALWAYS_NOTE", gray
-	StaticText "" // make space for the note
-	StaticText ""
-	StaticText ""
+	JGPUFH_CheckCVar "", sapphire, "jgphud_AlwaysShowInvBar", "1"
+		StaticText "$JGPHUD_INVBAR_ENABLEALWAYS_NOTE", gray
+		StaticText "" // make space for the note
+		StaticText ""
+		StaticText ""
+	JGPUFH_EndIf ""
 	Slider "$JGPHUD_ELEMENT_SCALE", "jgphud_InvBarScale", 0.0, 4.0, 0.1, 1, "jgphud_drawInvBar"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_InvBarPos", "ElementScreenPos", "jgphud_drawInvBar"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_InvBarX", -160, 160, 2, 0, "jgphud_drawInvBar"
@@ -281,81 +291,53 @@ OptionMenu "JGPHUD_MapData"
 	StaticText "" // make space for the note
 	StaticText ""
 	StaticText ""
+
 	Option "$JGPHUD_MINIMAP_ENABLE", 
-		"jgphud_DrawMinimap", 
-		"MinimapRadarDisplay"
-	Slider "$JGPHUD_MINIMAP_OPACITY",
-		"jgphud_MinimapOpacity",
-		0.0, 1.0, 0.1, 2,
-		"jgphud_DrawMinimap"
-	Slider "$JGPHUD_MINIMAP_SIZE", 
-		"jgphud_MinimapSize", 
-		0, 256, 1, 0, 
-		// Hide this if minimap/radar mode is 'Off':
-		"jgphud_DrawMinimap"
-	Option "$JGPHUD_MINIMAP_SHAPE", 
-		"jgphud_CircularMinimap", 
-		"MinimapShape", 
-		// Hide this if minimap/radar mode is 'Off':
-		"jgphud_DrawMinimap"
-	Slider "$JGPHUD_MINIMAP_ZOOM", 
-		"jgphud_MinimapZoom", 
-		0.1, 3.0, 0.05, 2,
-		// Hide this if minimap/radar mode is 'Off':
-		"jgphud_DrawMinimap"
-	JGPUFHOption "$JGPHUD_MINIMAP_ENEMIES",
-		"jgphud_MinimapEnemyDisplay",
-		"MinimapEnemyDisplay", 
-		// Hide this if minimap/radar mode is 'Off' OR in 'Minimap Only' mode:
-		"jgphud_DrawMinimap", "0", 1, "jgphud_DrawMinimap", "2"
-	JGPUFHOption "$JGPHUD_MINIMAP_ENEMIES_SHAPE",
-		"jgphud_MinimapEnemyShape",
-		"MinimapEnemyShape", 
-		// Hide this if minimap/radar mode is 'Off' OR in 'Minimap Only' mode:
-		"jgphud_DrawMinimap", "0", 1, "jgphud_DrawMinimap", "2"
-	JGPUFHScaleSlider "$JGPHUD_MINIMAP_MAPMARKERSCALE", 
-		"jgphud_MinimapMapMarkersSize", 
-		0, 32, 1,
-		"$JGPHUD_MINIMAP_MAPMARKERSCALE_REAL", "",
-		// Hide this if minimap/radar mode is 'Off' OR in 'Minimap Only' mode:
-		"jgphud_DrawMinimap", "0", 1, "jgphud_DrawMinimap", "2"
-	Option "$JGPHUD_MINIMAP_CARDINAL_ENABLE", 
-		"jgphud_MinimapCardinalDir",
-		"CardinalDirections",
-		"jgphud_DrawMinimap"
-	JGPUFHSlider "$JGPHUD_MINIMAP_CARDINAL_SIZE", 
-		"jgphud_MinimapCardinalDirSize", 
-		4, 64, 1, 0,
-		// Hide this if minimap/radar mode is 'Off' OR cardinal directions are off:
-		"jgphud_DrawMinimap", "0", 1, "jgphud_MinimapCardinalDir", "0"
-	JGPUFHOption "$JGPHUD_MINIMAP_CARDINAL_COLOR",
-		"jgphud_MinimapCardinalDirColor",
-		"TextColors",
-		"jgphud_DrawMinimap", "0", 1, "jgphud_MinimapCardinalDir", "0"
+	"jgphud_DrawMinimap", 
+	"MinimapRadarDisplay"
+	// Show this if the minimap/radar mode is NOT "Off":
+	JGPUFH_CheckCVar "$JGPHUD_MINIMAP_ENABLE", sapphire, "jgphud_DrawMinimap", "!:0"
+		Slider "$JGPHUD_MINIMAP_OPACITY",
+			"jgphud_MinimapOpacity",
+			0.0, 1.0, 0.1, 2
+		Slider "$JGPHUD_MINIMAP_SIZE", 
+			"jgphud_MinimapSize", 
+			0, 256, 1, 0
+		Option "$JGPHUD_MINIMAP_SHAPE", 
+			"jgphud_CircularMinimap", 
+			"MinimapShape"
+		Slider "$JGPHUD_MINIMAP_ZOOM", 
+			"jgphud_MinimapZoom", 
+			0.1, 3.0, 0.05, 2
+	JGPUFH_EndIf ""
 	
-	StaticText ""
-	StaticText "$JGPHUD_MINIMAP_LINESANDCOLORS_TITLE", yellow
-	StaticText ""
-	// All of these elements become hidden if
-	// the minimap/radar is 'Off' or 'Radar Only' mode:
-	JGPUFHSlider "$JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA", 
-		"jgphud_MinimapDrawUnseen", 
-		0.0, 1.0, 0.1, 1, 
-		"jgphud_DrawMinimap", "<:2"
-	JGPUFHOption "$JGPHUD_MINIMAP_DRAWFLOORDIFF", 
-		"jgphud_MinimapDrawFloorDiff", 
-		"OnOff", 
-		"jgphud_DrawMinimap", "<:2"
-	JGPUFHOption "$JGPHUD_MINIMAP_DRAWCEILINGDIFF", 
-		"jgphud_MinimapDrawCeilingDiff", 
-		"OnOff", 
-		"jgphud_DrawMinimap", "<:2"
-	JGPUFHColorPicker "$MAPCOLORMNU_BACKCOLOR", "jgphud_MinimapBackColor", "jgphud_DrawMinimap", "<:2"
-	JGPUFHColorPicker "$JGPHUD_MINIMAP_COLOR_LINES", "jgphud_MinimapLineColor", "jgphud_DrawMinimap", "<:2"
-	JGPUFHColorPicker "$JGPHUD_MINIMAP_COLOR_INTLINES", "jgphud_MinimapIntLineColor", "jgphud_DrawMinimap", "<:2"
-	JGPUFHColorPicker "$MAPCOLORMNU_YOURCOLOR", "jgphud_MinimapYouColor", "jgphud_DrawMinimap", "<:2"
-	JGPUFHColorPicker "$MAPCOLORMNU_MONSTERCOLOR", "jgphud_MinimapMonsterColor", "jgphud_DrawMinimap", "<:2"
-	JGPUFHColorPicker "$MAPCOLORMNU_FRIENDCOLOR", "jgphud_MinimapFriendColor", "jgphud_DrawMinimap", "<:2"
+	// Show this if the minimap/radar mode is "Radar only" OR "Both":
+	JGPUFH_CheckCVar "$JGPHUD_MINIMAP_ENEMIES", sapphire, "jgphud_DrawMinimap", "1", "1", "jgphud_DrawMinimap", "3"
+		Option "$JGPHUD_MINIMAP_ENEMIES", "jgphud_MinimapEnemyDisplay", "MinimapEnemyDisplay"
+		Option "$JGPHUD_MINIMAP_ENEMIES_SHAPE", "jgphud_MinimapEnemyShape", "MinimapEnemyShape"
+		JGPUFHScaleSlider "$JGPHUD_MINIMAP_MAPMARKERSCALE",  "jgphud_MinimapMapMarkersSize",
+			0, 32, 1, "$JGPHUD_MINIMAP_MAPMARKERSCALE_REAL", ""
+	JGPUFH_EndIf ""
+
+	// Show this if the minimap/radar mode is NOT "Off":
+	JGPUFH_CheckCVar "$JGPHUD_MINIMAP_CARDINAL_ENABLE", sapphire, "jgphud_DrawMinimap", "!:0"
+		Option "$JGPHUD_MINIMAP_CARDINAL_ENABLE", "jgphud_MinimapCardinalDir", "CardinalDirections"
+		Slider "$JGPHUD_MINIMAP_CARDINAL_SIZE", "jgphud_MinimapCardinalDirSize", 4, 64, 1, 0,  "jgphud_MinimapCardinalDir"
+		JGPUFHOption "$JGPHUD_MINIMAP_CARDINAL_COLOR", "jgphud_MinimapCardinalDirColor", "CleanTextColors", "jgphud_MinimapCardinalDir"
+	JGPUFH_EndIf ""
+	
+	// Show only in "Minimap only" or "Both" modes:
+	JGPUFH_CheckCVar "$JGPHUD_MINIMAP_LINESANDCOLORS_TITLE", sapphire, "jgphud_DrawMinimap", ">:1"
+		Slider "$JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA", "jgphud_MinimapDrawUnseen", 0.0, 1.0, 0.1, 1
+		Option "$JGPHUD_MINIMAP_DRAWFLOORDIFF", "jgphud_MinimapDrawFloorDiff", "OnOff"
+		Option "$JGPHUD_MINIMAP_DRAWCEILINGDIFF", "jgphud_MinimapDrawCeilingDiff", "OnOff"
+		ColorPicker "$MAPCOLORMNU_BACKCOLOR", "jgphud_MinimapBackColor"
+		ColorPicker "$JGPHUD_MINIMAP_COLOR_LINES", "jgphud_MinimapLineColor"
+		ColorPicker "$JGPHUD_MINIMAP_COLOR_INTLINES", "jgphud_MinimapIntLineColor"
+		ColorPicker "$MAPCOLORMNU_YOURCOLOR", "jgphud_MinimapYouColor"
+		ColorPicker "$MAPCOLORMNU_MONSTERCOLOR", "jgphud_MinimapMonsterColor"
+		ColorPicker "$MAPCOLORMNU_FRIENDCOLOR", "jgphud_MinimapFriendColor"
+	JGPUFH_EndIf ""
 
 	StaticText ""
 	StaticText "$JGPHUD_MAPDATA_TITLE", yellow
@@ -451,6 +433,12 @@ OptionValue "AllAmmoOptions"
 	3, "$JGPHUD_ALLAMMO_ALLWEAPONS"
 }
 
+OptionValue "AllAmmoFormat"
+{
+	0, "$JGPHUD_ALLAMMO_DISPLAYFORMAT_NOMAX"
+	1, "$JGPHUD_ALLAMMO_DISPLAYFORMAT_MAX"
+}
+
 OptionValue "MinimapRadarDisplay"
 {
 	0, "$OPTVAL_OFF"
@@ -527,10 +515,11 @@ OptionValue "HideAutohideShow"
 	2, "$JGPHUD_CROSSHAIR_BARS_ALWAYS"
 }
 
-OptionValue "MainBarsColors"
+// No 'Untranslated' option, and also more sensible order:
+OptionValue "CleanTextColors"
 {
 	12.0, "$C_BLACK"
-	20.0, "$C_DARKGRAY"
+	20.0, "$C_sapphire"
 	2.0, "$C_GRAY"
 	9.0, "$C_WHITE"
 

@@ -1,8 +1,265 @@
-// These classes are here simply so that I can feed them
-// to the Class property in MENUDEF. This lets me detect
-// that the mod's settings menu is open:
 class JGPUFH_OptionMenu : OptionMenu
-{}
+{
+	bool firstInit;
+	Array<OptionMenuItem> allItems;
+	
+	override void Init(Menu parent, OptionMenuDescriptor desc)
+	{
+		super.Init(parent, desc);
+		
+		if(!firstInit) 
+		{
+			allItems.Copy(mDesc.mItems);
+			firstInit = true;
+		}
+	}
+
+	override bool MenuEvent (int mkey, bool fromcontroller)
+	{
+		bool res = super.MenuEvent(mkey, fromcontroller);
+	
+		switch (mkey)
+		{
+			case MKEY_Back:
+			{
+				Close();
+				let m = GetCurrentMenu();
+				MenuSound(m != null ? "menu/backup" : "menu/clear");
+				if (!m) menuDelegate.MenuDismissed();
+				
+				// Restore original items.
+				mDesc.mItems.Clear();
+				mDesc.mItems.Copy(allItems);
+				
+				return true;
+			}
+		}
+		return res;
+	}
+	
+	void UpdateMenuItems()
+	{
+		Array<OptionMenuItem> filter;
+		OptionMenuItemJGPUFH_Else filterElseCondition;
+		OptionMenuItemJGPUFH_CheckCVar filterCondition;
+		for(int i = 0; i < allItems.Size(); i++)
+		{
+			let item = allItems[i];
+			let ifCVar = OptionMenuItemJGPUFH_CheckCVar(item);
+			let endIfCVar = OptionMenuItemJGPUFH_EndIf(item);
+			let otherwiseCVar = OptionMenuItemJGPUFH_Else(item);
+			
+			if(ifCVar) filterCondition = ifCVar;
+			if(otherwiseCVar) filterElseCondition = otherwiseCVar;
+			if(endIfCVar) 
+			{	
+				filterCondition = NULL;	
+				filterElseCondition = NULL;
+			}
+			
+			bool conditionValid = (filterCondition && filterCondition.CheckCondition());
+			if(filterElseCondition) conditionValid = !conditionValid;
+			
+			if( !filterCondition || conditionValid )
+				filter.Push(allItems[i]);
+		}
+		
+		mDesc.mItems.Clear();
+		mDesc.mItems.Copy(filter);
+	}
+	
+	override void Ticker()
+	{
+		UpdateMenuItems();
+		super.Ticker();
+	}
+}
+
+class JGPUFH_OptionMenuCondition : OptionMenuItemStaticText abstract
+{
+	String def_label;
+	Const mc_noLabel = "----";
+
+	void Init(String label = mc_noLabel, int cr = -1)
+	{
+		Super.Init(label, cr);
+		def_label = label;
+	}
+		
+	virtual bool CheckCondition()
+	{
+		return true;
+	}
+
+	override bool Selectable()
+	{
+		return false;
+	}
+
+	override void Ticker()
+	{
+		Super.Ticker();
+		if (def_label)
+		{
+			mLabel = CheckCondition()? def_label : mc_noLabel;
+		}
+	}
+}
+
+class OptionMenuItemJGPUFH_CheckCVar : JGPUFH_OptionMenuCondition
+{
+	mixin JGPUFHCVarChecker;
+
+	void Init(String label = "---", int cr = -1, CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
+	{
+		Super.Init(label, cr);
+		ParseCVarConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);
+	}
+		
+	override bool CheckCondition()
+	{
+		return CheckAllCVars();
+	}
+}
+
+class OptionMenuItemJGPUFH_Else : JGPUFH_OptionMenuCondition {}
+class OptionMenuItemJGPUFH_EndIf : JGPUFH_OptionMenuCondition {}
+
+// Allows specifying up to two CVar conditions
+// with different operators and logic values.
+// Used for optiona menu items (above) and for
+// complex graycheck conditions in other items:
+mixin class JGPUFHCVarChecker
+{
+	// possible cond values:
+	// 0 		- equal to 0
+	// !:0 		- not 0
+	// >:0		- more than 0
+	// <:0		- less than 0
+	// possible logic values:
+	// 0 		- AND
+	// 1		- OR
+
+	CVar grayCheck1, grayCheck2;
+	String grayCheck1value, grayCheck2value;
+	int targetCvarValue1, targetCvarValue2;
+	ECVarCondition cvarCondition1, cvarCondition2;
+	ECVarLogic cvarLogic;
+
+	enum ECVarCondition
+	{
+		GC_IS,
+		GC_ISNOT,
+		GC_MORE,
+		GC_LESS,
+	}
+	enum ECVarLogic
+	{
+		GC_AND,
+		GC_OR,
+	}
+
+	void ParseOneCondition(string cmd, out int cond, out int val)
+	{
+		array<string> values;
+		cmd.Split(values, ":");
+		if (values.Size() > 2)
+		{
+			ThrowAbortException("\cGERROR: \cDParseCVarConditions()\c- detected incorrect value declaration");
+			return;
+		}
+		if (values.Size() == 0)
+		{
+			cond = GC_IS;
+			val = 0;
+			return;
+		}
+		if (values.Size() == 1)
+		{
+			cond = GC_IS;
+			val = values[0].ToInt();
+			return;
+		}
+		if (values.Size() == 2)
+		{
+			string s = values[0];
+			if (s == "!")
+				cond = GC_ISNOT;
+			else if (s == ">")
+				cond = GC_MORE;
+			else if (s == "<")
+				cond = GC_LESS;
+			else
+			{
+				ThrowAbortException(String.Format("\cGERROR: \cDParseCVarConditions()\c- detected incorrect condition declaration \cG%s\c-. Supported values: \cD\"0\"\c-, \cD\"!:0\"\c-, \cD\">:0\"\c-, \cD\"<:0\"\c- where \cD0\c- is the desired value. Only numeric CVars are supported.", s));
+				return;
+			}
+			val = values[1].ToInt();
+		}
+	}
+
+	void ParseCVarConditions(CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
+	{
+		grayCheck1 = _grayCheck1;
+		grayCheck1value = _grayCheck1value;
+		cvarLogic = _cvarLogic;
+		grayCheck2 = _grayCheck2;
+		grayCheck2value = _grayCheck2value;
+
+		if (!graycheck1)
+		{
+			return;
+		}
+		ParseOneCondition(grayCheck1value, cvarCondition1, targetCvarValue1);
+		ParseOneCondition(grayCheck2value, cvarCondition2, targetCvarValue2);
+	}
+
+	bool CheckCVarCondition(int curvalue, int targetvalue, int condition)
+	{
+		bool res;
+		switch (condition)
+		{
+		default:
+			res = (curvalue == targetvalue);
+			break;
+		case GC_ISNOT:
+			res = (curvalue != targetvalue);
+			break;
+		case GC_MORE:
+			res = (curvalue > targetvalue);
+			break;
+		case GC_LESS:
+			res = (curvalue < targetvalue);
+			break;
+		}
+		return res;
+	}
+
+	bool CheckAllCVars()
+	{
+		if (!graycheck1)
+		{
+			return false;
+		}
+
+		int curCVarValue = grayCheck1.GetInt();
+		bool result1 = CheckCVarCondition(curCVarValue, targetCvarValue1, cvarCondition1);
+
+		if (!grayCheck2)
+		{
+			return result1;
+		}
+
+		curCVarValue = grayCheck2.GetInt();
+		bool result2 = CheckCVarCondition(curCVarValue, targetCvarValue2, cvarCondition2);
+
+		if (cvarLogic == GC_AND)
+		{
+			return result1 && result2;
+		}
+		return result1 || result2;
+	}
+}
 
 // Resets a list of CCMD provided as a string
 // CCMDs should be delimited with :
@@ -49,140 +306,6 @@ class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
 	}
 }
 
-// Allows specifying up to two graycheck conditions
-// with different operators and logic values:
-mixin class JGPUFHCVarChecker
-{
-	// possible cond values:
-	// 0 		- equal to 0
-	// !:0 		- not 0
-	// >:0		- more than 0
-	// <:0		- less than 0
-	// possible logic values:
-	// 0 		- AND
-	// 1		- OR
-
-	CVar grayCheck1, grayCheck2;
-	String grayCheck1value, grayCheck2value;
-	int targetCvarValue1, targetCvarValue2;
-	ECVarCondition cvarCondition1, cvarCondition2;
-	ECVarLogic cvarLogic;
-
-	enum ECVarCondition
-	{
-		GC_IS,
-		GC_ISNOT,
-		GC_MORE,
-		GC_LESS,
-	}
-	enum ECVarLogic
-	{
-		GC_AND,
-		GC_OR,
-	}
-
-	void ParseOneCondition(string cmd, out int cond, out int val)
-	{
-		array<string> values;
-		cmd.Split(values, ":");
-		if (values.Size() > 2)
-		{
-			ThrowAbortException("\cGERROR: \cDParseGrayConditions()\c- detected incorrect value declaration");
-			return;
-		}
-		if (values.Size() == 0)
-		{
-			cond = GC_IS;
-			val = 0;
-			return;
-		}
-		if (values.Size() == 1)
-		{
-			cond = GC_IS;
-			val = values[0].ToInt();
-			return;
-		}
-		if (values.Size() == 2)
-		{
-			string s = values[0];
-			if (s == "!")
-				cond = GC_ISNOT;
-			else if (s == ">")
-				cond = GC_MORE;
-			else if (s == "<")
-				cond = GC_LESS;
-			else
-			{
-				ThrowAbortException(String.Format("\cGERROR: \cDParseGrayConditions()\c- detected incorrect condition declaration \cG%s\c-. Supported values: \cD\"0\"\c-, \cD\"!:0\"\c-, \cD\">:0\"\c-, \cD\"<:0\"\c- where \cD0\c- is the desired value. Only numeric CVars are supported.", s));
-				return;
-			}
-			val = values[1].ToInt();
-		}
-	}
-
-	void ParseGrayConditions(CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
-	{
-		grayCheck1 = _grayCheck1;
-		grayCheck1value = _grayCheck1value;
-		cvarLogic = _cvarLogic;
-		grayCheck2 = _grayCheck2;
-		grayCheck2value = _grayCheck2value;
-
-		if (!graycheck1)
-		{
-			return;
-		}
-		ParseOneCondition(grayCheck1value, cvarCondition1, targetCvarValue1);
-		ParseOneCondition(grayCheck2value, cvarCondition2, targetCvarValue2);
-	}
-
-	bool CheckCVarCondition(int curvalue, int targetvalue, int condition)
-	{
-		bool res;
-		switch (condition)
-		{
-		default:
-			res = (curvalue == targetvalue);
-			break;
-		case GC_ISNOT:
-			res = (curvalue != targetvalue);
-			break;
-		case GC_MORE:
-			res = (curvalue > targetvalue);
-			break;
-		case GC_LESS:
-			res = (curvalue < targetvalue);
-			break;
-		}
-		return res;
-	}
-
-	bool ShouldBeGrayed()
-	{
-		if (!graycheck1)
-		{
-			return false;
-		}
-
-		int curCVarValue = grayCheck1.GetInt();
-		bool result1 = CheckCVarCondition(curCVarValue, targetCvarValue1, cvarCondition1);
-
-		if (!grayCheck2)
-		{
-			return result1;
-		}
-
-		curCVarValue = grayCheck2.GetInt();
-		bool result2 = CheckCVarCondition(curCVarValue, targetCvarValue2, cvarCondition2);
-
-		if (cvarLogic == GC_AND)
-		{
-			return result1 && result2;
-		}
-		return result1 || result2;
-	}
-}
-
 class OptionMenuItemJGPUFHSlider : OptionMenuItemSlider
 {
 	mixin JGPUFHCVarChecker;
@@ -190,13 +313,13 @@ class OptionMenuItemJGPUFHSlider : OptionMenuItemSlider
 	OptionMenuItemJGPUFHSlider Init(String label, Name command, double min, double max, double step, int showval = 1, CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
 	{
 		Super.Init(label, command, min, max, step, showval, null);
-		ParseGrayConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);
+		ParseCVarConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);
 		return self;
 	}
 
 	override bool IsGrayed(void)
 	{
-		return ShouldBeGrayed();
+		return CheckAllCVars();
 	}
 }
 
@@ -207,13 +330,13 @@ class OptionMenuItemJGPUFHOption : OptionMenuItemOption
 	OptionMenuItemJGPUFHOption Init(String label, Name command, Name values, CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
 	{
 		Super.Init(label, command, values, null, 0);
-		ParseGrayConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);
+		ParseCVarConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);
 		return self;
 	}
 
 	override bool IsGrayed(void)
 	{
-		return ShouldBeGrayed();
+		return CheckAllCVars();
 	}
 }
 
@@ -227,7 +350,7 @@ class OptionMenuItemJGPUFHScaleSlider : OptionMenuItemScaleSlider
 	OptionMenuItemJGPUFHScaleSlider Init(String label, Name command, double min, double max, double step, String zero, String negone = "", CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
 	{
 		Super.Init(label, command, min, max, step, zero, negone);
-		ParseGrayConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);
+		ParseCVarConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);
 		// Infer the number of decimal places to display
 		// from the length of the decimal part of the
 		// 'step' argument:
@@ -263,7 +386,7 @@ class OptionMenuItemJGPUFHScaleSlider : OptionMenuItemScaleSlider
 
 	override bool IsGrayed(void)
 	{
-		return ShouldBeGrayed();
+		return CheckAllCVars();
 	}
 }
 
@@ -274,7 +397,7 @@ class OptionMenuItemJGPUFHColorPicker : OptionMenuItemColorPicker
 	OptionMenuItemJGPUFHColorPicker Init(String label, Name command, CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
 	{
 		Super.Init(label, command);
-		ParseGrayConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);
+		ParseCVarConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);
 		return self;
 	}
 
@@ -293,7 +416,7 @@ class OptionMenuItemJGPUFHColorPicker : OptionMenuItemColorPicker
 
 	bool IsGrayedEx(void)
 	{
-		return ShouldBeGrayed();
+		return CheckAllCVars();
 	}
 
 	override bool Selectable()
@@ -309,7 +432,7 @@ class OptionMenuItemJGPUFHTextField : OptionMenuItemTextField
 	OptionMenuItemJGPUFHTextField Init (String label, Name command, CVar _grayCheck1 = null, string _grayCheck1value = "", int _cvarLogic = GC_AND, CVar _grayCheck2 = null, string _grayCheck2value = "")
 	{
 		Super.Init(label, command, null);
-		ParseGrayConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);
+		ParseCVarConditions(_grayCheck1, _grayCheck1value, _cvarLogic, _grayCheck2, _grayCheck2value);
 		return self;
 	}
 
@@ -330,11 +453,11 @@ class OptionMenuItemJGPUFHTextField : OptionMenuItemTextField
 
 	bool IsGrayedEx()
 	{
-		return ShouldBeGrayed();
+		return CheckAllCVars();
 	}
 
 	override bool Selectable(void)
 	{
-		return !ShouldBeGrayed();
+		return !CheckAllCVars();
 	}
 }
