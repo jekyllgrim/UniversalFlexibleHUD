@@ -306,6 +306,15 @@ class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
 	}
 }
 
+class OptionMenuItemJGPUFHIntNumberField : OptionMenuItemNumberField
+{
+	override String Represent()
+	{
+		if (mCVar == null) return "";
+		return String.format("%d", mCVar.GetInt());
+	}
+}
+
 class OptionMenuItemJGPUFHSlider : OptionMenuItemSlider
 {
 	mixin JGPUFHCVarChecker;
