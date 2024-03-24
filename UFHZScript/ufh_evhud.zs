@@ -963,13 +963,35 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// This is the only place in FlexiHUD where we're not using
 			// GetFontHeight() and instead getting the physical height of
 			// the font directly, to match it precisely to the height of the bar:
-			
 			// real height:
-			double fontHeight = fnt.mFont.GetGlyphHeight("0");
+			Font f = fnt.mFont;
+			double fontHeight = max(f.GetGlyphHeight("0"), f.GetGlyphHeight("1"), f.GetGlyphHeight("A"));
 			// multiplier to match it to the bar height minus indent:
 			double fntScale = (barheight - indent*2) / fontHeight;
+//			if (jgphud_debug)
+//			{
+//				Console.MidPrint(smallfont, String.Format(
+//						"font: \cd%s"
+//						"\ntarget height: \cd%.2f"
+//						"\nGetHeight(): \cd%d"
+//						"\nGetGlyphHeight(): \cd%d"
+//						"\nGetDisplacement(): \cd%d"
+//						"\nGetBottomAlignOffset(): \cd%d"
+//						"\nGetMaxAscender(): \cd%d"
+//						"\nfinal height: \cd%.2f",
+//						mainHUDFont.d_fontname,
+//						barheight - indent*2,
+//						fnt.mFont.GetHeight(),
+//						fnt.mFont.GetGlyphHeight("0"),
+//						fnt.mFont.GetDisplacement(),
+//						fnt.mFont.GetBottomAlignOffset("0"),
+//						fnt.mFont.GetMaxAscender("0"),
+//						fontheight * fntScale
+//					)
+//				);
+//			}
 			// position the string exactly at the middle:
-			Vector2 strPos = barpos + (barwidth * 0.5, barheight*0.5 - fontHeight*fntscale*0.5); 
+			Vector2 strPos = barpos + (barwidth * 0.5, indent); 
 			statusbar.DrawString(fnt, str, strPos, flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation: valueColor, scale:(fntScale,fntScale));
 		}
 	}
