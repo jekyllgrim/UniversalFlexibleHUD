@@ -4241,7 +4241,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		statusBar.SetClipRect(pos.x - width*0.5, pos.y - height*0.5, width, height, flags);
 		// Scale the font (indexfont is made for 32x32 icons, so divide
 		// the current icon size by that value to get the right scale):
-		double fntScale = iconSize / 32.;
+		double fntScale = iconSize / 40.;
 		double fy = GetFontHeight(numHUDFont, scale);
 		while (item)
 		{
