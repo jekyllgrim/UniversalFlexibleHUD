@@ -9,7 +9,7 @@ OptionMenu "JGPUFH_PresetMenu"
 	
 	StaticText ""
 	
-	JGPUFH_ConfirmCommand "$OPTMNU_DEFAULTS", "ResetToDefault", "", "$JGPHUD_Presets_Menu_ResetSettingsConfirm"
+	JGPUFH_ConfirmCommand "$JGPHUD_GENERAL_RESETALL", "ResetToDefault", "", "$JGPHUD_Presets_Menu_ResetSettingsConfirm"
 }
 
 OptionMenu "JGPUFH_BuiltInPresets"

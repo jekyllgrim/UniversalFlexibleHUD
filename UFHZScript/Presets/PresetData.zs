@@ -48,10 +48,12 @@ extend class JGPUFH_PresetHandler
 		'jgphud_WeaponSlotsNumColor',
 
 		'jgphud_DrawPowerups',
+		'jgphud_PowerupsAlignment',
 		'jgphud_PowerupsIconSize',
 		'jgphud_PowerupsPos',
 		'jgphud_PowerupsX',
 		'jgphud_PowerupsY',
+		'jgphud_PowerupsNumColor',
 
 		'jgphud_DrawMinimap',
 		'jgphud_CircularMinimap',
@@ -196,10 +198,12 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsNumColor
 
 		'JGPUFH_JsonNumber',	// jgphud_DrawPowerups
+		'JGPUFH_JsonNumber',	// jgphud_PowerupsAlignment
 		'JGPUFH_JsonNumber',	// jgphud_PowerupsIconSize
 		'JGPUFH_JsonNumber',	// jgphud_PowerupsPos
 		'JGPUFH_JsonNumber',	// jgphud_PowerupsX
 		'JGPUFH_JsonNumber',	// jgphud_PowerupsY
+		'JGPUFH_JsonNumber',	// jgphud_PowerupsNumColor
 
 		'JGPUFH_JsonNumber',	// jgphud_DrawMinimap
 		'JGPUFH_JsonBool',		// jgphud_CircularMinimap
@@ -344,10 +348,12 @@ extend class JGPUFH_PresetHandler
 		"wslots:jgphud_WeaponSlotsNumColor",
 			
 		"powerups:jgphud_DrawPowerups",
+		"powerups:jgphud_PowerupsAlignment",
 		"powerups:jgphud_PowerupsIconSize",
 		"powerups:jgphud_PowerupsPos",
 		"powerups:jgphud_PowerupsX",
 		"powerups:jgphud_PowerupsY",
+		"powerups:jgphud_PowerupsNumColor",
 			
 		"minimap:jgphud_DrawMinimap",
 		"minimap:jgphud_CircularMinimap",

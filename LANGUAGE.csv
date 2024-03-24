@@ -33,7 +33,6 @@ Reset ALL FlexiHUD settings to default,JGPHUD_GENERAL_RESETALL,Label for a menu 
 Scale of the element,JGPHUD_ELEMENT_SCALE,"General string used in multiple submenus that is attached
 to a slider that controls the scale of this element.",,,,,
 Position anchor point,JGPHUD_ELEMENT_POS,Lets the player choose the anchor point on the screen for the specified HUD element,Точка привязки элемента,Ponto da âncora,Ankerpunkt,Punto de anclaje,Point d’ancrage
-Numbers' color,JGPHUD_ELEMENT_NUMCOL,"This is used in multiple different elements that have numbers (e.g. inventory bar, weapon slots). This option lets you adjust the color of those numbers.",Цвет цифр,,,,
 Top left,JGPHUD_POS_TOPLEFT,Anchor point for the HUD element on the screen,Верхний левый угол,Canto superior esquerdo,Oben links,Superior izquierda,Haut à gauche
 Top center,JGPHUD_POS_TOPCENTER,Anchor point for the HUD element on the screen,Середина верхней границы,Centro superior,Oben mitte,Superior centrado,Haut au centre
 Top right,JGPHUD_POS_TOPRIGHT,Anchor point for the HUD element on the screen,Верхний правый угол,Canto superior direito,Oben rechts,Superior derecha,Haut à droite
@@ -45,6 +44,8 @@ Bottom center,JGPHUD_POS_BOTTOMCENTER,Anchor point for the HUD element on the sc
 Bottom right,JGPHUD_POS_BOTTOMRIGHT,Anchor point for the HUD element on the screen,Нижний правый угол,Canto inferior direito,Unten rechts,Inferior derecha,Bas à droite
 Horizontal offset,JGPHUD_ELEMENT_OFSX,General option (every HUD element can be offset from their anchor point with this),Горизонтальный сдвиг элемента,Deslocamento horizontal,Horizontaler Versatz,Desplazamiento horizontal,Décalage Horizontal
 Vertical offset,JGPHUD_ELEMENT_OFSY,General option (every HUD element can be offset from their anchor point with this),Вертикальный сдвиг элемента,Deslocamento vertical,Vertikaler Versatz,Desplazamiento vertical,Décalage Vertical
+Numbers' color,JGPHUD_ELEMENT_NUMCOL,"Generic option name. Used in any element that has numbers (e.g. inventory bar, weapon slots). This option lets you adjust the color of those numbers.",Цвет цифр,,,,
+Alignment,JGPHUD_ELEMENT_ALIGNMENT,"Generic option name. Used in any element that supports differnet alignment options, mainly horizontal and vertical (for example, weapon slots, powerups, inventory bar).",,,,,
 Incoming damage display,JGPHUD_DMGMARKERS_TITLE,Title for the damage display settings,Индикаторы получаемого урона,Marcadores de dano,Ankommender Schaden,Marcador de daño,Affichage des dommages entrants
 Classic screen reddening multiplier,JGPHUD_DMGMARKERS_SCREENTINT,"This lets the player change the multiplier for the classic red screen tint when they take damage. If they prefer to only rely on damage markers as a damage indicator, they may choose to reduce this to 0.",Степень покраснения экрана при получении урона,Multiplicador do tinto de dano na tela,Multiplikator für klassische Bildschirmrötung,Enrojecimiento clásico,Multiplicateur de rougissement de l'écran classique
 Directional incoming damage markers,JGPHUD_DMGMARKERS_ENABLE,"Directional damage markers are shown on the HUD, pointing to the enemy that just attacked the player",Направленные индикаторы получаемого урона,Marcadores de dano direcionais,Richtungsmarker für ankommenden Schaden,Marcador de daño direccional,Marqueurs directionnels de dégâts entrants
@@ -95,7 +96,6 @@ Keys,JGPHUD_KEYS_TITLE,,Ключи,Chaves,Schlüssel,Llaves,Clés
 Keys display,JGPHUD_KEYS_ENABLE,Whether to show keys on the HUD,Показывать ключи,Mostrar chaves,Schlüssel anzeigen,Mostrar llaves,Affichage des clés
 Weapon slots,JGPHUD_WEAPSLOTS_TITLE,,Ячейки оружия,Ícones de arma,Waffenplätze,Slots de armas,Emplacements d'armes
 Weapon slots display,JGPHUD_WEAPSLOTS_ENABLE,Whether to show weapon slots on the HUD,Показывать ячейки оружия,Mostrar ícones de arma,Waffenplätze anzeigen,Mostrar slots de armas,Affichage des emplacements d'armes
-Weapon slots alignment,JGPHUD_WEAPSLOTS_ALIGNMENT,How the slots are aligned (vertically or horizontally),Порядок ячеек оружия,Alinhamento dos ícones de arma,Waffenplatzanordnung,Alineamiento de slots,Alignement des emplacements d’armes
 Horizontal,JGPHUD_WEAPSLOTS_ALIGNMENT_H,Weapon slots alignment option,По горизонтали,Horizontal,Horizontal,Horizontal,Horizontal
 Vertical,JGPHUD_WEAPSLOTS_ALIGNMENT_V,"Weapon slots alignment option (vertical, first slot at the top)",По вертикали (сверху вниз),Vertical,Vertikal,Vertical,Vertical
 Vertical inverted,JGPHUD_WEAPSLOTS_ALIGNMENT_VINV,"Weapon slots alignment option (vertical, first slot at the bottom)",По вертикали (снизу вверх),Vertical invertido,Vertikal invertiert,Vertical invertido,Vertical Inversé

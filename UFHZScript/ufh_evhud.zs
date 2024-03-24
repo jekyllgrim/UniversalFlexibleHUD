@@ -3845,7 +3845,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!c_drawPowerups || !c_drawPowerups.GetBool())
 			return;
 		
-		bool vertical = c_drawPowerups.GetInt() == 1;
+		bool vertical = c_PowerupsAlignment.GetInt() > 0;
 		bool previewMode;
 		// Calculate height of the block:
 		int powerNum;
@@ -3930,7 +3930,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 					s_time = String.Format("%d:%02d", m, s);
 				}
 				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5) - (0.5,0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation:Font.CR_Black, scale:fntScale);
-				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation:Font.CR_Yellow, scale:fntScale);
+				statusbar.DrawString(fnt, s_time, (pos.x, pos.y - fy*0.5), flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, translation:c_PowerupsNumColor.GetInt(), scale:fntScale);
 				if (vertical)
 				{
 					pos.y += iconSize + indent;

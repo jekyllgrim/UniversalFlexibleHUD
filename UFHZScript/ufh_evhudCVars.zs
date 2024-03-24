@@ -56,10 +56,12 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_WeaponSlotsNumColor;
 
 	ui transient CVar c_drawPowerups;
+	ui transient CVar c_PowerupsAlignment;
 	ui transient CVar c_PowerupsIconSize;
 	ui transient CVar c_PowerupsPos;
 	ui transient CVar c_PowerupsX;
 	ui transient CVar c_PowerupsY;
+	ui transient CVar c_PowerupsNumColor;
 
 	ui transient CVar c_drawKeys;
 	ui transient CVar c_KeysPos;
@@ -276,6 +278,8 @@ extend class JGPUFH_FlexibleHUD
 
 		if (!c_drawPowerups)
 			c_drawPowerups = CVar.GetCvar('jgphud_DrawPowerups', CPlayer);
+		if (!c_PowerupsAlignment)
+			c_PowerupsAlignment = CVar.GetCvar('jgphud_PowerupsAlignment', CPlayer);
 		if (!c_PowerupsIconSize)
 			c_PowerupsIconSize = CVar.GetCvar('jgphud_PowerupsIconSize', CPlayer);
 		if (!c_PowerupsPos)
@@ -284,6 +288,8 @@ extend class JGPUFH_FlexibleHUD
 			c_PowerupsX = CVar.GetCvar('jgphud_PowerupsX', CPlayer);
 		if (!c_PowerupsY)
 			c_PowerupsY = CVar.GetCvar('jgphud_PowerupsY', CPlayer);
+		if (!c_PowerupsNumColor)
+			c_PowerupsNumColor = CVar.GetCvar('jgphud_PowerupsNumColor', CPlayer);
 
 		if (!c_drawKeys)
 			c_drawKeys = CVar.GetCvar('jgphud_DrawKeys', CPlayer);

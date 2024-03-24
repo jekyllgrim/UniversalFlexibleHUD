@@ -210,7 +210,7 @@ OptionMenu "JGPHUD_WeaponSlots"
 	StaticText "$JGPHUD_WEAPSLOTS_TITLE", yellow
 	StaticText ""
 	Option "$JGPHUD_WEAPSLOTS_ENABLE", "jgphud_DrawWeaponSlots", "HideAutohideShow"
-	Option "$JGPHUD_WEAPSLOTS_ALIGNMENT", "jgphud_WeaponSlotsAlign", "WeaponSlotsAlignment", "jgphud_DrawWeaponSlots"
+	Option "$JGPHUD_ELEMENT_ALIGNMENT", "jgphud_WeaponSlotsAlign", "WeaponSlotsAlignment", "jgphud_DrawWeaponSlots"
 	Slider "$JGPHUD_ELEMENT_SCALE", "jgphud_WeaponSlotsScale", 0.0, 4.0, 0.1, 1, "jgphud_DrawWeaponSlots"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_WeaponSlotsPos", "ElementScreenPos", "jgphud_drawWeaponSlots"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_WeaponSlotsX", -160, 160, 2, 0, "jgphud_drawWeaponSlots"
@@ -254,11 +254,13 @@ OptionMenu "JGPHUD_Powerups"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_POWERUPS_TITLE", yellow
 	StaticText ""
-	Option "$JGPHUD_POWERUPS_ENABLE", "jgphud_DrawPowerups", "PowerupOptions"
+	Option "$JGPHUD_POWERUPS_ENABLE", "jgphud_DrawPowerups", "OnOff"
+	Option "$JGPHUD_ELEMENT_ALIGNMENT", "jgphud_PowerupsAlignment", "AlignmentHorVert", "jgphud_drawPowerups"
 	Slider "$JGPHUD_ELEMENT_SCALE", "jgphud_PowerupsScale", 0.0, 4.0, 0.1, 1, "jgphud_drawPowerups"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_PowerupsPos", "ElementScreenPos", "jgphud_drawPowerups"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_PowerupsX", -160, 160, 2, 0, "jgphud_drawPowerups"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_PowerupsY", -100, 100, 2, 0, "jgphud_drawPowerups"
+	Option "$JGPHUD_ELEMENT_NUMCOL", "jgphud_PowerupsNumColor", "CleanTextColors", "jgphud_drawPowerups"
 	StaticText ""
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "powerups"
 }
@@ -461,11 +463,10 @@ OptionValue "MinimapRadarDisplay"
 	3, "$JGPHUD_MINIMAP_BOTH"
 }
 
-OptionValue "PowerupOptions"
+OptionValue "AlignmentHorVert"
 {
-	0, "$OPTVAL_OFF"
+	0, "$JGPHUD_WEAPSLOTS_ALIGNMENT_H"
 	1, "$JGPHUD_WEAPSLOTS_ALIGNMENT_V"
-	2, "$JGPHUD_WEAPSLOTS_ALIGNMENT_H"
 }
 
 OptionValue "MinimapEnemyDisplay"

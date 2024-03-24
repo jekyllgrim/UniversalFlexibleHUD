@@ -49,11 +49,13 @@ nosave int jgphud_WeaponSlotsX = 0;
 nosave int jgphud_WeaponSlotsY = 2;
 nosave int jgphud_WeaponSlotsNumColor = 14;
 
-nosave int jgphud_DrawPowerups = 2;
+nosave int jgphud_DrawPowerups = 1;
+nosave int jgphud_PowerupsAlignment = 0;
 nosave int jgphud_PowerupsIconSize = 20;
 nosave int jgphud_PowerupsPos = 2;
 nosave int jgphud_PowerupsX = 2;
 nosave int jgphud_PowerupsY = 2;
+nosave int jgphud_PowerupsNumColor = 10;
 
 nosave int jgphud_DrawMinimap = 3;
 nosave bool jgphud_CircularMinimap = false;
