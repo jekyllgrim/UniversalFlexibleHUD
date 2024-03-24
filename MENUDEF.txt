@@ -62,11 +62,11 @@ OptionMenu "JGPHUD_Appearance"
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "general"
 	
 	StaticText ""
-	StaticText "$Fonts", yellow
+	StaticText "$JGPHUD_GENERAL_FONTS", yellow
 	StaticText ""
-	TextField "Main font", "jgphud_mainfont"
-	TextField "Medium font", "jgphud_smallfont"
-	TextField "Small numeric font", "jgphud_numberfont"
+	TextField "$JGPHUD_GENERAL_FONTS_MAINFONT", "jgphud_mainfont"
+	TextField "$JGPHUD_GENERAL_FONTS_SMALLFONT", "jgphud_smallfont"
+	TextField "$JGPHUD_GENERAL_FONTS_NUMBERFONT", "jgphud_numberfont"
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "fonts"
 	
 	StaticText ""
