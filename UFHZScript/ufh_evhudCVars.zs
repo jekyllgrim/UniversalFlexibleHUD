@@ -53,6 +53,7 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_WeaponSlotsPos;
 	ui transient CVar c_WeaponSlotsX;
 	ui transient CVar c_WeaponSlotsY;
+	ui transient CVar c_WeaponSlotsNumColor;
 
 	ui transient CVar c_drawPowerups;
 	ui transient CVar c_PowerupsIconSize;
@@ -270,6 +271,8 @@ extend class JGPUFH_FlexibleHUD
 			c_WeaponSlotsX = CVar.GetCvar('jgphud_WeaponSlotsX', CPlayer);
 		if (!c_WeaponSlotsY)
 			c_WeaponSlotsY = CVar.GetCvar('jgphud_WeaponSlotsY', CPlayer);
+		if (!c_WeaponSlotsNumColor)
+			c_WeaponSlotsNumColor = CVar.GetCvar('jgphud_WeaponSlotsNumColor', CPlayer);
 
 		if (!c_drawPowerups)
 			c_drawPowerups = CVar.GetCvar('jgphud_DrawPowerups', CPlayer);

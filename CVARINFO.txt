@@ -47,6 +47,7 @@ nosave int jgphud_WeaponSlotsAlign = 0;
 nosave int jgphud_WeaponSlotsPos = 1;
 nosave int jgphud_WeaponSlotsX = 0;
 nosave int jgphud_WeaponSlotsY = 2;
+nosave int jgphud_WeaponSlotsNumColor = 14;
 
 nosave int jgphud_DrawPowerups = 2;
 nosave int jgphud_PowerupsIconSize = 20;
@@ -90,7 +91,7 @@ nosave int jgphud_InvBarIconSize = 18;
 nosave int jgphud_InvBarPos = 6;
 nosave int jgphud_InvBarX = 0;
 nosave int jgphud_InvBarY = 32;
-nosave int jgphud_InvBarNumColor = 32;
+nosave int jgphud_InvBarNumColor = 14;
 
 nosave bool jgphud_DrawEnemyHitMarkers = true;
 nosave color jgphud_EnemyHitMarkersColor = "ffffff";

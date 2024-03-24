@@ -45,6 +45,7 @@ extend class JGPUFH_PresetHandler
 		'jgphud_WeaponSlotsPos',
 		'jgphud_WeaponSlotsX',
 		'jgphud_WeaponSlotsY',
+		'jgphud_WeaponSlotsNumColor',
 
 		'jgphud_DrawPowerups',
 		'jgphud_PowerupsIconSize',
@@ -192,6 +193,7 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsPos
 		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsX
 		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsY
+		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsNumColor
 
 		'JGPUFH_JsonNumber',	// jgphud_DrawPowerups
 		'JGPUFH_JsonNumber',	// jgphud_PowerupsIconSize
@@ -339,6 +341,7 @@ extend class JGPUFH_PresetHandler
 		"wslots:jgphud_WeaponSlotsPos",
 		"wslots:jgphud_WeaponSlotsX",
 		"wslots:jgphud_WeaponSlotsY",
+		"wslots:jgphud_WeaponSlotsNumColor",
 			
 		"powerups:jgphud_DrawPowerups",
 		"powerups:jgphud_PowerupsIconSize",

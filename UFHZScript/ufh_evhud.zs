@@ -2908,7 +2908,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!weap)
 			return;
 
-		int fntCol = Font.CR_White;
+		int fntCol = c_WeaponSlotsNumColor.GetInt();
 		// Compare this weapon to readyweapon and pendingweapon:
 		Weapon rweap = Weapon(CPlayer.readyweapon);
 		// MUST explicitly cast pendingweapon as Weapon, otherwise
@@ -2922,7 +2922,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// at the same time, we don't need that:
 		if ((rweap == weap && !pweap) || pweap == weap)
 		{
-			fntCol = Font.CR_RED;
 			color col = GetHUDBackground();
 			// Clamp the alpha, so it's not too low:
 			int a = Clamp(col.a, 180, 255);

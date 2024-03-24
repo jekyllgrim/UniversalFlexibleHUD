@@ -33,6 +33,7 @@ Reset ALL FlexiHUD settings to default,JGPHUD_GENERAL_RESETALL,Label for a menu 
 Scale of the element,JGPHUD_ELEMENT_SCALE,"General string used in multiple submenus that is attached
 to a slider that controls the scale of this element.",,,,,
 Position anchor point,JGPHUD_ELEMENT_POS,Lets the player choose the anchor point on the screen for the specified HUD element,Точка привязки элемента,Ponto da âncora,Ankerpunkt,Punto de anclaje,Point d’ancrage
+Numbers' color,JGPHUD_ELEMENT_NUMCOL,"This is used in multiple different elements that have numbers (e.g. inventory bar, weapon slots). This option lets you adjust the color of those numbers.",Цвет цифр,,,,
 Top left,JGPHUD_POS_TOPLEFT,Anchor point for the HUD element on the screen,Верхний левый угол,Canto superior esquerdo,Oben links,Superior izquierda,Haut à gauche
 Top center,JGPHUD_POS_TOPCENTER,Anchor point for the HUD element on the screen,Середина верхней границы,Centro superior,Oben mitte,Superior centrado,Haut au centre
 Top right,JGPHUD_POS_TOPRIGHT,Anchor point for the HUD element on the screen,Верхний правый угол,Canto superior direito,Oben rechts,Superior derecha,Haut à droite
@@ -128,7 +129,6 @@ aktiviert werden können.","Nota: la barra solo aparecerá en juegos y mods que
 contengan objetos de inventario utilizables.","Remarque : la barre d'inventaire n'apparaît que dans les
 jeux/mods dont les objets peuvent être placés dans
 l'inventaire et être utilisés à partir de celui-ci."
-Item amount color,JGPHUD_INVBAR_NUMCOL,Color of the number that reflects the remaining amount of items in the inventory bar,Цвет числа предметов,,,,
 "Minimap, radar and map data",JGPHUD_MAPDATA_GEN_TITLE,General title for the submenu that contains minimap and map data settings,Мини-карта и данные об уровне,"Minimapa, radar e informações do mapa","Minikarte, Radar und Kartendaten","Minimapa, radar e información","Minimap, radar et données de la carte"
 Minimap and monster radar,JGPHUD_MINIMAP_TITLE,Option block title,Мини-карта,Minimapa e radar de monstros,Minikarte und Monsterradar,Minimapa y radar de monstruos,Minimap et radar à monstres
 "Note: The minimap may cause performance issues on maps
