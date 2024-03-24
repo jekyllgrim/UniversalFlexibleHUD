@@ -88,6 +88,7 @@ extend class JGPUFH_PresetHandler
 		'jgphud_InvBarPos',
 		'jgphud_InvBarX',
 		'jgphud_InvBarY',
+		'jgphud_InvBarNumColor',
 
 		'jgphud_DrawEnemyHitMarkers',
 		'jgphud_EnemyHitMarkersColor',
@@ -234,6 +235,7 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonNumber',	// jgphud_InvBarPos
 		'JGPUFH_JsonNumber',	// jgphud_InvBarX
 		'JGPUFH_JsonNumber',	// jgphud_InvBarY
+		'JGPUFH_JsonNumber',	// jgphud_InvBarNumColor
 
 		'JGPUFH_JsonBool',		// jgphud_DrawEnemyHitMarkers
 		'JGPUFH_JsonNumber',	// jgphud_EnemyHitMarkersColor
@@ -380,6 +382,7 @@ extend class JGPUFH_PresetHandler
 		"invbar:jgphud_InvBarPos",
 		"invbar:jgphud_InvBarX",
 		"invbar:jgphud_InvBarY",
+		"invbar:jgphud_InvBarNumColor",
 			
 		"hitmarkers:jgphud_DrawEnemyHitMarkers",
 		"hitmarkers:jgphud_EnemyHitMarkersColor",

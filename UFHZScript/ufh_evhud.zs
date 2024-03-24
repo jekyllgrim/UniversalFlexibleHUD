@@ -4261,7 +4261,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// Scale the icons to fit into the box (but without breaking their
 			// aspect ratio):
 			statusbar.DrawTexture(icon, itemPos, flags|StatusBarCore.DI_ITEM_CENTER, alph, scale:ScaleToBox(icon, boxSize));
-			statusbar.DrawString(GetHUDFont(numHUDFont), ""..item.amount, itemPos + (boxsize*0.5, boxsize*0.5 - fy), flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT, Font.CR_Gold, alpha: alph, scale:(fntscale, fntscale));
+			statusbar.DrawString(GetHUDFont(numHUDFont), ""..item.amount, itemPos + (boxsize*0.5, boxsize*0.5 - fy), flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT, c_InvBarNumColor.GetInt(), alpha: alph, scale:(fntscale, fntscale));
 			// If the bar is not visible, stop here:
 			if (!statusbar.IsInventoryBarVisible() && !c_AlwaysShowInvBar.GetBool())
 			{

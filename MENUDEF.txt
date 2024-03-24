@@ -242,6 +242,7 @@ OptionMenu "JGPHUD_InvBar"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_InvBarPos", "ElementScreenPos", "jgphud_drawInvBar"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_InvBarX", -160, 160, 2, 0, "jgphud_drawInvBar"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_InvBarY", -100, 100, 2, 0, "jgphud_drawInvBar"
+	Option "$JGPHUD_INVBAR_NUMCOL", "jgphud_InvBarNumColor", "CleanTextColors", "jgphud_drawInvBar"
 	StaticText ""
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "invbar"
 }

@@ -128,6 +128,7 @@ aktiviert werden können.","Nota: la barra solo aparecerá en juegos y mods que
 contengan objetos de inventario utilizables.","Remarque : la barre d'inventaire n'apparaît que dans les
 jeux/mods dont les objets peuvent être placés dans
 l'inventaire et être utilisés à partir de celui-ci."
+Item amount color,JGPHUD_INVBAR_NUMCOL,Color of the number that reflects the remaining amount of items in the inventory bar,Цвет числа предметов,,,,
 "Minimap, radar and map data",JGPHUD_MAPDATA_GEN_TITLE,General title for the submenu that contains minimap and map data settings,Мини-карта и данные об уровне,"Minimapa, radar e informações do mapa","Minikarte, Radar und Kartendaten","Minimapa, radar e información","Minimap, radar et données de la carte"
 Minimap and monster radar,JGPHUD_MINIMAP_TITLE,Option block title,Мини-карта,Minimapa e radar de monstros,Minikarte und Monsterradar,Minimapa y radar de monstruos,Minimap et radar à monstres
 "Note: The minimap may cause performance issues on maps
@@ -149,7 +150,7 @@ Background opacity,JGPHUD_MINIMAP_OPACITY,A 0.0-1.0 slider that determines the o
 Minimap/radar size,JGPHUD_MINIMAP_SIZE,A slider,Размер мини-карты/радара,Tamanho do minimapa e radar,Minikarten- und Radargrösse,Tamaño del mapa y radar,Taille de la mini-carte/radar
 Minimap/radar shape,JGPHUD_MINIMAP_SHAPE,Square or circle,Форма мини-карты/радара,Formato do minimapa e radar,Minikarten- und Radarform,Forma del mapa y radar,Forme de la mini-carte/radar
 Minimap/radar zoom,JGPHUD_MINIMAP_ZOOM,A slider for the zoom value,Приближение мини-карты/радара,Zoom do minimapa e radar,Minikarten- und Radarzoom,Zoom del mapa y radar,Zoom de la mini-carte/radar
-Minimap/radar color set,JGPHUD_MINIMAP_COLORSET,"General option for the minimap that determines which colors will be used. At 0 uses same colors as the automap, at 1 uses custom colors.",Цвета миникарты/радара,,,,
+Minimap/radar color set,JGPHUD_MINIMAP_COLORSET,"General option for the minimap that determines which colors will be used. At 0 uses same colors as the automap, at 1 uses custom colors.",Цвета мини-карты/радара,,,,
 Same as automap,JGPHUD_MINIMAP_DEFAULTCOLORS,"Option for ""Minimap/radar color set"". If this is set, the minimap will use the same colors as GZDoom's automap.","Те же, что в автокарте",,,,
 Circle,JGPHUD_MINIMAP_SHAPE_CIRCLE,possible minimap shape,Круг,Círculo,Kreis,Circular,Cercle
 Square,JGPHUD_MINIMAP_SHAPE_SQUARE,possible minimap shape,Квадрат,Quadrado,Quadrat,Cuadrada,Carré

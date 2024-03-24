@@ -43,6 +43,7 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_InvBarPos;
 	ui transient CVar c_InvBarX;
 	ui transient CVar c_InvBarY;
+	ui transient CVar c_InvBarNumColor;
 	
 	ui transient CVar c_drawDamageMarkers;
 
@@ -254,6 +255,8 @@ extend class JGPUFH_FlexibleHUD
 			c_InvBarX = CVar.GetCvar('jgphud_InvBarX', CPlayer);
 		if (!c_InvBarY)
 			c_InvBarY = CVar.GetCvar('jgphud_InvBarY', CPlayer);
+		if (!c_InvBarNumColor)
+			c_InvBarNumColor = CVar.GetCvar('jgphud_InvBarNumColor', CPlayer);
 
 		if (!c_drawWeaponSlots)
 			c_drawWeaponSlots = CVar.GetCvar('jgphud_DrawWeaponSlots', CPlayer);

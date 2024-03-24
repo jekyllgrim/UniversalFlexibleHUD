@@ -90,6 +90,7 @@ nosave int jgphud_InvBarIconSize = 18;
 nosave int jgphud_InvBarPos = 6;
 nosave int jgphud_InvBarX = 0;
 nosave int jgphud_InvBarY = 32;
+nosave int jgphud_InvBarNumColor = 32;
 
 nosave bool jgphud_DrawEnemyHitMarkers = true;
 nosave color jgphud_EnemyHitMarkersColor = "ffffff";
