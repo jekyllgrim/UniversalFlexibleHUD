@@ -1299,40 +1299,34 @@ class JGPUFH_FlexibleHUD : EventHandler
 		height *= scale;
 		width *= scale;
 		int indent = 1 * scale;
-		int faceSize = height;
-		double barheight = height * 0.36;
+		double barheight = height * 0.4;
 		bool drawbars = drawThis >= DB_DRAWBARS;
 		// If bars are replaced with numbers,
 		// the width is much shorter:
 		if (!drawbars)
 		{
-			width *= 0.4;
+			width *= 0.5;
 		}
-		int mainBlockWidth = width;
-		
+
+		double fullwidth = width;
+		double facesize = height;
 		// Draw the mugshot only if the CVAR allows it and a mugshot is
 		// actually defined, or the default STF graphics for it exist:
 		bool drawface = c_DrawFace.GetBool() && (TexMan.CheckForTexture(CPlayer.mo.face).IsValid() || TexMan.CheckForTexture('STFST00').IsValid());
-		// Increase total width (for position/offset calculation)
-		// if we'll be drawing a mugshot:
 		if (drawface)
 		{
-			width += indent + faceSize;
+			fullwidth += indent + facesize;
 		}
 
 		Vector2 ofs = ( c_MainBarsX.GetInt(), c_MainBarsY.GetInt() );
-		Vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
-		// bars background:
-		BackgroundFill(pos.x, pos.y, mainBlockWidth, height, flags);
-		// face background (draw separately because there's
-		// a small indent between this and the bars background):
-		if (drawFace)
+		Vector2 pos = AdjustElementPos((0,0), flags, (fullwidth, height), ofs);
+		if (drawface)
 		{
-			Vector2 facePos = (pos.x + mainBlockWidth + indent, pos.y);
-			BackgroundFill(facePos.x, facePos.y, faceSize, faceSize, flags);
-			statusbar.DrawTexture(statusBar.GetMugShot(5), (facePos.x + faceSize*0.5, facePos.y + faceSize*0.5), flags|StatusBarCore.DI_ITEM_CENTER, box: (faceSize - 2, faceSize - 2), scale:(scale,scale));
+			DrawMugshotFace((pos.x + width + indent, pos.y), facesize, flags);
 		}
 
+		// bars background:
+		BackgroundFill(pos.x, pos.y, width, height, flags);
 		int barFlags = flags|StatusBarCore.DI_ITEM_CENTER;
 		indent = 4 * scale;
 		double iconSize = 8 * scale;
@@ -1343,7 +1337,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		
 		// Calculate bar width (it should be indented deeper
 		// from the edges and offset from the icon):
-		int barWidth = mainBlockWidth - iconSize - indent*3;
+		int barWidth = width - iconSize - indent*3;
 		double barPosX = iconPos.x + iconsize*0.5 + indent;
 		// Color/font data:
 		HUDFont fnt; Vector2 fntscale;
@@ -1430,7 +1424,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 						else
 							armPos.y = iconPos.y + ofs;
 
-						statusbar.DrawTexture(armTex, armPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize), scale:(scale,scale));
+						statusbar.DrawTexture(armTex, armPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize), scale:ScaleToBox(armTex, armTexSize));
 					}
 				}
 			}
@@ -1442,7 +1436,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			int mode = c_MainBarsArmorMode.GetInt();
 			if ((mode == AD_ICON || mode == AD_BOTH) && armTex.IsValid())
 			{
-				statusbar.DrawTexture(armTex, iconPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize), scale:(scale,scale));
+				statusbar.DrawTexture(armTex, iconPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize), scale:ScaleToBox(armTex, armTexSize));
 			}
 			if (mode == AD_ABSORB || mode == AD_BOTH)
 			{
@@ -1464,6 +1458,13 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			statusbar.DrawString(fnt, String.Format("%3d", armAmount), (barPosX, iconPos.y - fy*0.5), flags, translation:cFntCol, scale:fntScale);
 		}
+	}
+
+	ui void DrawMugshotFace(Vector2 pos, double faceSize, int flags = 0)
+	{	
+		BackgroundFill(pos.x, pos.y, faceSize, faceSize, flags);
+		TextureID facetex = statusBar.GetMugShot(5);
+		statusbar.DrawTexture(facetex, (pos.x + faceSize*0.5, pos.y + faceSize*0.5), flags|StatusBarCore.DI_ITEM_CENTER, scale: ScaleToBox(facetex, faceSize - 2));
 	}
 
 	clearscope color GetAmmoColor(Ammo am)
