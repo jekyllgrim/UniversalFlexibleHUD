@@ -116,6 +116,7 @@ extend class JGPUFH_PresetHandler
 		'jgphud_smallfont',
 		'jgphud_numberfont',
 	
+		'jgphud_cleanoffsets',
 		'jgphud_BaseScale',
 		'jgphud_MainBarsScale',
 		'jgphud_AmmoBlockScale',
@@ -266,24 +267,25 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonString',	// jgphud_smallfont
 		'JGPUFH_JsonString',	// jgphud_numberfont
 
-		'JGPUFH_JsonNumber', 	// jgphud_BaseScale,
-		'JGPUFH_JsonNumber', 	// jgphud_MainBarsScale,
-		'JGPUFH_JsonNumber', 	// jgphud_AmmoBlockScale,
-		'JGPUFH_JsonNumber', 	// jgphud_AllAmmoScale,
-		'JGPUFH_JsonNumber', 	// jgphud_PowerupsScale,
-		'JGPUFH_JsonNumber', 	// jgphud_InvBarScale,
-		'JGPUFH_JsonNumber', 	// jgphud_KeysScale,
-		'JGPUFH_JsonNumber', 	// jgphud_WeaponSlotsScale,
-		'JGPUFH_JsonNumber', 	// jgphud_CustomItemsScale,
-		'JGPUFH_JsonNumber', 	// jgphud_ReticleBarsScale
+		'JGPUFH_JsonBool',		// jgphud_cleanoffsets
+		'JGPUFH_JsonNumber',	// jgphud_BaseScale,
+		'JGPUFH_JsonNumber',	// jgphud_MainBarsScale,
+		'JGPUFH_JsonNumber',	// jgphud_AmmoBlockScale,
+		'JGPUFH_JsonNumber',	// jgphud_AllAmmoScale,
+		'JGPUFH_JsonNumber',	// jgphud_PowerupsScale,
+		'JGPUFH_JsonNumber',	// jgphud_InvBarScale,
+		'JGPUFH_JsonNumber',	// jgphud_KeysScale,
+		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsScale,
+		'JGPUFH_JsonNumber',	// jgphud_CustomItemsScale,
+		'JGPUFH_JsonNumber',	// jgphud_ReticleBarsScale
 
-		'JGPUFH_JsonNumber', 	// jgphud_MainBarsHealthColorMode,
-		'JGPUFH_JsonNumber', 	// jgphud_MainBarsHealthColor,
-		'JGPUFH_JsonNumber', 	// jgphud_MainbarsHealthRange_25,
+		'JGPUFH_JsonNumber',	// jgphud_MainBarsHealthColorMode,
+		'JGPUFH_JsonNumber',	// jgphud_MainBarsHealthColor,
+		'JGPUFH_JsonNumber',	// jgphud_MainbarsHealthRange_25,
 		'JGPUFH_JsonNumber',	// jgphud_MainbarsHealthRange_50,
-		'JGPUFH_JsonNumber', 	// jgphud_MainbarsHealthRange_75,
-		'JGPUFH_JsonNumber', 	// jgphud_MainbarsHealthRange_100,
-		'JGPUFH_JsonNumber', 	// jgphud_MainbarsHealthRange_101,
+		'JGPUFH_JsonNumber',	// jgphud_MainbarsHealthRange_75,
+		'JGPUFH_JsonNumber',	// jgphud_MainbarsHealthRange_100,
+		'JGPUFH_JsonNumber',	// jgphud_MainbarsHealthRange_101,
 
 		'JGPUFH_JsonNumber',	// jgphud_MainBarsArmorMode,
 		'JGPUFH_JsonNumber',	// jgphud_MainBarsArmorColorMode,
@@ -291,12 +293,12 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonNumber',	// jgphud_MainbarsArmorRange_25,
 		'JGPUFH_JsonNumber',	// jgphud_MainbarsArmorRange_50,
 		'JGPUFH_JsonNumber',	// jgphud_MainbarsArmorRange_75,
-		'JGPUFH_JsonNumber', 	// jgphud_MainbarsArmorRange_100,
-		'JGPUFH_JsonNumber', 	// jgphud_MainbarsArmorRange_101,
+		'JGPUFH_JsonNumber',	// jgphud_MainbarsArmorRange_100,
+		'JGPUFH_JsonNumber',	// jgphud_MainbarsArmorRange_101,
 		'JGPUFH_JsonNumber',	// jgphud_MainbarsAbsorbRange_33,
-		'JGPUFH_JsonNumber', 	// jgphud_MainbarsAbsorbRange_50,
-		'JGPUFH_JsonNumber', 	// jgphud_MainbarsAbsorbRange_66,
-		'JGPUFH_JsonNumber', 	// jgphud_MainbarsAbsorbRange_80,
+		'JGPUFH_JsonNumber',	// jgphud_MainbarsAbsorbRange_50,
+		'JGPUFH_JsonNumber',	// jgphud_MainbarsAbsorbRange_66,
+		'JGPUFH_JsonNumber',	// jgphud_MainbarsAbsorbRange_80,
 		'JGPUFH_JsonNumber' 	// jgphud_MainbarsAbsorbRange_100
 	};
 
@@ -417,6 +419,7 @@ extend class JGPUFH_PresetHandler
 		"fonts:jgphud_smallfont",
 		"fonts:jgphud_numberfont",
 			
+		"scaling:jgphud_cleanoffsets",
 		"scaling:jgphud_BaseScale",
 		"scaling:jgphud_MainBarsScale",
 		"scaling:jgphud_AmmoBlockScale",

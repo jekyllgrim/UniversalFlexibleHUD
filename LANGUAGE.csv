@@ -5,12 +5,19 @@ Toggle FlexiHUD key,JGPHUD_GENERAL_ENABLEHUD_BIND,An option that lets you specif
 General,JGPHUD_GENERAL_TITLE,Title for the general options,Общее,Geral,Allgemein,General,Géneral
 Classic integer scaling (\cDhud_oldscale\c-),JGPHUD_GENERAL_OLDSCALE,"Experimental, does not need translation",,,,,
 Float-point scale factor (\cDhud_scalefactor\c-),JGPHUD_GENERAL_SCALEFACTOR,"Experimental, does not need translation",,,,,
-Appearance and scaling options,JGPHUD_GENERAL_APPEARANCE_TITLE,,,,,,
-Background,JGPHUD_GENERAL_APPEARANCE_BACKGROUND,,,,,,
-Scaling,JGPHUD_GENERAL_APPEARANCE_SCALING,,,,,,
-Base FlexiHUD scale,JGPHUD_GENERAL_APPEARANCE_BASESCALE,,,,,,
-Use built-in HUD scaling,JGPHUD_GENERAL_APPEARANCE_BASESCALE_DEF,,,,,,
-GZDoom HUD scaling options menu,JGPHUD_GENERAL_APPEARANCE_GZDoomScalingOptions,,,,,,
+Appearance and scaling options,JGPHUD_GENERAL_APPEARANCE_TITLE,,Внешний вид и масштабирование,,,,
+Background,JGPHUD_GENERAL_APPEARANCE_BACKGROUND,,Фон,,,,
+Main HUD font,JGPHUD_GENERAL_FONT_MAIN,,Основной шрифт,,,,
+Medium HUD font,JGPHUD_GENERAL_FONT_MEDIUM,,Средний шрифт,,,,
+Smallest HUD font,JGPHUD_GENERAL_FONT_SMALL,,Мелкий шрифт,,,,
+Scaling,JGPHUD_GENERAL_APPEARANCE_SCALING,,Масштабирование,,,,
+Use clean offset scaling,JGPHUD_GENERAL_APPEARANCE_CLEANOFSSCALE,"General setting. This determines how the individual offsets for each element work. If this is enabled, the offsets will become absolute values, ignoring current UI scaling settings. This is preferable for more precise positioning of HUD elements.",Использовать абсолютное смещение,,,,
+"If enabled, offsets applied to the elements ignore
+current resolution and UI scale.",JGPHUD_GENERAL_APPEARANCE_CLEANOFSSCALE_NOTE,Description of the above option. Keep under 2 lines.,"Если включить этоу настройку, положение смещенных
+элементов не будет зависить от масштаба интерфейса.",,,,
+Base FlexiHUD scale,JGPHUD_GENERAL_APPEARANCE_BASESCALE,,Базовый масштаб FlexiHUD,,,,
+Use built-in HUD scaling,JGPHUD_GENERAL_APPEARANCE_BASESCALE_DEF,,Использовать исходный масштаб HUD'а,,,,
+GZDoom HUD scaling options menu,JGPHUD_GENERAL_APPEARANCE_GZDoomScalingOptions,,Открыть настройки масштабирования GZDoom,,,,
 HUD background style,JGPHUD_GENERAL_BACKSTYLE,General appearance of the background: either a flat color or a texture,Стиль фона,Estilo do fundo,Hintergrundstil,Estilo de fondo,Style d'arrière-plan de l’ATH
 Flat color,JGPHUD_GENERAL_BACKSTYLE_COLOR,Option for background appearance,Цветовая заливка,Cor sólida,Füllfarbe,Color sólido,Couleur uniforme
 Texture,JGPHUD_GENERAL_BACKSTYLE_TEXTURE,Option for background appearance,Текстура,Textura,Textur,Texturizado,Texture
@@ -31,7 +38,7 @@ Stretch,JGPHUD_GENERAL_BACKSTYLE_TEXFIT_STRETCH,"Option for ""Texture fit mode""
 Size of icons,JGPHUD_GENERAL_ICONSIZE,"This is used for several different options: inventory bar, weapon slots, powerup display",Размер значков,Tamanho dos ícones,Icongrösse,Tamaño de los iconos,Taille des icônes
 Reset ALL FlexiHUD settings to default,JGPHUD_GENERAL_RESETALL,Label for a menu command that resets ALL console variables related to FlexiHUD to their default values,Сбросить ВСЕ настройки FlexiHUD,Restaurar TODAS as configurações aos padrões,ALLE FlexiHUD-Einstellungen auf Vorgaben zurücksetzen,Reiniciar todas las configuraciones por defecto,Réinitialiser TOUTES les configurations de FlexiHUD par défault
 Scale of the element,JGPHUD_ELEMENT_SCALE,"General string used in multiple submenus that is attached
-to a slider that controls the scale of this element.",,,,,
+to a slider that controls the scale of this element.",Масштаб элемента,,,,
 Position anchor point,JGPHUD_ELEMENT_POS,Lets the player choose the anchor point on the screen for the specified HUD element,Точка привязки элемента,Ponto da âncora,Ankerpunkt,Punto de anclaje,Point d’ancrage
 Top left,JGPHUD_POS_TOPLEFT,Anchor point for the HUD element on the screen,Верхний левый угол,Canto superior esquerdo,Oben links,Superior izquierda,Haut à gauche
 Top center,JGPHUD_POS_TOPCENTER,Anchor point for the HUD element on the screen,Середина верхней границы,Centro superior,Oben mitte,Superior centrado,Haut au centre
@@ -56,29 +63,29 @@ Health and armor display,JGPHUD_MAINBARS_ENABLE,Whether health/armor is displaye
 Mugshot display (if exists),JGPHUD_MAINBARS_SHOWFACE,Whether mugshot is displayed,Показывать лицо персонажа (при наличии),Mostrar rosto do personagem (se existe),Gesicht anzeigen (falls vorhanden),Mostrar cara de jugador (si existe),Affichage du visage (si existant)
 Numbers,JGPHUD_MAINBARS_OPT_NUMBERS,Option for how health/armor is displayed: numbers or bars,Цифры,Números,Nummern,Numérico,Nombres
 Bars,JGPHUD_MAINBARS_OPT_BARS,Option for how health/armor is displayed: numbers or bars,Шкалы,Barras,Leisten,Barra,Barres
-Armor icon/absorption display,JPGHUD_MAINBARS_ARMDISPLAY,"Option that controls what is displayed next to the armor numbers: the armor's icon, its absorption percentage, or both (icon below, percentage on top)",,,,,
-Armor icon,JPGHUD_MAINBARS_ARMDISPLAY_ICON,Option for Armor icon/absorption display,,,,,
-Armor absorption %,JPGHUD_MAINBARS_ARMDISPLAY_ABSORB,Option for Armor icon/absorption display,,,,,
-Armor icon and absorption %,JPGHUD_MAINBARS_ARMDISPLAY_BOTH,Option for Armor icon/absorption display,,,,,
-Health and armor color settings,JGPHUD_MAINBARS_NUMCOL_TITLE,"Title for a submenu with health/armor color settings. Located under ""Health and armor display"" menu",,,,,
-Armor colors,JGPHUD_MAINBARS_NUMCOL_ARMOR_TITLE,Subtitle for Health and armor color settings menu,,,,,
-Health colors,JGPHUD_MAINBARS_NUMCOL_HEALTH_TITLE,Subtitle for Health and armor color settings menu,,,,,
-Colorization rules,JGPHUD_MAINBARS_NUMCOL,This option allows adjusting the rules by which the Armor colors and Health colors are colorized. The options for Armor and Health are separate but their names are identical (they're just positioned in different sections).,,,,,
-Color reflects armor absorption,JGPHUD_MAINBARS_NUMCOL_ABSORB,Option for Number colorization rules (this one is only for Armor: color reflects the damage absorption of the current armor),,,,,
-Color reflects remaining amount,JGPHUD_MAINBARS_NUMCOL_AMOUNT,Option for Number colorization rules: color changes based on the remaining amount of Armor/Health,,,,,
-Always single color,JGPHUD_MAINBARS_NUMCOL_FIXED,Option for Number colorization rules: one fixed color,,,,,
-Single color,JGPHUD_MAINBARS_NUMCOL_FIXED_LABEL,,,,,,
-Choose colors:,JGPHUD_MAINBARS_NUMCOL_CHOOSE,,,,,,
-0-25% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_25,The color used when the AMOUNT is in this range,,,,,
-26-50% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_50,The color used when the AMOUNT is in this range,,,,,
-51-75% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_75,The color used when the AMOUNT is in this range,,,,,
-76-100% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_100,The color used when the AMOUNT is in this range,,,,,
-101+% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_101,The color used when the AMOUNT is in this range,,,,,
-33% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_33,The color used when the ABSORPTION is in this range,,,,,
-50% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_50,The color used when the ABSORPTION is in this range,,,,,
-66% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_66,The color used when the ABSORPTION is in this range,,,,,
-80% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_80,The color used when the ABSORPTION is in this range,,,,,
-100% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_100,The color used when the ABSORPTION is in this range,,,,,
+Armor icon/absorption display,JPGHUD_MAINBARS_ARMDISPLAY,"Option that controls what is displayed next to the armor numbers: the armor's icon, its absorption percentage, or both (icon below, percentage on top)",Отображение значка/поглощения,,,,
+Armor icon only,JPGHUD_MAINBARS_ARMDISPLAY_ICON,Option for Armor icon/absorption display,Только значок брони,,,,
+Armor absorption % only,JPGHUD_MAINBARS_ARMDISPLAY_ABSORB,Option for Armor icon/absorption display,Процент поглощения урона,,,,
+Armor icon and absorption %,JPGHUD_MAINBARS_ARMDISPLAY_BOTH,Option for Armor icon/absorption display,Значок и процент поглощения,,,,
+Health and armor color settings,JGPHUD_MAINBARS_NUMCOL_TITLE,"Title for a submenu with health/armor color settings. Located under ""Health and armor display"" menu",Настройки цветов здоровья и брони,,,,
+Armor colors,JGPHUD_MAINBARS_NUMCOL_ARMOR_TITLE,Subtitle for Health and armor color settings menu,Цвета брони,,,,
+Health colors,JGPHUD_MAINBARS_NUMCOL_HEALTH_TITLE,Subtitle for Health and armor color settings menu,Цвета здоровья,,,,
+What color reflects,JGPHUD_MAINBARS_NUMCOL,This option allows adjusting the rules by which the Armor colors and Health colors are colorized. The options for Armor and Health are separate but their names are identical (they're just positioned in different sections).,Что отражает цвет,,,,
+Current damage absorption,JGPHUD_MAINBARS_NUMCOL_ABSORB,"Option for ""What color reflects"". This one is only for Armor: color reflects the damage absorption of the current armor.",Процент поглощения урона,,,,
+Remaining amount,JGPHUD_MAINBARS_NUMCOL_AMOUNT,"Option for ""What color reflects"": color changes based on the remaining amount of Armor/Health",Оставшийся запас,,,,
+Nothing (always single color),JGPHUD_MAINBARS_NUMCOL_FIXED,"Option for ""What color reflects"": one fixed color",Ничего (всегда один цвет),,,,
+Single color,JGPHUD_MAINBARS_NUMCOL_FIXED_LABEL,"This appears is ""What color reflects"" is set to Nothing (always single color)",Один цвет,,,,
+Choose colors:,JGPHUD_MAINBARS_NUMCOL_CHOOSE,Sub-title above color selectors,Выберите цвета:,,,,
+0-25% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_25,The color used when the AMOUNT is in this range,0-25% запаса,,,,
+26-50% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_50,The color used when the AMOUNT is in this range,26-50% запаса,,,,
+51-75% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_75,The color used when the AMOUNT is in this range,51-75% запаса,,,,
+76-100% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_100,The color used when the AMOUNT is in this range,76-100% запаса,,,,
+101+% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_101,The color used when the AMOUNT is in this range,101+% запаса,,,,
+33% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_33,The color used when the ABSORPTION is in this range,33% поглощения урона,,,,
+50% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_50,The color used when the ABSORPTION is in this range,50% поглощения урона,,,,
+66% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_66,The color used when the ABSORPTION is in this range,66% поглощения урона,,,,
+80% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_80,The color used when the ABSORPTION is in this range,80% поглощения урона,,,,
+100% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_100,The color used when the ABSORPTION is in this range,100% поглощения урона,,,,
 Current ammo and weapon,JGPHUD_AMMOBLOCK_TITLE,,Текущий боезапас и оружие,Munição e arma atual,Aktuelle Munition und Waffe,Arma y munición actual,Armes et munitions actuelles
 Current ammo display,JGPHUD_AMMOBLOCK_ENABLE,Whether current ammo is displayed,Показывать патроны для текущего оружия,Mostrar munição atual,Aktuelle Munition anzeigen,Mostrar munición actual,Affichage des munitions actuelles
 Display weapon icon,JGPHUD_AMMOBLOCK_SHOWWEAP,Whether selected weapon icon is displayed,Показывать значок текущего оружия,Mostrar ícone de arma,Aktuelle Waffe anzeigen,Mostrar icono del arma,Affichage des icônes d’armes
@@ -88,10 +95,10 @@ Display all ammo,JGPHUD_ALLAMMO_ENABLE,Whether to display a separate block with 
 For the weapons you have,JGPHUD_ALLAMMO_OWNEDWEAPONS,All Ammo block option: only draw ammo icons/amounts for the weapons the player has in their inventory,Только для оружия в инвентаре,Para as armas que você tem,Nur für mitgeführte Waffen,Para armas en posesión,Pour les armes que vous avez
 For all weapons in the game,JGPHUD_ALLAMMO_ALLWEAPONS,All Ammo block options: draw ammo for all weapons that exist in the current game,Для всех видов оружия в игре,Para todas as armas no jogo,Für alle Waffen im Spiel,Para todas las armas,Pour toutes les armes du jeu
 Show depleted ammo,JGPHUD_ALLAMMO_SHOWDEPLETED,Whether to show the ammo you've run out of in the All Ammo block (On/Off),Показывать израсходованные патроны,Mostrar tipos de munição esgotados,Verbrauchte Munition anzeigen,Mostrar municiones vacias,Afficher les munitions épuisées
-Number of columns,JGPHUD_ALLAMMO_COLUMNS,,,,,,
-Display format,JGPHUD_ALLAMMO_DISPLAYFORMAT,,,,,,
-Current amount only,JGPHUD_ALLAMMO_DISPLAYFORMAT_NOMAX,,,,,,
-Current amount / Max amount,JGPHUD_ALLAMMO_DISPLAYFORMAT_MAX,,,,,,
+Number of columns,JGPHUD_ALLAMMO_COLUMNS,,Число столбцов,,,,
+Display format,JGPHUD_ALLAMMO_DISPLAYFORMAT,,Формат цифр,,,,
+Current amount only,JGPHUD_ALLAMMO_DISPLAYFORMAT_NOMAX,,Текущий запас патронов,,,,
+Current amount / Max amount,JGPHUD_ALLAMMO_DISPLAYFORMAT_MAX,,Текущий запас / макс. запас,,,,
 Keys,JGPHUD_KEYS_TITLE,,Ключи,Chaves,Schlüssel,Llaves,Clés
 Keys display,JGPHUD_KEYS_ENABLE,Whether to show keys on the HUD,Показывать ключи,Mostrar chaves,Schlüssel anzeigen,Mostrar llaves,Affichage des clés
 Weapon slots,JGPHUD_WEAPSLOTS_TITLE,,Ячейки оружия,Ícones de arma,Waffenplätze,Slots de armas,Emplacements d'armes

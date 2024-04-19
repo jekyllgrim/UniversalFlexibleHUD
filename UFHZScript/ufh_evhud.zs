@@ -5,35 +5,28 @@ class JGPUFH_FlexibleHUD : EventHandler
 	const SQUARERADIUSFAC = 1.43;
 	const STR_INVALID = "<invalid>";
 
-	ui PlayerInfo CPlayer;
-	ui transient bool gamePaused;
-	ui transient double prevMSTime;
-	ui transient double deltaTime;
-	ui transient double fracTic;
-	ui transient int HUDTics; //incremented all the time, including while paused
+	private ui PlayerInfo CPlayer;
+	private ui transient bool gamePaused;
+	private ui transient double prevMSTime;
+	private ui transient double deltaTime;
+	private ui transient double fracTic;
+	private ui transient int HUDTics; //incremented all the time, including while paused
+	private ui transient Vector2 hudscale;
 
-	// Apparently, HUDFont is not properly serializable,
-	// so these need to be transient:
-	ui transient bool initDone;
-	// Allow dynamic changing of the fonts:
-	ui transient int fontTypeCheck;
-	enum EFontTypes
-	{
-		FT_All,
-		FT_Main,
-		FT_Small,
-		FT_Num,
-	}
+	private ui transient bool initDone;
+	private bool levelUnloaded;
+
 	const DEFFONT_Main = "BigFont";
 	const DEFFONT_Small = "SmallFont";
 	const DEFFONT_Num = "NewConsoleFont";
+	// Apparently, HUDFont is not properly serializable,
+	// so these need to be transient:
 	ui transient JGPUFH_FontData mainHUDFont;
 	ui transient JGPUFH_FontData smallHUDFont;
 	ui transient JGPUFH_FontData numHUDFont;
 
 	array <JGPUFH_PowerupData> powerupData;
 	array <MapMarker> mapMarkers;
-	bool levelUnloaded;
 	
 	//Generic shapes
 	ui transient Shape2D shape_square;
@@ -514,6 +507,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		CacheCvars();
 		UpdateDeltaTime();
 		fracTic = e.fracTic;
+		hudscale = statusbar.GetHudScale();
+		//Console.Printf(	"Screensize: \cd%.1f,%.1f\c- | hudscale: \cd%.1f, %.1f\c- | screensize/hudscale: \cd%.1f, %.1f\c-",
+		//				Screen.GetWidth(), Screen.GetHeight(), 
+		//				hudscale.x, hudscale.y, 
+		//				Screen.GetWidth() / hudscale.x, Screen.GetHeight() / hudscale.y );
 		if (!c_enable.GetBool() || !CPlayer || !CPlayer.mo || CPlayer.camera != CPlayer.mo)
 		{
 			return;
@@ -569,8 +567,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// by hudscale, rather than StatusBar coordinates.
 	ui Vector2 AdjustElementPos(Vector2 pos, int flags, Vector2 size, Vector2 ofs = (0,0), bool real = false)
 	{
+		let hudscale = self.hudscale;
 		Vector2 screenSize = (0,0);
-		Vector2 hudscale = statusbar.GetHudScale();
 		if (real)
 		{
 			screenSize = (Screen.GetWidth(), Screen.GetHeight());
@@ -640,8 +638,26 @@ class JGPUFH_FlexibleHUD : EventHandler
 			ofs.x *= hudscale.x;
 			ofs.y *= hudscale.y;
 		}
+		ofs = AdjustElementOffset(ofs);
 		pos += ofs;
 		return pos;
+	}
+
+	// Feed offsets from AdjustElementPos to this function.
+	// What this does is, it makes sure that the offsets
+	// (which are controllable by the player) always work
+	// in such a way that the element can be adjusted around
+	// exactly a quarter of the screen. Even when offsets are
+	// being applied through virtual resolution, this can't
+	// be done properly, because their distance is dependent
+	// on real resolution AND the current UI scale value.
+	ui Vector2 AdjustElementOffset(Vector2 ofs)
+	{
+		if (!c_cleanoffsets || !c_cleanoffsets.GetBool())
+		{
+			return ofs;
+		}
+		return ofs * (4.0 / hudscale.x);
 	}
 
 	ui double GetElementScale(CVar check)
@@ -651,9 +667,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return 1.0;
 		}
 		double scale = Clamp(check.GetFloat(), 0.01, 30.0);
-		let base = c_BaseScale;
-		double baseFac = base ? base.GetFloat() : 1.0;
-		if (base && baseFac > 0.0)
+		double baseFac = c_BaseScale ? c_BaseScale.GetFloat() : 1.0;
+		if (baseFac > 0.0)
 		{
 			scale *= baseFac;
 		}
@@ -1961,7 +1976,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 
 		// Don't forget to multiply by hudscale:
-		Vector2 hudscale = statusbar.GetHudScale();
 		if (!dmgMarkerTransf)
 			dmgMarkerTransf = New("Shape2DTransform");
 		// Cache the texture:
@@ -2325,7 +2339,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 			posIn.y /= ASPECTSCALE;
 			posOut.y /= ASPECTSCALE;
 		}
-		Vector2 hudscale = statusbar.GetHudScale();
 		posIn.y += GetCrosshairVertOfs() / hudscale.y;
 		posOut.y += GetCrosshairVertOfs() / hudscale.y;
 		return angle, posIn, posOut, inFlags|StatusBarCore.DI_SCREEN_CENTER, outFlags|StatusBarCore.DI_SCREEN_CENTER;
@@ -2392,7 +2405,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		// Position and sizes:
 		Vector2 screenCenter = GetCrosshairPosition();
-		Vector2 hudscale = statusbar.GetHudScale();
 		double widthFac = 1.0 - Clamp(c_ReticleBarsWidth.GetFloat(), 0.0, 1.0);
 		double virtualSize = 18 * GetElementScale(c_ReticleBarsScale);
 		double secSizeFac = 1.05;
@@ -3078,7 +3090,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Almost everything has to be multiplied by hudscale.x
 		// so that it matches the general HUD scale regarldess
 		// of physical resolution:
-		Vector2 hudscale = statusbar.GetHudScale();
 		// Screen flags are obtained as usual, although they're
 		// only used in AdjustElementPos, not in the actual
 		// drawing functions, since Screen functions don't

@@ -36,9 +36,6 @@ OptionMenu "JGPHUD_Settings"
 	SubMenu "$JGPHUD_CROSSHAIR_TITLE", "JGPHUD_CrosshairOptions"
 	SubMenu "$JGPHUD_MAPDATA_GEN_TITLE", "JGPHUD_MapData"
 	SubMenu "$JGPHUD_CustomItems_TITLE", "JGPHUD_CustomItems"
-	
-	//StaticText ""
-	//JGPUFHResetALLCCMD "$JGPHUD_GENERAL_RESETALL", 1
 }
 
 OptionMenu "JGPHUD_Appearance"
@@ -51,10 +48,10 @@ OptionMenu "JGPHUD_Appearance"
 	Option "$JGPHUD_GENERAL_BACKSTYLE", "jgphud_BackStyle", "BackgroundStyles"
 	Slider "$JGPHUD_GENERAL_BACKALPHA", "jgphud_BackAlpha", 0.00, 1.0, 0.05, 2
 	JGPUFH_CheckCVar "$JGPHUD_GENERAL_BACKSTYLE_COLOR", sapphire, "jgphud_BackStyle", "1"
-		ColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor", "jgphud_BackStyle"
+		JGPUFHColorPicker "$JGPHUD_GENERAL_BACKCOL", "jgphud_BackColor", "jgphud_BackStyle"
 	JGPUFH_Else "$JGPHUD_GENERAL_BACKSTYLE_TEXTURE", sapphire
 		TextField "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME", "jgphud_BackTexture"
-		StaticText "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME_NOTE", gray
+		StaticText "$JGPHUD_GENERAL_BACKSTYLE_TEXNAME_NOTE", darkgray
 		StaticText ""
 		StaticText ""
 		Option "$JGPHUD_GENERAL_BACKSTYLE_TEXFIT", "jgphud_BackTextureStretch", "BackTextureFitMode"
@@ -64,14 +61,19 @@ OptionMenu "JGPHUD_Appearance"
 	StaticText ""
 	StaticText "$Fonts", yellow
 	StaticText ""
-	TextField "Main font", "jgphud_mainfont"
-	TextField "Medium font", "jgphud_smallfont"
-	TextField "Small numeric font", "jgphud_numberfont"
+	TextField "$JGPHUD_GENERAL_FONT_MAIN", "jgphud_mainfont"
+	TextField "$JGPHUD_GENERAL_FONT_MEDIUM", "jgphud_smallfont"
+	TextField "$JGPHUD_GENERAL_FONT_SMALL", "jgphud_numberfont"
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "fonts"
 	
 	StaticText ""
 	StaticText "$JGPHUD_GENERAL_APPEARANCE_SCALING", yellow
 	StaticText ""
+
+	Option "$JGPHUD_GENERAL_APPEARANCE_CLEANOFSSCALE", "jgphud_cleanoffsets", "OnOff"
+	StaticText "$JGPHUD_GENERAL_APPEARANCE_CLEANOFSSCALE_NOTE", darkgray
+	StaticText "", darkgray
+	StaticText "", darkgray
 
 	Submenu "$JGPHUD_GENERAL_APPEARANCE_GZDoomScalingOptions", "ScalingOptions" 
 	JGPUFHScaleSlider "$JGPHUD_GENERAL_APPEARANCE_BASESCALE", "jgphud_BaseScale", 0.0, 15.0, 0.1, "$JGPHUD_GENERAL_APPEARANCE_BASESCALE_DEF"
@@ -227,14 +229,14 @@ OptionMenu "JGPHUD_InvBar"
 	StaticText "$JGPHUD_INVBAR_TITLE", yellow
 	Option "$JGPHUD_INVBAR_ENABLE", "jgphud_DrawInvBar", "OnOff"
 	JGPUFH_CheckCVar "", sapphire, "jgphud_DrawInvBar", "1"
-		StaticText "$JGPHUD_INVBAR_NOTE", gray
+		StaticText "$JGPHUD_INVBAR_NOTE", darkgray
 		StaticText "" // make space for the note
 		StaticText ""
 		StaticText ""
 	JGPUFH_EndIf ""
 	Option "$JGPHUD_INVBAR_ENABLEALWAYS", "jgphud_AlwaysShowInvBar", "OnOff", "jgphud_DrawInvBar"
 	JGPUFH_CheckCVar "", sapphire, "jgphud_AlwaysShowInvBar", "1"
-		StaticText "$JGPHUD_INVBAR_ENABLEALWAYS_NOTE", gray
+		StaticText "$JGPHUD_INVBAR_ENABLEALWAYS_NOTE", darkgray
 		StaticText "" // make space for the note
 		StaticText ""
 		StaticText ""
@@ -271,7 +273,7 @@ OptionMenu "JGPHUD_CustomItems"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_CustomItems_TITLE", yellow
 	StaticText ""
-	StaticText "$JGPHUD_CustomItems_NOTE", gray
+	StaticText "$JGPHUD_CustomItems_NOTE", darkgray
 	StaticText "" // make space for the note
 	StaticText ""
 	Option "$JGPHUD_CustomItems_ENABLE", "jgphud_DrawCustomItems", "OnOff"
@@ -294,7 +296,7 @@ OptionMenu "JGPHUD_MapData"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_MinimapPosY", -100, 100, 2, 0
 	StaticText ""
 	StaticText "$JGPHUD_MINIMAP_TITLE", yellow
-	StaticText "$JGPHUD_MINIMAP_NOTE", gray
+	StaticText "$JGPHUD_MINIMAP_NOTE", darkgray
 	StaticText "" // make space for the note
 	StaticText ""
 	StaticText ""

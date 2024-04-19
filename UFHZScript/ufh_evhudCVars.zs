@@ -121,6 +121,7 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_scale_mainbars;
 	ui transient CVar c_scale_weaponblock;
 
+	ui transient CVar c_cleanoffsets;
 	ui transient CVar c_BaseScale;
 	ui transient CVar c_MainBarsScale;
 	ui transient CVar c_AmmoBlockScale;
@@ -386,6 +387,8 @@ extend class JGPUFH_FlexibleHUD
 		if (!c_CustomItemsY)
 			c_CustomItemsY = CVar.GetCvar('jgphud_CustomItemsY', CPlayer);
 
+		if (!c_cleanoffsets)
+			c_cleanoffsets = CVar.GetCvar('jgphud_cleanoffsets', CPlayer);
 		if (!c_BaseScale)
 			c_BaseScale = CVar.GetCVar('jgphud_BaseScale', CPlayer);
 		if (!c_MainBarsScale)
