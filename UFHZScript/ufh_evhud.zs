@@ -3647,7 +3647,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		for (int i = 0; i < mapMarkers.Size(); i++)
 		{
 			let marker = mapMarkers[i];
-			if (!marker)
+			if (!marker || marker.bDORMANT)
 				continue;
 			
 			if (!CPlayer.mo || CPlayer.mo.Distance2DSquared(marker) > distance*distance)
