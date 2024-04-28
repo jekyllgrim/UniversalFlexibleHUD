@@ -1712,7 +1712,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// the currently used weapon:
 			if (am == a1 || am == a2)
 			{
-				statusbar.Fill(color(128, 255 - col.r, 255 - col.g, 255 - col.b), pos.x, pos.y, width, iconSize, flags);
+				statusbar.Fill(color(128, 255 - col.r, 255 - col.g, 255 - col.b), curPos.x, curPos.y, width, iconSize, flags);
 			}
 			// Draw ammo:
 			statusbar.DrawInventoryIcon(am, curPos + (iconSize*0.5,iconSize*0.5), flags|StatusBarCore.DI_ITEM_CENTER, boxsize:(iconSize, iconSize));
