@@ -1510,7 +1510,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	ui int ShouldDrawMugshot()
 	{
-		if (!(TexMan.CheckForTexture(CPlayer.mo.face).IsValid() || TexMan.CheckForTexture('STFST00').IsValid()))
+		TextureID tex = StatusBar.GetMugShot(5);
+		if (!tex || !tex.IsValid())
 		{
 			return DF_NONE;
 		}
