@@ -41,6 +41,7 @@ nosave int jgphud_AllAmmoX = 2;
 nosave int jgphud_AllAmmoY = 0;
 nosave int jgphud_AllAmmoColumns = 1;
 nosave bool jgphud_AllAmmoShowMax = true;
+nosave bool jgphud_AllAmmoShowBar = true;
 
 nosave bool jgphud_DrawKeys = true;
 nosave int jgphud_KeysPos = 8;

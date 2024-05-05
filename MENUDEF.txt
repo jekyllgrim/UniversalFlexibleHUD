@@ -205,6 +205,7 @@ OptionMenu "JGPHUD_AllAmmo"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_AllAmmoY", -160, 160, 2, 0, "jgphud_drawAllAmmo"
 	JGPUFHIntNumberField "$JGPHUD_ALLAMMO_COLUMNS", "jgphud_AllAmmoColumns", 1, 20, 1, "jgphud_drawAllAmmo"
 	Option "$JGPHUD_ALLAMMO_DISPLAYFORMAT", "jgphud_AllAmmoShowMax", "AllAmmoFormat", "jgphud_drawAllAmmo"
+	Option "$JGPHUD_ALLAMMO_SHOWBARS", "jgphud_AllAmmoShowBar", "OnOff", "jgphud_drawAllAmmo"
 	StaticText ""
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "allammo"
 }

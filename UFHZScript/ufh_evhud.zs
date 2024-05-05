@@ -276,8 +276,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 	clearscope double LinearMap(double val, double source_min, double source_max, double out_min, double out_max, bool clampIt = false) 
 	{
 		double sourceDiff = (source_max - source_min);
-		if (sourceDiff == 0)
-			sourceDiff = 1;
+		if (sourceDiff == 0) return 0;
+
 		double d = (val - source_min) * (out_max - out_min) / sourceDiff + out_min;
 		if (clampit) 
 		{
@@ -1741,9 +1741,15 @@ class JGPUFH_FlexibleHUD : EventHandler
 		int columns = Clamp(c_AllAmmoColumns.GetInt(), 1, totalAmmo);
 		int rows = ceil(totalAmmo / double(columns));
 		bool showMax = c_AllAmmoShowMax.GetBool();
+		bool showBar = c_AllAmmoShowBar.GetBool();
 		int largestAmt = max(largestAmmoAmt, largestAmmoMaxAmt);
-		String ammoString = showmax? String.Format("%d/%d", largestAmt, largestAmt) : String.Format("%d", largestAmt);
+		// Always use full width if drawing a bar:
+		String ammoString = (showMax || showBar)? String.Format("%d/%d", largestAmt, largestAmt) : String.Format("%d", largestAmt);
 		double ammoStrWidth = hfnt.mFont.StringWidth(ammoString) * fntScale.x;
+		if (showbar && showmax)
+		{
+			ammoStrWidth *= 1.25;
+		}
 		double singleColumnWidth = iconsize + indent*4 + ammoStrWidth;
 		double singleRowHeight = max(fy, iconsize) + indent;
 		double width = singleColumnWidth * columns;
@@ -1760,34 +1766,64 @@ class JGPUFH_FlexibleHUD : EventHandler
 		[a1, a2] = statusbar.GetCurrentAmmo();
 		Vector2 curPos = pos;
 		int curRow = 0;
+		// Pad numbers if min/max is shown; otherwise no need for padding:
 		int padding = String.Format("%d", largestAmt).Length();
+		Vector2 barPos, innerBarPos, barSize, innerBarSize;
+		barSize = (ammoStrWidth + indent*2, iconSize);
+		double barIndent = barSize.y * 0.1;
+		innerBarSize = (barSize.x - barIndent*2, barSize.y - barIndent*2);
 		for (int i = 0; i < ammoitems.Size(); i++)
 		{			
 			Ammo am = ammoItems[i];
 			if (!am)
 				continue;
+			bool current = (am == a1 || am == a2);
 			// Draw color fill behind the ammo if it matches
-			// the currently used weapon:
-			if (am == a1 || am == a2)
+			// the currently used weapon (but only if bars
+			// aren't being drawn, otherwise the bars will
+			// handle highlighting):
+			if (!showBar && current)
 			{
 				statusbar.Fill(color(128, 255 - col.r, 255 - col.g, 255 - col.b), curPos.x, curPos.y, singleColumnWidth, iconSize, flags);
 			}
-			// Draw ammo:
+			// draw the bar:
+			if (showbar)
+			{
+				barPos = (curPos.x + iconSize + indent, curPos.y);
+				innerBarPos = (barPos.x+barIndent, barPos.y+barIndent);
+
+				int barColR = LinearMap(am.amount, 0, am.maxamount, 255, 0, true);
+				int barColG = barColR / 2;
+				int barColB = LinearMap(am.amount, 0, am.maxamount, 0, 220, true);
+				// outline (current selection):
+				if (current)
+					statusbar.Fill(color(255, 255, 255, 255), curPos.x, barPos.y, singleColumnWidth, barSize.y, flags);
+				// background:
+				int barAlpha = current? 255 : 160;
+				statusbar.Fill(color(barAlpha, 0,0,0), innerBarPos.x, innerBarPos.y, innerBarSize.x, innerBarSize.y, flags);
+				// foreground:
+				double amFac = LinearMap(am.amount, 0, am.maxamount, 0.0, 1.0, true);
+				statusbar.Fill(color(barAlpha, barColR, barColG, barColB), innerBarPos.x, innerBarPos.y, innerBarSize.x*amFac, innerBarSize.y, flags);
+			}
+
+			// Draw icon:
 			statusbar.DrawInventoryIcon(am, curPos + (iconSize*0.5,iconSize*0.5), flags|StatusBarCore.DI_ITEM_CENTER, boxsize:(iconSize, iconSize));
+
+			// draw the string:
 			String curAmmoString;
 			if (showMax)
 			{
-				curAmmoString = String.Format("%*d\cJ/\c-%*d", padding, am.amount, padding, am.maxamount);
+				curAmmoString = String.Format("%*d\cJ/%*d", padding, am.amount, padding, am.maxamount);
 			}
 			else
 			{
-				curAmmoString = String.Format("%*d", padding, am.amount);
-			}
+				curAmmoString = String.Format("%d", am.amount);
+			}			
 			statusbar.DrawString(hfnt, 
 				curAmmoString,
-				curPos + (iconSize + indent, iconsize*0.5 -fy*0.5), 
-				flags|StatusBarCore.DI_TEXT_ALIGN_LEFT, 
-				translation: GetPercentageFontColor(am.amount, am.maxamount), 
+				curPos + (iconSize + indent + ammoStrWidth*0.5, iconsize*0.5 -fy*0.5), 
+				flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, 
+				translation: showbar? 0xFFFFFFFF : GetPercentageFontColor(am.amount, am.maxamount), 
 				scale:fntScale
 			);
 			curRow++;

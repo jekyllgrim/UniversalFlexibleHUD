@@ -38,6 +38,7 @@ extend class JGPUFH_PresetHandler
 		'jgphud_AllAmmoY',
 		'jgphud_AllAmmoColumns',
 		'jgphud_AllAmmoShowMax',
+		'jgphud_AllAmmoShowBar',
 
 		'jgphud_DrawKeys',
 		'jgphud_KeysPos',
@@ -195,6 +196,7 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonNumber',	// jgphud_AllAmmoY
 		'JGPUFH_JsonNumber',	// jgphud_AllAmmoColumns
 		'JGPUFH_JsonBool',		// jgphud_AllAmmoShowMax
+		'JGPUFH_JsonBool',		// jgphud_AllAmmoShowBar
 
 		'JGPUFH_JsonBool',		// jgphud_DrawKeys
 		'JGPUFH_JsonNumber',	// jgphud_KeysPos
@@ -352,6 +354,7 @@ extend class JGPUFH_PresetHandler
 		"allammo:jgphud_AllAmmoY",
 		"allammo:jgphud_AllAmmoColumns",
 		"allammo:jgphud_AllAmmoShowMax",
+		"allammo:jgphud_AllAmmoShowBar",
 			
 		"keys:jgphud_DrawKeys",
 		"keys:jgphud_KeysPos",
