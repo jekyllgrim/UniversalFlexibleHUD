@@ -20,7 +20,11 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_MainBarsX;
 	ui transient CVar c_MainBarsY;
 	ui transient CVar c_DrawFace;
-	ui transient CVar c_MainBarsArmorMode;
+
+	ui transient CVar c_drawMugshot;
+	ui transient CVar c_MugshotPos;
+	ui transient CVar c_MugshotX;
+	ui transient CVar c_MugshotY;
 
 	ui transient CVar c_drawAmmoBlock;
 	ui transient CVar c_AmmoBlockPos;
@@ -124,6 +128,7 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_cleanoffsets;
 	ui transient CVar c_BaseScale;
 	ui transient CVar c_MainBarsScale;
+	ui transient CVar c_MugshotScale;
 	ui transient CVar c_AmmoBlockScale;
 	ui transient CVar c_AllAmmoScale;
 	ui transient CVar c_PowerupsScale;
@@ -133,6 +138,7 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_CustomItemsScale;
 	ui transient CVar c_ReticleBarsScale;
 
+	ui transient CVar c_MainBarsArmorMode;
 	ui transient CVar c_MainBarsArmorColorMode;
 	ui transient CVar c_MainBarsHealthColorMode;
 	ui transient CVar c_MainBarsArmorColor;
@@ -202,8 +208,15 @@ extend class JGPUFH_FlexibleHUD
 			c_MainBarsY = CVar.GetCvar('jgphud_MainBarsY', CPlayer);
 		if (!c_DrawFace)
 			c_DrawFace = CVar.GetCvar('jgphud_Drawface', CPlayer);
-		if (!c_MainBarsArmorMode)
-			c_MainBarsArmorMode = CVar.GetCvar('jgphud_MainBarsArmorMode', CPlayer);
+
+		if (!c_drawMugshot)
+			c_drawMugshot = CVar.GetCvar('jgphud_DrawMugshot', CPlayer);
+		if (!c_MugshotPos)
+			c_MugshotPos = CVar.GetCvar('jgphud_MugshotPos', CPlayer);
+		if (!c_MugshotX)
+			c_MugshotX = CVar.GetCvar('jgphud_MugshotX', CPlayer);
+		if (!c_MugshotY)
+			c_MugshotY = CVar.GetCvar('jgphud_MugshotY', CPlayer);
 
 		if (!c_drawAmmoBlock)
 			c_drawAmmoBlock = CVar.GetCvar('jgphud_DrawAmmoBlock', CPlayer);
@@ -393,6 +406,8 @@ extend class JGPUFH_FlexibleHUD
 			c_BaseScale = CVar.GetCVar('jgphud_BaseScale', CPlayer);
 		if (!c_MainBarsScale)
 			c_MainBarsScale = CVar.GetCVar('jgphud_MainBarsScale', CPlayer);
+		if (!c_MugshotScale)
+			c_MugshotScale = CVar.GetCVar('jgphud_MugshotScale', CPlayer);
 		if (!c_AmmoBlockScale)
 			c_AmmoBlockScale = CVar.GetCVar('jgphud_AmmoBlockScale', CPlayer);
 		if (!c_AllAmmoScale)
@@ -410,6 +425,8 @@ extend class JGPUFH_FlexibleHUD
 		if (!c_ReticleBarsScale)
 			c_ReticleBarsScale = CVar.GetCVar('jgphud_ReticleBarsScale', CPlayer);
 
+		if (!c_MainBarsArmorMode)
+			c_MainBarsArmorMode = CVar.GetCvar('jgphud_MainBarsArmorMode', CPlayer);
 		if (!c_MainBarsArmorColorMode)
 			c_MainBarsArmorColorMode = CVar.GetCvar('jgphud_MainBarsArmorColorMode', CPlayer);
 		if (!c_MainBarsHealthColorMode)

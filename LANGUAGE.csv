@@ -58,9 +58,8 @@ Classic screen reddening multiplier,JGPHUD_DMGMARKERS_SCREENTINT,"This lets the 
 Directional incoming damage markers,JGPHUD_DMGMARKERS_ENABLE,"Directional damage markers are shown on the HUD, pointing to the enemy that just attacked the player",Направленные индикаторы получаемого урона,Marcadores de dano direcionais,Richtungsmarker für ankommenden Schaden,Marcador de daño direccional,Marqueurs directionnels de dégâts entrants
 Maximum damage marker opacity,JGPHUD_DMGMARKERS_MAXALPHA,,Прозрачность индикаторов получаемого урона,Opacidade máxima do marcador de dano,Markerdeckkraft für Maximalschaden,Opacidad máxima de marcadores,Opacité maximale du marqueur de dégâts
 Damage marker fade-out time (seconds),JGPHUD_DMGMARKERS_FADEOUTTIME,,Время исчезновения индикаторов урона (сек.),Tempo de desvanecimento do marcador de dano (segundos),Ausblendzeit für Schadensmarker (Sekunden),Desvanecimiento de marcadores (segundos),Temps d'évanouissement du marqueur de dommage (secondes)
-"Health, armor and mugshot",JGPHUD_MAINBARS_TITLE,,"Здоровье, броня и лицо персонажа","Vida, armadura e rosto do personagem","Gesundheit, Rüstung und Gesicht",Vida y armadura,"Santé, armure et visage"
+Health and armor,JGPHUD_MAINBARS_TITLE,,Здоровье и броня,,,,
 Health and armor display,JGPHUD_MAINBARS_ENABLE,Whether health/armor is displayed,Отображение здоровья и брони,Exibir barras de vida e armadura,Gesundheit und Rüstung anzeigen,Mostrar vida y armadura,Affichage de santé et d’armure
-Mugshot display (if exists),JGPHUD_MAINBARS_SHOWFACE,Whether mugshot is displayed,Показывать лицо персонажа (при наличии),Mostrar rosto do personagem (se existe),Gesicht anzeigen (falls vorhanden),Mostrar cara de jugador (si existe),Affichage du visage (si existant)
 Numbers,JGPHUD_MAINBARS_OPT_NUMBERS,Option for how health/armor is displayed: numbers or bars,Цифры,Números,Nummern,Numérico,Nombres
 Bars,JGPHUD_MAINBARS_OPT_BARS,Option for how health/armor is displayed: numbers or bars,Шкалы,Barras,Leisten,Barra,Barres
 Armor icon/absorption display,JPGHUD_MAINBARS_ARMDISPLAY,"Option that controls what is displayed next to the armor numbers: the armor's icon, its absorption percentage, or both (icon below, percentage on top)",Отображение значка/поглощения,,,,
@@ -86,6 +85,12 @@ Choose colors:,JGPHUD_MAINBARS_NUMCOL_CHOOSE,Sub-title above color selectors,В�
 66% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_66,The color used when the ABSORPTION is in this range,66% поглощения урона,,,,
 80% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_80,The color used when the ABSORPTION is in this range,80% поглощения урона,,,,
 100% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_100,The color used when the ABSORPTION is in this range,100% поглощения урона,,,,
+Mugshot,JGPHUD_MUGSHOT_TITLE,"Title of the submenu with mugshot settings
+Can also be translated as ""protagonist's face"" and similar",Лицо персонажа,,,,
+Mugshot display (if exists),JGPHUD_MUGSHOT_ENABLE,Whether mugshot is displayed,Показывать лицо персонажа (при наличии),Mostrar rosto do personagem (se existe),Gesicht anzeigen (falls vorhanden),Mostrar cara de jugador (si existe),Affichage du visage (si existant)
+Attached to health/armor bars (right side),JGPHUD_MUGSHOT_RIGHTBARS,,,,,,
+Attached to health/armor bars (left side),JGPHUD_MUGSHOT_LEFTBARS,,,,,,
+Independent,JGPHUD_MUGSHOT_DETACHED,,,,,,
 Current ammo and weapon,JGPHUD_AMMOBLOCK_TITLE,,Текущий боезапас и оружие,Munição e arma atual,Aktuelle Munition und Waffe,Arma y munición actual,Armes et munitions actuelles
 Current ammo display,JGPHUD_AMMOBLOCK_ENABLE,Whether current ammo is displayed,Показывать патроны для текущего оружия,Mostrar munição atual,Aktuelle Munition anzeigen,Mostrar munición actual,Affichage des munitions actuelles
 Display weapon icon,JGPHUD_AMMOBLOCK_SHOWWEAP,Whether selected weapon icon is displayed,Показывать значок текущего оружия,Mostrar ícone de arma,Aktuelle Waffe anzeigen,Mostrar icono del arma,Affichage des icônes d’armes
@@ -95,10 +100,10 @@ Display all ammo,JGPHUD_ALLAMMO_ENABLE,Whether to display a separate block with 
 For the weapons you have,JGPHUD_ALLAMMO_OWNEDWEAPONS,All Ammo block option: only draw ammo icons/amounts for the weapons the player has in their inventory,Только для оружия в инвентаре,Para as armas que você tem,Nur für mitgeführte Waffen,Para armas en posesión,Pour les armes que vous avez
 For all weapons in the game,JGPHUD_ALLAMMO_ALLWEAPONS,All Ammo block options: draw ammo for all weapons that exist in the current game,Для всех видов оружия в игре,Para todas as armas no jogo,Für alle Waffen im Spiel,Para todas las armas,Pour toutes les armes du jeu
 Show depleted ammo,JGPHUD_ALLAMMO_SHOWDEPLETED,Whether to show the ammo you've run out of in the All Ammo block (On/Off),Показывать израсходованные патроны,Mostrar tipos de munição esgotados,Verbrauchte Munition anzeigen,Mostrar municiones vacias,Afficher les munitions épuisées
-Number of columns,JGPHUD_ALLAMMO_COLUMNS,,Число столбцов,,,,
-Display format,JGPHUD_ALLAMMO_DISPLAYFORMAT,,Формат цифр,,,,
-Current amount only,JGPHUD_ALLAMMO_DISPLAYFORMAT_NOMAX,,Текущий запас патронов,,,,
-Current amount / Max amount,JGPHUD_ALLAMMO_DISPLAYFORMAT_MAX,,Текущий запас / макс. запас,,,,
+Number of columns,JGPHUD_ALLAMMO_COLUMNS,The All Ammo block can be drawn in multiple columns,Число столбцов,,,,
+Display format,JGPHUD_ALLAMMO_DISPLAYFORMAT,"The ammo numbers can show either current only, or current/max",Формат цифр,,,,
+Current amount only,JGPHUD_ALLAMMO_DISPLAYFORMAT_NOMAX,"Option for ""Display format""",Текущий запас патронов,,,,
+Current amount / Max amount,JGPHUD_ALLAMMO_DISPLAYFORMAT_MAX,"Option for ""Display format""",Текущий запас / макс. запас,,,,
 Keys,JGPHUD_KEYS_TITLE,,Ключи,Chaves,Schlüssel,Llaves,Clés
 Keys display,JGPHUD_KEYS_ENABLE,Whether to show keys on the HUD,Показывать ключи,Mostrar chaves,Schlüssel anzeigen,Mostrar llaves,Affichage des clés
 Weapon slots,JGPHUD_WEAPSLOTS_TITLE,,Ячейки оружия,Ícones de arma,Waffenplätze,Slots de armas,Emplacements d'armes

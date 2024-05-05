@@ -25,17 +25,18 @@ OptionMenu "JGPHUD_Settings"
 	Submenu "$JGPHUD_GENERAL_APPEARANCE_TITLE", "JGPHUD_Appearance"
 
 	StaticText ""
-	SubMenu "$JGPHUD_MAINBARS_TITLE", "JGPHUD_MainBars"
-	SubMenu "$JGPHUD_AMMOBLOCK_TITLE", "JGPHUD_AmmoBlock"
-	SubMenu "$JGPHUD_ALLAMMO_TITLE", "JGPHUD_AllAmmo"
-	SubMenu "$JGPHUD_KEYS_TITLE", "JGPHUD_Keys"
-	SubMenu "$JGPHUD_WEAPSLOTS_TITLE", "JGPHUD_WeaponSlots"
-	SubMenu "$JGPHUD_INVBAR_TITLE", "JGPHUD_InvBar"
-	SubMenu "$JGPHUD_POWERUPS_TITLE", "JGPHUD_Powerups"
-	SubMenu "$JGPHUD_DMGMARKERS_TITLE", "JGPHUD_DamageMarkers"
-	SubMenu "$JGPHUD_CROSSHAIR_TITLE", "JGPHUD_CrosshairOptions"
-	SubMenu "$JGPHUD_MAPDATA_GEN_TITLE", "JGPHUD_MapData"
-	SubMenu "$JGPHUD_CustomItems_TITLE", "JGPHUD_CustomItems"
+	SubMenu	"$JGPHUD_MAINBARS_TITLE",		"JGPHUD_MainBars"
+	SubMenu	"$JGPHUD_MUGSHOT_TITLE",		"JGPHUD_Mugshot"
+	SubMenu	"$JGPHUD_AMMOBLOCK_TITLE",		"JGPHUD_AmmoBlock"
+	SubMenu	"$JGPHUD_ALLAMMO_TITLE",		"JGPHUD_AllAmmo"
+	SubMenu	"$JGPHUD_KEYS_TITLE",			"JGPHUD_Keys"
+	SubMenu	"$JGPHUD_WEAPSLOTS_TITLE",		"JGPHUD_WeaponSlots"
+	SubMenu	"$JGPHUD_INVBAR_TITLE",			"JGPHUD_InvBar"
+	SubMenu	"$JGPHUD_POWERUPS_TITLE",		"JGPHUD_Powerups"
+	SubMenu	"$JGPHUD_DMGMARKERS_TITLE",		"JGPHUD_DamageMarkers"
+	SubMenu	"$JGPHUD_CROSSHAIR_TITLE",		"JGPHUD_CrosshairOptions"
+	SubMenu	"$JGPHUD_MAPDATA_GEN_TITLE",	"JGPHUD_MapData"
+	SubMenu	"$JGPHUD_CustomItems_TITLE",	"JGPHUD_CustomItems"
 }
 
 OptionMenu "JGPHUD_Appearance"
@@ -77,15 +78,16 @@ OptionMenu "JGPHUD_Appearance"
 
 	Submenu "$JGPHUD_GENERAL_APPEARANCE_GZDoomScalingOptions", "ScalingOptions" 
 	JGPUFHScaleSlider "$JGPHUD_GENERAL_APPEARANCE_BASESCALE", "jgphud_BaseScale", 0.0, 15.0, 0.1, "$JGPHUD_GENERAL_APPEARANCE_BASESCALE_DEF"
-	Slider "$JGPHUD_MAINBARS_TITLE", "jgphud_MainBarsScale", 0.0, 15.0, 0.1, 1
-	Slider "$JGPHUD_AMMOBLOCK_TITLE", "jgphud_AmmoBlockScale", 0.0, 15.0, 0.1, 1
-	Slider "$JGPHUD_ALLAMMO_TITLE", "jgphud_AllAmmoScale", 0.0, 15.0, 0.1, 1
-	Slider "$JGPHUD_POWERUPS_TITLE", "jgphud_PowerupsScale", 0.0, 15.0, 0.1, 1
-	Slider "$JGPHUD_INVBAR_TITLE", "jgphud_InvBarScale", 0.0, 15.0, 0.1, 1
-	Slider "$JGPHUD_KEYS_TITLE", "jgphud_KeysScale", 0.0, 15.0, 0.1, 1
-	Slider "$JGPHUD_WEAPSLOTS_TITLE", "jgphud_WeaponSlotsScale", 0.0, 15.0, 0.1, 1
-	Slider "$JGPHUD_CustomItems_TITLE", "jgphud_CustomItemsScale", 0.0, 15.0, 0.1, 1
-	Slider "$JGPHUD_CROSSHAIR_BARS_ENABLE", "jgphud_ReticleBarsScale", 0.0, 15.0, 0.1, 1
+	Slider "$JGPHUD_MAINBARS_TITLE",		"jgphud_MainBarsScale",		0.0, 15.0, 0.1, 1
+	Slider "$JGPHUD_MUGSHOT_TITLE",			"jgphud_MugshotScale",		0.0, 15.0, 0.1, 1
+	Slider "$JGPHUD_AMMOBLOCK_TITLE",		"jgphud_AmmoBlockScale",	0.0, 15.0, 0.1, 1
+	Slider "$JGPHUD_ALLAMMO_TITLE",			"jgphud_AllAmmoScale",		0.0, 15.0, 0.1, 1
+	Slider "$JGPHUD_POWERUPS_TITLE",		"jgphud_PowerupsScale",		0.0, 15.0, 0.1, 1
+	Slider "$JGPHUD_INVBAR_TITLE",			"jgphud_InvBarScale",		0.0, 15.0, 0.1, 1
+	Slider "$JGPHUD_KEYS_TITLE",			"jgphud_KeysScale",			0.0, 15.0, 0.1, 1
+	Slider "$JGPHUD_WEAPSLOTS_TITLE",		"jgphud_WeaponSlotsScale",	0.0, 15.0, 0.1, 1
+	Slider "$JGPHUD_CustomItems_TITLE",		"jgphud_CustomItemsScale",	0.0, 15.0, 0.1, 1
+	Slider "$JGPHUD_CROSSHAIR_BARS_ENABLE",	"jgphud_ReticleBarsScale",	0.0, 15.0, 0.1, 1
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "scaling"
 }
 
@@ -108,17 +110,17 @@ OptionMenu "JGPHUD_MainBars"
 	Class "JGPUFH_OptionMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_MAINBARS_TITLE", yellow
+
 	StaticText ""
 	Option "$JGPHUD_MAINBARS_ENABLE", "jgphud_DrawMainbars", "MainBars"
 	Slider "$JGPHUD_ELEMENT_SCALE", "jgphud_MainBarsScale", 0.0, 15.0, 0.1, 1, "jgphud_DrawMainbars"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_MainBarsPos", "ElementScreenPos", "jgphud_DrawMainbars"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_MainBarsX", -160, 160, 2, 0, "jgphud_DrawMainbars"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_MainBarsY", -100, 100, 2, 0, "jgphud_DrawMainbars"
-	Option "$JGPHUD_MAINBARS_SHOWFACE", "jgphud_DrawFace", "OnOff", "jgphud_DrawMainbars"
 	Option "$JPGHUD_MAINBARS_ARMDISPLAY", "jgphud_MainBarsArmorMode", "ArmorDisplayOptions", "jgphud_DrawMainbars"
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "mainbars"
-	StaticText ""
 
+	StaticText ""
 	StaticText "$JGPHUD_MAINBARS_NUMCOL_HEALTH_TITLE", yellow
 	Option "$JGPHUD_MAINBARS_NUMCOL", "jgphud_MainBarsHealthColorMode", "HealthColorizationMode"
 	JGPUFH_CheckCVar "$JGPHUD_MAINBARS_NUMCOL_CHOOSE", sapphire, "jgphud_MainBarsHealthColorMode", "0"
@@ -131,8 +133,8 @@ OptionMenu "JGPHUD_MainBars"
 		Option "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_101", "jgphud_MainbarsHealthRange_101", "CleanTextColors"
 	JGPUFH_EndIf ""
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "healthcolors"
-	StaticText ""
 
+	StaticText ""
 	StaticText "$JGPHUD_MAINBARS_NUMCOL_ARMOR_TITLE", yellow
 	Option "$JGPHUD_MAINBARS_NUMCOL", "jgphud_MainBarsArmorColorMode", "ArmorColorizationMode"
 	JGPUFH_CheckCVar "$JGPHUD_MAINBARS_NUMCOL_CHOOSE", sapphire, "jgphud_MainBarsArmorColorMode", "0"
@@ -153,6 +155,23 @@ OptionMenu "JGPHUD_MainBars"
 		Option "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_100", "jgphud_MainbarsAbsorbRange_100", "CleanTextColors"
 	JGPUFH_EndIf ""
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "armorcolors"
+}
+
+OptionMenu "JGPHUD_Mugshot"
+{
+	Class "JGPUFH_OptionMenu"
+	Title "$JGPHUD_SETTINGS_TITLE"
+	StaticText "$JGPHUD_MUGSHOT_TITLE", yellow
+
+	StaticText ""
+	Option "$JGPHUD_MUGSHOT_ENABLE", "jgphud_DrawMugshot", "MugshotPositions"
+	JGPUFH_CheckCVar "", sapphire, "jgphud_DrawMugshot", "3"
+		Slider "$JGPHUD_ELEMENT_SCALE", "jgphud_MugshotScale", 0.0, 4.0, 0.1, 1, "jgphud_DrawAmmoBlock"
+		Option "$JGPHUD_ELEMENT_POS", "jgphud_MugshotPos", "ElementScreenPos", "jgphud_DrawAmmoBlock"
+		Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_MugshotX", -160, 160, 2, 0, "jgphud_DrawAmmoBlock"
+		Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_MugshotY", -100, 100, 2, 0, "jgphud_DrawAmmoBlock"
+	JGPUFH_EndIf ""
+	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "mugshot"
 }
 
 OptionMenu "JGPHUD_AmmoBlock"
@@ -398,6 +417,14 @@ OptionMenu "JGPHUD_CrosshairOptions"
 	Option "$JGPHUD_CROSSHAIR_BARS_ENEMYHP", "jgphud_ReticleBarsEnemy", "ReticleBars", "jgphud_DrawReticleBars"
 	StaticText ""
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "reticlebars"
+}
+
+OptionValue "MugshotPositions"
+{
+	0, "$OPTVAL_OFF"
+	2, "$JGPHUD_MUGSHOT_LEFTBARS"
+	1, "$JGPHUD_MUGSHOT_RIGHTBARS"
+	3, "$JGPHUD_MUGSHOT_DETACHED"
 }
 
 OptionValue "HitmarkersShapes"

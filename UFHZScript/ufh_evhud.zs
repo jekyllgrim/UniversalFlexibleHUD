@@ -87,11 +87,22 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// Health/armor bars CVAR values:
 	ui LinearValueInterpolator healthIntr;
 	ui LinearValueInterpolator armorIntr;
+	const MAINBARS_BaseWidth = 120.0;
+	const MAINBARS_BaseHeight = 28.0;
+	const MUGSHOT_Size = MAINBARS_BaseHeight;
 	enum EDrawBars
 	{
 		DB_NONE,
 		DB_DRAWNUMBERS,
 		DB_DRAWBARS,
+	}
+	ui int mugshotMode;
+	enum EDrawMugshot
+	{
+		DF_NONE,
+		DF_MAINBARSRIGHT,
+		DF_MAINBARSLEFT,
+		DF_DETACHED,
 	}
 	enum EArmorDisplay
 	{
@@ -547,6 +558,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		DrawPowerups();
 		DrawKeys();
 		DrawHealthArmor();
+		DrawMugshotFace();
 		DrawDamageMarkers();
 		DrawWeaponBlock();
 		DrawAllAmmo();
@@ -1284,51 +1296,50 @@ class JGPUFH_FlexibleHUD : EventHandler
 		statusbar.Fill(crossCol, pos.x - crossLength*0.5, pos.y - crossWidth*0.5,  crossLength, crossWidth, flags);
 	}
 
-	ui void DrawHealthArmor(double height = 28, double width = 120)
+	ui double, double, double GetMainBarsSizes()
+	{
+		double height = MAINBARS_BaseHeight;
+		double width = MAINBARS_BaseWidth;
+		double scale = GetElementScale(c_MainBarsScale);
+		height *= scale;
+		width *= scale;
+		if (c_drawMainbars.GetInt() < DB_DRAWBARS)
+		{
+			width *= 0.5;
+		}
+		return width, height, scale;
+	}
+
+	ui void DrawHealthArmor()
 	{
 		int drawThis = c_drawMainbars.GetInt();
 		if (drawThis <= DB_NONE)
 			return;
-		
 		if (!healthAmount || !healthMaxAmount)
 			return;
 
-		int flags = SetScreenFlags(c_MainBarsPos.GetInt());
-		// Figure out the sizes:
-		double scale = GetElementScale(c_MainBarsScale);
-		height *= scale;
-		width *= scale;
-		int indent = 1 * scale;
+		double width, height, scale;
+		[width, height, scale] = GetMainBarsSizes();
 		double barheight = height * 0.4;
+		int flags = SetScreenFlags(c_MainBarsPos.GetInt());
 		bool drawbars = drawThis >= DB_DRAWBARS;
-		// If bars are replaced with numbers,
-		// the width is much shorter:
-		if (!drawbars)
-		{
-			width *= 0.5;
-		}
-
-		double fullwidth = width;
-		double facesize = height;
-		// Draw the mugshot only if the CVAR allows it and a mugshot is
-		// actually defined, or the default STF graphics for it exist:
-		bool drawface = c_DrawFace.GetBool() && (TexMan.CheckForTexture(CPlayer.mo.face).IsValid() || TexMan.CheckForTexture('STFST00').IsValid());
-		if (drawface)
-		{
-			fullwidth += indent + facesize;
-		}
-
 		Vector2 ofs = ( c_MainBarsX.GetInt(), c_MainBarsY.GetInt() );
-		Vector2 pos = AdjustElementPos((0,0), flags, (fullwidth, height), ofs);
-		if (drawface)
+		/*if (mugshotMode == DF_MAINBARSLEFT || mugshotMode == DF_MAINBARSRIGHT)
 		{
-			DrawMugshotFace((pos.x + width + indent, pos.y), facesize, flags);
-		}
+			if ((mugshotMode == DF_MAINBARSLEFT && 
+				(flags == StatusBarCore.DI_SCREEN_LEFT_TOP ||
+				 flags == StatusBarCore.DI_SCREEN_LEFT_CENTER ||
+				 flags == StatusBarCore.DI_SCREEN_LEFT_BOTTOM )) )
+			{
+				ofs.x += (height + 1);
+			}
+		}*/
+		Vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 
 		// bars background:
 		BackgroundFill(pos.x, pos.y, width, height, flags);
 		int barFlags = flags|StatusBarCore.DI_ITEM_CENTER;
-		indent = 4 * scale;
+		int indent = 4 * scale;
 		double iconSize = 8 * scale;
 		Vector2 iconPos = (pos.x + indent + iconsize * 0.5, pos.y + height*0.75);
 
@@ -1460,11 +1471,61 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui void DrawMugshotFace(Vector2 pos, double faceSize, int flags = 0)
+	ui void DrawMugshotFace()
 	{	
-		BackgroundFill(pos.x, pos.y, faceSize, faceSize, flags);
+		mugshotMode = c_drawMugshot.GetInt();
+		if (mugshotMode == DF_NONE)
+		{
+			return;
+		}
+		bool drawface = (TexMan.CheckForTexture(CPlayer.mo.face).IsValid() || TexMan.CheckForTexture('STFST00').IsValid());
+		if (!drawface)
+		{
+			mugshotMode = DF_NONE;
+			return;
+		}
+		Vector2 pos, ofs;
+		double width, height, scale;
+		int flags;
+		// Drawn next to mainbars:
+		if (mugshotMode == DF_MAINBARSLEFT || mugshotMode == DF_MAINBARSRIGHT)
+		{
+			// If mainbars are disabled, switch to detached mugshotMode:
+			if (c_drawMainbars.GetInt() <= DB_NONE)
+			{
+				mugshotMode = DF_DETACHED;
+			}
+			// Otherwise read the values used by main bars:
+			else
+			{
+				flags = SetScreenFlags(c_MainBarsPos.GetInt());
+				[width, height, scale] = GetMainBarsSizes();
+				ofs = ( c_MainBarsX.GetInt(), c_MainBarsY.GetInt() );
+				pos = AdjustElementPos((0,0), flags, (width, height), ofs);
+				if (mugshotMode == DF_MAINBARSRIGHT)
+				{
+					pos.x += width + 1;
+				}
+				else
+				{
+					pos.x -= height + 1;
+				}
+				width = height; // mugshot is square
+			}
+		}
+		// Drawn in detached mugshotMode:
+		if (mugshotMode == DF_DETACHED)
+		{
+			flags = SetScreenFlags(c_MugshotPos.GetInt());
+			scale = GetElementScale(c_MugshotScale);
+			width = height = MUGSHOT_Size * scale;
+			ofs = ( c_MugshotX.GetInt(), c_MugshotY.GetInt() );
+			pos = AdjustElementPos((0,0), flags, (width, height), ofs);
+		}
+		
+		BackgroundFill(pos.x, pos.y, width, height, flags);
 		TextureID facetex = statusBar.GetMugShot(5);
-		statusbar.DrawTexture(facetex, (pos.x + faceSize*0.5, pos.y + faceSize*0.5), flags|StatusBarCore.DI_ITEM_CENTER, scale: ScaleToBox(facetex, faceSize - 2));
+		statusbar.DrawTexture(facetex, (pos.x + width*0.5, pos.y + height*0.5), flags|StatusBarCore.DI_ITEM_CENTER, scale: ScaleToBox(facetex, width - 2));
 	}
 
 	clearscope color GetAmmoColor(Ammo am)

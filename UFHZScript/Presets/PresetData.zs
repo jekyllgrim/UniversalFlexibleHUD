@@ -19,6 +19,11 @@ extend class JGPUFH_PresetHandler
 		'jgphud_MainBarsY',
 		'jgphud_DrawFace',
 
+		'jgphud_DrawMugshot',
+		'jgphud_MugshotPos',
+		'jgphud_MugshotX',
+		'jgphud_MugshotY',
+
 		'jgphud_DrawAmmoBlock',
 		'jgphud_AmmoBlockPos',
 		'jgphud_AmmoBlockX',
@@ -119,6 +124,7 @@ extend class JGPUFH_PresetHandler
 		'jgphud_cleanoffsets',
 		'jgphud_BaseScale',
 		'jgphud_MainBarsScale',
+		'jgphud_MugshotScale',
 		'jgphud_AmmoBlockScale',
 		'jgphud_AllAmmoScale',
 		'jgphud_PowerupsScale',
@@ -169,6 +175,11 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonNumber',	// jgphud_MainBarsX
 		'JGPUFH_JsonNumber',	// jgphud_MainBarsY
 		'JGPUFH_JsonBool',		// jgphud_DrawFace
+
+		'JGPUFH_JsonNumber',	// jgphud_DrawMugshot
+		'JGPUFH_JsonNumber',	// jgphud_MugshotPos
+		'JGPUFH_JsonNumber',	// jgphud_MugshotX
+		'JGPUFH_JsonNumber',	// jgphud_MugshotY
 
 		'JGPUFH_JsonBool',		// jgphud_DrawAmmoBlock
 		'JGPUFH_JsonNumber',	// jgphud_AmmoBlockPos
@@ -270,6 +281,7 @@ extend class JGPUFH_PresetHandler
 		'JGPUFH_JsonBool',		// jgphud_cleanoffsets
 		'JGPUFH_JsonNumber',	// jgphud_BaseScale,
 		'JGPUFH_JsonNumber',	// jgphud_MainBarsScale,
+		'JGPUFH_JsonNumber',	// jgphud_MugshotScale,
 		'JGPUFH_JsonNumber',	// jgphud_AmmoBlockScale,
 		'JGPUFH_JsonNumber',	// jgphud_AllAmmoScale,
 		'JGPUFH_JsonNumber',	// jgphud_PowerupsScale,
@@ -320,6 +332,11 @@ extend class JGPUFH_PresetHandler
 		"mainbars:jgphud_MainBarsX",
 		"mainbars:jgphud_MainBarsY",
 		"mainbars:jgphud_DrawFace",
+			
+		"mugshot:jgphud_DrawMugshot",
+		"mugshot:jgphud_MugshotPos",
+		"mugshot:jgphud_MugshotX",
+		"mugshot:jgphud_MugshotY",
 			
 		"ammoblock:jgphud_DrawAmmoBlock",
 		"ammoblock:jgphud_AmmoBlockPos",
@@ -422,6 +439,7 @@ extend class JGPUFH_PresetHandler
 		"scaling:jgphud_cleanoffsets",
 		"scaling:jgphud_BaseScale",
 		"scaling:jgphud_MainBarsScale",
+		"scaling:jgphud_MugshotScale",
 		"scaling:jgphud_AmmoBlockScale",
 		"scaling:jgphud_AllAmmoScale",
 		"scaling:jgphud_PowerupsScale",
@@ -432,6 +450,7 @@ extend class JGPUFH_PresetHandler
 		"scaling:jgphud_ReticleBarsScale",
 			
 		"mainbars:jgphud_MainBarsScale",
+		"mugshot:jgphud_MugshotScale",
 		"ammoblock:jgphud_AmmoBlockScale",
 		"allammo:jgphud_AllAmmoScale",
 		"powerups:jgphud_PowerupsScale",

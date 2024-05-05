@@ -22,6 +22,11 @@ nosave int jgphud_MainBarsX = 2;
 nosave int jgphud_MainBarsY = 2;
 nosave bool jgphud_DrawFace = true;
 
+nosave int jgphud_DrawMugshot = 1;
+nosave int jgphud_MugshotPos = 7;
+nosave int jgphud_MugshotX = 2;
+nosave int jgphud_MugshotY = 2;
+
 nosave bool jgphud_DrawAmmoBlock = true;
 nosave int jgphud_AmmoBlockPos = 8;
 nosave int jgphud_AmmoBlockX = 2;
@@ -122,6 +127,7 @@ nosave string jgphud_numberfont = "";
 // scaling:
 nosave float jgphud_BaseScale = 0.0;
 nosave float jgphud_MainBarsScale = 1.0;
+nosave float jgphud_MugshotScale = 1.0;
 nosave float jgphud_AmmoBlockScale = 1.0;
 nosave float jgphud_AllAmmoScale = 1.0;
 nosave float jgphud_PowerupsScale = 1.0;
