@@ -96,7 +96,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		DB_DRAWNUMBERS,
 		DB_DRAWBARS,
 	}
-	ui int mugshotMode;
 	enum EDrawMugshot
 	{
 		DF_NONE,
@@ -558,7 +557,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		DrawPowerups();
 		DrawKeys();
 		DrawHealthArmor();
-		DrawMugshotFace();
 		DrawDamageMarkers();
 		DrawWeaponBlock();
 		DrawAllAmmo();
@@ -1282,6 +1280,22 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui void DrawHealthCross(Vector2 pos, Vector2 size = (4, 10), double scale = 1.0, int flags = 0)
 	{
 		bool hasBerserk = CPlayer.mo.FindInventory('PowerStrength', true);
+
+		//MakeHearthShape();
+		//pos = AdjustElementPos(pos, flags, size, real:true);
+		//heartShapeTransform.Clear();
+		//heartShapeTransform.Scale((size.y * hudscale.x * scale, size.y * hudscale.y * scale));
+		//heartShapeTransform.Translate(pos);
+		//heartShape.SetTransform(heartShapeTransform);
+		//color col = hasBerserk? color(0, 0, 255) : color(255, 255, 255);
+		//double alph = 1.0;
+		//if (healthAmount <= healthMaxAmount*0.25)
+		//{
+			//alph = SinePulse(LinearMap(healthAmount, 0, healthMaxAmount*0.25, TICRATE*0.5, TICRATE), 0.5, 1.0);
+		//}
+		//Screen.DrawShapeFill(col, alph, heartShape);
+		//return;
+
 		double crossWidth = size.x * scale;
 		double crossLength = size.y * scale;
 		color crossCol = hasBerserk ? color(255,255,0,0) : color(255,0,0,0);
@@ -1296,45 +1310,68 @@ class JGPUFH_FlexibleHUD : EventHandler
 		statusbar.Fill(crossCol, pos.x - crossLength*0.5, pos.y - crossWidth*0.5,  crossLength, crossWidth, flags);
 	}
 
-	ui double, double, double GetMainBarsSizes()
+	ui void DrawHealthArmor()
 	{
-		double height = MAINBARS_BaseHeight;
+		int drawFace = ShouldDrawMugshot();
+		if (drawFace == DF_DETACHED)
+		{
+			int flags = SetScreenFlags(c_MugshotPos.GetInt());
+			double scale = GetElementScale(c_MugshotScale);
+			double size = MUGSHOT_Size * scale;
+			Vector2 ofs = ( c_MugshotX.GetInt(), c_MugshotY.GetInt() );
+			Vector2 pos = AdjustElementPos((0,0), flags, (size, size), ofs);
+			DrawMugshotFace(pos, flags, size);
+		}
+		int drawThis = c_drawMainbars.GetInt();
+		if (drawThis <= DB_NONE || !healthAmount || !healthMaxAmount)
+		{
+			return;
+		}
+
 		double width = MAINBARS_BaseWidth;
+		double height = MAINBARS_BaseHeight;
 		double scale = GetElementScale(c_MainBarsScale);
 		height *= scale;
 		width *= scale;
-		if (c_drawMainbars.GetInt() < DB_DRAWBARS)
+		if (drawThis < DB_DRAWBARS)
 		{
 			width *= 0.5;
 		}
-		return width, height, scale;
-	}
-
-	ui void DrawHealthArmor()
-	{
-		int drawThis = c_drawMainbars.GetInt();
-		if (drawThis <= DB_NONE)
-			return;
-		if (!healthAmount || !healthMaxAmount)
-			return;
-
-		double width, height, scale;
-		[width, height, scale] = GetMainBarsSizes();
 		double barheight = height * 0.4;
 		int flags = SetScreenFlags(c_MainBarsPos.GetInt());
 		bool drawbars = drawThis >= DB_DRAWBARS;
 		Vector2 ofs = ( c_MainBarsX.GetInt(), c_MainBarsY.GetInt() );
-		/*if (mugshotMode == DF_MAINBARSLEFT || mugshotMode == DF_MAINBARSRIGHT)
-		{
-			if ((mugshotMode == DF_MAINBARSLEFT && 
-				(flags == StatusBarCore.DI_SCREEN_LEFT_TOP ||
-				 flags == StatusBarCore.DI_SCREEN_LEFT_CENTER ||
-				 flags == StatusBarCore.DI_SCREEN_LEFT_BOTTOM )) )
-			{
-				ofs.x += (height + 1);
-			}
-		}*/
 		Vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
+		if (drawFace == DF_MAINBARSLEFT || drawFace == DF_MAINBARSRIGHT)
+		{
+			Vector2 facePos = pos;
+			bool leftScreenSide = (flags == StatusBarCore.DI_SCREEN_LEFT_TOP || flags == StatusBarCore.DI_SCREEN_LEFT_CENTER || flags == StatusBarCore.DI_SCREEN_LEFT_BOTTOM);
+			bool rightScreenSide = (flags == StatusBarCore.DI_SCREEN_RIGHT_TOP || flags == StatusBarCore.DI_SCREEN_RIGHT_CENTER || flags == StatusBarCore.DI_SCREEN_RIGHT_BOTTOM);
+			if (drawFace == DF_MAINBARSLEFT)
+			{
+				if (rightScreenSide)
+				{
+					facePos.x -= height + 1;
+				}
+				else
+				{
+					pos.x += height + 1;
+				}
+			}
+			else if (drawFace == DF_MAINBARSRIGHT)
+			{
+				if (leftScreenSide)
+				{
+					facePos.x += width + 1;
+				}
+				else
+				{
+					facePos.x += width - height;
+					pos.x -= height + 1;
+				}
+			}
+			DrawMugshotFace(facepos, flags, height);
+		}
 
 		// bars background:
 		BackgroundFill(pos.x, pos.y, width, height, flags);
@@ -1471,61 +1508,20 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui void DrawMugshotFace()
-	{	
-		mugshotMode = c_drawMugshot.GetInt();
-		if (mugshotMode == DF_NONE)
+	ui int ShouldDrawMugshot()
+	{
+		if (!(TexMan.CheckForTexture(CPlayer.mo.face).IsValid() || TexMan.CheckForTexture('STFST00').IsValid()))
 		{
-			return;
+			return DF_NONE;
 		}
-		bool drawface = (TexMan.CheckForTexture(CPlayer.mo.face).IsValid() || TexMan.CheckForTexture('STFST00').IsValid());
-		if (!drawface)
-		{
-			mugshotMode = DF_NONE;
-			return;
-		}
-		Vector2 pos, ofs;
-		double width, height, scale;
-		int flags;
-		// Drawn next to mainbars:
-		if (mugshotMode == DF_MAINBARSLEFT || mugshotMode == DF_MAINBARSRIGHT)
-		{
-			// If mainbars are disabled, switch to detached mugshotMode:
-			if (c_drawMainbars.GetInt() <= DB_NONE)
-			{
-				mugshotMode = DF_DETACHED;
-			}
-			// Otherwise read the values used by main bars:
-			else
-			{
-				flags = SetScreenFlags(c_MainBarsPos.GetInt());
-				[width, height, scale] = GetMainBarsSizes();
-				ofs = ( c_MainBarsX.GetInt(), c_MainBarsY.GetInt() );
-				pos = AdjustElementPos((0,0), flags, (width, height), ofs);
-				if (mugshotMode == DF_MAINBARSRIGHT)
-				{
-					pos.x += width + 1;
-				}
-				else
-				{
-					pos.x -= height + 1;
-				}
-				width = height; // mugshot is square
-			}
-		}
-		// Drawn in detached mugshotMode:
-		if (mugshotMode == DF_DETACHED)
-		{
-			flags = SetScreenFlags(c_MugshotPos.GetInt());
-			scale = GetElementScale(c_MugshotScale);
-			width = height = MUGSHOT_Size * scale;
-			ofs = ( c_MugshotX.GetInt(), c_MugshotY.GetInt() );
-			pos = AdjustElementPos((0,0), flags, (width, height), ofs);
-		}
-		
-		BackgroundFill(pos.x, pos.y, width, height, flags);
+		return c_drawMugshot.GetInt();
+	}
+
+	ui void DrawMugshotFace(Vector2 pos, int flags, double size)
+	{
+		BackgroundFill(pos.x, pos.y, size, size, flags);
 		TextureID facetex = statusBar.GetMugShot(5);
-		statusbar.DrawTexture(facetex, (pos.x + width*0.5, pos.y + height*0.5), flags|StatusBarCore.DI_ITEM_CENTER, scale: ScaleToBox(facetex, width - 2));
+		statusbar.DrawTexture(facetex, (pos.x + size*0.5, pos.y + size*0.5), flags|StatusBarCore.DI_ITEM_CENTER, scale: ScaleToBox(facetex, size - 2));
 	}
 
 	clearscope color GetAmmoColor(Ammo am)

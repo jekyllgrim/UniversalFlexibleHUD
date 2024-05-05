@@ -87,10 +87,11 @@ Choose colors:,JGPHUD_MAINBARS_NUMCOL_CHOOSE,Sub-title above color selectors,В�
 100% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_100,The color used when the ABSORPTION is in this range,100% поглощения урона,,,,
 Mugshot,JGPHUD_MUGSHOT_TITLE,"Title of the submenu with mugshot settings
 Can also be translated as ""protagonist's face"" and similar",Лицо персонажа,,,,
-Mugshot display (if exists),JGPHUD_MUGSHOT_ENABLE,Whether mugshot is displayed,Показывать лицо персонажа (при наличии),Mostrar rosto do personagem (se existe),Gesicht anzeigen (falls vorhanden),Mostrar cara de jugador (si existe),Affichage du visage (si existant)
-Attached to health/armor bars (right side),JGPHUD_MUGSHOT_RIGHTBARS,,,,,,
-Attached to health/armor bars (left side),JGPHUD_MUGSHOT_LEFTBARS,,,,,,
-Independent,JGPHUD_MUGSHOT_DETACHED,,,,,,
+Mugshot display mode,JGPHUD_MUGSHOT_ENABLE,"Name for the option that controls how the mugshot is displayed. Possible options:
+off, left of health/armor display, right of health/armor display, independent",,,,,
+Left of health/armor display,JGPHUD_MUGSHOT_RIGHTBARS,"The mugshot is attached to the health/armor block, left side",,,,,
+Right of health/armor display,JGPHUD_MUGSHOT_LEFTBARS,"The mugshot is attached to the health/armor block, right side",,,,,
+Independent,JGPHUD_MUGSHOT_DETACHED,"The mugshot is positioned independently, as its own element",,,,,
 Current ammo and weapon,JGPHUD_AMMOBLOCK_TITLE,,Текущий боезапас и оружие,Munição e arma atual,Aktuelle Munition und Waffe,Arma y munición actual,Armes et munitions actuelles
 Current ammo display,JGPHUD_AMMOBLOCK_ENABLE,Whether current ammo is displayed,Показывать патроны для текущего оружия,Mostrar munição atual,Aktuelle Munition anzeigen,Mostrar munición actual,Affichage des munitions actuelles
 Display weapon icon,JGPHUD_AMMOBLOCK_SHOWWEAP,Whether selected weapon icon is displayed,Показывать значок текущего оружия,Mostrar ícone de arma,Aktuelle Waffe anzeigen,Mostrar icono del arma,Affichage des icônes d’armes
