@@ -42,6 +42,8 @@ nosave int jgphud_AllAmmoY = 0;
 nosave int jgphud_AllAmmoColumns = 1;
 nosave bool jgphud_AllAmmoShowMax = true;
 nosave bool jgphud_AllAmmoShowBar = true;
+nosave color jgphud_AllAmmoColorLow = "ff5a00";
+nosave color jgphud_AllAmmoColorHigh = "0000da";
 
 nosave bool jgphud_DrawKeys = true;
 nosave int jgphud_KeysPos = 8;

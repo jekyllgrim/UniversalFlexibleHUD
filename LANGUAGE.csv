@@ -112,6 +112,9 @@ Current amount / Max amount,JGPHUD_ALLAMMO_DISPLAYFORMAT_MAX,"Option for ""Displ
 $JGPHUD_AMMOBLOCK_SHOWAMMOBAR,JGPHUD_ALLAMMO_SHOWBARS,"Option for the All Ammo block. If enabled, will draw bars behind the numbers.
 
 This is a duplicate of $JGPHUD_AMMOBLOCK_SHOWAMMOBAR, probably doesn't need separate translation.",$JGPHUD_AMMOBLOCK_SHOWAMMOBAR,$JGPHUD_AMMOBLOCK_SHOWAMMOBAR,$JGPHUD_AMMOBLOCK_SHOWAMMOBAR,$JGPHUD_AMMOBLOCK_SHOWAMMOBAR,$JGPHUD_AMMOBLOCK_SHOWAMMOBAR
+Colors for the bars' gradient:,JGPHUD_ALLAMMO_BARCOLOR_TITLE,"Sub-title in the All Ammo block. This opens a section of the menu where you can set up the colors for the ammo bars, by picking the low color and the high color (the bar will automatically pick the color between the two based on the amount of ammo).",Цвета градиента шкал:,,,,
+Low ammo color,JGPHUD_ALLAMMO_BARCOLOR_LOW,The left-side/low ammo color for the ammo bars' gradient,"Цвет, когда мало патронов",,,,
+High ammo color,JGPHUD_ALLAMMO_BARCOLOR_HIGH,The right-side/high ammo color for the ammo bars' gradient,"Цвет, когда много патронов",,,,
 Keys,JGPHUD_KEYS_TITLE,,Ключи,Chaves,Schlüssel,Llaves,Clés
 Keys display,JGPHUD_KEYS_ENABLE,Whether to show keys on the HUD,Показывать ключи,Mostrar chaves,Schlüssel anzeigen,Mostrar llaves,Affichage des clés
 Weapon slots,JGPHUD_WEAPSLOTS_TITLE,,Ячейки оружия,Ícones de arma,Waffenplätze,Slots de armas,Emplacements d'armes

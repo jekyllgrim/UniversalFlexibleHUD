@@ -41,6 +41,8 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_AllAmmoColumns;
 	ui transient CVar c_AllAmmoShowMax;
 	ui transient CVar c_AllAmmoShowBar;
+	ui transient CVar c_AllAmmoColorLow;
+	ui transient CVar c_AllAmmoColorHigh;
 
 	ui transient CVar c_drawInvBar;
 	ui transient CVar c_AlwaysShowInvBar;
@@ -262,6 +264,10 @@ extend class JGPUFH_FlexibleHUD
 			c_AllAmmoShowMax = CVar.GetCvar('jgphud_AllAmmoShowMax', CPlayer);
 		if (!c_AllAmmoShowBar)
 			c_AllAmmoShowBar = CVar.GetCvar('jgphud_AllAmmoShowBar', CPlayer);
+		if (!c_AllAmmoColorLow)
+			c_AllAmmoColorLow = CVar.GetCvar('jgphud_AllAmmoColorLow', CPlayer);
+		if (!c_AllAmmoColorHigh)
+			c_AllAmmoColorHigh = CVar.GetCvar('jgphud_AllAmmoColorHigh', CPlayer);
 
 		if (!c_drawInvBar)
 			c_drawInvBar = CVar.GetCvar('jgphud_DrawInvBar', CPlayer);

@@ -497,20 +497,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	const HUDRES_X = 320.0;
-	const HUDRES_Y = 200.0;
-	ui void BeginOverlayHUD()
-	{
-		vector2 res = (-1,-1);
-		double scale = CVar.GetCvar('jgphud_scale', CPlayer).GetFloat();
-		bool customScale = scale > 0;
-		if (customScale)
-		{
-			res = (HUDRES_X / scale, HUDRES_Y / scale);
-		}
-		statusbar.BeginHUD(1.0, customScale, res.x, res.y);
-	}
-
 	override void RenderOverlay(renderEvent e)
 	{
 		// Cache CVars before anything else:
@@ -531,7 +517,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!initDone)
 			return;
 
-		//BeginOverlayHUD();
 		statusbar.BeginHUD();
 		CreateGenericShapes(); //used by the minimap and hitmarkers
 		// These value updates need to be interpolated
@@ -1772,6 +1757,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		barSize = (ammoStrWidth + indent*2, iconSize);
 		double barIndent = barSize.y * 0.1;
 		innerBarSize = (barSize.x - barIndent*2, barSize.y - barIndent*2);
+		color lowColor = c_AllAmmoColorLow.GetInt();
+		color highColor = c_AllAmmoColorHigh.GetInt();
 		for (int i = 0; i < ammoitems.Size(); i++)
 		{			
 			Ammo am = ammoItems[i];
@@ -1791,19 +1778,16 @@ class JGPUFH_FlexibleHUD : EventHandler
 			{
 				barPos = (curPos.x + iconSize + indent, curPos.y);
 				innerBarPos = (barPos.x+barIndent, barPos.y+barIndent);
-
-				int barColR = LinearMap(am.amount, 0, am.maxamount, 255, 0, true);
-				int barColG = barColR / 2;
-				int barColB = LinearMap(am.amount, 0, am.maxamount, 0, 220, true);
 				// outline (current selection):
 				if (current)
-					statusbar.Fill(color(255, 255, 255, 255), curPos.x, barPos.y, singleColumnWidth, barSize.y, flags);
+					statusbar.Fill(0xFFFFFFFF, curPos.x, barPos.y, singleColumnWidth, barSize.y, flags);
 				// background:
 				int barAlpha = current? 255 : 160;
 				statusbar.Fill(color(barAlpha, 0,0,0), innerBarPos.x, innerBarPos.y, innerBarSize.x, innerBarSize.y, flags);
 				// foreground:
 				double amFac = LinearMap(am.amount, 0, am.maxamount, 0.0, 1.0, true);
-				statusbar.Fill(color(barAlpha, barColR, barColG, barColB), innerBarPos.x, innerBarPos.y, innerBarSize.x*amFac, innerBarSize.y, flags);
+				color barColor = GetIntermediateColor(lowColor, highColor, amFac);
+				statusbar.Fill(color(barAlpha, barColor.r, barColor.g, barColor.b), innerBarPos.x, innerBarPos.y, innerBarSize.x*amFac, innerBarSize.y, flags);
 			}
 
 			// Draw icon:
