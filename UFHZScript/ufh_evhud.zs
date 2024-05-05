@@ -1570,7 +1570,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// If we're drawing the ammo bar, add its height and indentation
 		// to total height:
 		bool drawAmmobar = c_drawAmmoBar.GetBool();
-		int ammoBarHeight = 8;
+		int ammoBarHeight = 8 * scale;
 		// If at least one ammo type exists, add ammoIconBox height
 		// and indentation to total height:
 		if (am1 || am2)
