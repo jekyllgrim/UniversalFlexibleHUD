@@ -465,6 +465,14 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return HUDTics;
 	}
 
+	ui bool CanDrawFlexiHUD()
+	{
+		return c_enable.GetBool() &&
+               gamestate == GS_LEVEL && gamestate != GS_TITLELEVEL &&
+               CPlayer && CPlayer.mo && 
+               CPlayer.camera == CPlayer.mo;
+	}
+
 	ui void UiInit()
 	{
 		if (initDone)
@@ -504,11 +512,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		UpdateDeltaTime();
 		fracTic = e.fracTic;
 		hudscale = statusbar.GetHudScale();
-		//Console.Printf(	"Screensize: \cd%.1f,%.1f\c- | hudscale: \cd%.1f, %.1f\c- | screensize/hudscale: \cd%.1f, %.1f\c-",
-		//				Screen.GetWidth(), Screen.GetHeight(), 
-		//				hudscale.x, hudscale.y, 
-		//				Screen.GetWidth() / hudscale.x, Screen.GetHeight() / hudscale.y );
-		if (!c_enable.GetBool() || !CPlayer || !CPlayer.mo || CPlayer.camera != CPlayer.mo)
+		if (!CanDrawFlexiHUD())
 		{
 			return;
 		}
