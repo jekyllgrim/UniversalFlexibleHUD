@@ -3148,7 +3148,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// 4. we're not in a level (this will probably never happen though)
 		if (candraw)
 		{
-			candraw = !levelUnloaded && CPlayer.mo && gamestate == GS_Level;
+			candraw = !levelUnloaded && CPlayer.mo && gamestate == GS_LEVEL && gamestate != GS_TITLELEVEL;
 		}
 		if (!canDraw)
 		{
