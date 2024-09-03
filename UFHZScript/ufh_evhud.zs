@@ -1142,6 +1142,63 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return Font.CR_Red;
 	}
 
+	clearscope TextureID FirstSpriteTexInSequence(State st)
+	{
+		TextureID sprt;
+		String sprtname;
+		while (st)
+		{
+			sprt = st.GetSpriteTexture(0);
+			sprtname = ""..TexMan.GetName(sprt);
+			sprtname.MakeUpper();
+			if (sprt.IsValid() && sprtname.IndexOf("TNT1") < 0)
+			{
+				return sprt;
+			}
+			st = st.nextstate;
+		}
+		sprt.SetInvalid();
+		return sprt;
+	}
+
+	ui TextureID GetIconByClass(class<Inventory> itemclass, int getIconFlags = 0)
+	{
+		TextureID icon;
+
+		let item = CPlayer.mo.FindInventory(itemclass);
+		if (item)
+		{
+			icon = statusbar.GetIcon(item, getIconFlags, true);
+			if (icon.isValid())
+			{
+				return icon;
+			}
+		}
+
+		let cls = GetDefaultByType(itemclass);
+		icon = FirstSpriteTexInSequence(cls.spawnstate);
+		if (icon.IsValid())
+		{
+			return icon;
+		}
+
+		if (!(getIconFlags & StatusBarCore.DI_SKIPREADY) && itemclass is 'Weapon')
+		{
+			let wcls = GetDefaultByType((class<Weapon>)(itemclass));
+			if (wcls)
+			{
+				icon = FirstSpriteTexInSequence(wcls.FindState("Ready"));
+				if (icon.IsValid())
+				{
+					return icon;
+				}
+			}
+		}
+
+		icon.SetInvalid();
+		return icon;
+	}
+
 	// Cache existing icons for Hexen armor classes
 	// On the off chance somebody is crazy enough to
 	// create their own Hexen armor pickups...
@@ -1165,9 +1222,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			if (hexArm && hexArm != 'HexenArmor')
 			{
 				let def = GetDefaultByType((class<HexenArmor>)(hexArm));
-				if (!def.spawnState)
-					continue;
-				let icon = def.SpawnState.GetSpriteTexture(0);
+				let icon = GetIconByClass(hexArm);
 				if (!icon.IsValid())
 					continue;
 				// The health field in Hexen armor pickups is used to
@@ -1577,7 +1632,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		
 		// If weapon icon is to be drawn (check CVAR and the validity of
 		// the icon), add its height and indentation to total height:
-		TextureID weapIcon = statusbar.GetIcon(weap, StatusBarCore.DI_FORCESCALE);
+		TextureID weapIcon = GetIconByClass(weap.GetClass(), StatusBarCore.DI_FORCESCALE);
 		bool weapIconValid = c_DrawWeapon.GetBool() && weapIcon.IsValid() && TexMan.GetName(weapIcon) != 'TNT1A0';
 		if (weapIconValid)
 		{
@@ -1738,6 +1793,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Always use full width if drawing a bar:
 		String ammoString = (showMax || showBar)? String.Format("%d/%d", largestAmt, largestAmt) : String.Format("%d", largestAmt);
 		double ammoStrWidth = hfnt.mFont.StringWidth(ammoString) * fntScale.x;
+		// Extend width further if using both an ammo bar and cur/max format:
 		if (showbar && showmax)
 		{
 			ammoStrWidth *= 1.25;
@@ -3004,7 +3060,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 			}
 		}		
 		if (!weap)
+		{
 			return;
+		}
+		
+		// try to obtain the icon via standard means:
+		TextureID weapIcon = GetIconByClass(weap.GetClass());
 
 		int fntCol = c_WeaponSlotsNumColor.GetInt();
 		// Compare this weapon to readyweapon and pendingweapon:
@@ -3032,7 +3093,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			BackgroundFill(pos.x, pos.y, box.x, box.y, flags);
 		}
-		statusbar.DrawTexture(statusbar.GetIcon(weap, 0, true), pos + box*0.5, flags|StatusBarCore.DI_ITEM_CENTER, box: box);
+
+
+		statusbar.DrawTexture(weapIcon, pos + box*0.5, flags|StatusBarCore.DI_ITEM_CENTER, box: box);
 		
 		// draw small ammo bars at the bottom of the box:
 		double barheight = box.y * 0.05;
@@ -4069,32 +4132,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 		double height;
 
 		int keyCount = Key.GetKeyTypeCount();
+		// cache icons:
 		array<TextureID> keyIcons;
 		for (int i = 0; i < keyCount; i++)
 		{
 			class<Key> kc = Key.GetKeyType(i);
-			TextureID icon;
-			// In preview mode, cache the icons
-			// from class definitions:
-			if (previewMode)
-			{
-				let k = GetDefaultByType(kc);
-				icon = k.icon;
-				if (!icon.IsValid())
-				{
-					icon = k.spawnstate.GetSpriteTexture(0);
-				}
-			}
-			// Otherwise, cache them from keys
-			// in player's inventory:
-			else
-			{
-				let k = CPlayer.mo.FindInventory(kc);
-				if (k)
-				{
-					icon = statusbar.GetIcon(k,0);
-				}
-			}
+			TextureID icon = GetIconByClass(kc);
 			if (icon.IsValid() && TexMan.GetName(icon) != 'TNT1A0')
 			{
 				keyIcons.Push(icon);
