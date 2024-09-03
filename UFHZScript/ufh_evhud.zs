@@ -359,6 +359,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 	override void WorldLoaded(worldEvent e)
 	{
 		levelUnloaded = false;
+		if (jgphud_debug)
+		{
+			Console.Printf("\cdFlexiHUD:\c- Loading level");
+		}
 
 		if (powerupData.Size() > 0)
 			return;
@@ -388,6 +392,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// hard crash:
 	override void WorldUnloaded(worldEvent e)
 	{
+		if (jgphud_debug)
+		{
+			Console.Printf("\cdFlexiHUD:\c- Unloading level");
+		}
 		levelUnloaded = true;
 	}
 
@@ -1142,10 +1150,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return Font.CR_Red;
 	}
 
-	clearscope TextureID FirstSpriteTexInSequence(State st)
+	clearscope TextureID FirstSpriteTexInSequence(State checkstate)
 	{
 		TextureID sprt;
 		String sprtname;
+		State st = checkstate;
 		while (st)
 		{
 			sprt = st.GetSpriteTexture(0);
@@ -1156,6 +1165,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 				return sprt;
 			}
 			st = st.nextstate;
+			if (st == checkstate)
+			{
+				break;
+			}
 		}
 		sprt.SetInvalid();
 		return sprt;
@@ -2850,7 +2863,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 			for (int s = 0; s < size; s++)
 			{
 				class<Weapon> weap = wslots.GetWeapon(sn, s);
-				if (weap && wsd)
+				State readystate = GetDefaultByType(weap).FindState("Ready");
+				if (weap && wsd && readystate && readystate.ValidateSpriteFrame())
 				{
 					if (jgphud_debug)
 						Console.Printf(
@@ -3221,6 +3235,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 			drawmap = false;
 			drawradar = false;
 		}
+
+		//Console.Printf("\cyShoulDrawMinimap():\c- candraw: \cd%d\c- | leveunloaded: \cd%d\c- | GS_LEVEL: \cd%d\c- | GS_TITLELEVEL: \cd%d\c-", candraw, levelUnloaded, gamestate == GS_LEVEL, gamestate == GS_TITLELEVEL);
 		
 		return drawmap, drawradar;
 	}
