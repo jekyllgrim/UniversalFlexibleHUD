@@ -1814,7 +1814,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 				curAmmoString,
 				curPos + (iconSize + indent + ammoStrWidth*0.5, iconsize*0.5 -fy*0.5), 
 				flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, 
-				translation: showbar? 0xFFFFFFFF : GetPercentageFontColor(am.amount, am.maxamount), 
+				translation: showbar? Font.CR_White : GetPercentageFontColor(am.amount, am.maxamount), 
 				scale:fntScale
 			);
 			curRow++;
