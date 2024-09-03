@@ -535,6 +535,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 			UpdateEnemyHitMarker(deltaTime);
 		}
 		
+		DrawPowerups();
+		DrawDamageMarkers();
+
 		// Do not draw stuff if automap is open. This is,
 		// because, one, if the user is using one of the
 		// vanilla HUDs, a statusbar version will already
@@ -543,10 +546,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (autoMapActive)
 			return;
 
-		DrawPowerups();
 		DrawKeys();
 		DrawHealthArmor();
-		DrawDamageMarkers();
 		DrawWeaponBlock();
 		DrawAllAmmo();
 		DrawWeaponSlots();
