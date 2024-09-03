@@ -358,6 +358,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	override void WorldLoaded(worldEvent e)
 	{
+		levelUnloaded = false;
+
 		if (powerupData.Size() > 0)
 			return;
 		
