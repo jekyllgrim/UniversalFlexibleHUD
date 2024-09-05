@@ -1,5 +1,35 @@
 class JGPUFH_FlexibleHUD : EventHandler
 {
+	override void NetworkProcess(ConsoleEvent e)
+	{
+		if (e.name.IndexOf("TestActorState") >= 0)
+		{
+			array<String> str;
+			e.name.Split(str, ":");
+			if (str.Size() == 2)
+			{
+				class<Actor> cls = str[1];
+				if (!cls) return;
+				let def = GetDefaultByType(cls);
+				if (!def) return;
+				State st = def.spawnstate;
+				while (st)
+				{
+					TextureID sprt = st.GetSpriteTexture(0);
+					Console.Printf("\cd%s\c- state \cd%s\c- sprite \cy%s\c-", def.GetClassName(), ""..st, TexMan.GetName(sprt));
+					if (!st.nextstate || st.nextstate == def.spawnstate)
+					{
+						break;
+					}
+					else
+					{
+						st = st.nextstate;
+					}
+				}
+			}
+		}
+	}
+
 	const ASPECTSCALE = 1.2;
 	const CIRCLEANGLES = 360.0;
 	const SQUARERADIUSFAC = 1.43;
@@ -1150,64 +1180,115 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return Font.CR_Red;
 	}
 
-	clearscope TextureID FirstSpriteTexInSequence(State checkstate)
+	// Tries obtaining any valid sprite in a sequence, starting with
+	// the provided state pointer:
+	static clearscope TextureID FirstSpriteTexInSequence(State checkstate)
 	{
 		TextureID sprt;
-		String sprtname;
+		if (!checkstate)
+		{
+			sprt.SetInvalid();
+			return sprt;
+		}
+		String spritename;
 		State st = checkstate;
 		while (st)
 		{
 			sprt = st.GetSpriteTexture(0);
-			sprtname = ""..TexMan.GetName(sprt);
-			sprtname.MakeUpper();
-			if (sprt.IsValid() && sprtname.IndexOf("TNT1") < 0)
+			spritename = TexMan.GetName(sprt);
+			//Console.Printf("state \cd%s\c- sprite \cy%s\c-/\cy%s\c- Valid: %d", ""..st, ""..SpriteID(sprt), TexMan.GetName(sprt), sprt.isValid());
+			if (sprt.IsValid() && st.sprite > 0 && spritename.IndexOf("TNT1") < 0)
 			{
-				return sprt;
+				break; // yay, found valid!
+			}
+			
+			if (!st.nextstate || st.nextstate == checkstate)
+			{
+				break; // no next state, or is looped - stop:
 			}
 			st = st.nextstate;
-			if (st == checkstate)
+		}
+		if (spritename.IndexOf("TNT1") >= 0)
+		{
+			sprt.SetInvalid();
+		}
+		// Due to a weird quirk/bug GetSpriteTexture can obtain
+		// incorrect but valid texture on actors that don't actually
+		// have their sprites loaded (e.g. because wrong game).
+		// Double-check that the result of GetSpriteTexture()
+		// contains the actual name of the sprite in itself:
+		if (sprt.IsValid() && st)
+		{
+			String stateSprtname = ""..SpriteID(st.sprite);
+			if (spritename.IndexOf(stateSprtname) >= 0)
 			{
-				break;
+				return sprt;
 			}
 		}
 		sprt.SetInvalid();
 		return sprt;
 	}
 
+	// Does everything it can to obtain an icon for
+	// a given inventory class:
 	ui TextureID GetIconByClass(class<Inventory> itemclass, int getIconFlags = 0)
 	{
 		TextureID icon;
 
+		// Try obtaining from an instance in player's inventory first:
 		let item = CPlayer.mo.FindInventory(itemclass);
 		if (item)
 		{
 			icon = statusbar.GetIcon(item, getIconFlags, true);
-			if (icon.isValid())
+			String iconname = ""..TexMan.GetName(icon);
+			iconname.MakeUpper();
+			if (icon.isValid() && iconname.IndexOf("TNT1") < 0)
 			{
+				//Console.Printf("Obtained icon \cy%s\c- for \cd%s\c- from GetIcon()", TexMan.GetName(icon), itemclass.GetClassName());
 				return icon;
 			}
 		}
 
+		// Try obtaining from spawn state:
 		let cls = GetDefaultByType(itemclass);
 		icon = FirstSpriteTexInSequence(cls.spawnstate);
 		if (icon.IsValid())
 		{
+			//Console.Printf("Obtained icon \cy%s\c- for \cd%s\c- from Spawn", TexMan.GetName(icon), itemclass.GetClassName());
 			return icon;
 		}
 
-		if (!(getIconFlags & StatusBarCore.DI_SKIPREADY) && itemclass is 'Weapon')
+		// If it's a weapon, try obtaining from other states:
+		if (itemclass is 'Weapon')
 		{
 			let wcls = GetDefaultByType((class<Weapon>)(itemclass));
+			// From ready or from Fire:
 			if (wcls)
 			{
-				icon = FirstSpriteTexInSequence(wcls.FindState("Ready"));
-				if (icon.IsValid())
+				if (!(getIconFlags & StatusBarCore.DI_SKIPREADY))
 				{
-					return icon;
+					icon = FirstSpriteTexInSequence(wcls.FindState("Ready"));
+					if (icon.IsValid())
+					{
+						//Console.Printf("Obtained icon \cy%s\c- for \cd%s\c- from Ready", TexMan.GetName(icon), itemclass.GetClassName());
+						return icon;
+					}
+				}
+				else
+				{
+					icon = FirstSpriteTexInSequence(wcls.FindState("Fire"));
+					if (icon.IsValid())
+					{
+						//Console.Printf("Obtained icon \cy%s\c- for \cd%s\c- from Fire", TexMan.GetName(icon), itemclass.GetClassName());
+						return icon;
+					}
 				}
 			}
 		}
+		
+		//Console.Printf("\cgCould not obtain icon\c- for \cd%s\c-", itemclass.GetClassName());
 
+		// No luck...
 		icon.SetInvalid();
 		return icon;
 	}
@@ -4154,7 +4235,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			class<Key> kc = Key.GetKeyType(i);
 			TextureID icon = GetIconByClass(kc);
-			if (icon.IsValid() && TexMan.GetName(icon) != 'TNT1A0')
+			// In preview mode, let caching from class;
+			// otherwise only cache from keys we actually have:
+			if (icon.IsValid() && (previewMode || CPlayer.mo.FindInventory(kc)))
 			{
 				keyIcons.Push(icon);
 			}
