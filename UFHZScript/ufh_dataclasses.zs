@@ -55,7 +55,7 @@ class JGPUFH_PowerupData play
 		// Check if that powerupType has a proper icon;
 		// if so, we're good, so abort:
 		TextureID icon = pwr.Icon;
-		if (icon.isValid() && TexMan.GetName(icon) != 'TNT1A0')
+		if (icon.isValid() && TexMan.GetName(icon).IndexOf("TNT1") < 0)
 		{
 			if (jgphud_debug)
 				Console.Printf("\cHPOWERUPDATA\c- Powerup %s already has icon: %s", pwr.GetClassName(), TexMan.GetName(icon));
@@ -64,15 +64,8 @@ class JGPUFH_PowerupData play
 			return;
 		}
 		
-		// Try getting the icon for the powerup from its
-		// PowerupGiver:
-		icon = pwrg.icon;
-		if (!icon.IsValid() || TexMan.GetName(icon) == 'TNT1A0')
-		{
-			icon = pwrg.spawnstate.GetSpriteTexture(0);
-		}
-		// In case of success, store it:
-		if (icon.isValid() && TexMan.GetName(icon) != 'TNT1A0')
+		icon = JGPUFH_FlexibleHUD.FirstSpriteTexInSequence(pwrg.spawnstate);
+		if (icon.isValid())
 		{
 			if (jgphud_debug)
 				Console.Printf("\cHPOWERUPDATA\c- \cDPowerup %s now has a new icon: %s", pwr.GetClassName(), TexMan.GetName(icon));
