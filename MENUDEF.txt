@@ -10,10 +10,10 @@ AddOptionMenu "OptionsMenuSimple"
 
 OptionMenu "JGPHUD_Settings"
 {
-	Class "JGPUFH_OptionMenu"
 	ScrollTop 3
+	Class "JGPUFH_OptionMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
-	StaticText "FlexiHUD v3.0.0", blue
+	JGPUFH_BuildInfo "FlexiHUD v3.1.0pre", green
 	
 	SubMenu "$JGPHUD_Presets_Title", "JGPUFH_PresetMenu"
 

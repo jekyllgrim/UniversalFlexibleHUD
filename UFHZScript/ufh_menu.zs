@@ -1,3 +1,26 @@
+class OptionMenuItemJGPUFH_BuildInfo : OptionMenuItemStaticText
+{
+	OptionMenuItemJGPUFH_BuildInfo Init(String label, int cr = -1)
+	{
+		String build;
+		int lump;
+		while (lump >= 0)
+		{
+			lump = Wads.FindLump("flexihudbuild.txt", lump+1);
+			if (lump >= 0)
+			{
+				build = Wads.ReadLump(lump).Left(7);
+			}
+		}
+		if (build)
+		{
+			label = String.Format("%s - build %s", label, build);
+		}
+		Super.Init(label, cr);
+		return self;
+	}
+}
+
 class JGPUFH_OptionMenu : OptionMenu
 {
 	bool firstInit;
