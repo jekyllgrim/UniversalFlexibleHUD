@@ -333,6 +333,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	{
 		return !mo.player || !mo.player.mo || mo.player.mo != mo;
 	}
+
 	override void WorldThingSpawned(worldEvent e)
 	{
 		let mm = MapMarker(e.thing);
@@ -3435,8 +3436,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Draw the minimap lines:
 		if (drawmap)
 		{
-			DrawMinimapLines(pos, diff, playerAngle, size, hudscale.x, mapZoom);
-			DrawMapMarkers(pos, diff, playerAngle, size, hudscale.x, mapZoom);
+			DrawMinimapLines(pos, ppos, playerAngle, size, hudscale.x, mapZoom);
+			DrawMapMarkers(pos, ppos, playerAngle, size, hudscale.x, mapZoom);
 		}
 
 		// White arrow at the center representing the player:
@@ -3456,7 +3457,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// if the CVAR allows that:
 		if (drawRadar)
 		{
-			DrawEnemyRadar(pos, diff, playerAngle, size, hudscale.x, mapZoom);
+			DrawEnemyRadar(pos, ppos, playerAngle, size, hudscale.x, mapZoom);
 		}
 
 		// Draw the arrow representing the player:
@@ -3572,6 +3573,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// Determine if the line should be visible in the minimap:
 	ui bool IsLineVisible(Line ln)
 	{
+		if (!CPlayer.mo)
+			return false;
+
 		if (!ln)
 			return false;
 		
@@ -3583,6 +3587,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// If this line hasn't been seen yet, only draw
 		// it if the user set the specified CVAR to true:
 		if (!(ln.flags & Line.ML_MAPPED) && (!c_minimapDrawUnseen || c_minimapDrawUnseen.GetFloat() <= 0))
+			return false;
+		
+		// Don't draw lines that are not in the same portal group as the player:
+		if (!ln.frontsector || ln.frontsector.portalgroup != CPlayer.mo.cursector.portalgroup)
 			return false;
 		
 		// Always draw one-sided lines:
@@ -3677,7 +3685,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	//  radius - size of the minimap
 	//  scale - hudscale
 	//  zoom - current minimap zoom value
-	ui void DrawMinimapLines(Vector2 pos, Vector2 ofs, double angle, double radius, double scale = 1.0, double zoom = 1.0)
+	ui void DrawMinimapLines(Vector2 pos, Vector2 playerPos, double angle, double radius, double scale = 1.0, double zoom = 1.0)
 	{
 		color lineCol = GetMinimapColor(MCT_Wall);
 		color intLineCol = GetMinimapColor(MCT_IntWall);
@@ -3690,10 +3698,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 				
 			// Get vertices and scale them in accordance
 			// with zoom value and hudscale:
-			Vector2 lp1 = ln.v1.p;
-			Vector2 lp2 = ln.v2.p;
-			Vector2 p1 = (lp1 - ofs) * zoom * scale;
-			Vector2 p2 = (lp2 - ofs) * zoom * scale;
+			Vector2 p1 = Level.Vec2Diff(playerPos, ln.v1.p) * zoom * scale;
+			Vector2 p2 = Level.Vec2Diff(playerPos, ln.v2.p) * zoom * scale;
 
 			p1 = AlignPosToMap(p1, angle, radius);
 			p2 = AlignPosToMap(p2, angle, radius);
@@ -3841,14 +3847,14 @@ class JGPUFH_FlexibleHUD : EventHandler
 		while (it.Next())
 		{
 			let thing = it.thing;
-			if (thing.bISMONSTER && (thing.bSHOOTABLE || thing.bVULNERABLE) && thing.health > 0 && CPlayer.mo.Distance2DSquared(thing) <= distance*distance)
+			if (thing.bISMONSTER && (thing.bSHOOTABLE || thing.bVULNERABLE) && thing.health > 0 && CPlayer.mo.Distance2DSquared(thing) <= distance**2)
 			{
 				radarMonsters.Push(thing);
 			}
 		}
 	}
 
-	ui void DrawEnemyRadar(Vector2 pos, Vector2 ofs, double angle, double radius, double scale = 1.0, double zoom = 1.0)
+	ui void DrawEnemyRadar(Vector2 pos, Vector2 playerPos, double angle, double radius, double scale = 1.0, double zoom = 1.0)
 	{
 		if (!minimapShape_Arrow || !shape_disk || !minimapTransform)
 			return;
@@ -3861,10 +3867,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 		for (int i = 0; i < radarMonsters.Size(); i++)
 		{
 			let thing = radarMonsters[i];
-			if (!thing || (!drawAll && !thing.target))
+			if (!thing || thing.cursector.portalgroup != CPlayer.mo.cursector.portalgroup || (!drawAll && !thing.target))
 				continue;
 
-			Vector2 ePos = (thing.pos.xy - ofs) * zoom * scale;
+			Vector2 ePos = Level.Vec2Diff(playerPos, thing.pos.xy) * zoom * scale;
 			ePos = AlignPosToMap(ePos, angle, radius);
 
 			// scale alpha with vertical distance:
@@ -3885,31 +3891,30 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui void DrawMapMarkers(Vector2 pos, Vector2 ofs, double angle, double radius, double scale = 1.0, double zoom = 1.0)
+	ui void DrawMapMarkers(Vector2 pos, Vector2 playerPos, double angle, double radius, double scale = 1.0, double zoom = 1.0)
 	{
 		double distFac = IsMinimapCircular() ? 1.0 : SQUARERADIUSFAC;
 		double distance = ((radius) / zoom) * distFac; //account for square shapes
 		for (int i = 0; i < mapMarkers.Size(); i++)
 		{
 			let marker = mapMarkers[i];
-			if (!marker || marker.bDORMANT)
+			if (!marker || marker.bDORMANT || marker.cursector.portalgroup != CPlayer.mo.cursector.portalgroup)
 				continue;
 			
-			if (!CPlayer.mo || CPlayer.mo.Distance2DSquared(marker) > distance*distance)
+			if (!CPlayer.mo || CPlayer.mo.Distance2DSquared(marker) > distance**2)
 				continue;
 
 			TextureID tex = GetMarkerTexture(marker);
 			if (!tex.IsValid())
 				return;
 
-			Vector2 ePos = (marker.pos.xy - ofs) * zoom * scale;
-			ePos = AlignPosToMap(ePos, angle, radius);
+			Vector2 mPos = Level.Vec2Diff(playerPos, marker.pos.xy) * zoom * scale;
+			mPos = AlignPosToMap(mPos, angle, radius);
 			// scale alpha with vertical distance:
 			double vdiff = abs(CPlayer.mo.pos.z - marker.pos.z);
 			double alpha = LinearMap(vdiff, 0, 512, 1.0, 0.1, true);
-			Vector2 mpos = pos + ePos;
 			Screen.DrawTexture(tex, false,
-				mpos.x, mpos.y,
+				mPos.x + pos.x, mPos.y + pos.y,
 				DTA_Alpha, alpha,
 				// Marker's size is just their graphic scaled relative
 				// to their scale property, and it shouldn't change
