@@ -229,77 +229,45 @@ class JGPUFH_DmgMarker play
 	}
 }
 
-// Since LineTrace (for some reason) is only play-scoped,
-// a separate play-scoped thinker is needed per each
-// player so that they could call LineTrace and detect
-// if the player is looking at any enemy:
-class JGPUFH_LookTargetController : Thinker
+class JGPUFH_LookTargetTracer : LineTracer
 {
-	protected PlayerPawn pp;
-	Actor looktarget;
-	int targetTimer;
-	const TARGETDISPLAYTIME = TICRATE;
-
-	static JGPUFH_LookTargetController Create(PlayerPawn pp)
+	static clearscope JGPUFH_LookTargetTracer Fire(PlayerPawn pp)
 	{
-		let ltc = New("JGPUFH_LookTargetController");
-		if (ltc)
-		{
-			ltc.pp = pp;
-		}
-		return ltc;
+		if (!pp) return null;
+
+		let tracer = new('JGPUFH_LookTargetTracer');
+		
+		Vector3 dir = (Actor.AngleToVector(pp.angle, cos(pp.pitch)), -sin(pp.pitch));
+		Vector3 start = pp.pos + (0, 0, pp.height * 0.5 - pp.floorclip + pp.AttackZOffset*pp.player.crouchFactor);
+		tracer.Trace(start, pp.cursector, dir, PLAYERMISSILERANGE,
+			0,
+			wallmask: Line.ML_BLOCKEVERYTHING,
+			ignore: pp);
+		return tracer;
 	}
 
-	override void Tick()
+	override ETraceStatus TraceCallback()
 	{
-		if (!pp)
+		if (results.HitType == TRACE_HitActor && results.HitActor)
 		{
-			Destroy();
-			return;
-		}
-		if (!pp.player || pp.health <= 0)
-			return;
-		
-		FLineTraceData lt;
-		pp.LineTrace(pp.angle, 2048, pp.pitch, offsetz: pp.height * 0.5 - pp.floorclip + pp.AttackZOffset*pp.player.crouchFactor, data:lt);
-		// Debug stuff, not used by the mod:
-//		if (lt.HitType == TRACE_HitWall && lt.HitLine)
-//		{
-//			Line ln = lt.HitLine;
-//			string report = 
-//				"Hit line. Side: "..(lt.LineSide == Line.front ? "front" : "back").."\n"..
-//				"flags: "..ln.flags.."\n"..
-//				"flags2: "..ln.flags2.."\n"..
-//				"flags2: "..ln.flags2.."\n"..
-//				"activation: "..ln.activation.."\n"..
-//				"SPAC_Use: "..(ln.activation & SPAC_Use ? "\cDtrue" : "\cGfalse").."\n"..
-//				"SPAC_Cross: "..(ln.activation & SPAC_Cross ? "\cDtrue" : "\cGfalse").."\n"..
-//				"SPAC_Push: "..(ln.activation & SPAC_Push ? "\cDtrue" : "\cGfalse").."\n"..
-//				"SPAC_UseBack: "..(ln.activation & SPAC_UseBack ? "\cDtrue" : "\cGfalse").."\n"..
-//				"SPAC_PlayerActivate: "..(ln.activation & SPAC_PlayerActivate ? "\cDtrue" : "\cGfalse");
-//			Console.MidPrint(newConsoleFont, report);
-//		}
-		if (lt.HitType == TRACE_HitActor)
-		{
-			let ha = lt.HitActor;
-			if (ha && ha.bISMONSTER && ha.bSHOOTABLE && ha.health > 0)
+			let victim = results.HitActor;
+			if (victim.bShootable && victim.health > 0)
 			{
-				looktarget = ha;
-				targetTimer = TARGETDISPLAYTIME;
+				return TRACE_Stop;
 			}
+			return TRACE_Skip;
 		}
-		if (looktarget && looktarget.health <= 0)
+
+		switch (results.HitType)
 		{
-			looktarget = null;
+			case TRACE_HitWall:
+			case TRACE_HitFloor:
+			case TRACE_HitCeiling:
+				return TRACE_Stop;
+				break;
 		}
-		if (targetTimer > 0)
-		{
-			targetTimer--;
-			if (targetTimer == 0)
-			{
-				looktarget = null;
-			}
-		}
+
+		return TRACE_Skip;
 	}
 }
 

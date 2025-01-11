@@ -178,6 +178,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui transient Shape2DTransform reticleMarkerTransform;
 	ui double reticleMarkerAlpha;
 	ui double reticleMarkerScale;
+	ui uint lookTargetTimer;
+	ui Actor tracedLookTarget;
+	const TARGETDISPLAYTIME = TICRATE;
 	
 	// Weapon slots
 	const WEAPONBARICONSIZE = 16;
@@ -258,7 +261,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// DrawReticleBars():
 	const MARKERSDELAY = TICRATE*2;
 	const BARCOVERANGLE = 80.0;
-	JGPUFH_LookTargetController lookControllers[MAXPLAYERS];
 	ui transient Shape2D roundBars;
 	ui transient Shape2D roundBarsAngMask;
 	ui transient Shape2D roundBarsInnerMask;
@@ -352,14 +354,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		PlayerPawn pmo = player.mo;
 		if (pmo && !IsVoodooDoll(pmo))
 		{
-			let ltc = JGPUFH_LookTargetController.Create(pmo);
-			if (ltc)
-			{
-				if (jgphud_debug)
-					Console.PrintF("Initializing \cDLookTargetController\c- for player #%d", i);
-				lookControllers[i] = ltc;
-			}
-
 			let dmc = JGPUFH_DmgMarkerController.Create(player);
 			if (dmc)
 			{
@@ -537,6 +531,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return;
 		UpdateEnemyRadar();
 		UpdateMinimapLines();
+		UpdateLooktargetData();
 		if (!gamePaused)
 		{
 			UpdateHealthArmor();
@@ -2581,6 +2576,25 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return angle, posIn, posOut, inFlags|StatusBarCore.DI_SCREEN_CENTER, outFlags|StatusBarCore.DI_SCREEN_CENTER;
 	}
 
+	ui void UpdateLooktargetData()
+	{
+		let tracer = JGPUFH_LookTargetTracer.Fire(CPlayer.mo);
+		if (!tracer) return;
+
+		
+		let hittype = tracer.results.hittype;
+		let victim = tracer.results.hitActor;
+		if (hittype == TRACE_HitActor && victim)
+		{
+			lookTargetTimer = TARGETDISPLAYTIME;
+			tracedLookTarget = victim;
+		}
+		else if (--lookTargetTimer == 0)
+		{
+			tracedLookTarget = null;
+		}
+	}
+
 	ui void DrawReticleBars(int steps = 100)
 	{
 		if (c_DrawReticleBars.GetInt() <= DM_NONE)
@@ -2595,11 +2609,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		bool drawBarText = c_ReticleBarsText.GetBool();
 		
 		double coverAngle = BARCOVERANGLE;
-		let lookTC = lookControllers[consoleplayer];
-		if (!lookTC)
-		{
-			return;
-		}
 
 		// This is the general mask that cuts out the inner part
 		// of the disks to make them appear as circular bars:
@@ -2685,15 +2694,15 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		// Looktarget healthbar (inner bar):
 		[angle, fntPosIn, fntPosOut, fntFlagsIn, fntFlagsOut] = GetReticleBarsPos(c_ReticleBarsEnemy.GetInt(), fontOfsIn, fontOfsOut, fy);
-		if (angle != RB_DONTDRAW && lookTC && lookTC.looktarget)
+		if (angle != RB_DONTDRAW && tracedLookTarget)
 		{
 			genRoundMask.SetTransform(genRoundMaskTransfInner);
-			let lt = lookTC.looktarget;
+			let lt = tracedLookTarget;
 			int health = lt.health;
 			let ltDef = GetDefaultByType(lt.GetClass());
 			int maxhealth = max(lt.starthealth, lt.GetMaxHealth());
 			EnableMask(0, genRoundMask);
-			double fadeAlph = LinearMap(lookTC.targetTimer, 0, JGPUFH_LookTargetController.TARGETDISPLAYTIME / 2, 0.0, alpha, true);
+			double fadeAlph = LinearMap(lookTargetTimer, 0, TARGETDISPLAYTIME / 2, 0.0, alpha, true);
 			valueFrac = LinearMap(health, 0, maxhealth, 1.0, 0.0, true);
 			DrawCircleSegmentShape(color(60,160,60), screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
 			if (drawBarText)
