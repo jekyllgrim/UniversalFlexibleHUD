@@ -1,35 +1,5 @@
 class JGPUFH_FlexibleHUD : EventHandler
 {
-	override void NetworkProcess(ConsoleEvent e)
-	{
-		if (e.name.IndexOf("TestActorState") >= 0)
-		{
-			array<String> str;
-			e.name.Split(str, ":");
-			if (str.Size() == 2)
-			{
-				class<Actor> cls = str[1];
-				if (!cls) return;
-				let def = GetDefaultByType(cls);
-				if (!def) return;
-				State st = def.spawnstate;
-				while (st)
-				{
-					TextureID sprt = st.GetSpriteTexture(0);
-					Console.Printf("\cd%s\c- state \cd%s\c- sprite \cy%s\c-", def.GetClassName(), ""..st, TexMan.GetName(sprt));
-					if (!st.nextstate || st.nextstate == def.spawnstate)
-					{
-						break;
-					}
-					else
-					{
-						st = st.nextstate;
-					}
-				}
-			}
-		}
-	}
-
 	const ASPECTSCALE = 1.2;
 	const CIRCLEANGLES = 360.0;
 	const SQUARERADIUSFAC = 1.43;
