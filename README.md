@@ -14,7 +14,7 @@
 * You can select your own color and opacity for background of the elements
 * Heretic, Hexen and Strife support: full inventory bar with fluid animation. Hexen armor is fully accounted for and displays all possessed armor elements.
 * Can display powerup icons even for powerups that don't have them (like Doom powerups).
-* Currently supports 6 languages: English, German, French, Brazilian Portugeze, Spanish LatAm and Russian. All text is in LANGUAGE.csv, more localizations are welcome.
+* Currently supports 6 languages: English, German, French, Brazilian Portugese, Spanish LatAm and Russian. All text is in LANGUAGE.csv, more localizations are welcome.
 * Heavily commented code—I hope you can learn from it!
 * MIT licence (can be used by anyone for any purpose, just copy the license file into your project)
 
