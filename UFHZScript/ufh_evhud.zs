@@ -140,6 +140,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui transient Shape2D dmgMarker;
 	ui transient Shape2DTransform dmgMarkerTransf;
 	ui TextureID dmgMarkerTex;
+	const DMG_MARKER_TEX_NAME = "JGPUFH_DMGMARKER";
 
 	// Hit (reticle) markers:
 	ui transient Shape2D hitmarker_cross;
@@ -2150,6 +2151,25 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
+	ui void MakeDamageMarker()
+	{
+		TextureID tex = TexMan.CheckForTexture(DMG_MARKER_TEX_NAME);
+		if (!tex || !tex.IsValid()) return;
+
+		Canvas c = TexMan.GetCanvas(DMG_MARKER_TEX_NAME);
+		if (!c) return;
+		
+		let [w, h] = TexMan.GetSize(tex);
+		c.Dim(0x000000, 1.0, 0, 0, w, h);
+		c.Dim(0xffff00, 1.0, 0, h-1, w, 1);
+		for (double d = 1; d < h-1; d += 1.0)
+		{
+			c.Dim(0xff0000, d / (h-2), 0, d, w, 1);
+		}
+		
+		dmgMarkerTex = tex;
+	}
+
 	// Draws directional incoming damage markers:
 	ui void DrawDamageMarkers(double size = 120)
 	{
@@ -2159,6 +2179,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 		let dmgMarkerController = dmgMarkerControllers[consoleplayer];
 		if (!dmgMarkerController)
 			return;
+		
+		if (!dmgMarkerTex || !dmgMarkerTex.IsValid())
+		{
+			MakeDamageMarker();
+			return;
+		}
 
 		// Create a rectangular shape:
 		if (!dmgMarker)
@@ -2187,9 +2213,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Don't forget to multiply by hudscale:
 		if (!dmgMarkerTransf)
 			dmgMarkerTransf = New("Shape2DTransform");
-		// Cache the texture:
-		if (!dmgMarkerTex || !dmgMarkerTex.IsValid())
-			dmgMarkerTex = TexMan.CheckForTexture('JGPUFH_DMGMARKER');
 		// Draw the shape for each damage marker data
 		// in the previously built array:
 		double playerAngle = CPlayer.mo.angle;
