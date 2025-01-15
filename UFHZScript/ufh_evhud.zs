@@ -1,6 +1,6 @@
 class JGPUFH_FlexibleHUD : EventHandler
 {
-	const ASPECTSCALE = 1.2;
+	const RESASPECTSCALE = 1.2;
 	const CIRCLEANGLES = 360.0;
 	const SQUARERADIUSFAC = 1.43;
 	const STR_INVALID = "<invalid>";
@@ -167,10 +167,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 	}
 
 	// Minimap and monster radar:
+	const DEFAULTRADARSIZE = 64.0;
 	const MAPSCALEFACTOR = 8.;
 	ui double prevPlayerAngle;
 	ui Vector2 prevPlayerPos;
 	ui int prevLevelTime;
+	ui double minimapSize;
 	ui array <Line> mapLines;
 	ui array <Actor> radarMonsters;
 	ui transient Shape2D minimapShape_Arrow;
@@ -181,6 +183,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		MDD_RADARONLY,
 		MDD_MAPONLY,
 		MDD_BOTH,
+	}
+	enum EMapdataDisplayModes
+	{
+		MD_MinimapAttached,
+		MD_Detached,
 	}
 	enum EMapColorType
 	{
@@ -582,7 +589,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// the hud_aspectscale CVAR is in use, because the
 			// element's position must follow the angles properly
 			// (mostly used by the automap):
-			double aspect = c_aspectscale.GetBool() ? ASPECTSCALE : 1;
+			double aspect = c_aspectscale.GetBool() ? RESASPECTSCALE : 1;
 			hudscale.y /= aspect;
 			pos.x *= hudscale.x;
 			pos.y *= hudscale.y;
@@ -2538,8 +2545,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		if (c_aspectscale.GetBool())
 		{
-			posIn.y /= ASPECTSCALE;
-			posOut.y /= ASPECTSCALE;
+			posIn.y /= RESASPECTSCALE;
+			posOut.y /= RESASPECTSCALE;
 		}
 		posIn.y += GetCrosshairVertOfs() / hudscale.y;
 		posOut.y += GetCrosshairVertOfs() / hudscale.y;
@@ -2675,7 +2682,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			double fadeAlph = LinearMap(lookTargetTimer, 0, TARGETDISPLAYTIME / 2, 0.0, alpha, true);
 			valueFrac = LinearMap(health, 0, maxhealth, 1.0, 0.0, true);
 			DrawCircleSegmentShape(color(60,160,60), screenCenter, size, steps, angle, coverAngle, valueFrac, fadeAlph);
-			if (drawBarText)
+			if (drawBarText && lt.bIsMonster) //don't draw names of non-monster shotables
 			{
 				statusbar.DrawString(hfnt, String.Format("%s", lt.GetTag()), fntPosOut, fntFlagsOut, Font.CR_White, fadeAlph, scale: fntScale);
 				statusbar.DrawString(hfnt, String.Format("%d", health), fntPosIn, fntFlagsIn, Font.CR_White, fadeAlph, scale: fntScale);
@@ -3328,30 +3335,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		// Draw map data below the minimap
 		// (or above it if it's at the bottom of the screen):
-		// Figure out horizontal size first, based on the
-		// width of the minimap. If the minimap is hidden,
-		// we use 64 for width:
-		Vector2 msize = (64, 0);
-		if (drawMap || drawradar)
-		{
-			// Otherwise we use the minimap's width, but no
-			// less than 44 pixels (otherwise it looks bad
-			// due to scaling):
-			msize = (max(size, 44), size);
-		}
-		Vector2 mapDataSize = (msize.x, msize.y + 16);
 		// draw it above the minimap if that's at the bottom:
-		Vector2 mapDataPos = ((flags & StatusBarCore.DI_SCREEN_BOTTOM) == StatusBarCore.DI_SCREEN_BOTTOM) ? (0, 0) : (0, msize.y);
-		mapdataPos = AdjustElementPos(mapDataPos, flags, (msize.x, msize.y), ofs);
-		// Since this thing is anchored to the minimap, and the minimap,
-		// being drawn by Screen, ignores HUD aspect scaling, we
-		// need to make sure this bit's position also ignores
-		// HUD scaling:
-		if (c_aspectscale.GetBool())
-		{
-			mapDataPos.y /= ASPECTSCALE;
-		}
-		DrawMapData(mapDataPos, flags, msize.x, 0.5);
+		DrawMapData(ofs, flags, size);
 		
 		// If the actual minimap is disabled, stop here:
 		if (!drawMap && !drawradar)
@@ -3471,7 +3456,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui double GetMinimapSize()
 	{
 		if (!c_MinimapSize)
-			return 64;
+			return DEFAULTRADARSIZE;
 		
 		return c_MinimapSize.GetFloat();
 	}
@@ -3857,7 +3842,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			double alpha = LinearMap(vdiff, 0, 512, 1.0, 0.1, true);
 			// determine marker size based on the CVAR
 			// (either scaled with zoom, or fixed):
-			double msize = Clamp(c_minimapMapMarkersSize.GetInt(), 0, 64);
+			double msize = Clamp(c_minimapMapMarkersSize.GetInt(), 0, DEFAULTRADARSIZE);
 			double markerSize = (msize <= 0 ? thing.radius * zoom : msize) * scale;
 
 			minimapTransform.Clear();
@@ -3942,89 +3927,112 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// Draw map data (kills/secrets/items/time) below the
 	// minimap (even if the minimap isn't drawn, it'll be
 	// attached to the same position):
-	ui void DrawMapData(Vector2 pos, int flags, double width, double scale = 1.0)
+	ui void DrawMapData(Vector2 minimapOfs, int flags, double minimapDiameter)
 	{
-		double indent = 1 * scale;
+		bool shouldDrawKills = c_DrawKills.GetBool();
+		bool shouldDrawItems = c_DrawItems.GetBool();
+		bool shouldDrawSecrets = c_DrawSecrets.GetBool();
+		bool shouldDrawTime = c_DrawTime.GetBool();
+		if (!shouldDrawKills && !shouldDrawItems && !shouldDrawSecrets && !shouldDrawTime)
+		{
+			return;
+		}
 
+		double scale = c_MapDataScale.GetFloat();
+		// For the purposes of adjustment the vertical size of this
+		// element is considered zero:
+		Vector2 size = (minimapDiameter, 0) * scale;
+		// The map data element is placed below the minimap if it's
+		// at the top or vertical center; if it's at the bottom, map data
+		// is placed above it. Thus, adjust its vertical position accordingly
+		// based on the vertical flags:
+		Vector2 startpos = (0, 0);
+		// top:
+		if ((flags & StatusBarCore.DI_SCREEN_BOTTOM) == StatusBarCore.DI_SCREEN_BOTTOM)
+			startpos.y = -minimapDiameter;
+		// vertical center:
+		else if ((flags & StatusBarCore.DI_SCREEN_VCENTER) == StatusBarCore.DI_SCREEN_VCENTER)
+			startpos.y = minimapDiameter * 0.5;
+		// bottom:
+		else
+			startpos.y = minimapDiameter;
+		// And feed this with minimap's current offsets into adjustment function:
+		Vector2 pos = AdjustElementPos(startpos, flags, size, minimapOfs);
+		// Since this thing is anchored to the minimap, and the minimap,
+		// being drawn by Screen, ignores HUD aspect scaling, we
+		// need to make sure this bit's position also ignores
+		// HUD scaling:
+		if (c_aspectscale.GetBool())
+		{
+			pos.y /= RESASPECTSCALE;
+		}
+
+		// From here on scale is used to adjust the font size only,
+		// so we'll start with 50%, which looks good as a default
+		// value for the default smallfont:
+		scale *= 0.5;
 		HUDFont hfnt; Vector2 fntscale;
 		[hfnt, fntscale] = GetHUDFont(smallHUDFont);
 		fntscale *= scale;
 		let fy = GetFontHeight(smallHUDFont, scale);
-
-		pos.x += width*0.5;
-		bool shoulDrawKills = c_DrawKills.GetBool();
-		bool shoulDrawItems = c_DrawItems.GetBool();
-		bool shoulDrawSecrets = c_DrawSecrets.GetBool();
-		bool shoulDrawTime = c_DrawTime.GetBool();
+		double indent = 1 * scale;
+		
 		// flip if it's at the bottom:
 		if ((flags & StatusBarCore.DI_SCREEN_BOTTOM) == StatusBarCore.DI_SCREEN_BOTTOM)
 		{
 			int vofs;
-			if (shoulDrawKills)
+			if (shouldDrawKills)
 				vofs++;
-			if (shoulDrawItems)
+			if (shouldDrawItems)
 				vofs++;
-			if (shoulDrawSecrets)
+			if (shouldDrawSecrets)
 				vofs++;
-			if (shoulDrawTime)
+			if (shouldDrawTime)
 				vofs++;
 			pos.y -= ((fy + indent) * vofs + indent);
 		}
 
-		int secrets = Level.found_secrets;
-		int kills = Level.killed_monsters;
-		int items = Level.found_items;
-		// Don't forget to account for multiplayer:
-		if (multiplayer)
+		if (shouldDrawKills)
 		{
-			secrets = CPlayer.secretcount;
-			kills = CPlayer.killcount;
-			items = CPlayer.itemcount;
-		}
-		int totalsecrets = Level.total_secrets;
-		int totalkills = Level.total_monsters;
-		int totalitems = Level.total_items;
-		string s_left, s_right;
-
-		// Drawing the actual elements is relegated to a
-		// separate function to properly handle scaling:
-		if (shoulDrawKills)
-		{
-			DrawMapDataElement("$TXT_IMKILLS", kills, totalkills, hfnt, pos, flags, width, fntscale);
+			DrawMapDataElement("$TXT_IMKILLS", 
+				(multiplayer? CPlayer.killcount : Level.killed_monsters),
+				Level.total_monsters,
+				hfnt, pos, flags, size.x, fntscale);
 			pos.y += fy + indent;
 		}
 
-		if (shoulDrawItems)
+		if (shouldDrawItems)
 		{
-			DrawMapDataElement("$TXT_IMITEMS", items, totalitems, hfnt, pos, flags, width, fntscale);
+			DrawMapDataElement("$TXT_IMITEMS", 
+				(multiplayer? CPlayer.itemcount : Level.found_items),
+				Level.total_items,
+				hfnt, pos, flags, size.x, fntscale);
 			pos.y += fy + indent;
 		}
 
-		if (shoulDrawSecrets)
+		if (shouldDrawSecrets)
 		{
-			DrawMapDataElement("$TXT_IMSECRETS", secrets, totalsecrets, hfnt, pos, flags, width, fntscale);
+			DrawMapDataElement("$TXT_IMSECRETS", 
+				(multiplayer? CPlayer.secretcount : Level.found_secrets),
+				Level.total_secrets,
+				hfnt, pos, flags, size.x, fntscale);
 			pos.y += fy + indent;
 		}
 
-		if (shoulDrawTime)
+		if (shouldDrawTime)
 		{
-			int h,m,s;
-			[h,m,s] = TicsToHours(Level.time);
-			s_right = String.Format("\cQ%d:%02d:%02d", h, m, s);
-			DrawMapDataElement("$TXT_IMTIME", 0, 0, hfnt, pos, flags, width, fntscale, rightside: s_right);
+			let [h,m,s] = TicsToHours(Level.time);
+			DrawMapDataElement("$TXT_IMTIME", 0, 0, hfnt, pos, flags, size.x, fntscale, rightside: String.Format("\cQ%d:%02d:%02d", h, m, s));
 		}
 	}
 
 	// Draws the actual map data element, consisting of the label
 	// (left), a space, and the value (right):
-	ui void DrawMapDataElement(String label, int val1, int val2, HUDFont hfnt, Vector2 pos, int flags, double width, Vector2 scale = (1,1), String rightside = "")
+	ui void DrawMapDataElement(String label, int val1, int val2, HUDFont hfnt, Vector2 pos, int flags, double width, Vector2 fontscale = (1,1), String rightside = "")
 	{
-		String str1 = StringTable.Localize(label);
-		// If rightside is provided, use that text explicitly for
-		// whatever comes after the label (used for level time):
-		String str2 = rightside;
-		// Otherwise construct the right string based on the val1
-		// and val2 values, and colorize it:
+		label = StringTable.Localize(label);
+		// If rightside isn't provided, construct it
+		// based on the val1 and val2 values, and colorize it:
 		if (!rightside)
 		{
 			String s_right;
@@ -4042,33 +4050,24 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// if val1 reached its maximum:
 			else
 			{
-				str1 = String.Format("\cD%s\c-", str1);
+				label = String.Format("\cD%s\c-", label);
 				s_right = String.Format("\cD%d\c-", val1);
 			}
-			str2 = String.Format("%s/\cD%d", s_right, val2);
+			rightside = String.Format("%s/\cD%d", s_right, val2);
 		}
 
 		Font fnt = hfnt.mFont;
-		// Scale the string down if it's too wide
-		// to account for possible long localized
-		// strings (I wish more games would do that):
-		double strOfs = 3 * scale.x;
-		double maxStrWidth = width*0.5 - strOfs;
-		double strScale = scale.x;
-		double strWidth = fnt.StringWidth(str1) * scale.x;
-		if (strWidth > maxStrWidth)
-		{
-			strScale = (maxStrWidth / strWidth) * scale.x;
-		}
-		double strScale2 = scale.x;
-		double strWidth2 = fnt.StringWidth(str2) * scale.x;
-		if (strWidth2 > maxStrWidth)
-		{
-			strScale2 = (maxStrWidth / strWidth2) * scale.x;
-		}
-		statusbar.DrawString(hfnt, str1, pos-(strOfs,0), flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT, scale:(strScale,scale.y));
-		//statusbar.DrawString(hfnt, ":", pos, flags|StatusBarCore.DI_TEXT_ALIGN_CENTER, scale:(scale,scale));
-		statusbar.DrawString(hfnt, str2, pos+(strOfs,0), flags|StatusBarCore.DI_TEXT_ALIGN_LEFT, scale:(strScale2, scale.y));
+		double indent = width*0.025;
+		statusbar.DrawString(hfnt,
+			label,
+			(pos.x + width*0.5 - indent, pos.y),
+			flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT,
+			scale: (fontscale.x * Clamp((width*0.5 - indent) / (fnt.StringWidth(label) * fontscale.x), 0.0, 1.0), fontscale.y));
+		statusbar.DrawString(hfnt,
+			rightside,
+			(pos.x + width*0.5 + indent, pos.y),
+			flags|StatusBarCore.DI_TEXT_ALIGN_LEFT,
+			scale: (fontscale.x * Clamp((width*0.5 - indent) / (fnt.StringWidth(rightside) * fontscale.x), 0.0, 1.0), fontscale.y));
 	}
 
 	clearscope int, int, int TicsToHours(int tics)

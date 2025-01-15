@@ -91,6 +91,8 @@ nosave int jgphud_MinimapCardinalDirSize = 8;
 nosave int jgphud_MinimapCardinalDirColor = 5;
 nosave float jgphud_MinimapOpacity = 1.0;
 
+nosave float jgphud_MapDataScale = 1.0;
+
 nosave bool jgphud_DrawKills = true;
 nosave bool jgphud_DrawItems = true;
 nosave bool jgphud_DrawSecrets = true;

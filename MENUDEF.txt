@@ -375,6 +375,7 @@ OptionMenu "JGPHUD_MapData"
 	StaticText ""
 	StaticText "$JGPHUD_MAPDATA_TITLE", yellow
 	StaticText ""
+	Slider "Map data scale", "jgphud_MapDataScale", 0.0, 4.0, 0.1, 2
 	Option "$JGPHUD_MAPDATA_KILLS", "jgphud_DrawKills", "OnOff"
 	Option "$JGPHUD_MAPDATA_ITEMS", "jgphud_DrawItems", "OnOff"
 	Option "$JGPHUD_MAPDATA_SECRETS", "jgphud_DrawSecrets", "OnOff"

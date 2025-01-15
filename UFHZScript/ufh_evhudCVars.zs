@@ -99,6 +99,7 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_MinimapCardinalDirSize;
 	ui transient CVar c_MinimapCardinalDirColor;
 	ui transient CVar c_MinimapOpacity;
+	ui transient CVar c_MapDataScale;
 
 	ui transient CVar c_DrawKills;
 	ui transient CVar c_DrawItems;
@@ -371,7 +372,9 @@ extend class JGPUFH_FlexibleHUD
 			c_MinimapCardinalDirColor = CVar.GetCvar('jgphud_MinimapCardinalDirColor', CPlayer);
 		if (!c_MinimapOpacity)
 			c_MinimapOpacity = CVar.GetCvar('jgphud_MinimapOpacity', CPlayer);
-
+			
+		if (!c_MapDataScale)
+			c_MapDataScale = CVar.GetCvar('jgphud_MapDataScale', CPlayer);
 		if (!c_DrawKills)
 			c_DrawKills = CVar.GetCvar('jgphud_DrawKills', CPlayer);
 		if (!c_DrawItems)
