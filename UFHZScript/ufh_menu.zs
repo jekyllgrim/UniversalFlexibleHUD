@@ -287,37 +287,92 @@ mixin class JGPUFHCVarChecker
 // Resets all CCMDs in FlexiHUD to default values
 class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
 {
-	String m_CVarCategory;
+	int mCVarCategory;
 
 	OptionMenuItemJGPUFHResetALLCCMD Init(String label, bool centered = false, String type = "")
 	{
 		Super.Init(label, '', 0, centered);
-		m_CVarCategory = type;
+		name ttype = type.MakeLower();
+		switch (ttype)
+		{
+		default:
+			mCVarCategory = JGPUFH_PresetHandler.CVC_None;
+			break;
+		case 'general':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_DmgMarkers;
+			break;
+		case 'mainbars':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_Mainbars;
+			break;
+		case 'mugshot':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_MugShot;
+			break;
+		case 'ammoblock':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_AmmoBlock;
+			break;
+		case 'allammo':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_AllAmmo;
+			break;
+		case 'keys':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_Keys;
+			break;
+		case 'wslots':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_WSlots;
+			break;
+		case 'powerups':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_Powerups;
+			break;
+		case 'minimap':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_Minimap;
+			break;
+		case 'mapdata':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_Mapdata;
+			break;
+		case 'invbar':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_InvBar;
+			break;
+		case 'hitmarkers':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_Hitmarkers;
+			break;
+		case 'reticlebars':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_ReticleBars;
+			break;
+		case 'customitems':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_CustomItems;
+			break;
+		case 'fonts':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_Fonts;
+			break;
+		case 'healthcolors':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_HealthColors;
+			break;
+		case 'armorcolors':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_ArmorColors;
+			break;
+		case 'scaling':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_Scaling;
+			break;
+		}
 		return self;
 	}
 
 	override bool Activate()
 	{
-		if (!m_CVarCategory)
+		if (mCVarCategory == JGPUFH_PresetHandler.CVC_None)
 		{
 			JGPUFH_PresetHandler.ResetToDefault();
+			return true;
 		}
-		else
+
+		let handler = JGPUFH_PresetHandler(StaticEventHandler.Find('JGPUFH_PresetHandler'));
+		if (!handler) return false;
+
+		foreach(data: handler.cvardata)
 		{
-			for (int i = 0; i < JGPUFH_PresetHandler.preset_cvar_data_types.Size(); i++)
+			if (!data) continue;
+			if (data.cvarCategory & mCVarCategory)
 			{
-				String str = JGPUFH_PresetHandler.preset_cvar_data_types[i];
-				array<String> cvarTypes;
-				str.Split(cvarTypes, ":");
-				if (cvarTypes.Size() != 2)
-					continue;
-				
-				if (cvarTypes[0] == m_CVarCategory)
-				{
-					CVar c = CVar.FindCVar(cvarTypes[1]);
-					if (c)
-						c.ResetToDefault();
-				}
+				data.c_cvar.ResetToDefault();
 			}
 		}
 		return true;

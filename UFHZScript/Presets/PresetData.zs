@@ -1,494 +1,216 @@
+class JGPUFH_PresetCVarData
+{
+	CVar c_cvar;
+	name cvarName;
+	int cvarCategory;
+
+	static JGPUFH_PresetCVarData Add(name cvarname, out array<JGPUFH_PresetCVarData> arr = null, int category = 0)
+	{
+		let data = new('JGPUFH_PresetCVarData');
+		if (!data) return null;
+		if (data)
+		{
+			data.c_cvar = CVar.FindCVar(cvarname);
+			if (!data.c_cvar)
+			{
+				return null;
+			}
+			data.cvarName = cvarname;
+			data.cvarCategory = category;
+		}
+		if (data && arr != null)
+		{
+			arr.Push(data);
+		}
+		return data;
+	}
+}
+
 extend class JGPUFH_PresetHandler
 {
-	static const Name preset_cvars[] =
+	enum ECVarCategories
 	{
-		'jgphud_BackColor',
-		'jgphud_BackStyle',
-		'jgphud_BackAlpha',
-		'jgphud_BackTexture',
-		'jgphud_BackTextureStretch',
+		CVC_None			= 0,
+		CVC_General			= 1 << 1,
+		CVC_DmgMarkers		= 1 << 2,
+		CVC_Mainbars		= 1 << 3,
+		CVC_MugShot			= 1 << 4,
+		CVC_AmmoBlock		= 1 << 5,
+		CVC_AllAmmo			= 1 << 6,
+		CVC_Keys			= 1 << 7,
+		CVC_WSlots			= 1 << 8,
+		CVC_Powerups		= 1 << 9,
+		CVC_Minimap			= 1 << 10,
+		CVC_Mapdata			= 1 << 11,
+		CVC_InvBar			= 1 << 12,
+		CVC_Hitmarkers		= 1 << 13,
+		CVC_ReticleBars		= 1 << 14,
+		CVC_CustomItems		= 1 << 16,
+		CVC_Fonts			= 1 << 17,
+		CVC_HealthColors	= 1 << 18,
+		CVC_ArmorColors		= 1 << 19,
+		CVC_Scaling			= 1 << 20,
+	}
 
-		'jgphud_ScreenReddenFactor',
-		'jgphud_DrawDamageMarkers',
-		'jgphud_DamageMarkersAlpha',
-		'jgphud_DamageMarkersFadeTime',
+	override void OnEngineInitialize()
+	{
+		JGPUFH_PresetCVarData.Add('jgphud_BackColor', cvarData, CVC_General);
+		JGPUFH_PresetCVarData.Add('jgphud_BackStyle', cvarData, CVC_General);
+		JGPUFH_PresetCVarData.Add('jgphud_BackAlpha', cvarData, CVC_General);
+		JGPUFH_PresetCVarData.Add('jgphud_BackTexture', cvarData, CVC_General);
+		JGPUFH_PresetCVarData.Add('jgphud_BackTextureStretch', cvarData, CVC_General);
 
-		'jgphud_DrawMainbars',
-		'jgphud_MainBarsPos',
-		'jgphud_MainBarsX',
-		'jgphud_MainBarsY',
-		'jgphud_DrawFace',
+		JGPUFH_PresetCVarData.Add('jgphud_ScreenReddenFactor', cvarData, CVC_DmgMarkers);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawDamageMarkers', cvarData, CVC_DmgMarkers);
+		JGPUFH_PresetCVarData.Add('jgphud_DamageMarkersAlpha', cvarData, CVC_DmgMarkers);
+		JGPUFH_PresetCVarData.Add('jgphud_DamageMarkersFadeTime', cvarData, CVC_DmgMarkers);
 
-		'jgphud_DrawMugshot',
-		'jgphud_MugshotPos',
-		'jgphud_MugshotX',
-		'jgphud_MugshotY',
+		JGPUFH_PresetCVarData.Add('jgphud_DrawMainbars', cvarData, CVC_Mainbars);
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsPos', cvarData, CVC_Mainbars);
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsX', cvarData, CVC_Mainbars);
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsY', cvarData, CVC_Mainbars);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawFace', cvarData, CVC_Mainbars);
 
-		'jgphud_DrawAmmoBlock',
-		'jgphud_AmmoBlockPos',
-		'jgphud_AmmoBlockX',
-		'jgphud_AmmoBlockY',
-		'jgphud_DrawAmmoBar',
-		'jgphud_DrawWeapon',
+		JGPUFH_PresetCVarData.Add('jgphud_DrawMugshot', cvarData, CVC_MugShot);
+		JGPUFH_PresetCVarData.Add('jgphud_MugshotPos', cvarData, CVC_MugShot);
+		JGPUFH_PresetCVarData.Add('jgphud_MugshotX', cvarData, CVC_MugShot);
+		JGPUFH_PresetCVarData.Add('jgphud_MugshotY', cvarData, CVC_MugShot);
 
-		'jgphud_DrawAllAmmo',
-		'jgphud_AllAmmoShowDepleted',
-		'jgphud_AllAmmoPos',
-		'jgphud_AllAmmoX',
-		'jgphud_AllAmmoY',
-		'jgphud_AllAmmoColumns',
-		'jgphud_AllAmmoShowMax',
-		'jgphud_AllAmmoShowBar',
-		'jgphud_AllAmmoColorLow',
-		'jgphud_AllAmmoColorHigh',
+		JGPUFH_PresetCVarData.Add('jgphud_DrawAmmoBlock', cvarData, CVC_AmmoBlock);
+		JGPUFH_PresetCVarData.Add('jgphud_AmmoBlockPos', cvarData, CVC_AmmoBlock);
+		JGPUFH_PresetCVarData.Add('jgphud_AmmoBlockX', cvarData, CVC_AmmoBlock);
+		JGPUFH_PresetCVarData.Add('jgphud_AmmoBlockY', cvarData, CVC_AmmoBlock);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawAmmoBar', cvarData, CVC_AmmoBlock);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawWeapon', cvarData, CVC_AmmoBlock);
 
-		'jgphud_DrawKeys',
-		'jgphud_KeysPos',
-		'jgphud_KeysX',
-		'jgphud_KeysY',
+		JGPUFH_PresetCVarData.Add('jgphud_DrawAllAmmo', cvarData, CVC_AllAmmo);
+		JGPUFH_PresetCVarData.Add('jgphud_AllAmmoShowDepleted', cvarData, CVC_AllAmmo);
+		JGPUFH_PresetCVarData.Add('jgphud_AllAmmoPos', cvarData, CVC_AllAmmo);
+		JGPUFH_PresetCVarData.Add('jgphud_AllAmmoX', cvarData, CVC_AllAmmo);
+		JGPUFH_PresetCVarData.Add('jgphud_AllAmmoY', cvarData, CVC_AllAmmo);
+		JGPUFH_PresetCVarData.Add('jgphud_AllAmmoColumns', cvarData, CVC_AllAmmo);
+		JGPUFH_PresetCVarData.Add('jgphud_AllAmmoShowMax', cvarData, CVC_AllAmmo);
+		JGPUFH_PresetCVarData.Add('jgphud_AllAmmoShowBar', cvarData, CVC_AllAmmo);
+		JGPUFH_PresetCVarData.Add('jgphud_AllAmmoColorLow', cvarData, CVC_AllAmmo);
+		JGPUFH_PresetCVarData.Add('jgphud_AllAmmoColorHigh', cvarData, CVC_AllAmmo);
 
-		'jgphud_DrawWeaponSlots',
-		'jgphud_WeaponSlotsSize',
-		'jgphud_WeaponSlotsAlign',
-		'jgphud_WeaponSlotsPos',
-		'jgphud_WeaponSlotsX',
-		'jgphud_WeaponSlotsY',
-		'jgphud_WeaponSlotsNumColor',
+		JGPUFH_PresetCVarData.Add('jgphud_DrawKeys', cvarData, CVC_Keys);
+		JGPUFH_PresetCVarData.Add('jgphud_KeysPos', cvarData, CVC_Keys);
+		JGPUFH_PresetCVarData.Add('jgphud_KeysX', cvarData, CVC_Keys);
+		JGPUFH_PresetCVarData.Add('jgphud_KeysY', cvarData, CVC_Keys);
 
-		'jgphud_DrawPowerups',
-		'jgphud_PowerupsAlignment',
-		'jgphud_PowerupsIconSize',
-		'jgphud_PowerupsPos',
-		'jgphud_PowerupsX',
-		'jgphud_PowerupsY',
-		'jgphud_PowerupsNumColor',
+		JGPUFH_PresetCVarData.Add('jgphud_DrawWeaponSlots', cvarData, CVC_WSlots);
+		JGPUFH_PresetCVarData.Add('jgphud_WeaponSlotsSize', cvarData, CVC_WSlots);
+		JGPUFH_PresetCVarData.Add('jgphud_WeaponSlotsAlign', cvarData, CVC_WSlots);
+		JGPUFH_PresetCVarData.Add('jgphud_WeaponSlotsPos', cvarData, CVC_WSlots);
+		JGPUFH_PresetCVarData.Add('jgphud_WeaponSlotsX', cvarData, CVC_WSlots);
+		JGPUFH_PresetCVarData.Add('jgphud_WeaponSlotsY', cvarData, CVC_WSlots);
+		JGPUFH_PresetCVarData.Add('jgphud_WeaponSlotsNumColor', cvarData, CVC_WSlots);
 
-		'jgphud_DrawMinimap',
-		'jgphud_CircularMinimap',
-		'jgphud_MinimapSize',
-		'jgphud_MinimapPos',
-		'jgphud_MinimapPosX',
-		'jgphud_MinimapPosY',
-		'jgphud_MinimapEnemyDisplay',
-		'jgphud_MinimapEnemyShape',
-		'jgphud_MinimapZoom',
-		'jgphud_MinimapDrawUnseen',
-		'jgphud_MinimapDrawFloorDiff',
-		'jgphud_MinimapDrawCeilingDiff',
-		'jgphud_MinimapMapMarkersSize',
-		'jgphud_MinimapColorMode',
-		'jgphud_MinimapBackColor',
-		'jgphud_MinimapLineColor',
-		'jgphud_MinimapIntLineColor',
-		'jgphud_MinimapYouColor',
-		'jgphud_MinimapMonsterColor',
-		'jgphud_MinimapFriendColor',
-		'jgphud_MinimapCardinalDir',
-		'jgphud_MinimapCardinalDirSize',
-		'jgphud_MinimapCardinalDirColor',
-		'jgphud_MinimapOpacity',
+		JGPUFH_PresetCVarData.Add('jgphud_DrawPowerups', cvarData, CVC_Powerups);
+		JGPUFH_PresetCVarData.Add('jgphud_PowerupsAlignment', cvarData, CVC_Powerups);
+		JGPUFH_PresetCVarData.Add('jgphud_PowerupsIconSize', cvarData, CVC_Powerups);
+		JGPUFH_PresetCVarData.Add('jgphud_PowerupsPos', cvarData, CVC_Powerups);
+		JGPUFH_PresetCVarData.Add('jgphud_PowerupsX', cvarData, CVC_Powerups);
+		JGPUFH_PresetCVarData.Add('jgphud_PowerupsY', cvarData, CVC_Powerups);
+		JGPUFH_PresetCVarData.Add('jgphud_PowerupsNumColor', cvarData, CVC_Powerups);
 
-		'jgphud_DrawKills',
-		'jgphud_DrawItems',
-		'jgphud_DrawSecrets',
-		'jgphud_DrawTime',
+		JGPUFH_PresetCVarData.Add('jgphud_DrawMinimap', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_CircularMinimap', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapSize', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapPos', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapPosX', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapPosY', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapEnemyDisplay', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapEnemyShape', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapZoom', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapDrawUnseen', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapDrawFloorDiff', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapDrawCeilingDiff', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapMapMarkersSize', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapColorMode', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapBackColor', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapLineColor', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapIntLineColor', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapYouColor', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapMonsterColor', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapFriendColor', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapCardinalDir', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapCardinalDirSize', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapCardinalDirColor', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapOpacity', cvarData, CVC_Minimap);
 
-		'jgphud_DrawInvBar',
-		'jgphud_AlwaysShowInvBar',
-		'jgphud_InvBarIconSize',
-		'jgphud_InvBarPos',
-		'jgphud_InvBarX',
-		'jgphud_InvBarY',
-		'jgphud_InvBarNumColor',
+		JGPUFH_PresetCVarData.Add('jgphud_MapDataScale', cvarData, CVC_Mapdata);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawKills', cvarData, CVC_Mapdata);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawItems', cvarData, CVC_Mapdata);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawSecrets', cvarData, CVC_Mapdata);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawTime', cvarData, CVC_Mapdata);
 
-		'jgphud_DrawEnemyHitMarkers',
-		'jgphud_EnemyHitMarkersColor',
-		'jgphud_EnemyHitMarkersSize',
-		'jgphud_EnemyHitMarkersShape',
-		'jgphud_DrawReticleBars',
-		'jgphud_ReticleBarsText',
-		'jgphud_ReticleBarsSize',
-		'jgphud_ReticleBarsHealthArmor',
-		'jgphud_ReticleBarsAmmo',
-		'jgphud_ReticleBarsEnemy',
-		'jgphud_ReticleBarsAlpha',
-		'jgphud_ReticleBarsWidth',
+		JGPUFH_PresetCVarData.Add('jgphud_DrawInvBar', cvarData, CVC_InvBar);
+		JGPUFH_PresetCVarData.Add('jgphud_AlwaysShowInvBar', cvarData, CVC_InvBar);
+		JGPUFH_PresetCVarData.Add('jgphud_InvBarIconSize', cvarData, CVC_InvBar);
+		JGPUFH_PresetCVarData.Add('jgphud_InvBarPos', cvarData, CVC_InvBar);
+		JGPUFH_PresetCVarData.Add('jgphud_InvBarX', cvarData, CVC_InvBar);
+		JGPUFH_PresetCVarData.Add('jgphud_InvBarY', cvarData, CVC_InvBar);
+		JGPUFH_PresetCVarData.Add('jgphud_InvBarNumColor', cvarData, CVC_InvBar);
 
-		'jgphud_DrawCustomItems',
-		'jgphud_CustomItemsIconSize',
-		'jgphud_CustomItemsPos',
-		'jgphud_CustomItemsX',
-		'jgphud_CustomItemsY',
+		JGPUFH_PresetCVarData.Add('jgphud_DrawEnemyHitMarkers', cvarData, CVC_Hitmarkers);
+		JGPUFH_PresetCVarData.Add('jgphud_EnemyHitMarkersColor', cvarData, CVC_Hitmarkers);
+		JGPUFH_PresetCVarData.Add('jgphud_EnemyHitMarkersSize', cvarData, CVC_Hitmarkers);
+		JGPUFH_PresetCVarData.Add('jgphud_EnemyHitMarkersShape', cvarData, CVC_Hitmarkers);
 
-		'jgphud_mainfont',
-		'jgphud_smallfont',
-		'jgphud_numberfont',
+		JGPUFH_PresetCVarData.Add('jgphud_DrawReticleBars', cvarData, CVC_ReticleBars);
+		JGPUFH_PresetCVarData.Add('jgphud_ReticleBarsText', cvarData, CVC_ReticleBars);
+		JGPUFH_PresetCVarData.Add('jgphud_ReticleBarsSize', cvarData, CVC_ReticleBars);
+		JGPUFH_PresetCVarData.Add('jgphud_ReticleBarsHealthArmor', cvarData, CVC_ReticleBars);
+		JGPUFH_PresetCVarData.Add('jgphud_ReticleBarsAmmo', cvarData, CVC_ReticleBars);
+		JGPUFH_PresetCVarData.Add('jgphud_ReticleBarsEnemy', cvarData, CVC_ReticleBars);
+		JGPUFH_PresetCVarData.Add('jgphud_ReticleBarsAlpha', cvarData, CVC_ReticleBars);
+		JGPUFH_PresetCVarData.Add('jgphud_ReticleBarsWidth', cvarData, CVC_ReticleBars);
+
+		JGPUFH_PresetCVarData.Add('jgphud_DrawCustomItems', cvarData, CVC_CustomItems);
+		JGPUFH_PresetCVarData.Add('jgphud_CustomItemsIconSize', cvarData, CVC_CustomItems);
+		JGPUFH_PresetCVarData.Add('jgphud_CustomItemsPos', cvarData, CVC_CustomItems);
+		JGPUFH_PresetCVarData.Add('jgphud_CustomItemsX', cvarData, CVC_CustomItems);
+		JGPUFH_PresetCVarData.Add('jgphud_CustomItemsY', cvarData, CVC_CustomItems);
+
+		JGPUFH_PresetCVarData.Add('jgphud_mainfont', cvarData, CVC_Fonts);
+		JGPUFH_PresetCVarData.Add('jgphud_smallfont', cvarData, CVC_Fonts);
+		JGPUFH_PresetCVarData.Add('jgphud_numberfont', cvarData, CVC_Fonts);
 	
-		'jgphud_cleanoffsets',
-		'jgphud_BaseScale',
-		'jgphud_MainBarsScale',
-		'jgphud_MugshotScale',
-		'jgphud_AmmoBlockScale',
-		'jgphud_AllAmmoScale',
-		'jgphud_PowerupsScale',
-		'jgphud_InvBarScale',
-		'jgphud_KeysScale',
-		'jgphud_WeaponSlotsScale',
-		'jgphud_CustomItemsScale',
-		'jgphud_ReticleBarsScale',
+		JGPUFH_PresetCVarData.Add('jgphud_cleanoffsets', cvarData, CVC_Scaling);
+		JGPUFH_PresetCVarData.Add('jgphud_BaseScale', cvarData, CVC_Scaling);
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsScale', cvarData, CVC_Scaling|CVC_Mainbars);
+		JGPUFH_PresetCVarData.Add('jgphud_MugshotScale', cvarData, CVC_Scaling|CVC_MugShot);
+		JGPUFH_PresetCVarData.Add('jgphud_AmmoBlockScale', cvarData, CVC_Scaling|CVC_AmmoBlock);
+		JGPUFH_PresetCVarData.Add('jgphud_AllAmmoScale', cvarData, CVC_Scaling|CVC_AllAmmo);
+		JGPUFH_PresetCVarData.Add('jgphud_PowerupsScale', cvarData, CVC_Scaling|CVC_Powerups);
+		JGPUFH_PresetCVarData.Add('jgphud_InvBarScale', cvarData, CVC_Scaling|CVC_InvBar);
+		JGPUFH_PresetCVarData.Add('jgphud_KeysScale', cvarData, CVC_Scaling|CVC_Keys);
+		JGPUFH_PresetCVarData.Add('jgphud_WeaponSlotsScale', cvarData, CVC_Scaling|CVC_WSlots);
+		JGPUFH_PresetCVarData.Add('jgphud_CustomItemsScale', cvarData, CVC_Scaling|CVC_CustomItems);
+		JGPUFH_PresetCVarData.Add('jgphud_ReticleBarsScale', cvarData, CVC_Scaling|CVC_ReticleBars);
 
-		'jgphud_MainBarsHealthColorMode',
-		'jgphud_MainBarsHealthColor',
-		'jgphud_MainbarsHealthRange_25',
-		'jgphud_MainbarsHealthRange_50',
-		'jgphud_MainbarsHealthRange_75',
-		'jgphud_MainbarsHealthRange_100',
-		'jgphud_MainbarsHealthRange_101',
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsHealthColorMode', cvarData, CVC_HealthColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsHealthColor', cvarData, CVC_HealthColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsHealthRange_25', cvarData, CVC_HealthColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsHealthRange_50', cvarData, CVC_HealthColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsHealthRange_75', cvarData, CVC_HealthColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsHealthRange_100', cvarData, CVC_HealthColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsHealthRange_101', cvarData, CVC_HealthColors);
 
-		'jgphud_MainBarsArmorMode',
-		'jgphud_MainBarsArmorColorMode',
-		'jgphud_MainBarsArmorColor',
-		'jgphud_MainbarsArmorRange_25',
-		'jgphud_MainbarsArmorRange_50',
-		'jgphud_MainbarsArmorRange_75',
-		'jgphud_MainbarsArmorRange_100',
-		'jgphud_MainbarsArmorRange_101',
-		'jgphud_MainbarsAbsorbRange_33',
-		'jgphud_MainbarsAbsorbRange_50',
-		'jgphud_MainbarsAbsorbRange_66',
-		'jgphud_MainbarsAbsorbRange_80',
-		'jgphud_MainbarsAbsorbRange_100'
-	};
-
-	static const Class<JGPUFH_JsonElement> preset_cvar_json_types[] =
-	{
-		'JGPUFH_JsonNumber',	// jgphud_BackColor
-		'JGPUFH_JsonBool',		// jgphud_BackStyle
-		'JGPUFH_JsonNumber',	// jgphud_BackAlpha
-		'JGPUFH_JsonString',	// jgphud_BackTexture
-		'JGPUFH_JsonBool',		// jgphud_BackTextureStretch
-
-		'JGPUFH_JsonNumber',	// jgphud_ScreenReddenFactor
-		'JGPUFH_JsonBool',		// jgphud_DrawDamageMarkers
-		'JGPUFH_JsonNumber',	// jgphud_DamageMarkersAlpha
-		'JGPUFH_JsonNumber',	// jgphud_DamageMarkersFadeTime
-
-		'JGPUFH_JsonNumber',	// jgphud_DrawMainbars
-		'JGPUFH_JsonNumber',	// jgphud_MainBarsPos
-		'JGPUFH_JsonNumber',	// jgphud_MainBarsX
-		'JGPUFH_JsonNumber',	// jgphud_MainBarsY
-		'JGPUFH_JsonBool',		// jgphud_DrawFace
-
-		'JGPUFH_JsonNumber',	// jgphud_DrawMugshot
-		'JGPUFH_JsonNumber',	// jgphud_MugshotPos
-		'JGPUFH_JsonNumber',	// jgphud_MugshotX
-		'JGPUFH_JsonNumber',	// jgphud_MugshotY
-
-		'JGPUFH_JsonBool',		// jgphud_DrawAmmoBlock
-		'JGPUFH_JsonNumber',	// jgphud_AmmoBlockPos
-		'JGPUFH_JsonNumber',	// jgphud_AmmoBlockX
-		'JGPUFH_JsonNumber',	// jgphud_AmmoBlockY
-		'JGPUFH_JsonBool',		// jgphud_DrawAmmoBar
-		'JGPUFH_JsonBool',		// jgphud_DrawWeapon
-
-		'JGPUFH_JsonNumber',	// jgphud_DrawAllAmmo
-		'JGPUFH_JsonBool',		// jgphud_AllAmmoShowDepleted
-		'JGPUFH_JsonNumber',	// jgphud_AllAmmoPos
-		'JGPUFH_JsonNumber',	// jgphud_AllAmmoX
-		'JGPUFH_JsonNumber',	// jgphud_AllAmmoY
-		'JGPUFH_JsonNumber',	// jgphud_AllAmmoColumns
-		'JGPUFH_JsonBool',		// jgphud_AllAmmoShowMax
-		'JGPUFH_JsonBool',		// jgphud_AllAmmoShowBar
-		'JGPUFH_JsonNumber',	// jgphud_AllAmmoColorLow
-		'JGPUFH_JsonNumber',	// jgphud_AllAmmoColorHigh
-
-		'JGPUFH_JsonBool',		// jgphud_DrawKeys
-		'JGPUFH_JsonNumber',	// jgphud_KeysPos
-		'JGPUFH_JsonNumber',	// jgphud_KeysX
-		'JGPUFH_JsonNumber',	// jgphud_KeysY
-
-		'JGPUFH_JsonNumber',	// jgphud_DrawWeaponSlots
-		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsSize
-		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsAlign
-		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsPos
-		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsX
-		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsY
-		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsNumColor
-
-		'JGPUFH_JsonNumber',	// jgphud_DrawPowerups
-		'JGPUFH_JsonNumber',	// jgphud_PowerupsAlignment
-		'JGPUFH_JsonNumber',	// jgphud_PowerupsIconSize
-		'JGPUFH_JsonNumber',	// jgphud_PowerupsPos
-		'JGPUFH_JsonNumber',	// jgphud_PowerupsX
-		'JGPUFH_JsonNumber',	// jgphud_PowerupsY
-		'JGPUFH_JsonNumber',	// jgphud_PowerupsNumColor
-
-		'JGPUFH_JsonNumber',	// jgphud_DrawMinimap
-		'JGPUFH_JsonBool',		// jgphud_CircularMinimap
-		'JGPUFH_JsonNumber',	// jgphud_MinimapSize
-		'JGPUFH_JsonNumber',	// jgphud_MinimapPos
-		'JGPUFH_JsonNumber',	// jgphud_MinimapPosX
-		'JGPUFH_JsonNumber',	// jgphud_MinimapPosY
-		'JGPUFH_JsonBool',		// jgphud_MinimapEnemyDisplay
-		'JGPUFH_JsonBool',		// jgphud_MinimapEnemyShape
-		'JGPUFH_JsonNumber',	// jgphud_MinimapZoom
-		'JGPUFH_JsonNumber',	// jgphud_MinimapDrawUnseen
-		'JGPUFH_JsonBool',		// jgphud_MinimapDrawFloorDiff
-		'JGPUFH_JsonBool',		// jgphud_MinimapDrawCeilingDiff
-		'JGPUFH_JsonNumber',	// jgphud_MinimapMapMarkersSize
-		'JGPUFH_JsonNumber',	// jgphud_MinimapColorMode
-		'JGPUFH_JsonNumber',	// jgphud_MinimapBackColor
-		'JGPUFH_JsonNumber',	// jgphud_MinimapLineColor
-		'JGPUFH_JsonNumber',	// jgphud_MinimapIntLineColor
-		'JGPUFH_JsonNumber',	// jgphud_MinimapYouColor
-		'JGPUFH_JsonNumber',	// jgphud_MinimapMonsterColor
-		'JGPUFH_JsonNumber',	// jgphud_MinimapFriendColor
-		'JGPUFH_JsonNumber',	// jgphud_MinimapCardinalDir
-		'JGPUFH_JsonNumber',	// jgphud_MinimapCardinalDirSize
-		'JGPUFH_JsonNumber',	// jgphud_MinimapCardinalDirColor
-		'JGPUFH_JsonNumber',	// jgphud_MinimapOpacity
-
-		'JGPUFH_JsonBool',		// jgphud_DrawKills
-		'JGPUFH_JsonBool',		// jgphud_DrawItems
-		'JGPUFH_JsonBool',		// jgphud_DrawSecrets
-		'JGPUFH_JsonBool',		// jgphud_DrawTime
-
-		'JGPUFH_JsonBool',		// jgphud_DrawInvBar
-		'JGPUFH_JsonBool',		// jgphud_AlwaysShowInvBar
-		'JGPUFH_JsonNumber',	// jgphud_InvBarIconSize
-		'JGPUFH_JsonNumber',	// jgphud_InvBarPos
-		'JGPUFH_JsonNumber',	// jgphud_InvBarX
-		'JGPUFH_JsonNumber',	// jgphud_InvBarY
-		'JGPUFH_JsonNumber',	// jgphud_InvBarNumColor
-
-		'JGPUFH_JsonBool',		// jgphud_DrawEnemyHitMarkers
-		'JGPUFH_JsonNumber',	// jgphud_EnemyHitMarkersColor
-		'JGPUFH_JsonNumber',	// jgphud_EnemyHitMarkersSize
-		'JGPUFH_JsonNumber',	// jgphud_EnemyHitMarkersShape
-		'JGPUFH_JsonNumber',	// jgphud_DrawReticleBars
-		'JGPUFH_JsonBool',		// jgphud_ReticleBarsText
-		'JGPUFH_JsonNumber',	// jgphud_ReticleBarsSize
-		'JGPUFH_JsonNumber',	// jgphud_ReticleBarsHealthArmor
-		'JGPUFH_JsonNumber',	// jgphud_ReticleBarsAmmo
-		'JGPUFH_JsonNumber',	// jgphud_ReticleBarsEnemy
-		'JGPUFH_JsonNumber',	// jgphud_ReticleBarsAlpha
-		'JGPUFH_JsonNumber',	// jgphud_ReticleBarsWidth
-
-		'JGPUFH_JsonBool',		// jgphud_DrawCustomItems
-		'JGPUFH_JsonNumber',	// jgphud_CustomItemsIconSize
-		'JGPUFH_JsonNumber',	// jgphud_CustomItemsPos
-		'JGPUFH_JsonNumber',	// jgphud_CustomItemsX
-		'JGPUFH_JsonNumber',	// jgphud_CustomItemsY
-
-		'JGPUFH_JsonString',	// jgphud_mainfont
-		'JGPUFH_JsonString',	// jgphud_smallfont
-		'JGPUFH_JsonString',	// jgphud_numberfont
-
-		'JGPUFH_JsonBool',		// jgphud_cleanoffsets
-		'JGPUFH_JsonNumber',	// jgphud_BaseScale,
-		'JGPUFH_JsonNumber',	// jgphud_MainBarsScale,
-		'JGPUFH_JsonNumber',	// jgphud_MugshotScale,
-		'JGPUFH_JsonNumber',	// jgphud_AmmoBlockScale,
-		'JGPUFH_JsonNumber',	// jgphud_AllAmmoScale,
-		'JGPUFH_JsonNumber',	// jgphud_PowerupsScale,
-		'JGPUFH_JsonNumber',	// jgphud_InvBarScale,
-		'JGPUFH_JsonNumber',	// jgphud_KeysScale,
-		'JGPUFH_JsonNumber',	// jgphud_WeaponSlotsScale,
-		'JGPUFH_JsonNumber',	// jgphud_CustomItemsScale,
-		'JGPUFH_JsonNumber',	// jgphud_ReticleBarsScale
-
-		'JGPUFH_JsonNumber',	// jgphud_MainBarsHealthColorMode,
-		'JGPUFH_JsonNumber',	// jgphud_MainBarsHealthColor,
-		'JGPUFH_JsonNumber',	// jgphud_MainbarsHealthRange_25,
-		'JGPUFH_JsonNumber',	// jgphud_MainbarsHealthRange_50,
-		'JGPUFH_JsonNumber',	// jgphud_MainbarsHealthRange_75,
-		'JGPUFH_JsonNumber',	// jgphud_MainbarsHealthRange_100,
-		'JGPUFH_JsonNumber',	// jgphud_MainbarsHealthRange_101,
-
-		'JGPUFH_JsonNumber',	// jgphud_MainBarsArmorMode,
-		'JGPUFH_JsonNumber',	// jgphud_MainBarsArmorColorMode,
-		'JGPUFH_JsonNumber',	// jgphud_MainBarsArmorColor,
-		'JGPUFH_JsonNumber',	// jgphud_MainbarsArmorRange_25,
-		'JGPUFH_JsonNumber',	// jgphud_MainbarsArmorRange_50,
-		'JGPUFH_JsonNumber',	// jgphud_MainbarsArmorRange_75,
-		'JGPUFH_JsonNumber',	// jgphud_MainbarsArmorRange_100,
-		'JGPUFH_JsonNumber',	// jgphud_MainbarsArmorRange_101,
-		'JGPUFH_JsonNumber',	// jgphud_MainbarsAbsorbRange_33,
-		'JGPUFH_JsonNumber',	// jgphud_MainbarsAbsorbRange_50,
-		'JGPUFH_JsonNumber',	// jgphud_MainbarsAbsorbRange_66,
-		'JGPUFH_JsonNumber',	// jgphud_MainbarsAbsorbRange_80,
-		'JGPUFH_JsonNumber' 	// jgphud_MainbarsAbsorbRange_100
-	};
-
-	static const String preset_cvar_data_types[] =
-	{
-		"general:jgphud_BackColor",
-		"general:jgphud_BackStyle",
-		"general:jgphud_BackAlpha",
-		"general:jgphud_BackTexture",
-		"general:jgphud_BackTextureStretch",
-			
-		"dmgmarkers:jgphud_ScreenReddenFactor",
-		"dmgmarkers:jgphud_DrawDamageMarkers",
-		"dmgmarkers:jgphud_DamageMarkersAlpha",
-		"dmgmarkers:jgphud_DamageMarkersFadeTime",
-			
-		"mainbars:jgphud_DrawMainbars",
-		"mainbars:jgphud_MainBarsPos",
-		"mainbars:jgphud_MainBarsX",
-		"mainbars:jgphud_MainBarsY",
-		"mainbars:jgphud_DrawFace",
-			
-		"mugshot:jgphud_DrawMugshot",
-		"mugshot:jgphud_MugshotPos",
-		"mugshot:jgphud_MugshotX",
-		"mugshot:jgphud_MugshotY",
-			
-		"ammoblock:jgphud_DrawAmmoBlock",
-		"ammoblock:jgphud_AmmoBlockPos",
-		"ammoblock:jgphud_AmmoBlockX",
-		"ammoblock:jgphud_AmmoBlockY",
-		"ammoblock:jgphud_DrawAmmoBar",
-		"ammoblock:jgphud_DrawWeapon",
-			
-		"allammo:jgphud_DrawAllAmmo",
-		"allammo:jgphud_AllAmmoShowDepleted",
-		"allammo:jgphud_AllAmmoPos",
-		"allammo:jgphud_AllAmmoX",
-		"allammo:jgphud_AllAmmoY",
-		"allammo:jgphud_AllAmmoColumns",
-		"allammo:jgphud_AllAmmoShowMax",
-		"allammo:jgphud_AllAmmoShowBar",
-		"allammo:jgphud_AllAmmoColorLow",
-		"allammo:jgphud_AllAmmoColorHigh",
-			
-		"keys:jgphud_DrawKeys",
-		"keys:jgphud_KeysPos",
-		"keys:jgphud_KeysX",
-		"keys:jgphud_KeysY",
-			
-		"wslots:jgphud_DrawWeaponSlots",
-		"wslots:jgphud_WeaponSlotsSize",
-		"wslots:jgphud_WeaponSlotsAlign",
-		"wslots:jgphud_WeaponSlotsPos",
-		"wslots:jgphud_WeaponSlotsX",
-		"wslots:jgphud_WeaponSlotsY",
-		"wslots:jgphud_WeaponSlotsNumColor",
-			
-		"powerups:jgphud_DrawPowerups",
-		"powerups:jgphud_PowerupsAlignment",
-		"powerups:jgphud_PowerupsIconSize",
-		"powerups:jgphud_PowerupsPos",
-		"powerups:jgphud_PowerupsX",
-		"powerups:jgphud_PowerupsY",
-		"powerups:jgphud_PowerupsNumColor",
-			
-		"minimap:jgphud_DrawMinimap",
-		"minimap:jgphud_CircularMinimap",
-		"minimap:jgphud_MinimapSize",
-		"minimap:jgphud_MinimapPos",
-		"minimap:jgphud_MinimapPosX",
-		"minimap:jgphud_MinimapPosY",
-		"minimap:jgphud_MinimapEnemyDisplay",
-		"minimap:jgphud_MinimapEnemyShape",
-		"minimap:jgphud_MinimapZoom",
-		"minimap:jgphud_MinimapDrawUnseen",
-		"minimap:jgphud_MinimapDrawFloorDiff",
-		"minimap:jgphud_MinimapDrawCeilingDiff",
-		"minimap:jgphud_MinimapMapMarkersSize",
-		"minimap:jgphud_MinimapColorMode",
-		"minimap:jgphud_MinimapBackColor",
-		"minimap:jgphud_MinimapLineColor",
-		"minimap:jgphud_MinimapIntLineColor",
-		"minimap:jgphud_MinimapYouColor",
-		"minimap:jgphud_MinimapMonsterColor",
-		"minimap:jgphud_MinimapFriendColor",
-		"minimap:jgphud_MinimapCardinalDir",
-		"minimap:jgphud_MinimapCardinalDirSize",
-		"minimap:jgphud_MinimapCardinalDirColor",
-		"minimap:jgphud_MinimapOpacity",
-			
-		"mapdata:jgphud_DrawKills",
-		"mapdata:jgphud_DrawItems",
-		"mapdata:jgphud_DrawSecrets",
-		"mapdata:jgphud_DrawTime",
-			
-		"invbar:jgphud_DrawInvBar",
-		"invbar:jgphud_AlwaysShowInvBar",
-		"invbar:jgphud_InvBarIconSize",
-		"invbar:jgphud_InvBarPos",
-		"invbar:jgphud_InvBarX",
-		"invbar:jgphud_InvBarY",
-		"invbar:jgphud_InvBarNumColor",
-			
-		"hitmarkers:jgphud_DrawEnemyHitMarkers",
-		"hitmarkers:jgphud_EnemyHitMarkersColor",
-		"hitmarkers:jgphud_EnemyHitMarkersSize",
-		"hitmarkers:jgphud_EnemyHitMarkersShape",
-
-		"reticlebars:jgphud_DrawReticleBars",
-		"reticlebars:jgphud_ReticleBarsText",
-		"reticlebars:jgphud_ReticleBarsSize",
-		"reticlebars:jgphud_ReticleBarsHealthArmor",
-		"reticlebars:jgphud_ReticleBarsAmmo",
-		"reticlebars:jgphud_ReticleBarsEnemy",
-		"reticlebars:jgphud_ReticleBarsAlpha",
-		"reticlebars:jgphud_ReticleBarsWidth",
-			
-		"customitems:jgphud_DrawCustomItems",
-		"customitems:jgphud_CustomItemsIconSize",
-		"customitems:jgphud_CustomItemsPos",
-		"customitems:jgphud_CustomItemsX",
-		"customitems:jgphud_CustomItemsY",
-			
-		"fonts:jgphud_mainfont",
-		"fonts:jgphud_smallfont",
-		"fonts:jgphud_numberfont",
-			
-		"scaling:jgphud_cleanoffsets",
-		"scaling:jgphud_BaseScale",
-		"scaling:jgphud_MainBarsScale",
-		"scaling:jgphud_MugshotScale",
-		"scaling:jgphud_AmmoBlockScale",
-		"scaling:jgphud_AllAmmoScale",
-		"scaling:jgphud_PowerupsScale",
-		"scaling:jgphud_InvBarScale",
-		"scaling:jgphud_KeysScale",
-		"scaling:jgphud_WeaponSlotsScale",
-		"scaling:jgphud_CustomItemsScale",
-		"scaling:jgphud_ReticleBarsScale",
-			
-		"mainbars:jgphud_MainBarsScale",
-		"mugshot:jgphud_MugshotScale",
-		"ammoblock:jgphud_AmmoBlockScale",
-		"allammo:jgphud_AllAmmoScale",
-		"powerups:jgphud_PowerupsScale",
-		"invbar:jgphud_InvBarScale",
-		"keys:jgphud_KeysScale",
-		"wslots:jgphud_WeaponSlotsScale",
-		"customitems:jgphud_CustomItemsScale",
-		"reticlebars:jgphud_ReticleBarsScale",
-			
-		"healthcolors:jgphud_MainBarsHealthColorMode",
-		"healthcolors:jgphud_MainBarsHealthColor",
-		"healthcolors:jgphud_MainbarsHealthRange_25",
-		"healthcolors:jgphud_MainbarsHealthRange_50",
-		"healthcolors:jgphud_MainbarsHealthRange_75",
-		"healthcolors:jgphud_MainbarsHealthRange_100",
-		"healthcolors:jgphud_MainbarsHealthRange_101",
-			
-		"armorcolors:jgphud_MainBarsArmorMode",
-		"armorcolors:jgphud_MainBarsArmorColorMode",
-		"armorcolors:jgphud_MainBarsArmorColor",
-		"armorcolors:jgphud_MainbarsArmorRange_25",
-		"armorcolors:jgphud_MainbarsArmorRange_50",
-		"armorcolors:jgphud_MainbarsArmorRange_75",
-		"armorcolors:jgphud_MainbarsArmorRange_100",
-		"armorcolors:jgphud_MainbarsArmorRange_101",
-		"armorcolors:jgphud_MainbarsAbsorbRange_33",
-		"armorcolors:jgphud_MainbarsAbsorbRange_50",
-		"armorcolors:jgphud_MainbarsAbsorbRange_66",
-		"armorcolors:jgphud_MainbarsAbsorbRange_80",
-		"armorcolors:jgphud_MainbarsAbsorbRange_100"
-	};
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsArmorMode', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsArmorColorMode', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsArmorColor', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsArmorRange_25', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsArmorRange_50', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsArmorRange_75', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsArmorRange_100', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsArmorRange_101', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsAbsorbRange_33', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsAbsorbRange_50', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsAbsorbRange_66', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsAbsorbRange_80', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsAbsorbRange_100', cvarData, CVC_ArmorColors);
+	}
 }

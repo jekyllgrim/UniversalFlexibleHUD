@@ -5,6 +5,8 @@ class JGPUFH_PresetHandler : StaticEventHandler
 	JGPUFH_JsonObject default_presets;
 	
 	Map<Name, Class<JGPUFH_JsonElement> > cvarTypes;
+
+	array<JGPUFH_PresetCVarData> cvarData;
 	
 	JGPUFH_JsonObject LoadPresets(String jsonData, bool isCVar)
 	{
@@ -76,14 +78,35 @@ class JGPUFH_PresetHandler : StaticEventHandler
 	}
 	
 	override void OnRegister()
-	{
-		if(preset_cvars.Size() != preset_cvar_json_types.Size()) ThrowAbortException("mis-sized data arrays in PresetData.zs");
-		
-		int numCVars = preset_cvars.Size();
+	{		
+		int numCVars = cvardata.Size();
 		
 		for(int i = 0; i < numCVars; i++)
 		{
-			cvarTypes.Insert(preset_cvars[i], preset_cvar_json_types[i]);
+			let data = cvardata[i];
+			if (!data) continue;
+
+			class<JGPUFH_JsonElement> e;
+			switch(data.c_cvar.GetRealType())
+			{
+			case CVar.CVAR_Int:
+			case CVar.CVAR_Color:
+				e = 'JGPUFH_JsonInt';
+				break;
+			case CVar.CVAR_String:
+				e = 'JGPUFH_JsonString';
+				break;
+			case CVar.CVAR_Float:
+				e = 'JGPUFH_JsonDouble';
+				break;
+			case CVar.CVAR_Bool:
+				e = 'JGPUFH_JsonBool';
+				break;
+			default:
+				ThrowAbortException("Invalid CVar type for cvar "..data.cvarname);
+				break;
+			}
+			cvarTypes.Insert(data.cvarName, e);
 		}
 		
 		presets = LoadPresets(__jgphud_user_presets_json, true);
@@ -98,12 +121,14 @@ class JGPUFH_PresetHandler : StaticEventHandler
 	clearscope JGPUFH_JsonObject CurrentToJson()
 	{
 		let obj = JGPUFH_JsonObject.make();
-		let n = preset_cvars.Size();
-		for(uint i = 0; i < n; i++)
+		let n = cvardata.Size();
+		for(int i = 0; i < n; i++)
 		{
-			JGPUFH_JsonElement e;
-			CVar c = CVar.FindCVar(preset_cvars[i]);
+			let data = cvardata[i];
+			if (!data) continue;
 			
+			JGPUFH_JsonElement e;
+			CVar c = data.c_cvar;
 			switch(c.GetRealType())
 			{
 			case CVar.CVAR_Int:
@@ -120,20 +145,29 @@ class JGPUFH_PresetHandler : StaticEventHandler
 				e = JGPUFH_JsonString.make(c.GetString());
 				break;
 			default:
-				ThrowAbortException("Unhandled CVar Type for '"..preset_cvars[i].."'");
+				ThrowAbortException("Unhandled CVar Type for '"..data.cvarname.."'");
 			}
-			obj.Set(preset_cvars[i],e);
+			obj.Set(data.cvarname,e);
 		}
 		return obj;
 	}
 	
 	static clearscope void LoadPresetJSON(JGPUFH_JsonObject obj)
 	{
-		let n = JGPUFH_PresetHandler.preset_cvars.Size();
-		for(uint i = 0; i < n; i++)
+		let handler = JGPUFH_PresetHandler(StaticEventHandler.Find('JGPUFH_PresetHandler'));
+		if (!handler)
 		{
-			CVar c = CVar.FindCVar(JGPUFH_PresetHandler.preset_cvars[i]);
-			let e = obj.Get(JGPUFH_PresetHandler.preset_cvars[i]);
+			ThrowAbortException("JGPUFH_PresetHandler not found");
+			return;
+		}
+		let n = handler.cvardata.Size();
+		for(int i = 0; i < n; i++)
+		{
+			let data = handler.cvardata[i];
+			if (!data) continue;
+
+			CVar c = data.c_cvar;
+			let e = obj.Get(data.cvarname);
 			
 			if(!e)
 			{
@@ -155,7 +189,7 @@ class JGPUFH_PresetHandler : StaticEventHandler
 				c.SetString(JGPUFH_JsonString(e).s);
 				break;
 			default:
-				ThrowAbortException("Unhandled CVar Type for '"..JGPUFH_PresetHandler.preset_cvars[i].."'");
+				ThrowAbortException("Unhandled CVar Type for '"..data.cvarname.."'");
 			}
 		}
 	}
@@ -171,10 +205,18 @@ class JGPUFH_PresetHandler : StaticEventHandler
 	
 	static clearscope void ResetToDefault()
 	{
-		let n = JGPUFH_PresetHandler.preset_cvars.Size();
-		for(uint i = 0; i < n; i++)
+		let handler = JGPUFH_PresetHandler(StaticEventHandler.Find('JGPUFH_PresetHandler'));
+		if (!handler)
 		{
-			CVar.FindCVar(JGPUFH_PresetHandler.preset_cvars[i]).ResetToDefault();
+			ThrowAbortException("JGPUFH_PresetHandler not found");
+			return;
+		}
+		let n = handler.cvardata.Size();
+		for(int i = 0; i < n; i++)
+		{
+			let data = handler.cvardata[i];
+			if (!data) continue;
+			data.c_cvar.ResetToDefault();
 		}
 	}
 	
