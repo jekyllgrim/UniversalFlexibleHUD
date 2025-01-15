@@ -166,10 +166,10 @@ OptionMenu "JGPHUD_Mugshot"
 	StaticText ""
 	Option "$JGPHUD_MUGSHOT_ENABLE", "jgphud_DrawMugshot", "MugshotPositions"
 	JGPUFH_CheckCVar "", sapphire, "jgphud_DrawMugshot", "3"
-		Slider "$JGPHUD_ELEMENT_SCALE", "jgphud_MugshotScale", 0.0, 4.0, 0.1, 1, "jgphud_DrawAmmoBlock"
-		Option "$JGPHUD_ELEMENT_POS", "jgphud_MugshotPos", "ElementScreenPos", "jgphud_DrawAmmoBlock"
-		Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_MugshotX", -160, 160, 2, 0, "jgphud_DrawAmmoBlock"
-		Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_MugshotY", -100, 100, 2, 0, "jgphud_DrawAmmoBlock"
+		Slider "$JGPHUD_ELEMENT_SCALE", "jgphud_MugshotScale", 0.0, 4.0, 0.1, 1
+		Option "$JGPHUD_ELEMENT_POS", "jgphud_MugshotPos", "ElementScreenPos"
+		Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_MugshotX", -160, 160, 2, 0
+		Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_MugshotY", -100, 100, 2, 0
 	JGPUFH_EndIf ""
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "mugshot"
 }
