@@ -201,6 +201,7 @@ Lines around different floor heights,JGPHUD_MINIMAP_DRAWFLOORDIFF,NO LONGER USED
 Lines around different ceiling heights,JGPHUD_MINIMAP_DRAWCEILINGDIFF,NO LONGER USED,Линии секторов с разной высотой потолка,Linhas ao redor de alturas do teto diferentes,Linien bei Bodenunterschieden,Mostrar cambios de altura de techo,Lignes autour de différentes hauteurs de plafond
 Walls,JGPHUD_MINIMAP_COLOR_LINES,color for regular minimap lines,,,,,Lignes
 Interactive walls,JGPHUD_MINIMAP_COLOR_INTLINES,"color for interactive minimap lines (activateable by pressing Use, but not requiring a key, because locked lines will have a lock color)",,,,,Lignes interactives
+Separate color for all not-yet-seen walls,JGPHUD_MINIMAP_COLOR_SPECIALNOTSEENCOL,,,,,,
 Map data display,JGPHUD_MAPDATA_TITLE,This is a title for a block of options that determine what kind of extra data about the current map is drawn on the HUD,Данные об уровне,Dados do mapa,Kartendaten,Datos del mapa,Affichage des données de la carte
 Show map time,JGPHUD_MAPDATA_TIME,Option in the Map Data options block,Показывать время уровня,Mostrar tempo do mapa,Kartenzeit anzeigen,Mostrar tiempo,Temps de la carte
 Show kill count,JGPHUD_MAPDATA_KILLS,Option in the Map Data options block,Показывать убийства,Mostrar contagem de vitimas,Anzahl der Abschüsse anzeigen,Mostrar enemigos muertos,Nombre de morts

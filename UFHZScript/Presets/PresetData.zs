@@ -135,6 +135,7 @@ extend class JGPUFH_PresetHandler
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapFloorDiffLineColor', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapCeilDiffLineColor', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapUnseenLineColor', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapUnseenSeparateColor', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapYouColor', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapMonsterColor', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapFriendColor', cvarData, CVC_Minimap);

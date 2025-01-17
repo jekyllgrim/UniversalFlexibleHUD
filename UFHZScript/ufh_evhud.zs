@@ -3770,7 +3770,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 			if (!(ln.flags & Line.ML_MAPPED))
 			{
 				lineAlph = int(round( lineAlph * Clamp(c_minimapDrawUnseen.GetFloat(), 0., 1.) ));
-				lineCol = GetMinimapColor(MCT_UnseenWall);
+				if (c_MinimapUnseenSeparateColor.GetBool())
+				{
+					lineCol = GetMinimapColor(MCT_UnseenWall);
+				}
 			}
 
 			// DrawLine is a bit cheaper than DrawThickLine, so use that

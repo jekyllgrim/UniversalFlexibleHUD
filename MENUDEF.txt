@@ -362,7 +362,7 @@ OptionMenu "JGPHUD_MapData"
 			"jgphud_DrawMinimap", "<:2"
 		JGPUFHSlider "$JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA",
 			"jgphud_MinimapDrawUnseen",
-			0.0, 1.0, 0.1, 1,
+			0.0, 1.0, 0.1, 2,
 			"jgphud_DrawMinimap", "<:2"
 		JGPUFHOption "$MAPCOLORMNU_FDWALLCOLOR",
 			"jgphud_MinimapDrawFloorDiff",
@@ -382,7 +382,8 @@ OptionMenu "JGPHUD_MapData"
 		ColorPicker "$JGPHUD_MINIMAP_COLOR_INTLINES",	"jgphud_MinimapIntLineColor"
 		ColorPicker "$MAPCOLORMNU_FDWALLCOLOR",			"jgphud_MinimapFloorDiffLineColor"
 		ColorPicker "$MAPCOLORMNU_CDWALLCOLOR",			"jgphud_MinimapCeilDiffLineColor"
-		ColorPicker "$MAPCOLORMNU_NOTSEENCOLOR",		"jgphud_MinimapUnseenLineColor"
+		Option "$JGPHUD_MINIMAP_COLOR_SPECIALNOTSEENCOL", "jgphud_MinimapUnseenSeparateColor", "OnOff"
+		JGPUFHColorPicker "$MAPCOLORMNU_NOTSEENCOLOR",	"jgphud_MinimapUnseenLineColor", "jgphud_MinimapUnseenSeparateColor"
 		ColorPicker "$MAPCOLORMNU_YOURCOLOR",			"jgphud_MinimapYouColor"
 		ColorPicker "$MAPCOLORMNU_MONSTERCOLOR",		"jgphud_MinimapMonsterColor"
 		ColorPicker "$MAPCOLORMNU_FRIENDCOLOR",			"jgphud_MinimapFriendColor"

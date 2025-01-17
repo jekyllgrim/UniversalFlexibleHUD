@@ -86,6 +86,7 @@ nosave color jgphud_MinimapIntLineColor = "FFFFFF";
 nosave color jgphud_MinimapFloorDiffLineColor = "53af47";
 nosave color jgphud_MinimapCeilDiffLineColor = "53af47";
 nosave color jgphud_MinimapUnseenLineColor = "80FF80";
+nosave bool jgphud_MinimapUnseenSeparateColor = false;
 nosave color jgphud_MinimapYouColor = "FFFFFF";
 nosave color jgphud_MinimapMonsterColor = "FF0000";
 nosave color jgphud_MinimapFriendColor = "00FFFF";

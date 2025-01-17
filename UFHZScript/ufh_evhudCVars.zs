@@ -95,6 +95,7 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_MinimapFloorDiffLineColor;
 	ui transient CVar c_MinimapCeilDiffLineColor;
 	ui transient CVar c_MinimapUnseenLineColor;
+	ui transient CVar c_MinimapUnseenSeparateColor;
 	ui transient CVar c_minimapYouColor;
 	ui transient CVar c_minimapMonsterColor;
 	ui transient CVar c_minimapFriendColor;
@@ -372,6 +373,8 @@ extend class JGPUFH_FlexibleHUD
 			c_MinimapCeilDiffLineColor = CVar.GetCvar('jgphud_MinimapCeilDiffLineColor', CPlayer);
 		if (!c_MinimapUnseenLineColor)
 			c_MinimapUnseenLineColor = CVar.GetCvar('jgphud_MinimapUnseenLineColor', CPlayer);
+		if (!c_MinimapUnseenSeparateColor)
+			c_MinimapUnseenSeparateColor = CVar.GetCvar('jgphud_MinimapUnseenSeparateColor', CPlayer);
 		if (!c_minimapYouColor)
 			c_minimapYouColor = CVar.GetCvar('jgphud_MinimapYouColor', CPlayer);
 		if (!c_minimapMonsterColor)
