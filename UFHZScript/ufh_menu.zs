@@ -39,6 +39,10 @@ class JGPUFH_OptionMenu : OptionMenu
 
 	override bool MenuEvent (int mkey, bool fromcontroller)
 	{
+		if (mDesc.mSelectedItem >= mDesc.mItems.Size())
+		{
+			mkey = MKEY_Back;
+		}
 		bool res = super.MenuEvent(mkey, fromcontroller);
 	
 		switch (mkey)
