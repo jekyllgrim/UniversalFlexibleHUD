@@ -326,13 +326,14 @@ OptionMenu "JGPHUD_MapData"
 	Option "$JGPHUD_MINIMAP_ENABLE", 
 	"jgphud_DrawMinimap", 
 	"MinimapRadarDisplay"
+	StaticText ""
+
 	// Show this if the minimap/radar mode is NOT "Off":
 	JGPUFH_CheckCVar "$JGPHUD_MINIMAP_ENABLE", sapphire, "jgphud_DrawMinimap", "!:0"
 		Slider "$JGPHUD_MINIMAP_OPACITY",	"jgphud_MinimapOpacity",	0.0, 1.0, 0.1, 2
 		Slider "$JGPHUD_MINIMAP_SIZE",		"jgphud_MinimapSize",		0, 256, 1, 0
 		Option "$JGPHUD_MINIMAP_SHAPE",		"jgphud_CircularMinimap",	"MinimapShape"
 		Slider "$JGPHUD_MINIMAP_ZOOM",		"jgphud_MinimapZoom",		0.1, 3.0, 0.05, 2
-		Option "$AUTOMAPMNU_COLORSET",		"jgphud_MinimapColorMode",	"MinimapColorOptions"
 	JGPUFH_EndIf ""
 	
 	// Show this if the minimap/radar mode is "Radar only" OR "Both":
@@ -351,12 +352,27 @@ OptionMenu "JGPHUD_MapData"
 		
 		StaticText ""
 		StaticText "$JGPHUD_MINIMAP_LINESANDCOLORS_TITLE", sapphire
-		JGPUFHSlider "$JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA",	"jgphud_MinimapDrawUnseen", 0.0, 1.0, 0.1, 1,
+		JGPUFHSlider "$JGPHUD_MINIMAP_LINETHICKNESS_NONBLOCKING",
+			"jgphud_MinimapNonblockLineThickness",
+			1.0, 10.0, 0.1, 1,
 			"jgphud_DrawMinimap", "<:2"
-		JGPUFHOption "$JGPHUD_MINIMAP_DRAWFLOORDIFF",		"jgphud_MinimapDrawFloorDiff", "OnOff",
+		JGPUFHSlider "$JGPHUD_MINIMAP_LINETHICKNESS_BLOCKING",
+			"jgphud_MinimapBlockLineThickness",
+			1.0, 10.0, 0.1, 1,
 			"jgphud_DrawMinimap", "<:2"
-		JGPUFHOption "$JGPHUD_MINIMAP_DRAWCEILINGDIFF",		"jgphud_MinimapDrawCeilingDiff", "OnOff",
+		JGPUFHSlider "$JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA",
+			"jgphud_MinimapDrawUnseen",
+			0.0, 1.0, 0.1, 1,
 			"jgphud_DrawMinimap", "<:2"
+		JGPUFHOption "$MAPCOLORMNU_FDWALLCOLOR",
+			"jgphud_MinimapDrawFloorDiff",
+			"OnOff",
+			"jgphud_DrawMinimap", "<:2"
+		JGPUFHOption "$MAPCOLORMNU_CDWALLCOLOR",
+			"jgphud_MinimapDrawCeilingDiff",
+			"OnOff",
+			"jgphud_DrawMinimap", "<:2"
+		Option "$AUTOMAPMNU_COLORSET", "jgphud_MinimapColorMode", "MinimapColorOptions"
 	JGPUFH_EndIf ""
 
 	// Show this if the minimap/radar mode is NOT "Off" and map colors is "Custom":
@@ -364,6 +380,9 @@ OptionMenu "JGPHUD_MapData"
 		ColorPicker "$MAPCOLORMNU_BACKCOLOR",			"jgphud_MinimapBackColor"
 		ColorPicker "$JGPHUD_MINIMAP_COLOR_LINES",		"jgphud_MinimapLineColor"
 		ColorPicker "$JGPHUD_MINIMAP_COLOR_INTLINES",	"jgphud_MinimapIntLineColor"
+		ColorPicker "$MAPCOLORMNU_FDWALLCOLOR",			"jgphud_MinimapFloorDiffLineColor"
+		ColorPicker "$MAPCOLORMNU_CDWALLCOLOR",			"jgphud_MinimapCeilDiffLineColor"
+		ColorPicker "$MAPCOLORMNU_NOTSEENCOLOR",		"jgphud_MinimapUnseenLineColor"
 		ColorPicker "$MAPCOLORMNU_YOURCOLOR",			"jgphud_MinimapYouColor"
 		ColorPicker "$MAPCOLORMNU_MONSTERCOLOR",		"jgphud_MinimapMonsterColor"
 		ColorPicker "$MAPCOLORMNU_FRIENDCOLOR",			"jgphud_MinimapFriendColor"
@@ -375,7 +394,7 @@ OptionMenu "JGPHUD_MapData"
 	StaticText ""
 	StaticText "$JGPHUD_MAPDATA_TITLE", yellow
 	StaticText ""
-	Slider "Map data scale", "jgphud_MapDataScale", 0.0, 4.0, 0.1, 2
+	Slider "$JGPHUD_MAPDATA_SCALE", "jgphud_MapDataScale", 0.0, 4.0, 0.1, 2
 	Option "$JGPHUD_MAPDATA_KILLS", "jgphud_DrawKills", "OnOff"
 	Option "$JGPHUD_MAPDATA_ITEMS", "jgphud_DrawItems", "OnOff"
 	Option "$JGPHUD_MAPDATA_SECRETS", "jgphud_DrawSecrets", "OnOff"

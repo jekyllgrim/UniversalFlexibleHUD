@@ -157,7 +157,7 @@ class JGPUFH_PresetHandler : StaticEventHandler
 		let handler = JGPUFH_PresetHandler(StaticEventHandler.Find('JGPUFH_PresetHandler'));
 		if (!handler)
 		{
-			ThrowAbortException("JGPUFH_PresetHandler not found");
+			ThrowAbortException("PresetHandler not found");
 			return;
 		}
 		let n = handler.cvardata.Size();

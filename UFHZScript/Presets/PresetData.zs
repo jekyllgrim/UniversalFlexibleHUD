@@ -132,9 +132,14 @@ extend class JGPUFH_PresetHandler
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapBackColor', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapLineColor', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapIntLineColor', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapFloorDiffLineColor', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapCeilDiffLineColor', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapUnseenLineColor', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapYouColor', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapMonsterColor', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapFriendColor', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapBlockLineThickness', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapNonblockLineThickness', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapCardinalDir', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapCardinalDirSize', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapCardinalDirColor', cvarData, CVC_Minimap);

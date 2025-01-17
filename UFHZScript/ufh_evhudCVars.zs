@@ -92,9 +92,14 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_minimapBackColor;
 	ui transient CVar c_minimapLineColor;
 	ui transient CVar c_minimapIntLineColor;
+	ui transient CVar c_MinimapFloorDiffLineColor;
+	ui transient CVar c_MinimapCeilDiffLineColor;
+	ui transient CVar c_MinimapUnseenLineColor;
 	ui transient CVar c_minimapYouColor;
 	ui transient CVar c_minimapMonsterColor;
 	ui transient CVar c_minimapFriendColor;
+	ui transient CVar c_MinimapBlockLineThickness;
+	ui transient CVar c_MinimapNonblockLineThickness;
 	ui transient CVar c_MinimapCardinalDir;
 	ui transient CVar c_MinimapCardinalDirSize;
 	ui transient CVar c_MinimapCardinalDirColor;
@@ -171,6 +176,9 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_am_specialwallcolor;
 	ui transient CVar c_am_thingcolor_monster;
 	ui transient CVar c_am_thingcolor_friend;
+	ui transient CVar c_am_fdwallcolor;
+	ui transient CVar c_am_cdwallcolor;
+	ui transient CVar c_am_notseencolor;
 
 	ui void CacheCvars()
 	{
@@ -358,12 +366,22 @@ extend class JGPUFH_FlexibleHUD
 			c_minimapLineColor = CVar.GetCvar('jgphud_MinimapLineColor', CPlayer);
 		if (!c_minimapIntLineColor)
 			c_minimapIntLineColor = CVar.GetCvar('jgphud_MinimapIntLineColor', CPlayer);
+		if (!c_MinimapFloorDiffLineColor)
+			c_MinimapFloorDiffLineColor = CVar.GetCvar('jgphud_MinimapFloorDiffLineColor', CPlayer);
+		if (!c_MinimapCeilDiffLineColor)
+			c_MinimapCeilDiffLineColor = CVar.GetCvar('jgphud_MinimapCeilDiffLineColor', CPlayer);
+		if (!c_MinimapUnseenLineColor)
+			c_MinimapUnseenLineColor = CVar.GetCvar('jgphud_MinimapUnseenLineColor', CPlayer);
 		if (!c_minimapYouColor)
 			c_minimapYouColor = CVar.GetCvar('jgphud_MinimapYouColor', CPlayer);
 		if (!c_minimapMonsterColor)
 			c_minimapMonsterColor = CVar.GetCvar('jgphud_MinimapMonsterColor', CPlayer);
 		if (!c_minimapFriendColor)
 			c_minimapFriendColor = CVar.GetCvar('jgphud_MinimapFriendColor', CPlayer);
+		if (!c_MinimapBlockLineThickness)
+			c_MinimapBlockLineThickness = CVar.GetCvar('jgphud_MinimapBlockLineThickness', CPlayer);
+		if (!c_MinimapNonblockLineThickness)
+			c_MinimapNonblockLineThickness = CVar.GetCvar('jgphud_MinimapNonblockLineThickness', CPlayer);
 		if (!c_MinimapCardinalDir)
 			c_MinimapCardinalDir = CVar.GetCvar('jgphud_MinimapCardinalDir', CPlayer);
 		if (!c_MinimapCardinalDirSize)
@@ -501,5 +519,11 @@ extend class JGPUFH_FlexibleHUD
 			c_am_thingcolor_monster = CVar.GetCvar('am_thingcolor_monster', CPlayer);
 		if (!c_am_thingcolor_friend)
 			c_am_thingcolor_friend = CVar.GetCvar('am_thingcolor_friend', CPlayer);
+		if (!c_am_fdwallcolor)
+			c_am_fdwallcolor = CVar.GetCvar('am_fdwallcolor', CPlayer);
+		if (!c_am_cdwallcolor)
+			c_am_cdwallcolor = CVar.GetCvar('am_cdwallcolor', CPlayer);
+		if (!c_am_notseencolor)
+			c_am_notseencolor = CVar.GetCvar('am_notseencolor', CPlayer);
 	}
 }

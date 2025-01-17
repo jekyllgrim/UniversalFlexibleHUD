@@ -198,33 +198,45 @@ class JGPUFH_FlexibleHUD : EventHandler
 		MCT_IntWall,
 		MCT_Enemy,
 		MCT_Friend,
+		MCT_FloorDiffWall,
+		MCT_CeilDiffWall,
+		MCT_UnseenWall,
 	}
-	static const color tradmapcol_DoomColors[] =
+	static const color tradmapcol_Doom[] =
 	{
 		0xff000000, //background
 		0xffffffff, //you
 		0xfffc0000, //walls
 		0xffffffff, //special walls
 		0xff74fc6c, //monster
-		0xff74fc6c  //friend
+		0xff74fc6c, //friend
+		0xffbc7848, //floor difference wall
+		0xfffcfc00, //ceil difference wall
+		0xff6c6c6c  //unseen wall
 	};
-	static const color tradmapcol_StrifeColors[] =
+	static const color tradmapcol_Strife[] =
 	{
 		0xff000000, //background
 		0xffefef00, //you
 		0xffc7c3c3, //walls
 		0xffffffff, //special walls
 		0xfffc0000, //monster
-		0xfffc0000  //friend
+		0xfffc0000, //friend
+		0xff373b5b, //floor difference wall
+		0xff777373, //ceil difference wall
+		0xff6c6c6c  //unseen wall
 	};
-	static const color tradmapcol_RavenColors[] =
+	static const color tradmapcol_Raven[] =
 	{
 		0xff6c5440, //background
 		0xffffffff, //you
 		0xff4b3210, //walls
 		0xffffffff, //special walls
 		0xffececec, //monster
-		0xffececec  //friend
+		0xffececec, //friend
+		0xffd0b085, //floor difference wall
+		0xff673b1f, //ceil difference wall
+		0xff000000  //unseen wall
 	};
 
 	// DrawInventoryBar():
@@ -2151,23 +2163,37 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui void MakeDamageMarker()
+	// Creates a canvas texture to work as a damage marker
+	// graphic (previously this was done in TEXTURES):
+	ui bool MakeDamageMarker()
 	{
+		if (dmgMarkerTex && dmgMarkerTex.IsValid())
+		{
+			return true;
+		}
+
 		TextureID tex = TexMan.CheckForTexture(DMG_MARKER_TEX_NAME);
-		if (!tex || !tex.IsValid()) return;
+		if (!tex || !tex.IsValid()) return false;
 
 		Canvas c = TexMan.GetCanvas(DMG_MARKER_TEX_NAME);
-		if (!c) return;
+		if (!c) return false;
 		
-		let [w, h] = TexMan.GetSize(tex);
+		let [w, h] = TexMan.GetSize(tex); //2x18, but do this dynamically in case I change the size
+		// Color the whole thing black first:
 		c.Dim(0x000000, 1.0, 0, 0, w, h);
+		// Now color the very bottom line yellow:
 		c.Dim(0xffff00, 1.0, 0, h-1, w, 1);
+		// Draw red lines starting at the top,
+		// increase alpha with each line, so we end up
+		// with a red-to-black gradient from bottom to top,
+		// plus a single yellow line at the bottom:
 		for (double d = 1; d < h-1; d += 1.0)
 		{
 			c.Dim(0xff0000, d / (h-2), 0, d, w, 1);
 		}
 		
 		dmgMarkerTex = tex;
+		return true;
 	}
 
 	// Draws directional incoming damage markers:
@@ -2180,11 +2206,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!dmgMarkerController)
 			return;
 		
-		if (!dmgMarkerTex || !dmgMarkerTex.IsValid())
-		{
-			MakeDamageMarker();
+		if (!MakeDamageMarker())
 			return;
-		}
 
 		// Create a rectangular shape:
 		if (!dmgMarker)
@@ -3486,44 +3509,50 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	ui color GetMinimapColor(int type)
 	{
-		// Use FlexiHUD minimap colors:
+		// "Custom" mode:
 		if(c_MinimapColorMode.GetInt())
 		{
 			color col;
 			switch (type)
 			{
-			case MCT_Background:	col = c_minimapBackColor.GetInt();		break;
-			case MCT_You:			col = c_minimapYouColor.GetInt();		break;
-			case MCT_Wall:			col = c_minimapLineColor.GetInt();		break;
-			case MCT_IntWall:		col = c_MinimapIntLineColor.GetInt();	break;
-			case MCT_Enemy:			col = c_minimapMonsterColor.GetInt();	break;
-			default:				col = c_minimapFriendColor.GetInt();	break;
+			default:				col = c_minimapBackColor.GetInt();			break;
+			case MCT_You:			col = c_minimapYouColor.GetInt();			break;
+			case MCT_Wall:			col = c_minimapLineColor.GetInt();			break;
+			case MCT_IntWall:		col = c_MinimapIntLineColor.GetInt();		break;
+			case MCT_Enemy:			col = c_minimapMonsterColor.GetInt();		break;
+			case MCT_Friend:		col = c_minimapFriendColor.GetInt();		break;
+			case MCT_FloorDiffWall:	col = c_MinimapFloorDiffLineColor.GetInt();	break;
+			case MCT_CeilDiffWall:	col = c_MinimapCeilDiffLineColor.GetInt();	break;
+			case MCT_UnseenWall:	col = c_MinimapUnseenLineColor.GetInt();	break;
 			}
 			return col;
 		}
-		// Use GZDoom colors, set to 'Custom':
+		// "Same as automap" mode when GZDoom uses "custom" colors:
 		else if (c_am_colorset.GetInt() <= 0)
 		{
 			color col;
 			switch (type)
 			{
-			case MCT_Background:	col = c_am_backcolor.GetInt();			break;
+			default:				col = c_am_backcolor.GetInt();			break;
 			case MCT_You:			col = c_am_yourcolor.GetInt();			break;
 			case MCT_Wall:			col = c_am_wallcolor.GetInt();			break;
 			case MCT_IntWall:		col = c_am_specialwallcolor.GetInt();	break;
 			case MCT_Enemy:			col = c_am_thingcolor_monster.GetInt();	break;
-			default:				col = c_am_thingcolor_friend.GetInt();	break;
+			case MCT_Friend:		col = c_am_thingcolor_friend.GetInt();	break;
+			case MCT_FloorDiffWall:	col = c_am_fdwallcolor.GetInt();	break;
+			case MCT_CeilDiffWall:	col = c_am_cdwallcolor.GetInt();	break;
+			case MCT_UnseenWall:	col = c_am_notseencolor.GetInt();	break;
 			}
 			return col;
 		}
 		else
 		{
-			// Use GZDoom colors, set to one of the 'traditional' colors:
+			// "Same as automap" mode when GZDoom uses "Doom/Strife/Raven" colors:
 			switch (c_am_colorset.GetInt())
 			{
-			default:	return tradmapcol_DoomColors[type];
-			case 2:		return tradmapcol_StrifeColors[type];
-			case 3:		return tradmapcol_RavenColors[type];
+			default:	return tradmapcol_Doom[type];
+			case 2:		return tradmapcol_Strife[type];
+			case 3:		return tradmapcol_Raven[type];
 			}
 		}
 	}
@@ -3576,9 +3605,17 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!(ln.flags & Line.ML_MAPPED) && (!c_minimapDrawUnseen || c_minimapDrawUnseen.GetFloat() <= 0))
 			return false;
 		
-		// Don't draw lines that are not in the same portal group as the player:
+		// Check if the line's sector is not in the same portalgroup as the player:
 		if (!ln.frontsector || ln.frontsector.portalgroup != CPlayer.mo.cursector.portalgroup)
+		{
+			// Handling for polyobjects:
+			if (ln.sidedef[Line.Front].flags & Side.WALLF_POLYOBJ)
+			{
+				Sector polySec = level.PointInSector((ln.v1.p.x + ln.Delta.x*0.5, ln.v2.p.x + ln.Delta.y*0.5));
+				return polySec && polySec.portalgroup == CPlayer.mo.cursector.portalgroup;
+			}
 			return false;
+		}
 		
 		// Always draw one-sided lines:
 		if (!(ln.flags & Line.ML_TWOSIDED))
@@ -3591,7 +3628,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (ln.special)
 			return true;
 
-		// Draw it if it blocks everything or hitscans:
+		// Always draw lines that block everything or hitscans:
 		if (ln.flags & Line.ML_BLOCKEVERYTHING || ln.flags & Line.ML_BLOCKHITSCAN)
 			return true;
 
@@ -3613,18 +3650,18 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		
 		// Get sectors adjacent to the line:
-		Sector sf = ln.backsector;
-		Sector ff = ln.frontsector;
+		Sector bs = ln.backsector;
+		Sector fs = ln.frontsector;
 		// If for some reason they're the same sector,
 		// don't draw:
-		if (sf == ff)
+		if (bs == fs)
 		{
 			return false;
 		}
 		
 		// Draw if there are any 3D floors attached to any
 		// of the line's sectors:
-		if (sf.Get3DFloorCount() > 0 || ff.Get3DFloorCount() > 0)
+		if (bs.Get3DFloorCount() > 0 || fs.Get3DFloorCount() > 0)
 		{
 			return true;
 		}
@@ -3633,12 +3670,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// in ceiling height. If there's difference and the
 		// relevant CVAR is true, draw them:
 		Vector2 pos = ln.v1.p;
-		if (sf.floorplane.ZAtPoint(pos) != ff.floorplane.ZAtPoint(pos) && (c_minimapDrawFloorDiff && c_minimapDrawFloorDiff.GetBool()))
+		if (bs.floorplane.ZAtPoint(pos) != fs.floorplane.ZAtPoint(pos) && (c_minimapDrawFloorDiff && c_minimapDrawFloorDiff.GetBool()))
 		{
 			return true;
 		}
 		// Same for floor height difference:
-		if (sf.ceilingplane.ZAtPoint(pos) != ff.ceilingplane.ZAtPoint(pos) && (c_minimapDrawCeilingDiff && c_minimapDrawCeilingDiff.GetBool()))
+		if (bs.ceilingplane.ZAtPoint(pos) != fs.ceilingplane.ZAtPoint(pos) && (c_minimapDrawCeilingDiff && c_minimapDrawCeilingDiff.GetBool()))
 		{
 			return true;
 		}
@@ -3675,7 +3712,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui void DrawMinimapLines(Vector2 pos, Vector2 playerPos, double angle, double radius, double scale = 1.0, double zoom = 1.0)
 	{
 		color lineCol = GetMinimapColor(MCT_Wall);
-		color intLineCol = GetMinimapColor(MCT_IntWall);
 
 		for (int i = 0; i < mapLines.Size(); i++)
 		{
@@ -3691,15 +3727,15 @@ class JGPUFH_FlexibleHUD : EventHandler
 			p1 = AlignPosToMap(p1, angle, radius);
 			p2 = AlignPosToMap(p2, angle, radius);
 
-			double thickness = 1;
+			double thickness = Clamp(c_MinimapNonblockLineThickness.GetFloat(), 1.0, 10.0);
 			int lineAlph = 255;
 			color col = GetLockColor(ln);
 			// If lock color is valid, this is a locked line,
 			// so make it thick and colorize accordingly:
 			if (col != -1)
 			{
-				thickness = 4;
-				col = color(col.r, col.g, col.b);
+				thickness *= 2;
+				lineCol = col;
 			}
 			// Otherwise check if it's any kind of interactive line
 			// (don't forget to check for special, because activation
@@ -3707,36 +3743,58 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// actually do anything):
 			else if (ln.activation & SPAC_PlayerActivate && ln.special != 0)
 			{
-				col = color(intLineCol.r, intLineCol.g, intLineCol.b);
+				lineCol = GetMinimapColor(MCT_IntWall);
 			}
 			// Otherwise apply regular line color:
 			else
 			{
-				col = color(lineCol.r, lineCol.g, lineCol.b);
-				// Double-sided lines are thick:
-				if (!(ln.flags & Line.ML_TWOSIDED))
+				// Single-sided and "block everything" lines are thick:
+				if (!(ln.flags & Line.ML_TWOSIDED) || (ln.flags & Line.ML_BLOCKEVERYTHING))
 				{
-					thickness = 2;
+					thickness = Clamp(c_MinimapBlockLineThickness.GetFloat(), 1.0, 10.0);
 				}
-				// One-sidd lines use regular thickness
+				// Two-sided lines use regular thickness
 				// and 50% of opacity:
 				else
 				{
 					lineAlph /= 2;
+					Sector bs = ln.backsector;
+					Sector fs = ln.frontsector;
+					if (bs && fs)
+					{
+						Vector2 vpos = ln.v1.p;
+						if (bs.floorplane.ZAtPoint(pos) != fs.floorplane.ZAtPoint(pos))
+						{
+							lineCol = GetMinimapColor(MCT_FloorDiffWall);
+						}
+						else if (bs.ceilingplane.ZAtPoint(pos) != fs.ceilingplane.ZAtPoint(pos) && (c_minimapDrawCeilingDiff && c_minimapDrawCeilingDiff.GetBool()))
+						{
+							lineCol = GetMinimapColor(MCT_CeilDiffWall);
+						}
+					}
 				}
 			}
 			// Change opacity if this line is undiscovered:
 			if (!(ln.flags & Line.ML_MAPPED))
 			{
-				lineAlph *= Clamp(c_minimapDrawUnseen.GetFloat(), 0., 1.);
+				lineAlph = int(round( lineAlph * Clamp(c_minimapDrawUnseen.GetFloat(), 0., 1.) ));
+				lineCol = GetMinimapColor(MCT_UnseenWall);
 			}
 
 			// DrawLine is a bit cheaper than DrawThickLine, so use that
 			// if thickness is 1:
 			if (thickness <= 1)
-				Screen.DrawLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, col, lineAlph);
+			{
+				Screen.DrawLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, lineCol, lineAlph);
+			}
 			else
-				Screen.DrawThickLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, thickness, col, lineAlph);
+			{
+				Screen.DrawThickLine(p1.x + pos.x, p1.y + pos.y, p2.x + pos.x, p2.y + pos.y, thickness, lineCol, lineAlph);
+			}
+			// Debug (print line special and activation):
+			//Screen.DrawText(GetHUDFont(smallHUDFont).mFont, Font.CR_White,
+			//	(p1.x + pos.x + p2.x + pos.x) / 2, (p1.y + pos.y +  p2.y + pos.y) / 2, 
+			//	String.Format("actn %d\nspec %d", ln.activation, ln.special));
 		}
 	}
 
@@ -4045,7 +4103,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (shouldDrawTime)
 		{
 			let [h,m,s] = TicsToHours(Level.time);
-			DrawMapDataElement("$TXT_IMTIME", 0, 0, hfnt, pos, flags, size.x, fntscale, rightside: String.Format("\cQ%d:%02d:%02d", h, m, s));
+			DrawMapDataElement("", 0, 0, hfnt, pos, flags, size.x, fntscale, rightside: String.Format("\cQ%d:%02d:%02d", h, m, s));
 		}
 	}
 
