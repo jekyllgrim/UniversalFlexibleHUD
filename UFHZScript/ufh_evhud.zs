@@ -4139,16 +4139,29 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		Font fnt = hfnt.mFont;
 		double indent = width*0.025;
-		statusbar.DrawString(hfnt,
-			label,
-			(pos.x + width*0.5 - indent, pos.y),
-			flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT,
-			scale: (fontscale.x * Clamp((width*0.5 - indent) / (fnt.StringWidth(label) * fontscale.x), 0.0, 1.0), fontscale.y));
-		statusbar.DrawString(hfnt,
-			rightside,
-			(pos.x + width*0.5 + indent, pos.y),
-			flags|StatusBarCore.DI_TEXT_ALIGN_LEFT,
-			scale: (fontscale.x * Clamp((width*0.5 - indent) / (fnt.StringWidth(rightside) * fontscale.x), 0.0, 1.0), fontscale.y));
+		// has label and right side:
+		if (label)
+		{
+			statusbar.DrawString(hfnt,
+				label,
+				(pos.x + width*0.5 - indent, pos.y),
+				flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT,
+				scale: (fontscale.x * Clamp((width*0.5 - indent) / (fnt.StringWidth(label) * fontscale.x), 0.0, 1.0), fontscale.y));
+			statusbar.DrawString(hfnt,
+				rightside,
+				(pos.x + width*0.5 + indent, pos.y),
+				flags|StatusBarCore.DI_TEXT_ALIGN_LEFT,
+				scale: (fontscale.x * Clamp((width*0.5 - indent) / (fnt.StringWidth(rightside) * fontscale.x), 0.0, 1.0), fontscale.y));
+		}
+		// has only right side (used by time) - draw at center:
+		else
+		{
+			statusbar.DrawString(hfnt,
+				rightside,
+				(pos.x + width*0.5 + indent, pos.y),
+				flags|StatusBarCore.DI_TEXT_ALIGN_CENTER,
+				scale: (fontscale.x * Clamp(width / (fnt.StringWidth(rightside) * fontscale.x), 0.0, 1.0), fontscale.y));
+		}
 	}
 
 	clearscope int, int, int TicsToHours(int tics)
