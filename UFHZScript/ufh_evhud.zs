@@ -185,11 +185,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		MDD_MAPONLY,
 		MDD_BOTH,
 	}
-	enum EMapdataDisplayModes
-	{
-		MD_MinimapAttached,
-		MD_Detached,
-	}
 	enum EMapColorType
 	{
 		MCT_Background,
@@ -3606,7 +3601,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return false;
 		
 		// Check if the line's sector is not in the same portalgroup as the player:
-		if (!ln.frontsector || ln.frontsector.portalgroup != CPlayer.mo.cursector.portalgroup)
+		if (ln.frontsector && ln.frontsector.portalgroup != CPlayer.mo.cursector.portalgroup)
 		{
 			// Handling for polyobjects:
 			if (ln.sidedef[Line.Front].flags & Side.WALLF_POLYOBJ)
@@ -3711,10 +3706,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 	//  zoom - current minimap zoom value
 	ui void DrawMinimapLines(Vector2 pos, Vector2 playerPos, double angle, double radius, double scale = 1.0, double zoom = 1.0)
 	{
-		color lineCol = GetMinimapColor(MCT_Wall);
-
 		for (int i = 0; i < mapLines.Size(); i++)
 		{
+			color lineCol = GetMinimapColor(MCT_Wall);
 			Line ln = mapLines[i];
 			if (!ln)
 				continue;
@@ -3741,7 +3735,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// (don't forget to check for special, because activation
 			// flags may be set up by mistake on lines that don't
 			// actually do anything):
-			else if (ln.activation & SPAC_PlayerActivate && ln.special != 0)
+			else if (IsLineInteractive(ln))
 			{
 				lineCol = GetMinimapColor(MCT_IntWall);
 			}
@@ -3753,21 +3747,19 @@ class JGPUFH_FlexibleHUD : EventHandler
 				{
 					thickness = Clamp(c_MinimapBlockLineThickness.GetFloat(), 1.0, 10.0);
 				}
-				// Two-sided lines use regular thickness
-				// and 50% of opacity:
+				// Two-sided lines use regular thickness and different color:
 				else
 				{
-					lineAlph /= 2;
 					Sector bs = ln.backsector;
 					Sector fs = ln.frontsector;
 					if (bs && fs)
 					{
 						Vector2 vpos = ln.v1.p;
-						if (bs.floorplane.ZAtPoint(pos) != fs.floorplane.ZAtPoint(pos))
+						if (bs.floorplane.ZAtPoint(vpos) != fs.floorplane.ZAtPoint(vpos))
 						{
 							lineCol = GetMinimapColor(MCT_FloorDiffWall);
 						}
-						else if (bs.ceilingplane.ZAtPoint(pos) != fs.ceilingplane.ZAtPoint(pos) && (c_minimapDrawCeilingDiff && c_minimapDrawCeilingDiff.GetBool()))
+						else if (bs.ceilingplane.ZAtPoint(vpos) != fs.ceilingplane.ZAtPoint(vpos))
 						{
 							lineCol = GetMinimapColor(MCT_CeilDiffWall);
 						}
@@ -3794,7 +3786,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// Debug (print line special and activation):
 			//Screen.DrawText(GetHUDFont(smallHUDFont).mFont, Font.CR_White,
 			//	(p1.x + pos.x + p2.x + pos.x) / 2, (p1.y + pos.y +  p2.y + pos.y) / 2, 
-			//	String.Format("actn %d\nspec %d", ln.activation, ln.special));
+			//	String.Format(
+			//		"special: \cd%d\c-\n"
+			//		"args: \cd%d, %d, %d, %d, %d\c-",
+			//		ln.special, ln.args[0], ln.args[1], ln.args[2], ln.args[3], ln.args[4]
+			//	));
 		}
 	}
 
@@ -3873,6 +3869,34 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return -1;
 		
 		return Key.GetMapColorForLock(lock);
+	}
+
+	clearscope bool IsLineInteractive(Line ln)
+	{
+		if (!ln || !ln.special || !(ln.activation & SPAC_PlayerActivate))
+		{
+			return false;
+		}
+		switch(ln.special)
+		{
+			case Door_Open:
+			case Door_Close:
+			case Door_CloseWaitOpen:
+			case Door_Raise:
+			case Door_Animated:
+			case Generic_Door:
+			case Teleport:
+			case Teleport_NoFog:
+			case Teleport_ZombieChanger:
+			case Teleport_Line:
+			case Teleport_NewMap:
+			case Teleport_EndGame:
+			case Exit_Normal:
+			case Exit_Secret:
+				return true;
+		}
+
+		return ln.special && (ln.args[0] || ln.args[1] || ln.args[2] || ln.args[3] || ln.args[4]);
 	}
 
 	ui void UpdateEnemyRadar()
