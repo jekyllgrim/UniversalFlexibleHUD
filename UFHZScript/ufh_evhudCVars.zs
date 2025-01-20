@@ -87,7 +87,7 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_minimapDrawUnseen;
 	ui transient CVar c_minimapDrawFloorDiff;
 	ui transient CVar c_minimapDrawCeilingDiff;
-	ui transient CVar c_MinimapMapMarkersSize;
+	ui transient CVar c_MinimapMonsterMarkerSize;
 	ui transient CVar c_MinimapColorMode;
 	ui transient CVar c_minimapBackColor;
 	ui transient CVar c_minimapLineColor;
@@ -357,8 +357,8 @@ extend class JGPUFH_FlexibleHUD
 			c_minimapDrawFloorDiff = CVar.GetCvar('jgphud_MinimapDrawFloorDiff', CPlayer);
 		if (!c_minimapDrawCeilingDiff)
 			c_minimapDrawCeilingDiff = CVar.GetCvar('jgphud_MinimapDrawCeilingDiff', CPlayer);
-		if (!c_minimapMapMarkersSize)
-			c_minimapMapMarkersSize = CVar.GetCvar('jgphud_minimapMapMarkersSize', CPlayer);
+		if (!c_minimapMonsterMarkerSize)
+			c_minimapMonsterMarkerSize = CVar.GetCvar('jgphud_minimapMonsterMarkerSize', CPlayer);
 		if (!c_MinimapColorMode)
 			c_MinimapColorMode = CVar.GetCvar('jgphud_MinimapColorMode', CPlayer);
 		if (!c_minimapBackColor)

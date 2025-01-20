@@ -340,7 +340,7 @@ OptionMenu "JGPHUD_MapData"
 	JGPUFH_CheckCVar "$JGPHUD_MINIMAP_ENEMIES", sapphire, "jgphud_DrawMinimap", "1", "1", "jgphud_DrawMinimap", "3"
 		Option "$JGPHUD_MINIMAP_ENEMIES", "jgphud_MinimapEnemyDisplay", "MinimapEnemyDisplay"
 		Option "$JGPHUD_MINIMAP_ENEMIES_SHAPE", "jgphud_MinimapEnemyShape", "MinimapEnemyShape"
-		JGPUFHScaleSlider "$JGPHUD_MINIMAP_MAPMARKERSCALE",  "jgphud_MinimapMapMarkersSize",
+		JGPUFHScaleSlider "$JGPHUD_MINIMAP_MAPMARKERSCALE",  "jgphud_MinimapMonsterMarkerSize",
 			0, 32, 1, "$JGPHUD_MINIMAP_MAPMARKERSCALE_REAL", ""
 	JGPUFH_EndIf ""
 

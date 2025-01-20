@@ -3704,13 +3704,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 	//  zoom - current minimap zoom value
 	ui void DrawMinimapLines(Vector2 pos, Vector2 playerPos, double angle, double radius, double scale = 1.0, double zoom = 1.0)
 	{
-		for (int i = 0; i < mapLines.Size(); i++)
 		foreach(ln : visibleMapLines)
 		{
-			color lineCol = GetMinimapColor(MCT_Wall);
-			Line ln = mapLines[i];
 			if (!ln)
 				continue;
+			color lineCol = GetMinimapColor(MCT_Wall);
 				
 			// Get vertices and scale them in accordance
 			// with zoom value and hudscale:
@@ -3977,7 +3975,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 			TextureID tex = GetMarkerTexture(marker);
 			if (!tex.IsValid())
-				return;
+				continue;
 
 			Vector2 mPos = Level.Vec2Diff(playerPos, marker.pos.xy) * zoom * scale;
 			mPos = AlignPosToMap(mPos, angle, radius);
@@ -3990,8 +3988,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 				// Marker's size is just their graphic scaled relative
 				// to their scale property, and it shouldn't change
 				// with the map's zoom:
-				DTA_ScaleX, marker.scale.x,
-				DTA_ScaleY, marker.scale.y
+				DTA_ScaleX, marker.scale.x * 2,
+				DTA_ScaleY, marker.scale.y * 2
 			);
 		}
 	}
