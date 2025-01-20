@@ -174,7 +174,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui Vector2 prevPlayerPos;
 	ui int prevLevelTime;
 	ui double minimapSize;
-	ui array <Line> mapLines;
+	ui array <Line> visibleMapLines;
 	ui array <Actor> radarMonsters;
 	ui transient Shape2D minimapShape_Arrow;
 	ui transient Shape2DTransform minimapTransform;
@@ -377,9 +377,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (powerupData.Size() > 0)
 			return;
 		
-		for (int i = 0; i < AllActorClasses.Size(); i++)
+		foreach (cls : AllActorClasses)
 		{
-			let cls = AllActorClasses[i];
 			if (!cls)
 				continue;
 			
@@ -1287,12 +1286,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (hexenArmorSetupDone)
 			return;
 
-		for (int i = 0; i < AllActorClasses.Size(); i++)
+		foreach (cls : AllActorClasses)
 		{
-			if (!AllActorClasses[i])
+			if (!cls)
 				continue;
 			
-			let hexArm = (class<HexenArmor>)(AllActorClasses[i]);
+			let hexArm = (class<HexenArmor>)(cls);
 			// don't cache the base HexenArmor class itself:
 			if (hexArm && hexArm != 'HexenArmor')
 			{
@@ -1308,10 +1307,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 		// If all icons have been cached, setup is done:
 		hexenArmorSetupDone = true;
-		for (int i = 0; i < hexenArmorIcons.Size(); i++)
+		foreach (check : hexenArmorIcons)
 		{
-			TextureID check = hexenArmorIcons[i];
-			if (!check.IsValid())
+			if (!check || !check.IsValid())
 			{
 				hexenArmorSetupDone = false;
 				break;
@@ -3565,7 +3563,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (GetHUDTics() % freq != 0)
 			return;
 
-		mapLines.Clear();
+		visibleMapLines.Clear();
 		double distFac = IsMinimapCircular() ? 1.0 : SQUARERADIUSFAC;
 		double zoom = GetMinimapZoom();
 		double radius = GetMinimapSize() * 4;
@@ -3576,7 +3574,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			Line ln = it.curLine;
 			if (ln && IsLineVisible(ln))
 			{
-				mapLines.Push(ln);
+				visibleMapLines.Push(ln);
 			}
 		}
 	}
@@ -3707,6 +3705,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui void DrawMinimapLines(Vector2 pos, Vector2 playerPos, double angle, double radius, double scale = 1.0, double zoom = 1.0)
 	{
 		for (int i = 0; i < mapLines.Size(); i++)
+		foreach(ln : visibleMapLines)
 		{
 			color lineCol = GetMinimapColor(MCT_Wall);
 			Line ln = mapLines[i];
