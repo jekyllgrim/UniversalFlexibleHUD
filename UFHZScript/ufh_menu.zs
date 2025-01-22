@@ -289,13 +289,16 @@ mixin class JGPUFHCVarChecker
 }
 
 // Resets all CCMDs in FlexiHUD to default values
+// Alternatively, resets them to a given value
 class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
 {
 	int mCVarCategory;
+	int mCVarResetValue;
 
-	OptionMenuItemJGPUFHResetALLCCMD Init(String label, bool centered = false, String type = "")
+	OptionMenuItemJGPUFHResetALLCCMD Init(String label, bool centered = false, String type = "", int resetvalue = -1)
 	{
 		Super.Init(label, '', 0, centered);
+		mCVarResetValue = resetvalue;
 		name ttype = type.MakeLower();
 		switch (ttype)
 		{
@@ -356,6 +359,9 @@ class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
 		case 'scaling':
 			mCVarCategory = JGPUFH_PresetHandler.CVC_Scaling;
 			break;
+		case 'visibility':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_Visibility;
+			break;
 		}
 		return self;
 	}
@@ -371,12 +377,20 @@ class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
 		let handler = JGPUFH_PresetHandler(StaticEventHandler.Find('JGPUFH_PresetHandler'));
 		if (!handler) return false;
 
-		foreach(data: handler.cvardata)
+		foreach(data : handler.cvardata)
 		{
 			if (!data) continue;
 			if (data.cvarCategory & mCVarCategory)
 			{
-				data.c_cvar.ResetToDefault();
+				if (mCVarResetValue < 0)
+				{
+					data.c_cvar.ResetToDefault();
+				}
+				else
+				{
+					data.c_cvar.SetInt(mCVarResetValue);
+				}
+				
 			}
 		}
 		return true;

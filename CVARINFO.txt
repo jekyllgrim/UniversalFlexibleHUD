@@ -106,6 +106,8 @@ nosave bool jgphud_DrawTime = false;
 
 nosave bool jgphud_DrawInvBar = true;
 nosave bool jgphud_AlwaysShowInvBar = true;
+nosave int jgphud_InvBarAlignment = 0;
+nosave int jgphud_InvBarMaxFields = 7;
 nosave int jgphud_InvBarIconSize = 18;
 nosave int jgphud_InvBarPos = 6;
 nosave int jgphud_InvBarX = 0;

@@ -2,11 +2,19 @@ class JGPUFH_PresetMessageBox : CustomMessageBoxMenuBase {
 	
 	string mPreset;
 	
-	static const string options[] = 
+	static const string menuOptions[] = 
 	{
 		"$JGPHUD_Presets_Verb_Load",
 		"$JGPHUD_Presets_Verb_Overwrite",
 		"$JGPHUD_Presets_Verb_Delete",
+		"$JGPHUD_Presets_Menu_Cancel"
+	};
+	
+	static const string menuAction[] = 
+	{
+		"$JGPHUD_Presets_ConfirmAction_Load",
+		"$JGPHUD_Presets_ConfirmAction_Overwrite",
+		"$JGPHUD_Presets_ConfirmAction_Delete",
 		"$JGPHUD_Presets_Menu_Cancel"
 	};
 	
@@ -21,12 +29,12 @@ class JGPUFH_PresetMessageBox : CustomMessageBoxMenuBase {
 	
 	override uint optionCount()
 	{
-		return options.Size();
+		return menuOptions.Size();
 	}
 	
 	override string optionName(uint i)
 	{
-		return StringTable.Localize(options[i]);
+		return StringTable.Localize(menuOptions[i]);
 	}
 	
 	override int OptionXOffset(uint index) 
@@ -57,8 +65,7 @@ class JGPUFH_PresetMessageBox : CustomMessageBoxMenuBase {
 		{
 			MenuSound("menu/activate");
 			confirm_index = i;
-			string msg = StringTable.Localize("$JGPHUD_Presets_ConfirmAction");
-			msg = String.Format(msg, StringTable.Localize(options[i]), mPreset);
+			String msg = String.Format(StringTable.Localize(menuAction[i]), mPreset);
 			Menu.StartMessage(TEXTCOLOR_NORMAL..msg, 0);
 		}
 	}
@@ -183,10 +190,9 @@ class OptionMenuItemJGPUFH_ConfirmCommand : OptionMenuItemSubmenu
 		}
 		else
 		{
-			String toLoc = StringTable.Localize("$JGPHUD_Presets_ConfirmAction");
-			String verb = StringTable.Localize("$JGPHUD_Presets_Verb_Load");
+			String toLoc = StringTable.Localize("$JGPHUD_Presets_ConfirmAction_Load");
 			String presetName = data;
-			mPrompt = String.Format(toLoc, verb, presetname);
+			mPrompt = String.Format(toLoc, presetname);
 		}
 		mCommand = command;
 		mData = data;

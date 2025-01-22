@@ -50,6 +50,7 @@ extend class JGPUFH_PresetHandler
 		CVC_HealthColors	= 1 << 18,
 		CVC_ArmorColors		= 1 << 19,
 		CVC_Scaling			= 1 << 20,
+		CVC_Visibility		= 1 << 21,
 	}
 
 	override void OnEngineInitialize()
@@ -60,30 +61,30 @@ extend class JGPUFH_PresetHandler
 		JGPUFH_PresetCVarData.Add('jgphud_BackTexture', cvarData, CVC_General);
 		JGPUFH_PresetCVarData.Add('jgphud_BackTextureStretch', cvarData, CVC_General);
 
+		JGPUFH_PresetCVarData.Add('jgphud_DrawDamageMarkers', cvarData, CVC_DmgMarkers|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_ScreenReddenFactor', cvarData, CVC_DmgMarkers);
-		JGPUFH_PresetCVarData.Add('jgphud_DrawDamageMarkers', cvarData, CVC_DmgMarkers);
 		JGPUFH_PresetCVarData.Add('jgphud_DamageMarkersAlpha', cvarData, CVC_DmgMarkers);
 		JGPUFH_PresetCVarData.Add('jgphud_DamageMarkersFadeTime', cvarData, CVC_DmgMarkers);
 
-		JGPUFH_PresetCVarData.Add('jgphud_DrawMainbars', cvarData, CVC_Mainbars);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawMainbars', cvarData, CVC_Mainbars|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_MainBarsPos', cvarData, CVC_Mainbars);
 		JGPUFH_PresetCVarData.Add('jgphud_MainBarsX', cvarData, CVC_Mainbars);
 		JGPUFH_PresetCVarData.Add('jgphud_MainBarsY', cvarData, CVC_Mainbars);
 		JGPUFH_PresetCVarData.Add('jgphud_DrawFace', cvarData, CVC_Mainbars);
 
-		JGPUFH_PresetCVarData.Add('jgphud_DrawMugshot', cvarData, CVC_MugShot);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawMugshot', cvarData, CVC_MugShot|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_MugshotPos', cvarData, CVC_MugShot);
 		JGPUFH_PresetCVarData.Add('jgphud_MugshotX', cvarData, CVC_MugShot);
 		JGPUFH_PresetCVarData.Add('jgphud_MugshotY', cvarData, CVC_MugShot);
 
-		JGPUFH_PresetCVarData.Add('jgphud_DrawAmmoBlock', cvarData, CVC_AmmoBlock);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawAmmoBlock', cvarData, CVC_AmmoBlock|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_AmmoBlockPos', cvarData, CVC_AmmoBlock);
 		JGPUFH_PresetCVarData.Add('jgphud_AmmoBlockX', cvarData, CVC_AmmoBlock);
 		JGPUFH_PresetCVarData.Add('jgphud_AmmoBlockY', cvarData, CVC_AmmoBlock);
 		JGPUFH_PresetCVarData.Add('jgphud_DrawAmmoBar', cvarData, CVC_AmmoBlock);
 		JGPUFH_PresetCVarData.Add('jgphud_DrawWeapon', cvarData, CVC_AmmoBlock);
 
-		JGPUFH_PresetCVarData.Add('jgphud_DrawAllAmmo', cvarData, CVC_AllAmmo);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawAllAmmo', cvarData, CVC_AllAmmo|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_AllAmmoShowDepleted', cvarData, CVC_AllAmmo);
 		JGPUFH_PresetCVarData.Add('jgphud_AllAmmoPos', cvarData, CVC_AllAmmo);
 		JGPUFH_PresetCVarData.Add('jgphud_AllAmmoX', cvarData, CVC_AllAmmo);
@@ -94,12 +95,12 @@ extend class JGPUFH_PresetHandler
 		JGPUFH_PresetCVarData.Add('jgphud_AllAmmoColorLow', cvarData, CVC_AllAmmo);
 		JGPUFH_PresetCVarData.Add('jgphud_AllAmmoColorHigh', cvarData, CVC_AllAmmo);
 
-		JGPUFH_PresetCVarData.Add('jgphud_DrawKeys', cvarData, CVC_Keys);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawKeys', cvarData, CVC_Keys|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_KeysPos', cvarData, CVC_Keys);
 		JGPUFH_PresetCVarData.Add('jgphud_KeysX', cvarData, CVC_Keys);
 		JGPUFH_PresetCVarData.Add('jgphud_KeysY', cvarData, CVC_Keys);
 
-		JGPUFH_PresetCVarData.Add('jgphud_DrawWeaponSlots', cvarData, CVC_WSlots);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawWeaponSlots', cvarData, CVC_WSlots|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_WeaponSlotsSize', cvarData, CVC_WSlots);
 		JGPUFH_PresetCVarData.Add('jgphud_WeaponSlotsAlign', cvarData, CVC_WSlots);
 		JGPUFH_PresetCVarData.Add('jgphud_WeaponSlotsPos', cvarData, CVC_WSlots);
@@ -107,7 +108,7 @@ extend class JGPUFH_PresetHandler
 		JGPUFH_PresetCVarData.Add('jgphud_WeaponSlotsY', cvarData, CVC_WSlots);
 		JGPUFH_PresetCVarData.Add('jgphud_WeaponSlotsNumColor', cvarData, CVC_WSlots);
 
-		JGPUFH_PresetCVarData.Add('jgphud_DrawPowerups', cvarData, CVC_Powerups);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawPowerups', cvarData, CVC_Powerups|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_PowerupsAlignment', cvarData, CVC_Powerups);
 		JGPUFH_PresetCVarData.Add('jgphud_PowerupsIconSize', cvarData, CVC_Powerups);
 		JGPUFH_PresetCVarData.Add('jgphud_PowerupsPos', cvarData, CVC_Powerups);
@@ -115,7 +116,7 @@ extend class JGPUFH_PresetHandler
 		JGPUFH_PresetCVarData.Add('jgphud_PowerupsY', cvarData, CVC_Powerups);
 		JGPUFH_PresetCVarData.Add('jgphud_PowerupsNumColor', cvarData, CVC_Powerups);
 
-		JGPUFH_PresetCVarData.Add('jgphud_DrawMinimap', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawMinimap', cvarData, CVC_Minimap|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_CircularMinimap', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapSize', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapPos', cvarData, CVC_Minimap);
@@ -147,25 +148,27 @@ extend class JGPUFH_PresetHandler
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapOpacity', cvarData, CVC_Minimap);
 
 		JGPUFH_PresetCVarData.Add('jgphud_MapDataScale', cvarData, CVC_Mapdata);
-		JGPUFH_PresetCVarData.Add('jgphud_DrawKills', cvarData, CVC_Mapdata);
-		JGPUFH_PresetCVarData.Add('jgphud_DrawItems', cvarData, CVC_Mapdata);
-		JGPUFH_PresetCVarData.Add('jgphud_DrawSecrets', cvarData, CVC_Mapdata);
-		JGPUFH_PresetCVarData.Add('jgphud_DrawTime', cvarData, CVC_Mapdata);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawKills', cvarData, CVC_Mapdata|CVC_Visibility);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawItems', cvarData, CVC_Mapdata|CVC_Visibility);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawSecrets', cvarData, CVC_Mapdata|CVC_Visibility);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawTime', cvarData, CVC_Mapdata|CVC_Visibility);
 
-		JGPUFH_PresetCVarData.Add('jgphud_DrawInvBar', cvarData, CVC_InvBar);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawInvBar', cvarData, CVC_InvBar|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_AlwaysShowInvBar', cvarData, CVC_InvBar);
 		JGPUFH_PresetCVarData.Add('jgphud_InvBarIconSize', cvarData, CVC_InvBar);
 		JGPUFH_PresetCVarData.Add('jgphud_InvBarPos', cvarData, CVC_InvBar);
 		JGPUFH_PresetCVarData.Add('jgphud_InvBarX', cvarData, CVC_InvBar);
 		JGPUFH_PresetCVarData.Add('jgphud_InvBarY', cvarData, CVC_InvBar);
 		JGPUFH_PresetCVarData.Add('jgphud_InvBarNumColor', cvarData, CVC_InvBar);
+		JGPUFH_PresetCVarData.Add('jgphud_InvBarAlignment', cvarData, CVC_InvBar);
+		JGPUFH_PresetCVarData.Add('jgphud_InvBarMaxFields', cvarData, CVC_InvBar);
 
-		JGPUFH_PresetCVarData.Add('jgphud_DrawEnemyHitMarkers', cvarData, CVC_Hitmarkers);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawEnemyHitMarkers', cvarData, CVC_Hitmarkers|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_EnemyHitMarkersColor', cvarData, CVC_Hitmarkers);
 		JGPUFH_PresetCVarData.Add('jgphud_EnemyHitMarkersSize', cvarData, CVC_Hitmarkers);
 		JGPUFH_PresetCVarData.Add('jgphud_EnemyHitMarkersShape', cvarData, CVC_Hitmarkers);
 
-		JGPUFH_PresetCVarData.Add('jgphud_DrawReticleBars', cvarData, CVC_ReticleBars);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawReticleBars', cvarData, CVC_ReticleBars|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_ReticleBarsText', cvarData, CVC_ReticleBars);
 		JGPUFH_PresetCVarData.Add('jgphud_ReticleBarsSize', cvarData, CVC_ReticleBars);
 		JGPUFH_PresetCVarData.Add('jgphud_ReticleBarsHealthArmor', cvarData, CVC_ReticleBars);
@@ -174,7 +177,7 @@ extend class JGPUFH_PresetHandler
 		JGPUFH_PresetCVarData.Add('jgphud_ReticleBarsAlpha', cvarData, CVC_ReticleBars);
 		JGPUFH_PresetCVarData.Add('jgphud_ReticleBarsWidth', cvarData, CVC_ReticleBars);
 
-		JGPUFH_PresetCVarData.Add('jgphud_DrawCustomItems', cvarData, CVC_CustomItems);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawCustomItems', cvarData, CVC_CustomItems|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_CustomItemsIconSize', cvarData, CVC_CustomItems);
 		JGPUFH_PresetCVarData.Add('jgphud_CustomItemsPos', cvarData, CVC_CustomItems);
 		JGPUFH_PresetCVarData.Add('jgphud_CustomItemsX', cvarData, CVC_CustomItems);
