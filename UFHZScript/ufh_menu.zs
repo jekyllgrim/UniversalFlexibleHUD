@@ -294,11 +294,13 @@ class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
 {
 	int mCVarCategory;
 	int mCVarResetValue;
+	bool mNeedConfirm;
 
-	OptionMenuItemJGPUFHResetALLCCMD Init(String label, bool centered = false, String type = "", int resetvalue = -1)
+	OptionMenuItemJGPUFHResetALLCCMD Init(String label, bool centered = false, String type = "", int resetvalue = -1, bool needConfirm = false)
 	{
 		Super.Init(label, '', 0, centered);
 		mCVarResetValue = resetvalue;
+		mNeedConfirm = needConfirm;
 		name ttype = type.MakeLower();
 		switch (ttype)
 		{
@@ -366,7 +368,7 @@ class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
 		return self;
 	}
 
-	override bool Activate()
+	bool DoResetCCMDs()
 	{
 		if (mCVarCategory == JGPUFH_PresetHandler.CVC_None)
 		{
@@ -394,6 +396,26 @@ class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
 			}
 		}
 		return true;
+	}
+
+	override bool MenuEvent (int mkey, bool fromcontroller)
+	{
+		if (mNeedConfirm && mkey == Menu.MKEY_MBYes)
+		{
+			DoResetCCMDs();
+			return true;
+		}
+		return Super.MenuEvent(mkey, fromcontroller);
+	}
+
+	override bool Activate()
+	{
+		if (mNeedConfirm)
+		{
+			Menu.StartMessage(StringTable.Localize("$SAFEMESSAGE"), 0);
+			return true;
+		}
+		return DoResetCCMDs();
 	}
 }
 

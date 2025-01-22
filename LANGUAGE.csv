@@ -3,9 +3,8 @@ FlexiHUD settings,JGPHUD_SETTINGS_TITLE,"FlexiHUD is the mod's name, do not loca
 Display FlexiHUD,JGPHUD_GENERAL_ENABLEHUD,A simple On/Off toggle that allows to completely disable the whole HUD,Показывать FlexiHUD,Habilitar o FlexiHUD,FlexiHUD anzeigen,Habilitar FlexiHUD,Affichage de FlexiHUD
 Toggle FlexiHUD key,JGPHUD_GENERAL_ENABLEHUD_BIND,An option that lets you specify a custom key that will toggle the HUD on and off,Клавиша вкл/откл FlexiHUD,Alternar a HUD,Schnelltaste für FlexiHUD,Alternar HUD,Alterner touches de FlexiHUD
 General,JGPHUD_GENERAL_TITLE,Title for the general options,Общее,Geral,Allgemein,General,Géneral
-Classic integer scaling (\cDhud_oldscale\c-),JGPHUD_GENERAL_OLDSCALE,"Experimental, does not need translation",,,,,
-Float-point scale factor (\cDhud_scalefactor\c-),JGPHUD_GENERAL_SCALEFACTOR,"Experimental, does not need translation",,,,,
-Appearance and scaling options,JGPHUD_GENERAL_APPEARANCE_TITLE,,Внешний вид и масштабирование,,,,
+Appearance and scaling options,JGPHUD_GENERAL_APPEARANCE_TITLE,Submenu in the main menu that lets you quickly adjust ,Внешний вид и масштабирование,,,,
+Quick visibility options,JGPHUD_GENERAL_VISIBILITY_TITLE,,Быстрая настройка отображения элементов,,,,
 Background,JGPHUD_GENERAL_APPEARANCE_BACKGROUND,,Фон,,,,
 Main HUD font,JGPHUD_GENERAL_FONT_MAIN,,Основной шрифт,,,,
 Medium HUD font,JGPHUD_GENERAL_FONT_MEDIUM,,Средний шрифт,,,,
@@ -37,6 +36,7 @@ Tile,JGPHUD_GENERAL_BACKSTYLE_TEXFIT_TILE,"Option for ""Texture fit mode""",За
 Stretch,JGPHUD_GENERAL_BACKSTYLE_TEXFIT_STRETCH,"Option for ""Texture fit mode""",Растянуть,Esticar,Strecken,Estirar,Étiré
 Size of icons,JGPHUD_GENERAL_ICONSIZE,"This is used for several different options: inventory bar, weapon slots, powerup display",Размер значков,Tamanho dos ícones,Icongrösse,Tamaño de los iconos,Taille des icônes
 Reset ALL FlexiHUD settings to default,JGPHUD_GENERAL_RESETALL,Label for a menu command that resets ALL console variables related to FlexiHUD to their default values,Сбросить ВСЕ настройки FlexiHUD,Restaurar TODAS as configurações aos padrões,ALLE FlexiHUD-Einstellungen auf Vorgaben zurücksetzen,Reiniciar todas las configuraciones por defecto,Réinitialiser TOUTES les configurations de FlexiHUD par défault
+Hide all elements,JGPHUD_GENERAL_HIDEALL,Option for the quick visibility menu that hides all FlexiHUD elements (without disabling the HUD),Скрыть все элементы,,,,
 Scale of the element,JGPHUD_ELEMENT_SCALE,"General string used in multiple submenus that is attached
 to a slider that controls the scale of this element.",Масштаб элемента,,,,
 Position anchor point,JGPHUD_ELEMENT_POS,Lets the player choose the anchor point on the screen for the specified HUD element,Точка привязки элемента,Ponto da âncora,Ankerpunkt,Punto de anclaje,Point d’ancrage
@@ -51,8 +51,11 @@ Bottom center,JGPHUD_POS_BOTTOMCENTER,Anchor point for the HUD element on the sc
 Bottom right,JGPHUD_POS_BOTTOMRIGHT,Anchor point for the HUD element on the screen,Нижний правый угол,Canto inferior direito,Unten rechts,Inferior derecha,Bas à droite
 Horizontal offset,JGPHUD_ELEMENT_OFSX,General option (every HUD element can be offset from their anchor point with this),Горизонтальный сдвиг элемента,Deslocamento horizontal,Horizontaler Versatz,Desplazamiento horizontal,Décalage Horizontal
 Vertical offset,JGPHUD_ELEMENT_OFSY,General option (every HUD element can be offset from their anchor point with this),Вертикальный сдвиг элемента,Deslocamento vertical,Vertikaler Versatz,Desplazamiento vertical,Décalage Vertical
-Numbers' color,JGPHUD_ELEMENT_NUMCOL,"Generic option name. Used in any element that has numbers (e.g. inventory bar, weapon slots). This option lets you adjust the color of those numbers.",Цвет цифр,,,,
-Alignment,JGPHUD_ELEMENT_ALIGNMENT,"Generic option name. Used in any element that supports differnet alignment options, mainly horizontal and vertical (for example, weapon slots, powerups, inventory bar).",,,,,
+Color of numbers,JGPHUD_ELEMENT_NUMCOL,"Generic option name. Used in any element that has numbers (e.g. inventory bar, weapon slots). This option lets you adjust the color of those numbers.",Цвет цифр,,,,
+Orientation,JGPHUD_ELEMENT_ALIGNMENT,"Generic option name. Used in any element that supports differnet alignment options, mainly horizontal and vertical (for example, weapon slots, powerups, inventory bar).",Ориентация,,,,
+Left to right,JGPHUD_ELEMENT_ALIGNMENT_H,"Alignment option for things like weapon slots, powerup icons, and inventory bar",Слева направо,,,,
+Top to bottom,JGPHUD_ELEMENT_ALIGNMENT_V,Alignment option (vertical - top to bottom),Сверху вниз,,,,
+Bottom to top,JGPHUD_ELEMENT_ALIGNMENT_VINV,Alignment option (vertical - bottom to top),Снизу вверх,,,,
 Incoming damage display,JGPHUD_DMGMARKERS_TITLE,Title for the damage display settings,Индикаторы получаемого урона,Marcadores de dano,Ankommender Schaden,Marcador de daño,Affichage des dommages entrants
 Classic screen reddening multiplier,JGPHUD_DMGMARKERS_SCREENTINT,"This lets the player change the multiplier for the classic red screen tint when they take damage. If they prefer to only rely on damage markers as a damage indicator, they may choose to reduce this to 0.",Степень покраснения экрана при получении урона,Multiplicador do tinto de dano na tela,Multiplikator für klassische Bildschirmrötung,Enrojecimiento clásico,Multiplicateur de rougissement de l'écran classique
 Directional incoming damage markers,JGPHUD_DMGMARKERS_ENABLE,"Directional damage markers are shown on the HUD, pointing to the enemy that just attacked the player",Направленные индикаторы получаемого урона,Marcadores de dano direcionais,Richtungsmarker für ankommenden Schaden,Marcador de daño direccional,Marqueurs directionnels de dégâts entrants
@@ -111,7 +114,7 @@ Current amount only,JGPHUD_ALLAMMO_DISPLAYFORMAT_NOMAX,"Option for ""Display for
 Current amount / Max amount,JGPHUD_ALLAMMO_DISPLAYFORMAT_MAX,"Option for ""Display format""",Текущий запас / макс. запас,,,,
 $JGPHUD_AMMOBLOCK_SHOWAMMOBAR,JGPHUD_ALLAMMO_SHOWBARS,"Option for the All Ammo block. If enabled, will draw bars behind the numbers.
 
-This is a duplicate of $JGPHUD_AMMOBLOCK_SHOWAMMOBAR, probably doesn't need separate translation.",$JGPHUD_AMMOBLOCK_SHOWAMMOBAR,$JGPHUD_AMMOBLOCK_SHOWAMMOBAR,$JGPHUD_AMMOBLOCK_SHOWAMMOBAR,$JGPHUD_AMMOBLOCK_SHOWAMMOBAR,$JGPHUD_AMMOBLOCK_SHOWAMMOBAR
+In English this is a duplicate of $JGPHUD_AMMOBLOCK_SHOWAMMOBAR, but you can supply a separate translation if this is needed in your language.",$JGPHUD_AMMOBLOCK_SHOWAMMOBAR,$JGPHUD_AMMOBLOCK_SHOWAMMOBAR,$JGPHUD_AMMOBLOCK_SHOWAMMOBAR,$JGPHUD_AMMOBLOCK_SHOWAMMOBAR,$JGPHUD_AMMOBLOCK_SHOWAMMOBAR
 Colors for the bars' gradient:,JGPHUD_ALLAMMO_BARCOLOR_TITLE,"Sub-title in the All Ammo block. This opens a section of the menu where you can set up the colors for the ammo bars, by picking the low color and the high color (the bar will automatically pick the color between the two based on the amount of ammo).",Цвета градиента шкал:,,,,
 Low ammo color,JGPHUD_ALLAMMO_BARCOLOR_LOW,The left-side/low ammo color for the ammo bars' gradient,"Цвет, когда мало патронов",,,,
 High ammo color,JGPHUD_ALLAMMO_BARCOLOR_HIGH,The right-side/high ammo color for the ammo bars' gradient,"Цвет, когда много патронов",,,,
@@ -119,9 +122,6 @@ Keys,JGPHUD_KEYS_TITLE,,Ключи,Chaves,Schlüssel,Llaves,Clés
 Keys display,JGPHUD_KEYS_ENABLE,Whether to show keys on the HUD,Показывать ключи,Mostrar chaves,Schlüssel anzeigen,Mostrar llaves,Affichage des clés
 Weapon slots,JGPHUD_WEAPSLOTS_TITLE,,Ячейки оружия,Ícones de arma,Waffenplätze,Slots de armas,Emplacements d'armes
 Weapon slots display,JGPHUD_WEAPSLOTS_ENABLE,Whether to show weapon slots on the HUD,Показывать ячейки оружия,Mostrar ícones de arma,Waffenplätze anzeigen,Mostrar slots de armas,Affichage des emplacements d'armes
-Horizontal,JGPHUD_WEAPSLOTS_ALIGNMENT_H,Weapon slots alignment option,По горизонтали,Horizontal,Horizontal,Horizontal,Horizontal
-Vertical,JGPHUD_WEAPSLOTS_ALIGNMENT_V,"Weapon slots alignment option (vertical, first slot at the top)",По вертикали (сверху вниз),Vertical,Vertikal,Vertical,Vertical
-Vertical inverted,JGPHUD_WEAPSLOTS_ALIGNMENT_VINV,"Weapon slots alignment option (vertical, first slot at the bottom)",По вертикали (снизу вверх),Vertical invertido,Vertikal invertiert,Vertical invertido,Vertical Inversé
 Powerup timers,JGPHUD_POWERUPS_TITLE,Title for the submenu,Таймеры усилений,Temporizadores de powerup,Powerup-Timer,Contadores de powerups,Temps des powerups
 Powerup timers display,JGPHUD_POWERUPS_ENABLE,Whether  to show visible timers (minutes and seconds) for currently active power-ups,Показывать таймеры усилений,Mostrar temporizadores de powerup,Powerup-Timer anzeigen,Mostrar contadores de powerups,Affichage du temps des powerups
 Inventory bar,JGPHUD_INVBAR_TITLE,Title for the submenu,Полоса инвентаря,Barra de inventário,Inventarleiste,Barra de inventario,Barre d’inventaire
@@ -152,6 +152,8 @@ aktiviert werden können.","Nota: la barra solo aparecerá en juegos y mods que
 contengan objetos de inventario utilizables.","Remarque : la barre d'inventaire n'apparaît que dans les
 jeux/mods dont les objets peuvent être placés dans
 l'inventaire et être utilisés à partir de celui-ci."
+Max number of visible items,JGPHUD_INVBAR_MAXFIELDS,"Inventory bar option that determines how many items you can see at once, effectively determining the max width of the bar.
+This is a numeric slider. Default value is 7.",Максимальное число видимых предметов,,,,
 "Minimap, radar and map data",JGPHUD_MAPDATA_GEN_TITLE,General title for the submenu that contains minimap and map data settings,Мини-карта и данные об уровне,"Minimapa, radar e informações do mapa","Minikarte, Radar und Kartendaten","Minimapa, radar e información","Minimap, radar et données de la carte"
 Minimap and monster radar,JGPHUD_MINIMAP_TITLE,Option block title,Мини-карта,Minimapa e radar de monstros,Minikarte und Monsterradar,Minimapa y radar de monstruos,Minimap et radar à monstres
 "Note: The minimap may cause performance issues on maps
@@ -194,20 +196,20 @@ Cardinal directions' color,JGPHUD_MINIMAP_CARDINAL_COLOR,A color picker that det
 Cardinal directions' size,JGPHUD_MINIMAP_CARDINAL_SIZE,"A slider that determines the size of the cardinal direction letters (N, W, E, S) on the minimap.",Размер сторон света,Tamanho das direções cardinais,Himmelsrichtung-Grösse,Tamaño de dir. cardinales,Taille des directions cardinales
 Lines and colors,JGPHUD_MINIMAP_LINESANDCOLORS_TITLE,"A subtitle for a minimap menu section where you control things like ""Undiscovered lines opacity"" and the colors of the lines",Линии и цвета,Linhas e cores,Linien und Farben,Lineas y colores,Lignes et couleurs
 Display undiscovered lines,JGPHUD_MINIMAP_DRAWNOTSEEN,NO LONGER USED,Показывать ещё не обнаруженные линии,Mostrar linhas não descobertas,Unentdeckte Linien zeichnen,Mostrar lineas no descubiertas,Montrer lignes non découvertes
-Opacity of not-yet-seen walls,JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA,0.0-1.0 slider that determines the translucency of the walls that the player hasn't seen yet.,,,,,Opacité des lignes non découvertes
-Non-blocking wall thickness,JGPHUD_MINIMAP_LINETHICKNESS_NONBLOCKING,,,,,,
-Blocking wall thickness,JGPHUD_MINIMAP_LINETHICKNESS_BLOCKING,,,,,,
+Opacity of not-yet-seen walls,JGPHUD_MINIMAP_DRAWNOTSEEN_ALPHA,0.0-1.0 slider that determines the translucency of the walls that the player hasn't seen yet.,Прозрачность еще не виденных стен,,,,Opacité des lignes non découvertes
+Non-blocking wall thickness,JGPHUD_MINIMAP_LINETHICKNESS_NONBLOCKING,,Толщина неблокирующих стен,,,,
+Blocking wall thickness,JGPHUD_MINIMAP_LINETHICKNESS_BLOCKING,,Толщина блокирующих стен,,,,
 Lines around different floor heights,JGPHUD_MINIMAP_DRAWFLOORDIFF,NO LONGER USED,Линии секторов с разной высотой пола,Linhas ao redor de alturas do chão diferentes,Linien bei Deckenunterschieden,Mostrar cambios de altura de piso,Lignes autour de différentes hauteurs de plancher
 Lines around different ceiling heights,JGPHUD_MINIMAP_DRAWCEILINGDIFF,NO LONGER USED,Линии секторов с разной высотой потолка,Linhas ao redor de alturas do teto diferentes,Linien bei Bodenunterschieden,Mostrar cambios de altura de techo,Lignes autour de différentes hauteurs de plafond
-Walls,JGPHUD_MINIMAP_COLOR_LINES,color for regular minimap lines,,,,,Lignes
-Interactive walls,JGPHUD_MINIMAP_COLOR_INTLINES,"color for interactive minimap lines (activateable by pressing Use, but not requiring a key, because locked lines will have a lock color)",,,,,Lignes interactives
-Separate color for all not-yet-seen walls,JGPHUD_MINIMAP_COLOR_SPECIALNOTSEENCOL,,,,,,
+Walls,JGPHUD_MINIMAP_COLOR_LINES,color for regular minimap lines,Стены,,,,Lignes
+Interactive walls,JGPHUD_MINIMAP_COLOR_INTLINES,"color for interactive minimap lines (activateable by pressing Use, but not requiring a key, because locked lines will have a lock color)",Интерактивные стены,,,,Lignes interactives
+Separate color for all not-yet-seen walls,JGPHUD_MINIMAP_COLOR_SPECIALNOTSEENCOL,,Отдельный цвет для еще не виденных стен,,,,
 Map data display,JGPHUD_MAPDATA_TITLE,This is a title for a block of options that determine what kind of extra data about the current map is drawn on the HUD,Данные об уровне,Dados do mapa,Kartendaten,Datos del mapa,Affichage des données de la carte
 Show map time,JGPHUD_MAPDATA_TIME,Option in the Map Data options block,Показывать время уровня,Mostrar tempo do mapa,Kartenzeit anzeigen,Mostrar tiempo,Temps de la carte
 Show kill count,JGPHUD_MAPDATA_KILLS,Option in the Map Data options block,Показывать убийства,Mostrar contagem de vitimas,Anzahl der Abschüsse anzeigen,Mostrar enemigos muertos,Nombre de morts
 Show secrets count,JGPHUD_MAPDATA_SECRETS,Option in the Map Data options block,Показывать секреты,Mostrar contagem de segredos,Anzahl der Geheimnisse anzeigen,Mostrar contador de secretos,Nombre de secrets
 Show items count,JGPHUD_MAPDATA_ITEMS,Option in the Map Data options block,Показывать предметы,Mostrar contagem de itens,Anzahl der Gegenstände anzeigen,Mostrar contador de objetos,Nombres d’objets
-Map data scale,JGPHUD_MAPDATA_SCALE,A slider that changes the size of the block with kill/item/secret counts. The base size is determined by the size of the minimap; this slider lets the player adjust the relative size.,,,,,
+Map data scale,JGPHUD_MAPDATA_SCALE,A slider that changes the size of the block with kill/item/secret counts. The base size is determined by the size of the minimap; this slider lets the player adjust the relative size.,Масштаб мини-карты,,,,
 Crosshair options,JGPHUD_CROSSHAIR_TITLE,Title for various crosshair options,Настройки прицела,Opções de retícula,Fadenkreuzoptionen,Opciones de la mirilla,Options des réticules
 Hit markers,JGPHUD_CROSSHAIR_HITMARKERS_TITLE,The title for the menu section. Hit markers are markers around the crosshair that appear when your attack hits an enemy.,Индикаторы попадания,Marcadores de dano,Treffermarker,Marcadores de daño,Marqueurs d'impact
 Draw enemy hit markers around crosshair,JGPHUD_CROSSHAIR_HITMARKERS,Small angled cross marker around the crosshair when a player's attack hits an enemy.,Индикаторы попадания по врагам вокруг прицела,Mostrar marcadores de acerto ao redor da retícula,Trefferanzeige am Fadenkreuz,Mostrar marcadores de daño contra enemigos,Dessiner les marqueurs d'impact de l'ennemi autour du réticule
@@ -251,32 +253,23 @@ anzeigen, die im ITEMINFO lump spezifiziert sind.","Este elemento especial puede
 personalizadas de items definidas en ITEMINFO.","Cet élément spécial peut montrer des classes
 d'objets spécifiées dans le bloc ITEMINFO."
 Presets,JGPHUD_Presets_Title,Title for the Presets submenu,Пресеты,Predefinições,Voreinstellungen,Predefinidos,Préréglages
-load,JGPHUD_Presets_Verb_Load,"Translate as a verb (probably in infinitive form)
+Load,JGPHUD_Presets_Verb_Load,"Element in the user presets menu
+This will no longer be used in string concatenation, this is a standalone element",Загрузить,Carregar,Laden,Cargar,Charger
+Overwrite,JGPHUD_Presets_Verb_Overwrite,"Element in the user presets menu
+This will no longer be used in string concatenation, this is a standalone element",Перезаписать,Sobrescrever,Überschreiben,Sobreescribir,Écraser
+Delete,JGPHUD_Presets_Verb_Delete,"Element in the user presets menu
+This will no longer be used in string concatenation, this is a standalone element",Удалить,Apagar,Löschen,Borrar,Supprimer
+Cancel,JGPHUD_Presets_Menu_Cancel,"Element in the user presets menu
+This will no longer be used in string concatenation, this is a standalone element",Назад,Cancelar,Abbrechen,Cancelar,Annuler
+"Are you sure you want to %1s preset \""%2s\""?",JGPHUD_Presets_ConfirmAction,"NO LONGER USED
 
-This is one of the actions in a submenu that appears when you click on a preset.
-After that it's used as a verb and inserted in the follwing message:
-
-Are you sure you want to <verb> preset ""presetname""?",загрузить,carregar,laden,cargar,charger
-overwrite,JGPHUD_Presets_Verb_Overwrite,"Translate as a verb (probably in infinitive form)
-
-This is one of the actions in a submenu that appears when you click on a preset.
-After that it's used as a verb and inserted in the follwing message:
-
-Are you sure you want to <verb> preset ""presetname""?",перезаписать,sobrescrever,überschreiben,sobreescribir,écraser
-delete,JGPHUD_Presets_Verb_Delete,"Translate as a verb (probably in infinitive form)
-
-This is one of the actions in a submenu that appears when you click on a preset.
-After that it's used as a verb and inserted in the follwing message:
-
-Are you sure you want to <verb> preset ""presetname""?",удалить,apagar,löschen,borrar,supprimer
-cancel,JGPHUD_Presets_Menu_Cancel,"Button to leave the Presets menu. Comes after options to load/overwrite/delete, so please user lowercase for this one as well.
-The meaning is ""return to previous menu and do nothing"", so this can also be translated as ""back""",назад,cancelar,abbrechen,cancelar,annuler
-"Are you sure you want to %1s preset \""%2s\""?",JGPHUD_Presets_ConfirmAction,"%1s is ""load"" or ""overwrite"" or ""delete""
-%2s is the name of the preset given by the user, so it's not affected by grammar
-
-These string tags can be moved around, but make sure that their numbers stay in the same place (e.g. if %2s needs to be placed before %1s, the numbers do NOT change).
-
-Don't forget the escape character \ for quotation marks. Alternatively, you can use 'single' quotation marks, they don't require an escape character.","Вы точно хотите %1s пресет \""%2s\""?","Tem certeza que quer %1s a predefinição \""%2s\""?","Bist du sicher, dass du die Voreinstellung \""%2s\"" %1s möchtest?","Quieres %1s la configuración \""%2s\""?","Êtes-vous sûr de vouloir %1s préréglage \""%2s\"" ?"
+(String concatenation is bad! This has been replaced with separate strings below.)","Вы точно хотите %1s пресет \""%2s\""?","Tem certeza que quer %1s a predefinição \""%2s\""?","Bist du sicher, dass du die Voreinstellung \""%2s\"" %1s möchtest?","Quieres %1s la configuración \""%2s\""?","Êtes-vous sûr de vouloir %1s préréglage \""%2s\"" ?"
+"Are you sure you want to load preset \""%s\""?",JGPHUD_Presets_ConfirmAction_Load,"Option for the user preset menu.
+%s is the name of the preset, it'll be added automatically. Please don't forget that quotation marks need escaping: \"" is valid but just "" is not.","Вы точно хотите загрузить пресет \""%s\""?",,,,
+"Are you sure you want to overwrite preset \""%s\""?",JGPHUD_Presets_ConfirmAction_Overwrite,"Option for the user preset menu.
+%s is the name of the preset, it'll be added automatically. Please don't forget that quotation marks need escaping: \"" is valid but just "" is not.","Вы точно хотите перезаписать пресет \""%s\""?",,,,
+"Are you sure you want to delete preset \""%s\""?",JGPHUD_Presets_ConfirmAction_Delete,"Option for the user preset menu.
+%s is the name of the preset, it'll be added automatically. Please don't forget that quotation marks need escaping: \"" is valid but just "" is not.","Вы точно хотите удалить пресет \""%s\""?",,,,
 "Overwrite existing preset \""%s\""?",JGPHUD_Preset_Warning_Overwrite,"Generic warning for the Presets menu
 %s is the name of the preset given by the user, so it's not affected by grammar","Перезаписать пресет \""%s\""?","Sobrescrever predefinição existente \""%s\""?","Voreinstellung \""%s\"" überschreiben?","Sobrescribir la configuración \""%s\""?","Écraser le préréglage existant ""%s\"" ?"
 Preset name cannot contain whitespace,JGPHUD_Preset_Warning_Whitespace,Generic warning for the Presets menu,В названии пресета не должно быть пробелов,Nome da predefinição não pode conter espaço em branco,Name der Voreinstellung darf keine Leerzeichen enthalten,Nombre de la configuración no puede tener espacios,Le nom de la présélection ne peut pas contenir d'espace
@@ -285,7 +278,7 @@ Built-in presets,JGPHUD_Presets_Menu_BuiltIn,Title of a submenu in the Presets m
 User presets,JGPHUD_Presets_Menu_User,Title of a submenu in the Presets menu. User presets are the ones created by the player.,Пользовательские пресеты,Predefinições do usuário,Benutzerdefinierte Voreinstellungen,Configuraciones del usuario,Préréglages utilisateur
 Save current preset,JGPHUD_Presets_Menu_Save,Command in the Presets menu that saves the current settings into a preset,Сохранить текущие настройки в пресет,Salvar predefinição atual,Derzeitige Voreinstellung abspeichern,Guardar configuración actual,Sauvegarder le préréglage actuel
 Are you sure you want to reset to default settings?,JGPHUD_Presets_Menu_ResetSettingsConfirm,This just resets all CVARs to their default values. This isn't tied to a preset.,Вы точно хотите сбросить настройки?,Tem certeza que quer voltar para os padrões de fábrica?,"Bist du sicher, dass du die Standardeinstellung wiederherstellen möchtest?",Quieres reiniciar a las configuraciones por defecto?,Êtes-vous sûr de vouloir rétablir les paramètres par défaut ?
-Are you sure you want to load the default preset?,JGPHUD_Presets_Menu_ResetPresetConfirm,DEPRECATED,Вы точно хотите загрузить пресет по умолчанию?,Tem certeza que quer carregar a predefinição padrão?,"Bist du sicher, dass du die Standard-Voreinstellung laden möchtest?",,Êtes-vous sûr de vouloir charger le préréglage par défaut ?
+Are you sure you want to load the default preset?,JGPHUD_Presets_Menu_ResetPresetConfirm,NO LONGER USED,Вы точно хотите загрузить пресет по умолчанию?,Tem certeza que quer carregar a predefinição padrão?,"Bist du sicher, dass du die Standard-Voreinstellung laden möchtest?",,Êtes-vous sûr de vouloir charger le préréglage par défaut ?
 Preset name:,JGPHUD_Presets_Menu_Name,"When the user chooses ""Save current preset"", this line appears, followed by a text input field where the user has to enter the name for their current preset.",Название пресета:,Nome da predefinição:,Name der Voreinstellung:,Nombre de la Configuración,Nom du préréglage :
 Confirm,JGPHUD_Presets_Menu_Confirm,A button the player presses after they've entered the preset name.,Подтвердить,Confirmar,Bestätigen,Confirmar,Confirmer
 Minimap only,JGPHUD_Presets_BuiltInPreset_MinimapOnly,Built-in preset name. This preset only displays the minimap and hides everything else.,Только мини-карта,Somente minimapa,Nur Minikarte,Solo minimapa,Minimap seulement

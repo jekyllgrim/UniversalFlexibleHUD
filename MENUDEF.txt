@@ -23,6 +23,7 @@ OptionMenu "JGPHUD_Settings"
 	Option "$JGPHUD_GENERAL_ENABLEHUD", "jgphud_enable", "OnOff"
 	Control "$JGPHUD_GENERAL_ENABLEHUD_BIND", "toggle jgphud_enable"
 	Submenu "$JGPHUD_GENERAL_APPEARANCE_TITLE", "JGPHUD_Appearance"
+	Submenu "$JGPHUD_GENERAL_VISIBILITY_TITLE", "JGPHUD_QuickVisibility"
 
 	StaticText ""
 	SubMenu	"$JGPHUD_MAINBARS_TITLE",		"JGPHUD_MainBars"
@@ -37,6 +38,34 @@ OptionMenu "JGPHUD_Settings"
 	SubMenu	"$JGPHUD_CROSSHAIR_TITLE",		"JGPHUD_CrosshairOptions"
 	SubMenu	"$JGPHUD_MAPDATA_GEN_TITLE",	"JGPHUD_MapData"
 	SubMenu	"$JGPHUD_CustomItems_TITLE",	"JGPHUD_CustomItems"
+}
+
+OptionMenu "JGPHUD_QuickVisibility"
+{
+	Class "JGPUFH_OptionMenu"
+	Title "$JGPHUD_SETTINGS_TITLE"
+	StaticText ""
+
+	Option "$JGPHUD_MAINBARS_ENABLE",		"jgphud_DrawMainbars",			"MainBars"
+	Option "$JGPHUD_MUGSHOT_ENABLE",		"jgphud_DrawMugshot",			"MugshotPositions"
+	Option "$JGPHUD_AMMOBLOCK_ENABLE",		"jgphud_DrawAmmoBlock",			"OnOff"
+	Option "$JGPHUD_ALLAMMO_ENABLE",		"jgphud_DrawAllAmmo",			"AllAmmoOptions"
+	Option "$JGPHUD_WEAPSLOTS_ENABLE",		"jgphud_DrawWeaponSlots",		"HideAutohideShow"
+	Option "$JGPHUD_MINIMAP_ENABLE",		"jgphud_DrawMinimap",			"MinimapRadarDisplay"
+	Option "$JGPHUD_MAPDATA_KILLS",			"jgphud_DrawKills",				"OnOff"
+	Option "$JGPHUD_MAPDATA_ITEMS",			"jgphud_DrawItems",				"OnOff"
+	Option "$JGPHUD_MAPDATA_SECRETS",		"jgphud_DrawSecrets",			"OnOff"
+	Option "$JGPHUD_MAPDATA_TIME",			"jgphud_DrawTime",				"OnOff"
+	Option "$JGPHUD_DMGMARKERS_ENABLE",		"jgphud_drawDamageMarkers",		"OnOff"
+	Option "$JGPHUD_KEYS_ENABLE",			"jgphud_DrawKeys",				"OnOff"
+	Option "$JGPHUD_CROSSHAIR_HITMARKERS",	"jgphud_DrawEnemyHitMarkers",	"OnOff"
+	Option "$JGPHUD_INVBAR_ENABLE",			"jgphud_DrawInvBar",			"OnOff"
+	Option "$JGPHUD_POWERUPS_ENABLE",		"jgphud_DrawPowerups",			"OnOff"
+	Option "$JGPHUD_CustomItems_ENABLE",	 "jgphud_DrawCustomItems",		"OnOff"
+	
+	StaticText ""
+	JGPUFHResetALLCCMD "$JGPHUD_GENERAL_HIDEALL", 1, "visibility", 0, 1
+	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "visibility", -1, 1
 }
 
 OptionMenu "JGPHUD_Appearance"
@@ -234,7 +263,7 @@ OptionMenu "JGPHUD_WeaponSlots"
 	StaticText "$JGPHUD_WEAPSLOTS_TITLE", yellow
 	StaticText ""
 	Option "$JGPHUD_WEAPSLOTS_ENABLE", "jgphud_DrawWeaponSlots", "HideAutohideShow"
-	Option "$JGPHUD_ELEMENT_ALIGNMENT", "jgphud_WeaponSlotsAlign", "WeaponSlotsAlignment", "jgphud_DrawWeaponSlots"
+	Option "$JGPHUD_ELEMENT_ALIGNMENT", "jgphud_WeaponSlotsAlign", "AlignmentHorVertInv", "jgphud_DrawWeaponSlots"
 	Slider "$JGPHUD_ELEMENT_SCALE", "jgphud_WeaponSlotsScale", 0.0, 4.0, 0.1, 1, "jgphud_DrawWeaponSlots"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_WeaponSlotsPos", "ElementScreenPos", "jgphud_drawWeaponSlots"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_WeaponSlotsX", -160, 160, 2, 0, "jgphud_drawWeaponSlots"
@@ -255,14 +284,15 @@ OptionMenu "JGPHUD_InvBar"
 		StaticText "" // make space for the note
 		StaticText ""
 		StaticText ""
-	JGPUFH_EndIf ""
-	Option "$JGPHUD_INVBAR_ENABLEALWAYS", "jgphud_AlwaysShowInvBar", "OnOff", "jgphud_DrawInvBar"
-	JGPUFH_CheckCVar "", sapphire, "jgphud_AlwaysShowInvBar", "1"
+		Option "$JGPHUD_INVBAR_ENABLEALWAYS", "jgphud_AlwaysShowInvBar", "OnOff"
+		StaticText ""
 		StaticText "$JGPHUD_INVBAR_ENABLEALWAYS_NOTE", darkgray
 		StaticText "" // make space for the note
 		StaticText ""
 		StaticText ""
 	JGPUFH_EndIf ""
+	Slider "$JGPHUD_INVBAR_MAXFIELDS", "jgphud_InvBarMaxFields", 3, 13, 2, 0, "jgphud_drawInvBar"
+	Option "$JGPHUD_ELEMENT_ALIGNMENT", "jgphud_InvBarAlignment", "AlignmentHorVertInv", "jgphud_drawInvBar"
 	Slider "$JGPHUD_ELEMENT_SCALE", "jgphud_InvBarScale", 0.0, 4.0, 0.1, 1, "jgphud_drawInvBar"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_InvBarPos", "ElementScreenPos", "jgphud_drawInvBar"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_InvBarX", -160, 160, 2, 0, "jgphud_drawInvBar"
@@ -518,8 +548,15 @@ OptionValue "MinimapRadarDisplay"
 
 OptionValue "AlignmentHorVert"
 {
-	0, "$JGPHUD_WEAPSLOTS_ALIGNMENT_H"
-	1, "$JGPHUD_WEAPSLOTS_ALIGNMENT_V"
+	0, "$JGPHUD_ELEMENT_ALIGNMENT_H"
+	1, "$JGPHUD_ELEMENT_ALIGNMENT_V"
+}
+
+OptionValue "AlignmentHorVertInv"
+{
+	0, "$JGPHUD_ELEMENT_ALIGNMENT_H"
+	1, "$JGPHUD_ELEMENT_ALIGNMENT_V"
+	2, "$JGPHUD_ELEMENT_ALIGNMENT_VINV"
 }
 
 OptionValue "MinimapEnemyDisplay"
@@ -532,13 +569,6 @@ OptionValue "MinimapEnemyShape"
 {
 	0, "$JGPHUD_MINIMAP_ENEMIES_SHAPE_ARROW"
 	1, "$JGPHUD_MINIMAP_ENEMIES_SHAPE_DOT"
-}
-
-OptionValue "WeaponSlotsAlignment"
-{
-	0, "$JGPHUD_WEAPSLOTS_ALIGNMENT_H"
-	1, "$JGPHUD_WEAPSLOTS_ALIGNMENT_V"
-	2, "$JGPHUD_WEAPSLOTS_ALIGNMENT_VINV"
 }
 
 OptionValue "MainBars"
