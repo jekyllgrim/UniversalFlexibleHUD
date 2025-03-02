@@ -55,6 +55,7 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_InvBarMaxFields;
 	
 	ui transient CVar c_drawDamageMarkers;
+	ui transient CVar c_DamageMarkersAlpha;
 
 	ui transient CVar c_drawWeaponSlots;
 	ui transient CVar c_WeaponSlotsSize;
@@ -250,6 +251,9 @@ extend class JGPUFH_FlexibleHUD
 
 		if (!c_drawDamageMarkers)
 			c_drawDamageMarkers = CVar.GetCvar('jgphud_DrawDamageMarkers', CPlayer);
+		if (!c_DamageMarkersAlpha)
+			c_DamageMarkersAlpha = CVar.GetCvar('jgphud_DamageMarkersAlpha', CPlayer);
+
 		if (!c_DrawEnemyHitMarkers)
 			c_DrawEnemyHitMarkers = CVar.GetCvar('jgphud_DrawEnemyHitMarkers', CPlayer);
 		if (!c_EnemyHitMarkersColor)

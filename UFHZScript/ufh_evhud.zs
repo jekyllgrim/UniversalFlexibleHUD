@@ -25,6 +25,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui transient JGPUFH_FontData smallHUDFont;
 	ui transient JGPUFH_FontData numHUDFont;
 
+	// alpha pulse used for preview mode (when the menu is open)
+	ui transient double previewAlpha;
+
 	array <JGPUFH_PowerupData> powerupData;
 	array <MapMarker> mapMarkers;
 	
@@ -548,9 +551,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 	{
 		// Cache CVars before anything else:
 		CacheCvars();
-		UpdateDeltaTime();
-		fracTic = e.fracTic;
-		hudscale = statusbar.GetHudScale();
 		if (!CanDrawFlexiHUD())
 		{
 			return;
@@ -560,13 +560,18 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!initDone)
 			return;
 
+		UpdateDeltaTime();
+		fracTic = e.fracTic;
+		hudscale = statusbar.GetHudScale();
+		gamePaused = menuactive == Menu.On || menuactive == Menu.WaitKey;
+		previewAlpha = SinePulse(TICRATE*2, 0.2, 0.5, inMenus:true);
+
 		statusbar.BeginHUD();
 		CreateGenericShapes(); //used by the minimap and hitmarkers
 		// These value updates need to be interpolated
 		// with deltatime, so they happen here rather
 		// than in UiTick(). They also shouldn't
 		// progress if a menu is open:
-		gamePaused = Menu.GetCurrentMenu();
 		if (!gamePaused)
 		{
 			UpdateInventoryBar(deltaTime);
@@ -2132,7 +2137,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		
 		Vector2 pos = AdjustElementPos((0,0), flags, (width, height), ofs);
 		// visuals for preview mode:
-		double alpha = SinePulse(TICRATE*2, 0.2, 0.5, inMenus:true);
+		double alpha = previewAlpha;
 		if (previewMode)
 		{
 			Color col = Color(int(255 * alpha),255,255,255);
@@ -2220,50 +2225,14 @@ class JGPUFH_FlexibleHUD : EventHandler
 	}
 
 	// Creates a canvas texture to work as a damage marker
-	// graphic (previously this was done in TEXTURES):
+	// graphic (previously this was done in TEXTURES)
+	// and a Shape2D to be used as a marker:
 	ui bool MakeDamageMarker()
 	{
-		if (dmgMarkerTex && dmgMarkerTex.IsValid())
+		if (dmgMarker && dmgMarkerTex && dmgMarkerTex.IsValid())
 		{
 			return true;
 		}
-
-		TextureID tex = TexMan.CheckForTexture(DMG_MARKER_TEX_NAME);
-		if (!tex || !tex.IsValid()) return false;
-
-		Canvas c = TexMan.GetCanvas(DMG_MARKER_TEX_NAME);
-		if (!c) return false;
-		
-		let [w, h] = TexMan.GetSize(tex); //2x18, but do this dynamically in case I change the size
-		// Color the whole thing black first:
-		c.Dim(0x000000, 1.0, 0, 0, w, h);
-		// Now Color the very bottom line yellow:
-		c.Dim(0xffff00, 1.0, 0, h-1, w, 1);
-		// Draw red lines starting at the top,
-		// increase alpha with each line, so we end up
-		// with a red-to-black gradient from bottom to top,
-		// plus a single yellow line at the bottom:
-		for (double d = 1; d < h-1; d += 1.0)
-		{
-			c.Dim(0xff0000, d / (h-2), 0, d, w, 1);
-		}
-		
-		dmgMarkerTex = tex;
-		return true;
-	}
-
-	// Draws directional incoming damage markers:
-	ui void DrawDamageMarkers(double size = 120)
-	{
-		if (!c_drawDamageMarkers.GetBool())
-			return;
-
-		let dmgMarkerController = dmgMarkerControllers[consoleplayer];
-		if (!dmgMarkerController)
-			return;
-		
-		if (!MakeDamageMarker())
-			return;
 
 		// Create a rectangular shape:
 		if (!dmgMarker)
@@ -2289,30 +2258,91 @@ class JGPUFH_FlexibleHUD : EventHandler
 			dmgMarker.PushTriangle(1, 2, 3);
 		}
 
-		// Don't forget to multiply by hudscale:
+		if (!dmgMarkerTex || !dmgMarkerTex.isValid())
+		{
+			TextureID tex = TexMan.CheckForTexture(DMG_MARKER_TEX_NAME);
+			if (!tex || !tex.IsValid()) return false;
+
+			Canvas c = TexMan.GetCanvas(DMG_MARKER_TEX_NAME);
+			if (!c) return false;
+			
+			let [w, h] = TexMan.GetSize(tex); //2x18, but do this dynamically in case I change the size
+			// Color the whole thing black first:
+			c.Dim(0x000000, 1.0, 0, 0, w, h);
+			// Now Color the very bottom line yellow:
+			c.Dim(0xffff00, 1.0, 0, h-1, w, 1);
+			// Draw red lines starting at the top,
+			// increase alpha with each line, so we end up
+			// with a red-to-black gradient from bottom to top,
+			// plus a single yellow line at the bottom:
+			for (double d = 1; d < h-1; d += 1.0)
+			{
+				c.Dim(0xff0000, d / (h-2), 0, d, w, 1);
+			}
+			dmgMarkerTex = tex;
+		}
+		return true;
+	}
+
+	// Draws directional incoming damage markers:
+	ui void DrawDamageMarkers(double size = 120)
+	{
+		if (!c_drawDamageMarkers.GetBool())
+			return;
+
+		let dmgMarkerController = dmgMarkerControllers[consoleplayer];
+		if (!dmgMarkerController)
+			return;
+		
+		if (!MakeDamageMarker())
+			return;
+
 		if (!dmgMarkerTransf)
 			dmgMarkerTransf = New("Shape2DTransform");
-		// Draw the shape for each damage marker data
-		// in the previously built array:
+		
 		double playerAngle = CPlayer.mo.angle;
-		for (int i = dmgMarkerController.markers.Size() - 1; i >= 0; i--)
+		// drawing in preview mode:
+		if (IsModMenuOpen())
 		{
-			let dm = dmgMarkerController.markers[i];
-			if (!dm)
-				continue;
-			
-			// Vary width based on the amount of received damage:
-			double width = LinearMap(dm.damage, 0, 50, size*0.2, size, true);
-			dmgMarkerTransf.Clear();
-			dmgMarkerTransf.Scale((width, size) * hudscale.x);
-			dmgMarkerTransf.Rotate(dm.GetAngle(Lerp(prevPlayerAngle, playerAngle, fracTic)));
-			dmgMarkerTransf.Translate((Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5));
-			dmgMarker.SetTransform(dmgMarkerTransf);
-			Screen.DrawShape(dmgMarkerTex, false, 
-				dmgMarker, 
-				DTA_LegacyRenderStyle, STYLE_Add, 
-				DTA_Alpha, dm.alpha
-			);
+			for (int i = 0; i <= 360; i += 30)
+			{
+				dmgMarkerTransf.Clear();
+				dmgMarkerTransf.Scale((size, size) * hudscale.x);
+				dmgMarkerTransf.Rotate(i);
+				dmgMarkerTransf.Translate((Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5));
+				dmgMarker.SetTransform(dmgMarkerTransf);
+				Screen.DrawShape(dmgMarkerTex, false, 
+					dmgMarker, 
+					DTA_LegacyRenderStyle, STYLE_Shaded,
+					DTA_FillColor, 0xffffff,
+					DTA_Alpha, previewAlpha * c_DamageMarkersAlpha.GetFloat()
+				);
+			}
+		}
+
+		// Real mode: draw the shape for each damage marker data
+		// in the previously built array:
+		else
+		{
+			for (int i = dmgMarkerController.markers.Size() - 1; i >= 0; i--)
+			{
+				let dm = dmgMarkerController.markers[i];
+				if (!dm)
+					continue;
+				
+				// Vary width based on the amount of received damage:
+				double width = LinearMap(dm.damage, 0, 50, size*0.2, size, true);
+				dmgMarkerTransf.Clear();
+				dmgMarkerTransf.Scale((width, size) * hudscale.x);
+				dmgMarkerTransf.Rotate(dm.GetAngle(Lerp(prevPlayerAngle, playerAngle, fracTic)));
+				dmgMarkerTransf.Translate((Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5));
+				dmgMarker.SetTransform(dmgMarkerTransf);
+				Screen.DrawShape(dmgMarkerTex, false, 
+					dmgMarker, 
+					DTA_LegacyRenderStyle, STYLE_Add, 
+					DTA_Alpha, dm.alpha
+				);
+			}
 		}
 	}
 
@@ -4467,7 +4497,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (previewMode)
 		{
 			style = STYLE_TranslucentStencil;
-			alpha = SinePulse(TICRATE*2, 0.2, 0.5, inMenus:true);
+			alpha = previewAlpha;
 			Color col = Color(int(255 * alpha),255,255,255);
 			statusbar.Fill(col, pos.x, pos.y, width, height, flags);
 		}
