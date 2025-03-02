@@ -28,6 +28,8 @@ class JGPUFH_PresetCVarData
 
 extend class JGPUFH_PresetHandler
 {
+	array<JGPUFH_PresetCVarData> cvarData;
+
 	enum ECVarCategories
 	{
 		CVC_None			= 0,
@@ -53,7 +55,7 @@ extend class JGPUFH_PresetHandler
 		CVC_Visibility		= 1 << 21,
 	}
 
-	override void OnEngineInitialize()
+	void InitalizeJGPHUDCvars()
 	{
 		JGPUFH_PresetCVarData.Add('jgphud_BackColor', cvarData, CVC_General);
 		JGPUFH_PresetCVarData.Add('jgphud_BackStyle', cvarData, CVC_General);
@@ -137,6 +139,7 @@ extend class JGPUFH_PresetHandler
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapCeilDiffLineColor', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapUnseenLineColor', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapUnseenSeparateColor', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapSecretLineColor', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapYouColor', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapMonsterColor', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapFriendColor', cvarData, CVC_Minimap);

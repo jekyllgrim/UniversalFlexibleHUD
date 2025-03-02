@@ -5,8 +5,6 @@ class JGPUFH_PresetHandler : StaticEventHandler
 	JGPUFH_JsonObject default_presets;
 	
 	Map<Name, Class<JGPUFH_JsonElement> > cvarTypes;
-
-	array<JGPUFH_PresetCVarData> cvarData;
 	
 	JGPUFH_JsonObject LoadPresets(String jsonData, bool isCVar)
 	{
@@ -78,7 +76,9 @@ class JGPUFH_PresetHandler : StaticEventHandler
 	}
 	
 	override void OnRegister()
-	{		
+	{
+		InitalizeJGPHUDCvars();
+		
 		int numCVars = cvardata.Size();
 		
 		for(int i = 0; i < numCVars; i++)
