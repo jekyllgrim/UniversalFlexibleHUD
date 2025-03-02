@@ -186,6 +186,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui int prevLevelTime;
 	ui double minimapSize;
 	ui array <Line> visibleMapLines;
+	ui array <Sector> visibleMapSectors;
 	ui array <Actor> radarMonsters;
 	ui transient Shape2D minimapShape_Arrow;
 	ui transient Shape2DTransform minimapTransform;
@@ -207,6 +208,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		MCT_FloorDiffWall,
 		MCT_CeilDiffWall,
 		MCT_UnseenWall,
+		MCT_SecretWall,
 	}
 	static const Color tradmapcol_Doom[] =
 	{
@@ -218,7 +220,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		0xff74fc6c, //friend
 		0xffbc7848, //floor difference wall
 		0xfffcfc00, //ceil difference wall
-		0xff6c6c6c  //unseen wall
+		0xff6c6c6c, //unseen wall
+		0xff00ffff  //secret wall (does not exist in this color set by default)
 	};
 	static const Color tradmapcol_Strife[] =
 	{
@@ -230,7 +233,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		0xfffc0000, //friend
 		0xff373b5b, //floor difference wall
 		0xff777373, //ceil difference wall
-		0xff6c6c6c  //unseen wall
+		0xff6c6c6c, //unseen wall
+		0xff00ffff  //secret wall (does not exist in this color set by default)
 	};
 	static const Color tradmapcol_Raven[] =
 	{
@@ -242,7 +246,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		0xffececec, //friend
 		0xffd0b085, //floor difference wall
 		0xff673b1f, //ceil difference wall
-		0xff000000  //unseen wall
+		0xff000000, //unseen wall
+		0xff00ffff  //secret wall (does not exist in this color set by default)
 	};
 
 	// DrawInventoryBar():
@@ -3575,6 +3580,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			case MCT_FloorDiffWall:	col = c_MinimapFloorDiffLineColor.GetInt();	break;
 			case MCT_CeilDiffWall:	col = c_MinimapCeilDiffLineColor.GetInt();	break;
 			case MCT_UnseenWall:	col = c_MinimapUnseenLineColor.GetInt();	break;
+			case MCT_SecretWall:	col = c_MinimapSecretLineColor.GetInt();	break;
 			}
 			return col;
 		}
@@ -3590,9 +3596,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 			case MCT_IntWall:		col = c_am_specialwallcolor.GetInt();	break;
 			case MCT_Enemy:			col = c_am_thingcolor_monster.GetInt();	break;
 			case MCT_Friend:		col = c_am_thingcolor_friend.GetInt();	break;
-			case MCT_FloorDiffWall:	col = c_am_fdwallcolor.GetInt();	break;
-			case MCT_CeilDiffWall:	col = c_am_cdwallcolor.GetInt();	break;
-			case MCT_UnseenWall:	col = c_am_notseencolor.GetInt();	break;
+			case MCT_FloorDiffWall:	col = c_am_fdwallcolor.GetInt();		break;
+			case MCT_CeilDiffWall:	col = c_am_cdwallcolor.GetInt();		break;
+			case MCT_UnseenWall:	col = c_am_notseencolor.GetInt();		break;
+			case MCT_SecretWall:	col = c_am_secretsectorcolor.GetInt();	break;
 			}
 			return col;
 		}
@@ -3633,6 +3640,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 			if (ln && IsLineVisible(ln))
 			{
 				visibleMapLines.Push(ln);
+				visibleMapSectors.Push(ln.frontsector);
+				if (ln.backsector && ln.backsector != ln.frontsector)
+				{
+					visibleMapSectors.Push(ln.backsector);
+				}
 			}
 		}
 	}
@@ -3667,6 +3679,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 			}
 			return false;
 		}
+
+		// draw secrets (if they passed the above visibility check):
+		if ((ln.flags & Line.ML_SECRET) || (ln.frontsector && (ln.frontsector.flags & Sector.SECF_SECRET)) || (ln.backsector && (ln.backsector.flags & Sector.SECF_SECRET)))
+			return true;
 		
 		// Always draw one-sided lines:
 		if (!(ln.flags & Line.ML_TWOSIDED))
@@ -3752,6 +3768,33 @@ class JGPUFH_FlexibleHUD : EventHandler
 		vec += (mapSize, mapSize)*0.5;
 		return vec;
 	}
+	ui void DrawMinimapSectors(Vector2 pos, Vector2 playerPos, double angle, double radius, double scale = 1.0, double zoom = 1.0)
+	{
+		Shape2D shape = New('Shape2D');
+		Shape2DTransform transform = New('Shape2DTransform');
+		Sector sec;
+		//foreach (sec : visibleMapSectors)
+		//{
+			sec = CPlayer.mo.cursector;
+			//if (!sec) continue;
+
+			int vcount;
+			foreach (ln : sec.lines)
+			{
+				if (!ln || ln.flags & Line.ML_TWOSIDED) continue;
+				shape.Clear();
+				shape.PushVertex(ln.v1.p);
+				shape.PushCoord((0,0));
+				vcount++;
+			}
+			for (int i = 0; i < vcount; i++)
+			{
+				int next = i+1;
+				if (next >= vcount) next -= vcount;
+				shape.PushTriangle(i, next, i + vcount);
+			}
+		//}
+	}
 
 	// Performs the actual line drawing:
 	//  pos - position of the element
@@ -3779,12 +3822,19 @@ class JGPUFH_FlexibleHUD : EventHandler
 			double thickness = Clamp(c_MinimapNonblockLineThickness.GetFloat(), 1.0, 10.0);
 			int lineAlph = 255;
 			Color col = GetLockColor(ln);
+			Sector bs = ln.backsector;
+			Sector fs = ln.frontsector;
 			// If lock Color is valid, this is a locked line,
 			// so make it thick and colorize accordingly:
 			if (col != -1)
 			{
 				thickness *= 2;
 				lineCol = col;
+			}
+			// Otherwise check if it's a secret line:
+			else if ((ln.flags & Line.ML_SECRET) || (bs && (bs.flags & Sector.SECF_SECRET)) || (fs && (fs.flags & Sector.SECF_SECRET)))
+			{
+				lineCol = GetMinimapColor(MCT_SecretWall);
 			}
 			// Otherwise check if it's any kind of interactive line
 			// (don't forget to check for special, because activation
@@ -3794,32 +3844,23 @@ class JGPUFH_FlexibleHUD : EventHandler
 			{
 				lineCol = GetMinimapColor(MCT_IntWall);
 			}
-			// Otherwise apply regular line Color:
-			else
+			// Otherwise apply floor/ceil difference color:
+			else if (bs && fs)
 			{
-				// Single-sided and "block everything" lines are thick:
-				if (!(ln.flags & Line.ML_TWOSIDED) || (ln.flags & Line.ML_BLOCKEVERYTHING))
+				Vector2 vpos = ln.v1.p;
+				if (bs.floorplane.ZAtPoint(vpos) != fs.floorplane.ZAtPoint(vpos))
 				{
-					thickness = Clamp(c_MinimapBlockLineThickness.GetFloat(), 1.0, 10.0);
+					lineCol = GetMinimapColor(MCT_FloorDiffWall);
 				}
-				// Two-sided lines use regular thickness and different Color:
-				else
+				else if (bs.ceilingplane.ZAtPoint(vpos) != fs.ceilingplane.ZAtPoint(vpos))
 				{
-					Sector bs = ln.backsector;
-					Sector fs = ln.frontsector;
-					if (bs && fs)
-					{
-						Vector2 vpos = ln.v1.p;
-						if (bs.floorplane.ZAtPoint(vpos) != fs.floorplane.ZAtPoint(vpos))
-						{
-							lineCol = GetMinimapColor(MCT_FloorDiffWall);
-						}
-						else if (bs.ceilingplane.ZAtPoint(vpos) != fs.ceilingplane.ZAtPoint(vpos))
-						{
-							lineCol = GetMinimapColor(MCT_CeilDiffWall);
-						}
-					}
+					lineCol = GetMinimapColor(MCT_CeilDiffWall);
 				}
+			}
+			// Single-sided and "block everything" lines are thick:
+			if (!(ln.flags & Line.ML_TWOSIDED) || (ln.flags & Line.ML_BLOCKEVERYTHING))
+			{
+				thickness = Clamp(c_MinimapBlockLineThickness.GetFloat(), 1.0, 10.0);
 			}
 			// Change opacity if this line is undiscovered:
 			if (!(ln.flags & Line.ML_MAPPED))

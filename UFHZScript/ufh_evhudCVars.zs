@@ -98,6 +98,7 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_MinimapCeilDiffLineColor;
 	ui transient CVar c_MinimapUnseenLineColor;
 	ui transient CVar c_MinimapUnseenSeparateColor;
+	ui transient CVar c_MinimapSecretLineColor;
 	ui transient CVar c_minimapYouColor;
 	ui transient CVar c_minimapMonsterColor;
 	ui transient CVar c_minimapFriendColor;
@@ -182,6 +183,7 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_am_fdwallcolor;
 	ui transient CVar c_am_cdwallcolor;
 	ui transient CVar c_am_notseencolor;
+	ui transient CVar c_am_secretsectorcolor;
 
 	ui void CacheCvars()
 	{
@@ -381,6 +383,8 @@ extend class JGPUFH_FlexibleHUD
 			c_MinimapUnseenLineColor = CVar.GetCvar('jgphud_MinimapUnseenLineColor', CPlayer);
 		if (!c_MinimapUnseenSeparateColor)
 			c_MinimapUnseenSeparateColor = CVar.GetCvar('jgphud_MinimapUnseenSeparateColor', CPlayer);
+		if (!c_MinimapSecretLineColor)
+			c_MinimapSecretLineColor = CVar.GetCvar('jgphud_MinimapSecretLineColor', CPlayer);
 		if (!c_minimapYouColor)
 			c_minimapYouColor = CVar.GetCvar('jgphud_MinimapYouColor', CPlayer);
 		if (!c_minimapMonsterColor)
@@ -534,5 +538,7 @@ extend class JGPUFH_FlexibleHUD
 			c_am_cdwallcolor = CVar.GetCvar('am_cdwallcolor', CPlayer);
 		if (!c_am_notseencolor)
 			c_am_notseencolor = CVar.GetCvar('am_notseencolor', CPlayer);
+		if (!c_am_secretsectorcolor)
+			c_am_secretsectorcolor = CVar.GetCvar('am_secretsectorcolor', CPlayer);
 	}
 }
