@@ -124,13 +124,14 @@ extend class JGPUFH_PresetHandler
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapPos', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapPosX', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapPosY', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapMapMarkers', cvarData, CVC_Minimap);
+		JGPUFH_PresetCVarData.Add('jgphud_MinimapMapMarkersScale', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapEnemyDisplay', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapEnemyShape', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapZoom', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapDrawUnseen', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapDrawFloorDiff', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapDrawCeilingDiff', cvarData, CVC_Minimap);
-		JGPUFH_PresetCVarData.Add('jgphud_MinimapMapMarkersSize', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapColorMode', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapBackColor', cvarData, CVC_Minimap);
 		JGPUFH_PresetCVarData.Add('jgphud_MinimapLineColor', cvarData, CVC_Minimap);

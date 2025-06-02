@@ -4091,6 +4091,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	ui void DrawMapMarkers(Vector2 pos, Vector2 playerPos, double angle, double radius, double scale = 1.0, double zoom = 1.0)
 	{
+		if (!c_MinimapMapMarkers || !c_MinimapMapMarkers.GetBool()) return;
+
+		double drawscale = c_MinimapMapMarkersScale.GetFloat();
 		double distFac = IsMinimapCircular() ? 1.0 : SQUARERADIUSFAC;
 		double distance = ((radius) / zoom) * distFac; //account for square shapes
 		for (int i = 0; i < mapMarkers.Size(); i++)
@@ -4117,8 +4120,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 				// Marker's size is just their graphic scaled relative
 				// to their scale property, and it shouldn't change
 				// with the map's zoom:
-				DTA_ScaleX, marker.scale.x * 2,
-				DTA_ScaleY, marker.scale.y * 2
+				DTA_ScaleX, marker.scale.x * 2 * drawscale,
+				DTA_ScaleY, marker.scale.y * 2 * drawscale
 			);
 		}
 	}

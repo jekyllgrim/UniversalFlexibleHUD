@@ -366,6 +366,11 @@ OptionMenu "JGPHUD_MapData"
 		Slider "$JGPHUD_MINIMAP_ZOOM",		"jgphud_MinimapZoom",		0.1, 3.0, 0.05, 2
 	JGPUFH_EndIf ""
 	
+	JGPUFH_CheckCVar "$JGPHUD_MINIMAP_MAPMARKERS", sapphire, "jgphud_DrawMinimap", "!:0"
+		Option "$JGPHUD_MINIMAP_MAPMARKERS",		"jgphud_MinimapMapMarkers",	"OnOff"
+		Slider "$JGPHUD_MINIMAP_MAPMARKERS_SCALE",	"jgphud_MinimapMapMarkersScale",		0.0, 8.0, 0.05, 2, "jgphud_MinimapMapMarkers"
+	JGPUFH_EndIf ""
+	
 	// Show this if the minimap/radar mode is "Radar only" OR "Both":
 	JGPUFH_CheckCVar "$JGPHUD_MINIMAP_ENEMIES", sapphire, "jgphud_DrawMinimap", "1", "1", "jgphud_DrawMinimap", "3"
 		Option "$JGPHUD_MINIMAP_ENEMIES", "jgphud_MinimapEnemyDisplay", "MinimapEnemyDisplay"

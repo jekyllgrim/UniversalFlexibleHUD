@@ -87,6 +87,8 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_minimapPosX;
 	ui transient CVar c_minimapPosY;
 	ui transient CVar c_minimapZoom;
+	ui transient CVar c_MinimapMapMarkers;
+	ui transient CVar c_MinimapMapMarkersScale;
 	ui transient CVar c_minimapDrawUnseen;
 	ui transient CVar c_minimapDrawFloorDiff;
 	ui transient CVar c_minimapDrawCeilingDiff;
@@ -363,6 +365,10 @@ extend class JGPUFH_FlexibleHUD
 			c_minimapPosY = CVar.GetCvar('jgphud_MinimapPosY', CPlayer);
 		if (!c_minimapZoom)
 			c_minimapZoom = CVar.GetCvar('jgphud_MinimapZoom', CPlayer);
+		if (!c_MinimapMapMarkers)
+			c_MinimapMapMarkers = CVar.GetCvar('jgphud_MinimapMapMarkers', CPlayer);
+		if (!c_MinimapMapMarkersScale)
+			c_MinimapMapMarkersScale = CVar.GetCvar('jgphud_MinimapMapMarkersScale', CPlayer);
 		if (!c_minimapDrawUnseen)
 			c_minimapDrawUnseen = CVar.GetCvar('jgphud_MinimapDrawUnseen', CPlayer);
 		if (!c_minimapDrawFloorDiff)
