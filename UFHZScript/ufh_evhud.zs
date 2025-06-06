@@ -9,6 +9,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	private ui transient bool gamePaused;
 	private ui transient double prevMSTime;
 	private ui transient double deltaTime;
+	const DELTATIMEFREQ = 1000.0 / TICRATE;
 	private ui transient double fracTic;
 	private ui transient int HUDTics; //incremented all the time, including while paused
 	private ui transient Vector2 hudscale;
@@ -492,13 +493,15 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// in RenderOverlay unconditionally:
 	ui void UpdateDeltaTime()
 	{
+		double curMS = MSTimeF();
 		if (!prevMSTime)
-			prevMSTime = MSTimeF();
+		{
+			prevMSTime = curMS;
+		}
 
-		double ftime = MSTimeF() - prevMSTime;
-		prevMSTime = MSTimeF();
-		double dtime = 1000.0 / TICRATE;
-		deltaTime = (ftime / dtime);
+		double ftime = curMS - prevMSTime;
+		deltaTime = ftime / DELTATIMEFREQ;
+		prevMSTime = curMS;
 	}
 
 	ui int GetHUDTics()
