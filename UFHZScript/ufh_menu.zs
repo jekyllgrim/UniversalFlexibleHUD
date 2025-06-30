@@ -308,6 +308,9 @@ class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
 			mCVarCategory = JGPUFH_PresetHandler.CVC_None;
 			break;
 		case 'general':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_General;
+			break;
+		case 'dmgmarkers':
 			mCVarCategory = JGPUFH_PresetHandler.CVC_DmgMarkers;
 			break;
 		case 'mainbars':
