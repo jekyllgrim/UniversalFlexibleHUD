@@ -189,9 +189,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui Vector2 prevPlayerPos;
 	ui int prevLevelTime;
 	ui double minimapSize;
-	ui array <Line> visibleMapLines;
-	ui array <Sector> visibleMapSectors;
-	ui array <Actor> radarMonsters;
+	ui transient array <Line> visibleMapLines;
+	ui transient array <Sector> visibleMapSectors;
+	ui transient array <Actor> radarMonsters;
 	ui transient Shape2D minimapShape_Arrow;
 	ui transient Shape2DTransform minimapTransform;
 	enum EMinimapDisplayModes
