@@ -514,7 +514,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		return c_enable.GetBool() &&
                gamestate == GS_LEVEL && gamestate != GS_TITLELEVEL &&
                CPlayer && CPlayer.mo && 
-               CPlayer.camera == CPlayer.mo;
+			CPlayer.camera && CPlayer.camera.player == CPlayer;
 	}
 
 	ui void UiInit()
@@ -3492,6 +3492,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		ppos.x = Lerp(prevPlayerPos.x, CPlayer.mo.pos.x, fracTic);
 		ppos.y = Lerp(prevPlayerPos.y, CPlayer.mo.pos.y, fracTic);
 		double playerAngle = -(Lerp(prevPlayerAngle, CPlayer.mo.angle, fracTic) + 90);
+		double cameraAngle = playerAngle;
+		if (CPlayer.camera && CPlayer.camera != CPlayer.mo) cameraAngle = - CPlayer.camera.angle - 90; // Don't Lerp
 		Vector2 diff = Level.Vec2Diff((0,0), ppos);
 
 		if (!minimapTransform)
@@ -3535,8 +3537,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Draw the minimap lines:
 		if (drawmap)
 		{
-			DrawMinimapLines(pos, ppos, playerAngle, size, hudscale.x, mapZoom);
-			DrawMapMarkers(pos, ppos, playerAngle, size, hudscale.x, mapZoom);
+			DrawMinimapLines(pos, ppos, cameraAngle, size, hudscale.x, mapZoom);
+			DrawMapMarkers(pos, ppos, cameraAngle, size, hudscale.x, mapZoom);
 		}
 
 		// White arrow at the center representing the player:
@@ -3556,19 +3558,20 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// if the CVAR allows that:
 		if (drawRadar)
 		{
-			DrawEnemyRadar(pos, ppos, playerAngle, size, hudscale.x, mapZoom);
+			DrawEnemyRadar(pos, ppos, cameraAngle, size, hudscale.x, mapZoom);
 		}
 
 		// Draw the arrow representing the player:
 		minimapTransform.Clear();
 		double arrowSize = CPlayer.mo.radius * mapZoom * hudscale.x;
 		minimapTransform.Scale((arrowSize, arrowSize));
+		minimapTransform.Rotate(playerAngle - cameraAngle);
 		minimapTransform.Translate(pos + (size*0.5,size*0.5));
 		minimapShape_Arrow.SetTransform(minimapTransform);
 		Color youColor = GetMinimapColor(MCT_You);
 		Screen.DrawShapeFill(RGB2BGR(youcolor), 1.0, minimapShape_Arrow);
 
-		DrawCardinalDirections(pos, playerAngle, size);
+		DrawCardinalDirections(pos, cameraAngle, size);
 		
 		DisableMask();
 	}
