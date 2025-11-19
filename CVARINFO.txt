@@ -154,26 +154,26 @@ nosave float jgphud_CustomItemsScale = 1.0;
 nosave float jgphud_ReticleBarsScale = 1.0;
 
 nosave int jgphud_MainBarsHealthColorMode = 1;
-nosave int jgphud_MainBarsHealthColor = 16;
-nosave int jgphud_MainbarsHealthRange_25 = 6;
-nosave int jgphud_MainbarsHealthRange_50 = 8;
-nosave int jgphud_MainbarsHealthRange_75 = 10;
-nosave int jgphud_MainbarsHealthRange_100 = 3;
-nosave int jgphud_MainbarsHealthRange_101 = 7;
+nosave color jgphud_MainBarsHealthColor = "00 aa 00";
+nosave color jgphud_MainbarsHealthRange_25 = "ff 00 00";
+nosave color jgphud_MainbarsHealthRange_50 = "ff aa 00";
+nosave color jgphud_MainbarsHealthRange_75 = "ff ff 00";
+nosave color jgphud_MainbarsHealthRange_100 = "00 ff 00";
+nosave color jgphud_MainbarsHealthRange_101 = "00 00 ff";
 
 nosave int jgphud_MainBarsArmorMode = 2;
 nosave int jgphud_MainBarsArmorColorMode = 2;
-nosave int jgphud_MainBarsArmorColor = 13;
-nosave int jgphud_MainbarsArmorRange_25 = 17;
-nosave int jgphud_MainbarsArmorRange_50 = 18;
-nosave int jgphud_MainbarsArmorRange_75 = 4;
-nosave int jgphud_MainbarsArmorRange_100 = 16;
-nosave int jgphud_MainbarsArmorRange_101 = 25;
-nosave int jgphud_MainbarsAbsorbRange_33 = 16;
-nosave int jgphud_MainbarsAbsorbRange_50 = 24;
-nosave int jgphud_MainbarsAbsorbRange_66 = 5;
-nosave int jgphud_MainbarsAbsorbRange_80 = 19;
-nosave int jgphud_MainbarsAbsorbRange_100 = 17;
+nosave color jgphud_MainBarsArmorColor = "40 40 ff";
+nosave color jgphud_MainbarsAbsorbRange_33 = "40 ff 40";
+nosave color jgphud_MainbarsAbsorbRange_50 = "40 40 ff";
+nosave color jgphud_MainbarsAbsorbRange_66 = "ff ff 40";
+nosave color jgphud_MainbarsAbsorbRange_80 = "ff aa 40";
+nosave color jgphud_MainbarsAbsorbRange_100 = "ff 40 40";
+nosave color jgphud_MainbarsArmorRange_25 = "ff 40 40";
+nosave color jgphud_MainbarsArmorRange_50 = "ff aa 40";
+nosave color jgphud_MainbarsArmorRange_75 = "ff ff 40";
+nosave color jgphud_MainbarsArmorRange_100 = "40 ff 40";
+nosave color jgphud_MainbarsArmorRange_101 = "40 40 ff";
 
 // json strings:
 nosave 			 string __jgphud_user_presets_json = "{}";

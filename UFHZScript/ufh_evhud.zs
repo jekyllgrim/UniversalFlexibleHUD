@@ -530,6 +530,18 @@ class JGPUFH_FlexibleHUD : EventHandler
 					numHUDFont && numHUDFont.IsValid();
 	}
 
+	ui void DrawColorString(Color stringColor, HUDFont fnt, String str, Vector2 pos, int flags = 0, double Alpha = 1., int wrapwidth = -1, int linespacing = 4, Vector2 scale = (1, 1))
+	{
+		Screen.EnableStencil(true);
+		Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+		statusbar.DrawString(fnt, str, pos, flags, Font.CR_White, alpha, wrapwidth, linespacing, scale);
+		Screen.SetStencil(1, SOP_Keep, SF_AllOn);
+		statusbar.DrawString(fnt, str, pos, flags, Font.CR_White, alpha, wrapwidth, linespacing, scale);
+		Screen.Dim(stringColor, 1.0, 0, 0, Screen.GetWidth(), Screen.GetHeight(), STYLE_Multiply);
+		Screen.EnableStencil(false);
+		Screen.ClearStencil();
+	}
+
 	override void UiTick()
 	{
 		if (!CPlayer || !CPlayer.mo || !initDone)
@@ -1102,55 +1114,44 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui Color, int GetHealthColor(int health, int maxhealth)
+	ui Color GetHealthColor(int health, int maxhealth)
 	{
-		double ratio = double(health) / double(maxhealth);
-		Color col;
-		int fontColor;
 		if (c_MainBarsHealthColorMode.GetInt() == ND_FIXED)
 		{
-			fontColor = c_MainBarsHealthColor.GetInt();
-			int i = Clamp(fontColor, 0, RealFontColors.Size() - 1);
-			col = RealFontColors[i];
-			return col, fontColor;
+			return Color(c_MainBarsHealthColor.GetString());
 		}
-		int startcol, endcol;
-		double colorDist;
+		double ratio = double(health) / double(maxhealth);
 		if (ratio <= 0.25)
 		{
-			startcol = c_MainbarsHealthRange_25.GetInt();
-			endcol = c_MainbarsHealthRange_25.GetInt();
-			colorDist = LinearMap(ratio, 0, 0.25, 0.0, 1.0);
+			return Color(c_MainbarsHealthRange_25.GetString());
 		}
-		else if (ratio <= 0.5)
+		Color startcol, endcol;
+		double colorDist;
+		if (ratio <= 0.5)
 		{
-			startcol = c_MainbarsHealthRange_25.GetInt();
-			endcol = c_MainbarsHealthRange_50.GetInt();
+			startcol = Color(c_MainbarsHealthRange_25.GetString());
+			endcol = Color(c_MainbarsHealthRange_50.GetString());
 			colorDist = LinearMap(ratio, 0.25, 0.5, 0.0, 1.0);
 		}
 		else if (ratio <= 0.75)
 		{
-			startcol = c_MainbarsHealthRange_50.GetInt();
-			endcol = c_MainbarsHealthRange_75.GetInt();
+			startcol = Color(c_MainbarsHealthRange_50.GetString());
+			endcol = Color(c_MainbarsHealthRange_75.GetString());
 			colorDist = LinearMap(ratio, 0.5, 0.75, 0.0, 1.0);
 		}
 		else if (ratio <= 1.0)
 		{
-			startcol = c_MainbarsHealthRange_75.GetInt();
-			endcol = c_MainbarsHealthRange_100.GetInt();
+			startcol = Color(c_MainbarsHealthRange_75.GetString());
+			endcol = Color(c_MainbarsHealthRange_100.GetString());
 			colorDist = LinearMap(ratio, 0.75, 1.0, 0.0, 1.0);
 		}
 		else
 		{
-			startcol = c_MainbarsHealthRange_100.GetInt();
-			endcol = c_MainbarsHealthRange_101.GetInt();
+			startcol = Color(c_MainbarsHealthRange_100.GetString());
+			endcol = Color(c_MainbarsHealthRange_101.GetString());
 			colorDist = LinearMap(ratio, 1.0, 1.1, 0.0, 1.0);
 		}
-		fontColor = endcol;
-		startcol = Clamp(startcol, 0, RealFontColors.Size() - 1);
-		endcol = Clamp(endcol, 0, RealFontColors.Size() - 1);
-		Color finalColor = GetIntermediateColor(RealFontColors[startcol], RealFontColors[endcol], colorDist);
-		return Color(255, finalColor.r, finalcolor.g, finalcolor.b), fontColor;
+		return GetIntermediateColor(startcol, endcol, colorDist);
 	}
 
 	clearscope Color GetIntermediateColor(Color c1, Color c2, double colordistance)
@@ -1173,62 +1174,53 @@ class JGPUFH_FlexibleHUD : EventHandler
 			int(round((g_lin ** pow) * 255)),
 			int(round((b_lin ** pow) * 255))
 		);
-		return finalcolor;
 	}
 
 	// Returns a Color and font colors based on the provided
 	// percentage value (either in the 0.0-1.0 or 0-100 range).
 	// Meant to be used for armor's savepercent, so it's tuned
 	// to common savepercent values (50, 80 and 33):
-	ui Color, int GetArmorColor(double savePercent)
+	ui Color GetArmorColor(double savePercent)
 	{
-		Color col;
-		int fontColor;
-		if (c_MainBarsArmorColorMode.GetInt() == ND_FIXED)
+		switch (c_MainBarsArmorColorMode.GetInt())
 		{
-			fontColor = c_MainBarsArmorColor.GetInt();
-			int i = Clamp(fontColor, 0, RealFontColors.Size() - 1);
-			col = RealFontColors[i];
-			return col, fontColor;
+			case ND_FIXED:
+				return Color(c_MainBarsArmorColor.GetString());
+				break;
+			//case ND_AMOUNT:
+		}
+		if (savePercent <= 0.34)
+		{
+			return Color(c_MainbarsAbsorbRange_33.GetString());
 		}
 		int startcol;
 		int endcol;
 		double colorDist;
-		if (savePercent <= 0.34)
+		if (savePercent <= 0.5)
 		{
-			startcol = c_MainbarsAbsorbRange_33.GetInt();
-			endcol = c_MainbarsAbsorbRange_33.GetInt();
-			colorDist = LinearMap(savePercent, 0, 0.33, 0.0, 1.0);
-		}
-		else if (savePercent <= 0.5)
-		{
-			startcol = c_MainbarsAbsorbRange_33.GetInt();
-			endcol = c_MainbarsAbsorbRange_50.GetInt();
+			startcol = Color(c_MainbarsAbsorbRange_33.GetString());
+			endcol = Color(c_MainbarsAbsorbRange_50.GetString());
 			colorDist = LinearMap(savePercent, 0, 0.33, 0.5, 1.0);
 		}
 		else if (savePercent <= 0.67)
 		{
-			startcol = c_MainbarsAbsorbRange_50.GetInt();
-			endcol = c_MainbarsAbsorbRange_66.GetInt();
+			startcol = Color(c_MainbarsAbsorbRange_50.GetString());
+			endcol = Color(c_MainbarsAbsorbRange_66.GetString());
 			colorDist = LinearMap(savePercent, 0, 0.5, 0.66, 1.0);
 		}
 		else if (savePercent <= 0.8)
 		{
-			startcol = c_MainbarsAbsorbRange_66.GetInt();
-			endcol = c_MainbarsAbsorbRange_80.GetInt();
+			startcol = Color(c_MainbarsAbsorbRange_66.GetString());
+			endcol = Color(c_MainbarsAbsorbRange_80.GetString());
 			colorDist = LinearMap(savePercent, 0, 0.66, 0.8, 1.0);
 		}
 		else
 		{
-			startcol = c_MainbarsAbsorbRange_80.GetInt();
-			endcol = c_MainbarsAbsorbRange_100.GetInt();
+			startcol = Color(c_MainbarsAbsorbRange_80.GetString());
+			endcol = Color(c_MainbarsAbsorbRange_100.GetString());
 			colorDist = LinearMap(savePercent, 0, 0.8, 1.0, 1.0);
 		}
-		fontColor = endcol;
-		startcol = Clamp(startcol, 0, RealFontColors.Size() - 1);
-		endcol = Clamp(endcol, 0, RealFontColors.Size() - 1);
-		Color finalColor = GetIntermediateColor(RealFontColors[startcol], RealFontColors[endcol], colorDist);
-		return Color(255, finalColor.r, finalcolor.g, finalcolor.b), fontColor;
+		return GetIntermediateColor(startcol, endcol, colorDist);
 	}
 
 	clearscope int GetPercentageFontColor(int amount, int maxamount)
@@ -1594,18 +1586,16 @@ class JGPUFH_FlexibleHUD : EventHandler
 		[fnt, fntscale] = GetHUDFont(mainHUDFont);
 		fntScale *= scale;
 		double fy = GetFontHeight(mainHUDFont, scale);
-		Color cColor; int cFntCol;
-		[cColor, cFntCol] = GetHealthColor(healthAmount, healthMaxAmount);
+		Color cColor = GetHealthColor(healthAmount, healthMaxAmount);
 		// Draw health bar or numbers:
 		if (drawbars)
 		{
 			DrawFlatColorBar((barPosX, iconPos.y), GetHealthInterpolated(), healthMaxAmount, Color(200, 255, 255, 255), barwidth:barWidth, barheight: barheight, flags:barFlags);
-			DrawFlatColorBar((barPosX, iconPos.y), healthAmount, healthMaxAmount, cColor, valueColor: Font.CR_White, barwidth:barWidth, barheight: barheight, backColor: Color(0,0,0,0), flags:barFlags);
+			DrawFlatColorBar((barPosX, iconPos.y), healthAmount, healthMaxAmount, cColor, valueColor: Font.CR_White, barwidth:barWidth, barheight: barheight, backColor: 0x00000000, flags:barFlags);
 		}
 		else
 		{
-			String healthstring = String.Format("%3d", healthAmount);
-			statusbar.DrawString(fnt, healthstring, (barPosX, iconPos.y - fy*0.5), flags, translation:cFntCol, scale: fntScale);
+			DrawColorString(cColor, fnt, String.Format("%3d", healthAmount), (barPosX, iconPos.y - fy*0.5), flags, scale: fntScale);
 		}
 		
 		// Draw armor bar:
@@ -1619,15 +1609,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		let hexarm = HexenArmor(CPlayer.mo.FindInventory('HexenArmor', true));
 		TextureID armTex;
 		double armTexSize = 12 * scale;
-		if (!hasHexenArmor && barm)
-		{
-			[cColor, cFntCol] = GetArmorColor(barm.savePercent);
-			armTex = barm.icon;
-		}
-		if (hasHexenArmor && hexArm)
-		{
-			[cColor, cFntCol] = GetArmorColor(armAmount / armMaxAmount);
-		}
 
 		iconPos.y = pos.y + height * 0.25;
 		// uses Hexen armor:
@@ -1702,11 +1683,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (drawbars)
 		{
 			DrawFlatColorBar((barPosX, iconPos.y), GetArmorInterpolated(), armMaxamount, Color(200, 255, 255, 255), barwidth:barWidth, barheight: barheight*0.8, segments: barm.maxamount / 10, flags:barFlags);
-			DrawFlatColorBar((barPosX, iconPos.y), armAmount, armMaxamount, cColor, valueColor: Font.CR_White, barwidth:barWidth, barheight*0.8, backColor: Color(0,0,0,0), segments: barm.maxamount / 10, flags:barFlags);
+			DrawFlatColorBar((barPosX, iconPos.y), armAmount, armMaxamount, armorColor, valueColor: Font.CR_White, barwidth:barWidth, barheight*0.8, backColor: 0x00000000, segments: barm.maxamount / 10, flags:barFlags);
 		}
 		else
 		{
-			statusbar.DrawString(fnt, String.Format("%3d", armAmount), (barPosX, iconPos.y - fy*0.5), flags, translation:cFntCol, scale:fntScale);
+			DrawColorString(armorColor, fnt, String.Format("%3d", armAmount), (barPosX, iconPos.y - fy*0.5), flags, scale:fntScale);
 		}
 	}
 
@@ -3503,6 +3484,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		ppos.x = Lerp(prevPlayerPos.x, CPlayer.mo.pos.x, fracTic);
 		ppos.y = Lerp(prevPlayerPos.y, CPlayer.mo.pos.y, fracTic);
 		double playerAngle = -(Lerp(prevPlayerAngle, CPlayer.mo.angle, fracTic) + 90);
+
 		Vector2 diff = Level.Vec2Diff((0,0), ppos);
 
 		if (!minimapTransform)
@@ -3812,6 +3794,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		vec += (mapSize, mapSize)*0.5;
 		return vec;
 	}
+	
 	ui void DrawMinimapSectors(Vector2 pos, Vector2 playerPos, double angle, double radius, double scale = 1.0, double zoom = 1.0)
 	{
 		Shape2D shape = New('Shape2D');
