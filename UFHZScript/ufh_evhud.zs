@@ -1155,12 +1155,23 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	clearscope Color GetIntermediateColor(Color c1, Color c2, double colordistance)
 	{
-		colordistance = Clamp(colordistance, 0.0, 1.0);
-		Color finalColor = Color(
-			int(round(C1.a + (C2.a - C1.a)*colordistance)),
-			int(round(C1.r + (C2.r - C1.r)*colordistance)),
-			int(round(C1.g + (C2.g - C1.g)*colordistance)),
-			int(round(C1.b + (C2.b - C1.b)*colordistance))
+		double d = colordistance;
+		double r1 = (c1.r / 255.0) ** 2.2;
+		double g1 = (c1.g / 255.0) ** 2.2;
+		double b1 = (c1.b / 255.0) ** 2.2;
+		double r2 = (c2.r / 255.0) ** 2.2;
+		double g2 = (c2.g / 255.0) ** 2.2;
+		double b2 = (c2.b / 255.0) ** 2.2;
+		double r_lin = r1 + (r2 - r1) * d;
+		double g_lin = g1 + (g2 - g1) * d;
+		double b_lin = b1 + (b2 - b1) * d;
+		double pow = 1.0 / 2.2;
+		int alph = (c1.a == 0 && c2.a == 0)? 255 : int(round(c1.a + (c2.a - c1.a) * d));
+		return Color(
+			alph,
+			int(round((r_lin ** pow) * 255)),
+			int(round((g_lin ** pow) * 255)),
+			int(round((b_lin ** pow) * 255))
 		);
 		return finalcolor;
 	}
