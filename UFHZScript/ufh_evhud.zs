@@ -1182,43 +1182,74 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// to common savepercent values (50, 80 and 33):
 	ui Color GetArmorColor(double savePercent)
 	{
-		switch (c_MainBarsArmorColorMode.GetInt())
+		int mode = c_MainBarsArmorColorMode.GetInt();
+		// single color:
+		if (mode == ND_FIXED)
 		{
-			case ND_FIXED:
-				return Color(c_MainBarsArmorColor.GetString());
-				break;
-			//case ND_AMOUNT:
+			return Color(c_MainBarsArmorColor.GetString());
 		}
-		if (savePercent <= 0.34)
-		{
-			return Color(c_MainbarsAbsorbRange_33.GetString());
-		}
-		int startcol;
-		int endcol;
+		Color startcol, endcol;
 		double colorDist;
-		if (savePercent <= 0.5)
+		// amount-based color:
+		if (mode == ND_AMOUNT)
 		{
-			startcol = Color(c_MainbarsAbsorbRange_33.GetString());
-			endcol = Color(c_MainbarsAbsorbRange_50.GetString());
-			colorDist = LinearMap(savePercent, 0, 0.33, 0.5, 1.0);
+			double ratio = armAmount / 100.0;
+			if (ratio <= 0.5)
+			{
+				startcol = Color(c_MainbarsArmorRange_25.GetString());
+				endcol = Color(c_MainbarsArmorRange_50.GetString());
+				colorDist = LinearMap(ratio, 0.25, 0.5, 0.0, 1.0);
+			}
+			else if (ratio <= 0.75)
+			{
+				startcol = Color(c_MainbarsArmorRange_50.GetString());
+				endcol = Color(c_MainbarsArmorRange_75.GetString());
+				colorDist = LinearMap(ratio, 0.5, 0.75, 0.0, 1.0);
+			}
+			else if (ratio <= 1.0)
+			{
+				startcol = Color(c_MainbarsArmorRange_75.GetString());
+				endcol = Color(c_MainbarsArmorRange_100.GetString());
+				colorDist = LinearMap(ratio, 0.75, 1.0, 0.0, 1.0);
+			}
+			else
+			{
+				startcol = Color(c_MainbarsArmorRange_100.GetString());
+				endcol = Color(c_MainbarsArmorRange_101.GetString());
+				colorDist = LinearMap(ratio, 1.0, 1.1, 0.0, 1.0);
+			}
 		}
-		else if (savePercent <= 0.67)
-		{
-			startcol = Color(c_MainbarsAbsorbRange_50.GetString());
-			endcol = Color(c_MainbarsAbsorbRange_66.GetString());
-			colorDist = LinearMap(savePercent, 0, 0.5, 0.66, 1.0);
-		}
-		else if (savePercent <= 0.8)
-		{
-			startcol = Color(c_MainbarsAbsorbRange_66.GetString());
-			endcol = Color(c_MainbarsAbsorbRange_80.GetString());
-			colorDist = LinearMap(savePercent, 0, 0.66, 0.8, 1.0);
-		}
+		// absorption-based color (the sane default):
 		else
 		{
-			startcol = Color(c_MainbarsAbsorbRange_80.GetString());
-			endcol = Color(c_MainbarsAbsorbRange_100.GetString());
-			colorDist = LinearMap(savePercent, 0, 0.8, 1.0, 1.0);
+			if (savePercent <= 0.34)
+			{
+				return Color(c_MainbarsAbsorbRange_33.GetString());
+			}
+			if (savePercent <= 0.5)
+			{
+				startcol = Color(c_MainbarsAbsorbRange_33.GetString());
+				endcol = Color(c_MainbarsAbsorbRange_50.GetString());
+				colorDist = LinearMap(savePercent, 0, 0.33, 0.5, 1.0);
+			}
+			else if (savePercent <= 0.67)
+			{
+				startcol = Color(c_MainbarsAbsorbRange_50.GetString());
+				endcol = Color(c_MainbarsAbsorbRange_66.GetString());
+				colorDist = LinearMap(savePercent, 0, 0.5, 0.66, 1.0);
+			}
+			else if (savePercent <= 0.8)
+			{
+				startcol = Color(c_MainbarsAbsorbRange_66.GetString());
+				endcol = Color(c_MainbarsAbsorbRange_80.GetString());
+				colorDist = LinearMap(savePercent, 0, 0.66, 0.8, 1.0);
+			}
+			else
+			{
+				startcol = Color(c_MainbarsAbsorbRange_80.GetString());
+				endcol = Color(c_MainbarsAbsorbRange_100.GetString());
+				colorDist = LinearMap(savePercent, 0, 0.8, 1.0, 1.0);
+			}
 		}
 		return GetIntermediateColor(startcol, endcol, colorDist);
 	}
