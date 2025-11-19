@@ -1885,7 +1885,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// height of the block, put them in the array,
 		// then draw them from the array:
 
-		WeaponSlots wslots = CPlayer.weapons;
+		let wslots = CPlayer.weapons;
 		if (!wslots)
 			return;
 
@@ -3061,7 +3061,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (weaponSlotData.Size() > 0)
 			return;
 
-		WeaponSlots wslots = CPlayer.weapons;
+		let wslots = CPlayer.weapons;
 		if (!wslots)
 			return;
 
