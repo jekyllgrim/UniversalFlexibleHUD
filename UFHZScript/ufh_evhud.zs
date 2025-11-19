@@ -1183,7 +1183,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		int startcol;
 		int endcol;
 		double colorDist;
-		if (savePercent <= 0.33)
+		if (savePercent <= 0.34)
 		{
 			startcol = c_MainbarsAbsorbRange_33.GetInt();
 			endcol = c_MainbarsAbsorbRange_33.GetInt();
@@ -1195,7 +1195,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			endcol = c_MainbarsAbsorbRange_50.GetInt();
 			colorDist = LinearMap(savePercent, 0, 0.33, 0.5, 1.0);
 		}
-		else if (savePercent <= 0.66)
+		else if (savePercent <= 0.67)
 		{
 			startcol = c_MainbarsAbsorbRange_50.GetInt();
 			endcol = c_MainbarsAbsorbRange_66.GetInt();
@@ -1436,8 +1436,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		healthMaxAmount = CPlayer.mo.GetMaxHealth(true);
 
 		// Check if armor exists and is above 0
-		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
-		let hexarm = HexenArmor(CPlayer.mo.FindInventory("HexenArmor"));
+		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor", true));
+		let hexarm = HexenArmor(CPlayer.mo.FindInventory("HexenArmor", true));
 		armMaxAmount = 0;
 		hasHexenArmor = false;
 		if (barm)
@@ -1604,8 +1604,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return;
 		}
 
-		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
-		let hexarm = HexenArmor(CPlayer.mo.FindInventory("HexenArmor"));
+		let barm = BasicArmor(CPlayer.mo.FindInventory('BasicArmor', true));
+		let hexarm = HexenArmor(CPlayer.mo.FindInventory('HexenArmor', true));
 		TextureID armTex;
 		double armTexSize = 12 * scale;
 		if (!hasHexenArmor && barm)
