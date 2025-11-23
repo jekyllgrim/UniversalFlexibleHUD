@@ -194,7 +194,7 @@ OptionMenu "JGPHUD_HealthGradient"
 	StaticText "Health gradient", yellow
 	StaticText ""
 
-	Numberfield "Number of thresholds", "jgphud_MainBarsHealthThresholds", 1, 10
+	Slider "Number of thresholds", "jgphud_MainBarsHealthThresholds", 1, 10, 1, 0
 	StaticText ""
 
 	JGPUFH_HealthGradient

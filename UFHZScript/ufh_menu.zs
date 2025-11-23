@@ -633,6 +633,7 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 	array<color> healthColors;
 	CVar thresholds;
 	CVar gradientString;
+	CVar currentStripColor;
 	String prevGradientString;
 
 	void Init()
@@ -640,6 +641,7 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 		Super.Init("", "");
 		thresholds = CVar.FindCVar('jgphud_MainBarsHealthThresholds');
 		gradientString = CVar.FindCVar('jgphud_MainBarsHealthGradient');
+		currentStripColor = CVar.FindCVar('jgphud_MainBarsHealthGradientStripColor');
 		colorSelected = false;
 		setupMode = SM_None;
 		ParseGradients();
@@ -661,11 +663,13 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 		else
 		{
 			setupMode = SM_Colors;
+			// update cvar that holds the current strip's color:
+			currentStripColor.SetInt(healthColors[selectedRange]);
 			let desc = OptionMenuDescriptor(MenuDescriptor.GetDescriptor('Colorpickermenu'));
 			if (desc)
 			{
 				let picker = new('JGPUFH_HealthColorPickerMenu');
-				picker.Init(Menu.GetCurrentMenu(), mLabel, desc, self, healthvalues[selectedRange], selectedRange);
+				picker.Init(Menu.GetCurrentMenu(), mLabel, desc, self, selectedRange, currentStripColor);
 				picker.ActivateMenu();
 				return true;
 			}
@@ -729,7 +733,7 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
 	{
 		ParseGradients();
-		int width = Screen.GetWidth() / 2;
+		int width = int(ceil(Screen.GetWidth() * 0.8));
 		int height = Menu.OptionHeight() * 2;
 		int x = indent - (width / 2);
 		int steps = min(thresholds.GetInt(), healthValues.Size(), healthcolors.Size());
@@ -795,6 +799,7 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 			{
 				if (colorSelected)
 				{
+					indent = colPos + stripWidth / 2;
 					selectedPosX = colPos;
 					selectedPosY = y;
 					selectedWidth = stripwidth;
@@ -802,6 +807,7 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 				}
 				else
 				{
+					indent = pipPosX + 4;
 					selectedPosX = pipPosX;
 					selectedPosY = pipPosY;
 					selectedWidth = 4;
@@ -816,18 +822,35 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 		}
 		if (selectedPosX > 0)
 		{
-			Color scol = Menu.MenuTime() & 16? 0xffffff : 0x000000;
-			Screen.Dim(scol, 1.0, selectedPosX, selectedPosY, selectedWidth, 2); //top
-			Screen.Dim(scol, 1.0, selectedPosX, selectedPosY + selectedHeight - 2, selectedWidth, 2); //bottom
-			Screen.Dim(scol, 1.0, selectedPosX, selectedPosY, 2, selectedHeight); //left
-			Screen.Dim(scol, 1.0, selectedPosX + selectedWidth - 2, selectedPosY, 2, selectedHeight); //right
+			double ang = 360.0 * Menu.MenuTime() / TICRATE;
+			double aW = sin(ang);
+			Screen.Dim(0x000000, aW, selectedPosX, selectedPosY, selectedWidth, 2); //top
+			Screen.Dim(0x000000, aW, selectedPosX, selectedPosY + selectedHeight - 2, selectedWidth, 2); //bottom
+			Screen.Dim(0x000000, aW, selectedPosX, selectedPosY, 2, selectedHeight); //left
+			Screen.Dim(0x000000, aW, selectedPosX + selectedWidth - 2, selectedPosY, 2, selectedHeight); //right
+			double aB = 1.0 - aW;
+			Screen.Dim(0xffffff, aB, selectedPosX, selectedPosY, selectedWidth, 2); //top
+			Screen.Dim(0xffffff, aB, selectedPosX, selectedPosY + selectedHeight - 2, selectedWidth, 2); //bottom
+			Screen.Dim(0xffffff, aB, selectedPosX, selectedPosY, 2, selectedHeight); //left
+			Screen.Dim(0xffffff, aB, selectedPosX + selectedWidth - 2, selectedPosY, 2, selectedHeight); //right
+
+			if (setupMode == SM_Thresholds)
+			{
+				String sel = "< >";
+				Screen.DrawText(ConFont,
+					Font.CR_White,
+					selectedPosX - ConFont.StringWidth(sel), y,
+					sel,
+					DTA_CleanNoMove, true,
+					DTA_Alpha, aB);
+			}
 		}
 		Screen.DrawText(ConFont,
 			Font.CR_White,
 			x, y + height,
 			gradientString.GetString(),
 			DTA_CleanNoMove_1, true);
-		return selectedPosX;
+		return indent;
 	}
 }
 
@@ -928,40 +951,23 @@ class JGPUFH_HealthGradientMenu : JGPUFH_OptionMenu
 
 class JGPUFH_HealthColorPickerMenu : ColorPickerMenu
 {
-	Color gradientColor;
 	int gradientColorID;
 	OptionMenuItemJGPUFH_HealthGradient gradientMenuItem;
 
-	void Init(Menu parent, String name, OptionMenuDescriptor desc, OptionMenuItemJGPUFH_HealthGradient item, Color col, int colorID)
+	void Init(Menu parent, String name, OptionMenuDescriptor desc, OptionMenuItemJGPUFH_HealthGradient item, int colorID, CVar currentStripColor)
 	{
 		gradientMenuItem = item;
-		gradientColor = col;
 		gradientcolorID = colorID;
-		// passing dummy cvar here so I don't have to override the whole Drawer()
-		// (which doesn't draw anything if the cvar is null)
-		Super.Init(parent, name, desc, CVar.FindCVar('jgphud_MainBarsHealthGradientStripColor'));
-	}
-
-	override void ResetColor()
-	{
-		mRed = gradientColor.r;
-		mGreen = gradientColor.g;
-		mBlue = gradientColor.b;
+		Super.Init(parent, name, desc, currentStripColor);
 	}
 
 	override void OnDestroy()
 	{
-		if (mStartItem >= 0)
+		if (gradientMenuItem)
 		{
-			mDesc.mItems.Resize(mStartItem);
-			mDesc.mSelectedItem = -1;
-			if (gradientMenuItem)
-			{
-				gradientMenuItem.healthColors[gradientColorID] = Color(int(mRed), int(mGreen), int(mBlue));
-				gradientMenuItem.setupMode = gradientMenuItem.SM_None;
-				gradientMenuItem.UpdateCVarFromArrays();
-			}
-			mStartItem = -1;
+			gradientMenuItem.healthColors[gradientColorID] = Color(int(mRed), int(mGreen), int(mBlue));
+			gradientMenuItem.setupMode = gradientMenuItem.SM_None;
+			gradientMenuItem.UpdateCVarFromArrays();
 		}
 		Super.OnDestroy();
 	}
