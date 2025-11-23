@@ -661,6 +661,14 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 		else
 		{
 			setupMode = SM_Colors;
+			let desc = OptionMenuDescriptor(MenuDescriptor.GetDescriptor('Colorpickermenu'));
+			if (desc)
+			{
+				let picker = new('JGPUFH_HealthColorPickerMenu');
+				picker.Init(Menu.GetCurrentMenu(), mLabel, desc, self, healthvalues[selectedRange], selectedRange);
+				picker.ActivateMenu();
+				return true;
+			}
 		}
 		Menu.MenuSound("menu/advance");
 		return true;
@@ -683,7 +691,7 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 	{
 		String workstring = gradientString.GetString();
 		if (prevGradientString == workstring) return;
-		Console.Printf("prev string: %s\nnew string: %s\nReparsing", prevGradientString, workstring);
+		//Console.Printf("prev string: %s\nnew string: %s\nReparsing", prevGradientString, workstring);
 		int iterations = 32;
 		while (iterations > 0)
 		{
@@ -915,5 +923,46 @@ class JGPUFH_HealthGradientMenu : JGPUFH_OptionMenu
 			break;
 		}
 		return true;
+	}
+}
+
+class JGPUFH_HealthColorPickerMenu : ColorPickerMenu
+{
+	Color gradientColor;
+	int gradientColorID;
+	OptionMenuItemJGPUFH_HealthGradient gradientMenuItem;
+
+	void Init(Menu parent, String name, OptionMenuDescriptor desc, OptionMenuItemJGPUFH_HealthGradient item, Color col, int colorID)
+	{
+		gradientMenuItem = item;
+		gradientColor = col;
+		gradientcolorID = colorID;
+		// passing dummy cvar here so I don't have to override the whole Drawer()
+		// (which doesn't draw anything if the cvar is null)
+		Super.Init(parent, name, desc, CVar.FindCVar('jgphud_MainBarsHealthGradientStripColor'));
+	}
+
+	override void ResetColor()
+	{
+		mRed = gradientColor.r;
+		mGreen = gradientColor.g;
+		mBlue = gradientColor.b;
+	}
+
+	override void OnDestroy()
+	{
+		if (mStartItem >= 0)
+		{
+			mDesc.mItems.Resize(mStartItem);
+			mDesc.mSelectedItem = -1;
+			if (gradientMenuItem)
+			{
+				gradientMenuItem.healthColors[gradientColorID] = Color(int(mRed), int(mGreen), int(mBlue));
+				gradientMenuItem.setupMode = gradientMenuItem.SM_None;
+				gradientMenuItem.UpdateCVarFromArrays();
+			}
+			mStartItem = -1;
+		}
+		Super.OnDestroy();
 	}
 }
