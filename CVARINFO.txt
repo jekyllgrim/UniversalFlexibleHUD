@@ -155,6 +155,8 @@ nosave float jgphud_ReticleBarsScale = 1.0;
 
 nosave int jgphud_MainBarsHealthColorMode = 1;
 nosave color jgphud_MainBarsHealthColor = "00 aa 00";
+nosave int jgphud_MainBarsHealthThresholds = 5;
+nosave string jgphud_MainBarsHealthGradient = "25:ff0000|50:ffaa00|75:00ff00|100:00ff00|110:0000ff";
 nosave color jgphud_MainbarsHealthRange_25 = "ff 00 00";
 nosave color jgphud_MainbarsHealthRange_50 = "ff aa 00";
 nosave color jgphud_MainbarsHealthRange_75 = "ff ff 00";

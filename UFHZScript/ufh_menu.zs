@@ -615,3 +615,305 @@ class OptionMenuItemJGPUFHTextField : OptionMenuItemTextField
 		return !CheckAllCVars();
 	}
 }
+
+class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
+{
+	const MAXGRADIENTHEALTH = 200;
+	const COLORRANGESTEPS = 8.0;
+	enum ESetupModes
+	{
+		SM_None,
+		SM_Thresholds,
+		SM_Colors,
+	}
+	ESetupModes setupMode;
+	int selectedRange;
+	bool colorSelected;
+	array<int> healthValues;
+	array<color> healthColors;
+	CVar thresholds;
+	CVar gradientString;
+	String prevGradientString;
+
+	void Init()
+	{
+		Super.Init("", "");
+		thresholds = CVar.FindCVar('jgphud_MainBarsHealthThresholds');
+		gradientString = CVar.FindCVar('jgphud_MainBarsHealthGradient');
+		colorSelected = false;
+		setupMode = SM_None;
+		ParseGradients();
+	}
+
+	override bool Activate()
+	{
+		if (setupMode != SM_None)
+		{
+			Menu.MenuSound("menu/back");
+			UpdateCVarFromArrays();
+			setupMode = SM_None;
+			return true;
+		}
+		if (!colorSelected)
+		{
+			setupMode = SM_Thresholds;
+		}
+		else
+		{
+			setupMode = SM_Colors;
+		}
+		Menu.MenuSound("menu/advance");
+		return true;
+	}
+
+	void UpdateCVarFromArrays()
+	{
+		String str;
+		for (int i = 0; i < healthValues.Size(); i++)
+		{
+			str.AppendFormat("%d:%06x%s",
+				healthValues[i],
+				healthColors[i],
+				i < healthvalues.Size() - 1? "|" : "");
+		}
+		gradientString.SetString(str);
+	}
+
+	void ParseGradients()
+	{
+		String workstring = gradientString.GetString();
+		if (prevGradientString == workstring) return;
+		Console.Printf("prev string: %s\nnew string: %s\nReparsing", prevGradientString, workstring);
+		int iterations = 32;
+		while (iterations > 0)
+		{
+			iterations--;
+			healthValues.Clear();
+			healthColors.Clear();
+			array<String> tokens;
+			workstring.Split(tokens, "|");
+			int iterations = tokens.Size();
+			if (iterations == 0)
+			{
+				Console.Printf("\cdjgphud_MainBarsHealthGradient\c- CVar has invalid values (\cg%s\c-). Resetting to default", gradientString.GetString());
+				gradientString.ResetToDefault();
+				continue;
+			}
+			for (int i = 0; i < iterations; i++)
+			{
+				array<String> token;
+				tokens[i].Split(token, ":");
+				if (token.Size() != 2)
+				{
+					Console.Printf("\cdjgphud_MainBarsHealthGradient\c- CVar has invalid values (\cg%s\c-). Resetting to default", gradientString.GetString());
+					gradientString.ResetToDefault();
+					continue;
+				}
+				healthValues.Push(token[0].ToInt());
+				healthColors.Push(color(token[1]));
+				//Console.Printf("parsing value \cd%d\c- color \cy%s\c-", token[0].ToInt(), token[1]);
+			}
+			break;
+		}
+		prevGradientString = gradientString.GetSTring();
+	}
+
+	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
+	{
+		ParseGradients();
+		int width = Screen.GetWidth() / 2;
+		int height = Menu.OptionHeight() * 2;
+		int x = indent - (width / 2);
+		int steps = min(thresholds.GetInt(), healthValues.Size(), healthcolors.Size());
+		double widthstep = double(width) / MAXGRADIENTHEALTH;
+		Screen.Dim(0x000000, 1.0, x, y, width, height);
+		int curVal, nextVal, stripwidth;
+		int selectedPosX, selectedPosY, selectedWidth, selectedHeight;
+		for (int i = 0; i < steps; i++)
+		{
+			curVal = healthValues[i];
+			nextVal = i < steps - 1? healthValues[i+1] : MAXGRADIENTHEALTH;
+			stripwidth = int(ceil(widthstep * (nextval - curVal)));
+			int stripPos = int(ceil(curVal * widthstep));
+			// color range:
+			double colalpha = selected? 1.0 : 0.7;
+			// fill the leftmost part with solid color
+			// from 0 to first value if first value is above 0:
+			if (i == 0 && curVal > 0)
+			{
+				Screen.Dim(healthColors[i], colAlpha, x, y, stripPos, height);
+			}
+			int colPos = x + stripPos;
+			// fill the current part with solid color from last value
+			// to 200, if last value is below 200 OR if current and next
+			// color values are the same:
+			if (i >= steps - 1 || healthColors[i] == healthColors[i+1])
+			{
+				Screen.Dim(healthColors[i], colalpha, colPos, y, stripwidth, height);
+			}
+			// otherwise draw a gradient:
+			else
+			{
+				int colorsteps = nextval - curval;
+				int x1, x2, w;
+				double a;
+				for (int c = 0; c < colorsteps; c++)
+				{
+					x1 = colPos + (stripWidth * c) / colorsteps;
+					x2 = colPos + (stripWidth * (c + 1)) / colorsteps;
+					w = x2 - x1;
+					a = c / double(colorsteps);
+					Screen.Dim(healthColors[i],
+						colalpha * (1.0 - a),
+						x1,
+						y,
+						w,
+						height);
+					Screen.Dim(healthColors[i+1],
+						colalpha * a,
+						x1,
+						y,
+						w,
+						height);
+				}
+			}
+			// threshold pip:
+			int pipposX = x + stripPos - 2;
+			int pipposY = y - height / 2;
+			Screen.Dim(0xffffff, 1.0, pipposX, pipposY, 4, int(round(height * 1.5)));
+
+			// selection highlight:
+			if (selected && i == selectedRange)
+			{
+				if (colorSelected)
+				{
+					selectedPosX = colPos;
+					selectedPosY = y;
+					selectedWidth = stripwidth;
+					selectedHeight = height;
+				}
+				else
+				{
+					selectedPosX = pipPosX;
+					selectedPosY = pipPosY;
+					selectedWidth = 4;
+					selectedHeight =  int(round(height * 1.5));
+				}
+			}
+			Screen.DrawText(ConFont,
+				Font.CR_White,
+				pipposX + 5, pipposY,
+				""..curVal,
+				DTA_CleanNoMove_1, true);
+		}
+		if (selectedPosX > 0)
+		{
+			Color scol = Menu.MenuTime() & 16? 0xffffff : 0x000000;
+			Screen.Dim(scol, 1.0, selectedPosX, selectedPosY, selectedWidth, 2); //top
+			Screen.Dim(scol, 1.0, selectedPosX, selectedPosY + selectedHeight - 2, selectedWidth, 2); //bottom
+			Screen.Dim(scol, 1.0, selectedPosX, selectedPosY, 2, selectedHeight); //left
+			Screen.Dim(scol, 1.0, selectedPosX + selectedWidth - 2, selectedPosY, 2, selectedHeight); //right
+		}
+		Screen.DrawText(ConFont,
+			Font.CR_White,
+			x, y + height,
+			gradientString.GetString(),
+			DTA_CleanNoMove_1, true);
+		return selectedPosX;
+	}
+}
+
+class JGPUFH_HealthGradientMenu : JGPUFH_OptionMenu
+{
+	override bool MenuEvent (int mkey, bool fromcontroller)
+	{
+		int sel = mDesc.mSelectedItem;
+		if (sel < 0 || sel >= mDesc.mItems.Size())
+		{
+			return Super.MenuEvent(mkey, fromcontroller);
+		}
+		let g = OptionMenuItemJGPUFH_HealthGradient(mDesc.mItems[sel]);
+		if (!g)
+		{
+			return Super.MenuEvent(mkey, fromcontroller);
+		}
+		int limit = g.healthvalues.Size() - 1;
+		switch (mkey)
+		{
+		default:
+			return Super.MenuEvent(mkey, fromcontroller);
+			break;
+		case MKEY_Right:
+			if (g.setupMode == g.SM_None)
+			{
+				if (g.colorSelected)
+				{
+					g.colorSelected = false;
+					if (++g.selectedRange > limit)
+					{
+						g.selectedRange = 0;
+					}
+				}
+				else 
+				{
+					g.colorSelected = true;
+				}
+				MenuSound ("menu/cursor");
+			}
+			else
+			{
+				int valueLimit;
+				if (g.selectedRange < limit)
+				{
+					valueLimit = g.healthValues[g.selectedRange + 1] - 1;
+				}
+				else
+				{
+					valueLimit = 200;
+				}
+				if (g.healthValues[g.selectedRange] < valueLimit)
+				{
+					g.healthValues[g.selectedRange] += 1;
+					MenuSound ("menu/cursor");
+				}
+			}
+			break;
+		case MKEY_Left:
+			if (g.setupMode == g.SM_None)
+			{
+				if (g.colorSelected)
+				{
+					g.colorSelected = false;
+				}
+				else 
+				{
+					if (--g.selectedRange < 0)
+					{
+						g.selectedRange = limit;
+					}
+					g.colorSelected = true;
+				}
+				MenuSound ("menu/cursor");
+			}
+			else
+			{
+				int valueLimit;
+				if (g.selectedRange > 0)
+				{
+					valueLimit = g.healthValues[g.selectedRange - 1] + 1;
+				}
+				else
+				{
+					valueLimit = 0;
+				}
+				if (g.healthValues[g.selectedRange] > valueLimit)
+				{
+					g.healthValues[g.selectedRange] -= 1;
+					MenuSound ("menu/cursor");
+				}
+			}
+			break;
+		}
+		return true;
+	}
+}

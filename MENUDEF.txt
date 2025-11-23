@@ -155,11 +155,12 @@ OptionMenu "JGPHUD_MainBars"
 	JGPUFH_CheckCVar "$JGPHUD_MAINBARS_NUMCOL_CHOOSE", sapphire, "jgphud_MainBarsHealthColorMode", "0"
 		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_FIXED_LABEL", "jgphud_MainBarsHealthColor"
 	JGPUFH_Else "$JGPHUD_MAINBARS_NUMCOL_CHOOSE", sapphire
-		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_25", "jgphud_MainbarsHealthRange_25"
-		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_50", "jgphud_MainbarsHealthRange_50"
-		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_75", "jgphud_MainbarsHealthRange_75"
-		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_100", "jgphud_MainbarsHealthRange_100"
-		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_101", "jgphud_MainbarsHealthRange_101"
+		SubMenu "Gradient setup" , "JGPHUD_HealthGradient", 0, 1
+		//ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_25", "jgphud_MainbarsHealthRange_25"
+		//ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_50", "jgphud_MainbarsHealthRange_50"
+		//ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_75", "jgphud_MainbarsHealthRange_75"
+		//ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_100", "jgphud_MainbarsHealthRange_100"
+		//ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_101", "jgphud_MainbarsHealthRange_101"
 	JGPUFH_EndIf ""
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "healthcolors"
 
@@ -185,6 +186,23 @@ OptionMenu "JGPHUD_MainBars"
 	JGPUFH_EndIf ""
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "armorcolors"
 }
+
+OptionMenu "JGPHUD_HealthGradient"
+{
+	Class "JGPUFH_HealthGradientMenu"
+	Title "$JGPHUD_SETTINGS_TITLE"
+	StaticText "Health gradient", yellow
+	StaticText ""
+
+	Numberfield "Number of thresholds", "jgphud_MainBarsHealthThresholds", 1, 10
+	StaticText ""
+
+	JGPUFH_HealthGradient
+
+	StaticText ""
+	SafeCommand "$OPTMNU_DEFAULTS", "resetcvar jgphud_MainBarsHealthThresholds; resetcvar jgphud_MainBarsHealthGradient"
+}
+
 
 OptionMenu "JGPHUD_Mugshot"
 {
