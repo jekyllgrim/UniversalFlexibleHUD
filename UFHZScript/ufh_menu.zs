@@ -649,6 +649,7 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 
 	override bool Activate()
 	{
+		// Disable color/threshold setup mode:
 		if (setupMode != SM_None)
 		{
 			Menu.MenuSound("menu/back");
@@ -656,10 +657,13 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 			setupMode = SM_None;
 			return true;
 		}
+		// Start threshold setup mode:
 		if (!colorSelected)
 		{
 			setupMode = SM_Thresholds;
+			Menu.MenuSound("menu/advance");
 		}
+		// Start color setup mode (activate custom color picker):
 		else
 		{
 			setupMode = SM_Colors;
@@ -668,66 +672,63 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 			let desc = OptionMenuDescriptor(MenuDescriptor.GetDescriptor('Colorpickermenu'));
 			if (desc)
 			{
+				Menu.MenuSound("menu/advance");
 				let picker = new('JGPUFH_HealthColorPickerMenu');
 				picker.Init(Menu.GetCurrentMenu(), mLabel, desc, self, selectedRange, currentStripColor);
 				picker.ActivateMenu();
 				return true;
 			}
 		}
-		Menu.MenuSound("menu/advance");
 		return true;
 	}
 
 	void UpdateCVarFromArrays()
 	{
-		String str;
-		for (int i = 0; i < healthValues.Size(); i++)
-		{
-			str.AppendFormat("%d:%06x%s",
-				healthValues[i],
-				healthColors[i],
-				i < healthvalues.Size() - 1? "|" : "");
-		}
-		gradientString.SetString(str);
+		JGPUFH_HealthGradientThreshold.UpdateCVarFromArrays(healthValues, healthColors);
 	}
 
 	void ParseGradients()
 	{
-		String workstring = gradientString.GetString();
-		if (prevGradientString == workstring) return;
-		//Console.Printf("prev string: %s\nnew string: %s\nReparsing", prevGradientString, workstring);
-		int iterations = 32;
-		while (iterations > 0)
+		if (prevGradientString != gradientString.GetString())
 		{
-			iterations--;
-			healthValues.Clear();
-			healthColors.Clear();
-			array<String> tokens;
-			workstring.Split(tokens, "|");
-			int iterations = tokens.Size();
-			if (iterations == 0)
-			{
-				Console.Printf("\cdjgphud_MainBarsHealthGradient\c- CVar has invalid values (\cg%s\c-). Resetting to default", gradientString.GetString());
-				gradientString.ResetToDefault();
-				continue;
-			}
-			for (int i = 0; i < iterations; i++)
-			{
-				array<String> token;
-				tokens[i].Split(token, ":");
-				if (token.Size() != 2)
-				{
-					Console.Printf("\cdjgphud_MainBarsHealthGradient\c- CVar has invalid values (\cg%s\c-). Resetting to default", gradientString.GetString());
-					gradientString.ResetToDefault();
-					continue;
-				}
-				healthValues.Push(token[0].ToInt());
-				healthColors.Push(color(token[1]));
-				//Console.Printf("parsing value \cd%d\c- color \cy%s\c-", token[0].ToInt(), token[1]);
-			}
-			break;
+			JGPUFH_HealthGradientThreshold.ParseHealthGradients(healthValues, healthcolors);
 		}
+
+		// We need to make sure that every next health threshold
+		// is higher than the previous one. Check if this isn't
+		// the case here, and, if necessary, update all values
+		// to their defaults (but without touching colors):
+		bool needResetValues = false;
+		for (int i = 0; i < GetMaxThresholds() - 1; i++)
+		{
+			if (healthValues[i+1] <= healthvalues[i])
+			{
+				needResetValues = true;
+				break;
+			}
+		}
+		if (needResetValues)
+		{
+			healthValues[0] = 25;
+			healthValues[1] = 50;
+			healthValues[2] = 75;
+			healthValues[3] = 100;
+			healthValues[4] = 110;
+			healthValues[5] = 120;
+			healthValues[6] = 130;
+			healthValues[7] = 140;
+			healthValues[8] = 150;
+			healthValues[9] = 160;
+			UpdateCVarFromArrays();
+		}
+
 		prevGradientString = gradientString.GetSTring();
+	}
+
+	int GetMaxThresholds()
+	{
+		// technically should always be the same number:
+		return min(thresholds.GetInt(), healthValues.Size(), healthcolors.Size());
 	}
 
 	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
@@ -736,18 +737,26 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 		int width = int(ceil(Screen.GetWidth() * 0.8));
 		int height = Menu.OptionHeight() * 2;
 		int x = indent - (width / 2);
-		int steps = min(thresholds.GetInt(), healthValues.Size(), healthcolors.Size());
+		int steps = GetMaxThresholds();
+		// updated the currently selected range if the number of values
+		// was reduced:
+		selectedRange = min(selectedRange, steps-1);
+		// width of one color strip:
 		double widthstep = double(width) / MAXGRADIENTHEALTH;
+		// start with a black rectangle under the whole color gradient:
 		Screen.Dim(0x000000, 1.0, x, y, width, height);
 		int curVal, nextVal, stripwidth;
 		int selectedPosX, selectedPosY, selectedWidth, selectedHeight;
 		for (int i = 0; i < steps; i++)
 		{
+			// calculate current strip's width and position based
+			// on the current and next health values:
 			curVal = healthValues[i];
 			nextVal = i < steps - 1? healthValues[i+1] : MAXGRADIENTHEALTH;
 			stripwidth = int(ceil(widthstep * (nextval - curVal)));
 			int stripPos = int(ceil(curVal * widthstep));
-			// color range:
+			// dim the alpha of the whole thing slightly while it's not
+			// selected:
 			double colalpha = selected? 1.0 : 0.7;
 			// fill the leftmost part with solid color
 			// from 0 to first value if first value is above 0:
@@ -771,6 +780,8 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 				double a;
 				for (int c = 0; c < colorsteps; c++)
 				{
+					// draw in integer steps to avoid weird pixels
+					// in various resolutions:
 					x1 = colPos + (stripWidth * c) / colorsteps;
 					x2 = colPos + (stripWidth * (c + 1)) / colorsteps;
 					w = x2 - x1;
@@ -793,8 +804,20 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 			int pipposX = x + stripPos - 2;
 			int pipposY = y - height / 2;
 			Screen.Dim(0xffffff, 1.0, pipposX, pipposY, 4, int(round(height * 1.5)));
+			// health value next to the pip above the gradient:
+			Screen.DrawText(ConFont,
+				Font.CR_White,
+				pipposX + 5, pipposY,
+				""..curVal,
+				DTA_CleanNoMove_1, true);
+			// color value next to the pip below the gradient:
+			Screen.DrawText(ConFont,
+				Font.CR_White,
+				pipposX + 5, y + height,
+				String.Format("%06x", healthColors[i]),
+				DTA_CleanNoMove_1, true);
 
-			// selection highlight:
+			// determine if this element should be selected:
 			if (selected && i == selectedRange)
 			{
 				if (colorSelected)
@@ -814,12 +837,32 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 					selectedHeight =  int(round(height * 1.5));
 				}
 			}
+		}
+		// start and end pips:
+		int pip1x = x;
+		int pip2x = x + width - 2;
+		int pipY = y - height / 2;
+		if (healthvalues[0] > 0)
+		{
+			Screen.Dim(0xffffff, 1.0, pip1x, pipY, 4, height*2);
 			Screen.DrawText(ConFont,
 				Font.CR_White,
-				pipposX + 5, pipposY,
-				""..curVal,
+				pip1x + 5, pipY,
+				""..0,
 				DTA_CleanNoMove_1, true);
 		}
+		if (healthValues[healthValues.Size()-1] < MAXGRADIENTHEALTH)
+		{
+			Screen.Dim(0xffffff, 1.0, pip2x, pipY, 4, height*2);
+			Screen.DrawText(ConFont,
+				Font.CR_White,
+				pip2x + 5, pipY,
+				""..MAXGRADIENTHEALTH,
+				DTA_CleanNoMove_1, true);
+		}
+		// draw selection highlight (a simple edge highlight fluctuating
+		// between white and black, since no other combination is guaranteed
+		// to look fine on top of other colors):
 		if (selectedPosX > 0)
 		{
 			double ang = 360.0 * Menu.MenuTime() / TICRATE;
@@ -834,6 +877,8 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 			Screen.Dim(0xffffff, aB, selectedPosX, selectedPosY, 2, selectedHeight); //left
 			Screen.Dim(0xffffff, aB, selectedPosX + selectedWidth - 2, selectedPosY, 2, selectedHeight); //right
 
+			// if a pip is selected and is being currently moved,
+			// draw simple text-based arrows next to it:
 			if (setupMode == SM_Thresholds)
 			{
 				String sel = "< >";
@@ -845,11 +890,11 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 					DTA_Alpha, aB);
 			}
 		}
-		Screen.DrawText(ConFont,
+		/*Screen.DrawText(ConFont,
 			Font.CR_White,
 			x, y + height,
 			gradientString.GetString(),
-			DTA_CleanNoMove_1, true);
+			DTA_CleanNoMove_1, true);*/
 		return indent;
 	}
 }
@@ -859,21 +904,25 @@ class JGPUFH_HealthGradientMenu : JGPUFH_OptionMenu
 	override bool MenuEvent (int mkey, bool fromcontroller)
 	{
 		int sel = mDesc.mSelectedItem;
+		// nothing special needs to be done:
 		if (sel < 0 || sel >= mDesc.mItems.Size())
 		{
 			return Super.MenuEvent(mkey, fromcontroller);
 		}
+		// a different item is selected:
 		let g = OptionMenuItemJGPUFH_HealthGradient(mDesc.mItems[sel]);
 		if (!g)
 		{
 			return Super.MenuEvent(mkey, fromcontroller);
 		}
-		int limit = g.healthvalues.Size() - 1;
+		int limit = g.GetMaxThresholds() - 1;
 		switch (mkey)
 		{
 		default:
 			return Super.MenuEvent(mkey, fromcontroller);
 			break;
+		// pressing Right or Left will move the highlight across
+		// the pips or ranges:
 		case MKEY_Right:
 			if (g.setupMode == g.SM_None)
 			{
@@ -954,7 +1003,13 @@ class JGPUFH_HealthColorPickerMenu : ColorPickerMenu
 	int gradientColorID;
 	OptionMenuItemJGPUFH_HealthGradient gradientMenuItem;
 
-	void Init(Menu parent, String name, OptionMenuDescriptor desc, OptionMenuItemJGPUFH_HealthGradient item, int colorID, CVar currentStripColor)
+	void Init(Menu parent,
+		String name,
+		OptionMenuDescriptor desc,
+		OptionMenuItemJGPUFH_HealthGradient item,
+		int colorID,
+		CVar currentStripColor
+	)
 	{
 		gradientMenuItem = item;
 		gradientcolorID = colorID;

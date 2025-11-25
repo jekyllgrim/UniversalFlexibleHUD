@@ -552,3 +552,80 @@ extend class JGPUFH_FlexibleHUD
 			c_am_secretsectorcolor = CVar.GetCvar('am_secretsectorcolor', CPlayer);
 	}
 }
+
+class JGPUFH_HealthGradientThreshold : CustomIntCVar
+{
+	override int ModifyValue(Name CVarName, int val)
+	{
+		return clamp(val, 1, 10);
+	}
+
+	static clearscope void UpdateCVarFromArrays(array<int> values, array<Color> colors)
+	{
+		CVar cv = CVar.FindCVar('jgphud_MainBarsHealthGradient');
+		if (!cv) return;
+		
+		String str;
+		for (int i = 0; i < values.Size(); i++)
+		{
+			str.AppendFormat("%d:%06x%s",
+				values[i],
+				colors[i],
+				i < values.Size() - 1? "|" : "");
+		}
+		cv.SetString(str);
+	}
+
+	static clearscope void ParseHealthGradients(out array<int> values, out array<Color> colors)
+	{
+		CVar thresholds = CVar.FindCVar('jgphud_MainBarsHealthThresholds');
+		CVar gradientString = CVar.FindCVar('jgphud_MainBarsHealthGradient');
+		CVar currentStripColor = CVar.FindCVar('jgphud_MainBarsHealthGradientStripColor');
+		
+		String workstring = gradientString.GetString();
+		
+		// Do this recursively on the off chance that the
+		// CVar's value got messed up and needs to be reset
+		// and the reparsed:
+	
+		int iterations = 32;
+		while (iterations > 0)
+		{
+			iterations--;
+			values.Clear();
+			colors.Clear();
+			array<String> tokens;
+			workstring.Split(tokens, "|");
+			// incorrect CVar value:
+			if (tokens.Size() == 0)
+			{
+				Console.Printf("\cdjgphud_MainBarsHealthGradient\c- CVar has invalid values (\cg%s\c-). Resetting to default", gradientString.GetString());
+				gradientString.ResetToDefault();
+				continue;
+			}
+			// technically shouldn't happen, but if there are no enough
+			// tokens provided in a cvar, copy the last token until
+			// it reaches the size of 10 (max No. of threshold):
+			while (tokens.Size() < 10)
+			{
+				tokens.Push( tokens[tokens.Size() - 1] );
+			}
+			// split each token into a number (health threshold)
+			// and a corresponding color:
+			for (int i = 0; i < tokens.Size(); i++)
+			{
+				array<String> token;
+				tokens[i].Split(token, ":");
+				if (token.Size() != 2)
+				{
+					Console.Printf("\cdjgphud_MainBarsHealthGradient\c- CVar has invalid values (\cg%s\c-). Resetting to default", gradientString.GetString());
+					gradientString.ResetToDefault();
+					continue;
+				}
+				values.Push(token[0].ToInt());
+				colors.Push(color(token[1]));
+			}
+			break;
+		}
+	}
+}
