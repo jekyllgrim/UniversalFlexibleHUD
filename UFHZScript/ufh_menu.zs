@@ -632,16 +632,18 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 	array<int> healthValues;
 	array<color> healthColors;
 	CVar thresholds;
-	CVar gradientString;
+	CVar colorList;
 	CVar currentStripColor;
+	CVar useGradients;
 	String prevGradientString;
 
 	void Init()
 	{
 		Super.Init("", "");
 		thresholds = CVar.FindCVar('jgphud_MainBarsHealthThresholds');
-		gradientString = CVar.FindCVar('jgphud_MainBarsHealthColors');
+		colorList = CVar.FindCVar('jgphud_MainBarsHealthColors');
 		currentStripColor = CVar.FindCVar('jgphud_MainBarsHealthStripColor');
+		useGradients = CVar.FindCVar('jgphud_MainbarsHealthGradient');
 		colorSelected = false;
 		setupMode = SM_None;
 		ParseGradients();
@@ -689,7 +691,7 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 
 	void ParseGradients()
 	{
-		if (prevGradientString != gradientString.GetString())
+		if (prevGradientString != colorList.GetString())
 		{
 			JGPUFH_HealthColorsThresholds.ParseHealthGradients(healthValues, healthcolors);
 		}
@@ -722,7 +724,7 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 			UpdateCVarFromArrays();
 		}
 
-		prevGradientString = gradientString.GetSTring();
+		prevGradientString = colorList.GetSTring();
 	}
 
 	int GetMaxThresholds()
@@ -765,15 +767,10 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 				Screen.Dim(healthColors[i], colAlpha, x, y, stripPos, height);
 			}
 			int colPos = x + stripPos;
-			// fill the current part with solid color from last value
-			// to 200, if last value is below 200 OR if current and next
-			// color values are the same:
-			if (i >= steps - 1 || healthColors[i] == healthColors[i+1])
-			{
-				Screen.Dim(healthColors[i], colalpha, colPos, y, stripwidth, height);
-			}
-			// otherwise draw a gradient:
-			else
+			// Draw a gradient if the CVar allows it, there are enough
+			// thresholds, we're not at the end of the list, and the
+			// next color is different from the current one:
+			if (useGradients.GetBool() && i < steps -1 && healthColors[i] != healthColors[i+1])
 			{
 				int colorsteps = nextval - curval;
 				int x1, x2, w;
@@ -799,6 +796,11 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 						w,
 						height);
 				}
+			}
+			// Otherwise draw solid color:
+			else
+			{
+				Screen.Dim(healthColors[i], colalpha, colPos, y, stripwidth, height);
 			}
 			// threshold pip:
 			int pipposX = x + stripPos - 2;
@@ -899,7 +901,7 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 		/*Screen.DrawText(ConFont,
 			Font.CR_White,
 			x, y + height,
-			gradientString.GetString(),
+			colorList.GetString(),
 			DTA_CleanNoMove_1, true);*/
 		return indent;
 	}

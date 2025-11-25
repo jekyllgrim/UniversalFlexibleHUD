@@ -195,14 +195,20 @@ OptionMenu "JGPHUD_HealthGradient"
 	StaticText ""
 
 	Slider "Number of thresholds", "jgphud_MainBarsHealthThresholds", 1, 10, 1, 0
+	Option "Color mode", "jgphud_MainbarsHealthGradient", "JGPHUD_HealthColorMode"
+	
 	StaticText ""
-
 	JGPUFH_HealthGradient
-
 	StaticText ""
-	SafeCommand "$OPTMNU_DEFAULTS", "resetcvar jgphud_MainBarsHealthThresholds; resetcvar jgphud_MainBarsHealthColors"
+
+	SafeCommand "$OPTMNU_DEFAULTS", "resetcvar jgphud_MainBarsHealthThresholds; resetcvar jgphud_MainBarsHealthColors; resetcvar jgphud_MainbarsHealthGradient"
 }
 
+OptionValue "JGPHUD_HealthColorMode"
+{
+	0, "Flat"
+	1, "Gradient"
+}
 
 OptionMenu "JGPHUD_Mugshot"
 {

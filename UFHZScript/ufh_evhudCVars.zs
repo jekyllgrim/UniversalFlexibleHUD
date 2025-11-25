@@ -579,10 +579,10 @@ class JGPUFH_HealthColorsThresholds : CustomIntCVar
 	static clearscope void ParseHealthGradients(out array<int> values, out array<Color> colors)
 	{
 		CVar thresholds = CVar.FindCVar('jgphud_MainBarsHealthThresholds');
-		CVar gradientString = CVar.FindCVar('jgphud_MainBarsHealthColors');
+		CVar colorList = CVar.FindCVar('jgphud_MainBarsHealthColors');
 		CVar currentStripColor = CVar.FindCVar('jgphud_MainBarsHealthStripColor');
 		
-		String workstring = gradientString.GetString();
+		String workstring = colorList.GetString();
 		
 		// Do this recursively on the off chance that the
 		// CVar's value got messed up and needs to be reset
@@ -599,8 +599,8 @@ class JGPUFH_HealthColorsThresholds : CustomIntCVar
 			// incorrect CVar value:
 			if (tokens.Size() == 0)
 			{
-				Console.Printf("\cdjgphud_MainBarsHealthGradient\c- CVar has invalid values (\cg%s\c-). Resetting to default", gradientString.GetString());
-				gradientString.ResetToDefault();
+				Console.Printf("\cdjgphud_MainBarsHealthGradient\c- CVar has invalid values (\cg%s\c-). Resetting to default", colorList.GetString());
+				colorList.ResetToDefault();
 				continue;
 			}
 			// technically shouldn't happen, but if there are no enough
@@ -618,8 +618,8 @@ class JGPUFH_HealthColorsThresholds : CustomIntCVar
 				tokens[i].Split(token, ":");
 				if (token.Size() != 2)
 				{
-					Console.Printf("\cdjgphud_MainBarsHealthGradient\c- CVar has invalid values (\cg%s\c-). Resetting to default", gradientString.GetString());
-					gradientString.ResetToDefault();
+					Console.Printf("\cdjgphud_MainBarsHealthGradient\c- CVar has invalid values (\cg%s\c-). Resetting to default", colorList.GetString());
+					colorList.ResetToDefault();
 					continue;
 				}
 				values.Push(token[0].ToInt());

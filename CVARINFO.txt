@@ -154,8 +154,8 @@ nosave float jgphud_CustomItemsScale = 1.0;
 nosave float jgphud_ReticleBarsScale = 1.0;
 
 nosave int jgphud_MainBarsHealthColorMode = 1;
-nosave HandlerClass(JGPUFH_HealthColorsThresholds) int jgphud_MainBarsHealthThresholds = 5;
-nosave string jgphud_MainBarsHealthColors = "25:ff0000|50:ffaa00|75:00ff00|100:00ff00|110:0000ff|120:0000ff|130:0000ff|140:0000ff|150:0000ff|160:0000ff";
+nosave HandlerClass(JGPUFH_HealthColorsThresholds) int jgphud_MainBarsHealthThresholds = 6;
+nosave string jgphud_MainBarsHealthColors = "0:ff0000|25:ff7f00|60:ffff00|80:00ff00|100:00ff00|120:0000ff|130:0000ff|140:0000ff|150:0000ff|160:0000ff";
 nosave color jgphud_MainBarsHealthStripColor = "00 00 00"; //dummy CVar for the custom ColorPicker
 nosave bool jgphud_MainbarsHealthGradient = true;
 
