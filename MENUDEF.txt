@@ -200,7 +200,7 @@ OptionMenu "JGPHUD_HealthGradient"
 	JGPUFH_HealthGradient
 
 	StaticText ""
-	SafeCommand "$OPTMNU_DEFAULTS", "resetcvar jgphud_MainBarsHealthThresholds; resetcvar jgphud_MainBarsHealthGradient"
+	SafeCommand "$OPTMNU_DEFAULTS", "resetcvar jgphud_MainBarsHealthThresholds; resetcvar jgphud_MainBarsHealthColors"
 }
 
 

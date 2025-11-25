@@ -553,7 +553,7 @@ extend class JGPUFH_FlexibleHUD
 	}
 }
 
-class JGPUFH_HealthGradientThreshold : CustomIntCVar
+class JGPUFH_HealthColorsThresholds : CustomIntCVar
 {
 	override int ModifyValue(Name CVarName, int val)
 	{
@@ -562,7 +562,7 @@ class JGPUFH_HealthGradientThreshold : CustomIntCVar
 
 	static clearscope void UpdateCVarFromArrays(array<int> values, array<Color> colors)
 	{
-		CVar cv = CVar.FindCVar('jgphud_MainBarsHealthGradient');
+		CVar cv = CVar.FindCVar('jgphud_MainBarsHealthColors');
 		if (!cv) return;
 		
 		String str;
@@ -579,8 +579,8 @@ class JGPUFH_HealthGradientThreshold : CustomIntCVar
 	static clearscope void ParseHealthGradients(out array<int> values, out array<Color> colors)
 	{
 		CVar thresholds = CVar.FindCVar('jgphud_MainBarsHealthThresholds');
-		CVar gradientString = CVar.FindCVar('jgphud_MainBarsHealthGradient');
-		CVar currentStripColor = CVar.FindCVar('jgphud_MainBarsHealthGradientStripColor');
+		CVar gradientString = CVar.FindCVar('jgphud_MainBarsHealthColors');
+		CVar currentStripColor = CVar.FindCVar('jgphud_MainBarsHealthStripColor');
 		
 		String workstring = gradientString.GetString();
 		

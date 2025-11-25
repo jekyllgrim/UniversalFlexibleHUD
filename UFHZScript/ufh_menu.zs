@@ -640,8 +640,8 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 	{
 		Super.Init("", "");
 		thresholds = CVar.FindCVar('jgphud_MainBarsHealthThresholds');
-		gradientString = CVar.FindCVar('jgphud_MainBarsHealthGradient');
-		currentStripColor = CVar.FindCVar('jgphud_MainBarsHealthGradientStripColor');
+		gradientString = CVar.FindCVar('jgphud_MainBarsHealthColors');
+		currentStripColor = CVar.FindCVar('jgphud_MainBarsHealthStripColor');
 		colorSelected = false;
 		setupMode = SM_None;
 		ParseGradients();
@@ -684,14 +684,14 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 
 	void UpdateCVarFromArrays()
 	{
-		JGPUFH_HealthGradientThreshold.UpdateCVarFromArrays(healthValues, healthColors);
+		JGPUFH_HealthColorsThresholds.UpdateCVarFromArrays(healthValues, healthColors);
 	}
 
 	void ParseGradients()
 	{
 		if (prevGradientString != gradientString.GetString())
 		{
-			JGPUFH_HealthGradientThreshold.ParseHealthGradients(healthValues, healthcolors);
+			JGPUFH_HealthColorsThresholds.ParseHealthGradients(healthValues, healthcolors);
 		}
 
 		// We need to make sure that every next health threshold
