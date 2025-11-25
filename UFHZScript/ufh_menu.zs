@@ -751,7 +751,7 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 		{
 			// calculate current strip's width and position based
 			// on the current and next health values:
-			curVal = healthValues[i];
+			curVal = steps > 1? healthValues[i] : 0;
 			nextVal = i < steps - 1? healthValues[i+1] : MAXGRADIENTHEALTH;
 			stripwidth = int(ceil(widthstep * (nextval - curVal)));
 			int stripPos = int(ceil(curVal * widthstep));
@@ -803,13 +803,16 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 			// threshold pip:
 			int pipposX = x + stripPos - 2;
 			int pipposY = y - height / 2;
-			Screen.Dim(0xffffff, 1.0, pipposX, pipposY, 4, int(round(height * 1.5)));
-			// health value next to the pip above the gradient:
-			Screen.DrawText(ConFont,
-				Font.CR_White,
-				pipposX + 5, pipposY,
-				""..curVal,
-				DTA_CleanNoMove_1, true);
+			if (steps > 1)
+			{
+				Screen.Dim(0xffffff, 1.0, pipposX, pipposY, 4, int(round(height * 1.5)));
+				// health value next to the pip above the gradient:
+				Screen.DrawText(ConFont,
+					Font.CR_White,
+					pipposX + 5, pipposY,
+					""..curVal,
+					DTA_CleanNoMove_1, true);
+			}
 			// color value next to the pip below the gradient:
 			Screen.DrawText(ConFont,
 				Font.CR_White,
@@ -820,7 +823,10 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 			// determine if this element should be selected:
 			if (selected && i == selectedRange)
 			{
-				if (colorSelected)
+				// if there's only one element (i.e. it's one single
+				// solid color for health regardless of value),
+				// thresholds are not selectable:
+				if (colorSelected || steps == 1)
 				{
 					indent = colPos + stripWidth / 2;
 					selectedPosX = colPos;
@@ -916,6 +922,10 @@ class JGPUFH_HealthGradientMenu : JGPUFH_OptionMenu
 			return Super.MenuEvent(mkey, fromcontroller);
 		}
 		int limit = g.GetMaxThresholds() - 1;
+		if (limit <= 0)
+		{
+			return Super.MenuEvent(mkey, fromcontroller);
+		}
 		switch (mkey)
 		{
 		default:
