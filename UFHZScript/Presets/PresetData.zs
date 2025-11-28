@@ -204,13 +204,10 @@ extend class JGPUFH_PresetHandler
 		JGPUFH_PresetCVarData.Add('jgphud_CustomItemsScale', cvarData, CVC_Scaling|CVC_CustomItems);
 		JGPUFH_PresetCVarData.Add('jgphud_ReticleBarsScale', cvarData, CVC_Scaling|CVC_ReticleBars);
 
-		JGPUFH_PresetCVarData.Add('jgphud_MainBarsHealthColorMode', cvarData, CVC_HealthColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainBarsHealthColor', cvarData, CVC_HealthColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainbarsHealthRange_25', cvarData, CVC_HealthColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainbarsHealthRange_50', cvarData, CVC_HealthColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainbarsHealthRange_75', cvarData, CVC_HealthColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainbarsHealthRange_100', cvarData, CVC_HealthColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainbarsHealthRange_101', cvarData, CVC_HealthColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsHealthThresholds', cvarData, CVC_HealthColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsHealthColors', cvarData, CVC_HealthColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsHealthStripColor', cvarData, CVC_HealthColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsHealthGradient', cvarData, CVC_HealthColors);
 
 		JGPUFH_PresetCVarData.Add('jgphud_MainBarsArmorMode', cvarData, CVC_ArmorColors);
 		JGPUFH_PresetCVarData.Add('jgphud_MainBarsArmorColorMode', cvarData, CVC_ArmorColors);

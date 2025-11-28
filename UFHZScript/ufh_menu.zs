@@ -631,13 +631,15 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 	bool colorSelected;
 	array<int> healthValues;
 	array<color> healthColors;
+	array<int> defaultHealthValues;
+	array<color> defaultHealthColors;
 	CVar thresholds;
 	CVar colorList;
 	CVar currentStripColor;
 	CVar useGradients;
-	String prevGradientString;
+	String prevColorListString;
 
-	void Init()
+	void Init(/*name thresholdsCVar, name colorListCVar, name currentColorCVar, name useGradientsCVar*/)
 	{
 		Super.Init("", "");
 		thresholds = CVar.FindCVar('jgphud_MainBarsHealthThresholds');
@@ -647,6 +649,7 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 		colorSelected = false;
 		setupMode = SM_None;
 		ParseGradients();
+		JGPUFH_HealthColorsThresholds.ParseHealthGradients(defaultHealthValues, defaultHealthColors, true);
 	}
 
 	override bool Activate()
@@ -691,7 +694,7 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 
 	void ParseGradients()
 	{
-		if (prevGradientString != colorList.GetString())
+		if (prevColorListString != colorList.GetString())
 		{
 			JGPUFH_HealthColorsThresholds.ParseHealthGradients(healthValues, healthcolors);
 		}
@@ -711,20 +714,11 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 		}
 		if (needResetValues)
 		{
-			healthValues[0] = 25;
-			healthValues[1] = 50;
-			healthValues[2] = 75;
-			healthValues[3] = 100;
-			healthValues[4] = 110;
-			healthValues[5] = 120;
-			healthValues[6] = 130;
-			healthValues[7] = 140;
-			healthValues[8] = 150;
-			healthValues[9] = 160;
+			healthValues.Copy(defaultHealthValues);
 			UpdateCVarFromArrays();
 		}
 
-		prevGradientString = colorList.GetSTring();
+		prevColorListString = colorList.GetString();
 	}
 
 	int GetMaxThresholds()

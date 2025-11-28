@@ -133,6 +133,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui double armMaxamount;
 	ui bool hasHexenArmor;
 	ui Color armorColor;
+	ui String prevHealthColorList;
+	ui array<int> healthValues;
+	ui array<Color> healthColors;
 
 	// Used by weapon slots, powerup list,
 	// and inventory bar:
@@ -1020,6 +1023,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 			barpos.y -= barheight*0.5;
 		}
 
+		if (barColor.a == 0)
+		{
+			barColor = color(255, barColor.r, barColor.g, barColor.b);
+		}
+
 		// Background Color (fills whole width):
 		statusbar.Fill(backColor, barpos.x, barpos.y, barwidth, barheight, flags);
 		// The bar itself is indented against the background:
@@ -1034,7 +1042,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			// Sparsity can't be too small, or it'll corrupt the
 			// rendering of the bar making segments invisible:
-			sparsity = Clamp(sparsity, 0, innerBarWidth / (segments * 4));
+			sparsity = Clamp(sparsity, 0, ceil(innerBarWidth / (segments * 4)));
 			// If sparsity is too small, we'll alternate
 			// segment Color every other segment instead:
 			bool sparsityTooSmall = sparsity <= 0.5;
@@ -1116,42 +1124,50 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	ui Color GetHealthColor(int health, int maxhealth)
 	{
-		if (c_MainBarsHealthColorMode.GetInt() == ND_FIXED)
+		if (prevHealthColorList != c_MainBarsHealthColors.GetString())
 		{
-			return Color(c_MainBarsHealthColor.GetString());
+			JGPUFH_HealthColorsThresholds.ParseHealthGradients(healthValues, healthColors);
+			prevHealthColorList = c_MainBarsHealthColors.GetString();
 		}
-		double ratio = double(health) / double(maxhealth);
-		if (ratio <= 0.25)
+
+		int lastvalue = min(c_MainBarsHealthThresholds.GetInt(), healthValues.Size(), healthColors.Size()) - 1;
+		// minimum health accounted for:
+		if (health < healthvalues[0])
 		{
-			return Color(c_MainbarsHealthRange_25.GetString());
+			return healthcolors[0];
 		}
-		Color startcol, endcol;
-		double colorDist;
-		if (ratio <= 0.5)
+		// maximum health accounted for:
+		if (health >= healthvalues[lastvalue])
 		{
-			startcol = Color(c_MainbarsHealthRange_25.GetString());
-			endcol = Color(c_MainbarsHealthRange_50.GetString());
-			colorDist = LinearMap(ratio, 0.25, 0.5, 0.0, 1.0);
+			return healthcolors[lastvalue];
 		}
-		else if (ratio <= 0.75)
+		// intermediate health:
+		Color prevcolor, curcolor, finalcolor;
+		double colordist;
+		int prevval, curval;
+		for (int i = 1; i <= lastvalue; i++)
 		{
-			startcol = Color(c_MainbarsHealthRange_50.GetString());
-			endcol = Color(c_MainbarsHealthRange_75.GetString());
-			colorDist = LinearMap(ratio, 0.5, 0.75, 0.0, 1.0);
+			if (health > healthValues[i]) continue;
+
+			curcolor = healthcolors[i];
+			prevcolor = healthcolors[i-1];
+			curval = healthvalues[i];
+			prevval = healthvalues[i-1];
+			if (prevcolor != curcolor)
+			{
+				colordist = LinearMap(health, prevval, curval, 0.0, 1.0);
+			}
+			break;
 		}
-		else if (ratio <= 1.0)
+		if (colordist > 0.0 && c_MainbarsHealthGradient.GetBool())
 		{
-			startcol = Color(c_MainbarsHealthRange_75.GetString());
-			endcol = Color(c_MainbarsHealthRange_100.GetString());
-			colorDist = LinearMap(ratio, 0.75, 1.0, 0.0, 1.0);
+			finalcolor = GetIntermediateColor(prevcolor, curcolor, colorDist);
 		}
 		else
 		{
-			startcol = Color(c_MainbarsHealthRange_100.GetString());
-			endcol = Color(c_MainbarsHealthRange_101.GetString());
-			colorDist = LinearMap(ratio, 1.0, 1.1, 0.0, 1.0);
+			finalcolor = health == curval? curcolor : prevcolor;
 		}
-		return GetIntermediateColor(startcol, endcol, colorDist);
+		return finalcolor;
 	}
 
 	clearscope Color GetIntermediateColor(Color c1, Color c2, double colordistance)

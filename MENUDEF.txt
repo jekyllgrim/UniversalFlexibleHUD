@@ -136,7 +136,7 @@ OptionMenu "JGPHUD_DamageMarkers"
 
 OptionMenu "JGPHUD_MainBars"
 {
-	Class "JGPUFH_OptionMenu"
+	Class "JGPUFH_HealthGradientMenu"
 	Title "$JGPHUD_SETTINGS_TITLE"
 	StaticText "$JGPHUD_MAINBARS_TITLE", yellow
 
@@ -151,17 +151,11 @@ OptionMenu "JGPHUD_MainBars"
 
 	StaticText ""
 	StaticText "$JGPHUD_MAINBARS_NUMCOL_HEALTH_TITLE", yellow
-	Option "$JGPHUD_MAINBARS_NUMCOL", "jgphud_MainBarsHealthColorMode", "HealthColorizationMode"
-	JGPUFH_CheckCVar "$JGPHUD_MAINBARS_NUMCOL_CHOOSE", sapphire, "jgphud_MainBarsHealthColorMode", "0"
-		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_FIXED_LABEL", "jgphud_MainBarsHealthColor"
-	JGPUFH_Else "$JGPHUD_MAINBARS_NUMCOL_CHOOSE", sapphire
-		SubMenu "Gradient setup" , "JGPHUD_HealthGradient", 0, 1
-		//ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_25", "jgphud_MainbarsHealthRange_25"
-		//ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_50", "jgphud_MainbarsHealthRange_50"
-		//ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_75", "jgphud_MainbarsHealthRange_75"
-		//ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_100", "jgphud_MainbarsHealthRange_100"
-		//ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_101", "jgphud_MainbarsHealthRange_101"
-	JGPUFH_EndIf ""
+	Slider "Number of thresholds", "jgphud_MainBarsHealthThresholds", 1, 10, 1, 0
+	Option "Color mode", "jgphud_MainbarsHealthGradient", "JGPHUD_HealthColorMode"
+	StaticText ""
+	JGPUFH_HealthGradient
+	StaticText ""
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "healthcolors"
 
 	StaticText ""

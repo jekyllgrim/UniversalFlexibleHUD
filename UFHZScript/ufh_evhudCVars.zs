@@ -154,16 +154,14 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_CustomItemsScale;
 	ui transient CVar c_ReticleBarsScale;
 
+	ui transient CVar c_MainBarsHealthThresholds;
+	ui transient CVar c_MainBarsHealthColors;
+	ui transient CVar c_MainBarsHealthStripColor;
+	ui transient CVar c_MainbarsHealthGradient;
+
 	ui transient CVar c_MainBarsArmorMode;
 	ui transient CVar c_MainBarsArmorColorMode;
-	ui transient CVar c_MainBarsHealthColorMode;
 	ui transient CVar c_MainBarsArmorColor;
-	ui transient CVar c_MainBarsHealthColor;
-	ui transient CVar c_MainbarsHealthRange_25;
-	ui transient CVar c_MainbarsHealthRange_50;
-	ui transient CVar c_MainbarsHealthRange_75;
-	ui transient CVar c_MainbarsHealthRange_100;
-	ui transient CVar c_MainbarsHealthRange_101;
 	ui transient CVar c_MainbarsArmorRange_25;
 	ui transient CVar c_MainbarsArmorRange_50;
 	ui transient CVar c_MainbarsArmorRange_75;
@@ -478,28 +476,21 @@ extend class JGPUFH_FlexibleHUD
 		if (!c_ReticleBarsScale)
 			c_ReticleBarsScale = CVar.GetCVar('jgphud_ReticleBarsScale', CPlayer);
 
+		if (!c_MainBarsHealthThresholds)
+			c_MainBarsHealthThresholds = CVar.GetCvar('jgphud_MainBarsHealthThresholds', CPlayer);
+		if (!c_MainBarsHealthColors)
+			c_MainBarsHealthColors = CVar.GetCvar('jgphud_MainBarsHealthColors', CPlayer);
+		if (!c_MainBarsHealthStripColor)
+			c_MainBarsHealthStripColor = CVar.GetCvar('jgphud_MainBarsHealthStripColor', CPlayer);
+		if (!c_MainbarsHealthGradient)
+			c_MainbarsHealthGradient = CVar.GetCvar('jgphud_MainbarsHealthGradient', CPlayer);
+
 		if (!c_MainBarsArmorMode)
 			c_MainBarsArmorMode = CVar.GetCvar('jgphud_MainBarsArmorMode', CPlayer);
 		if (!c_MainBarsArmorColorMode)
 			c_MainBarsArmorColorMode = CVar.GetCvar('jgphud_MainBarsArmorColorMode', CPlayer);
-		if (!c_MainBarsHealthColorMode)
-			c_MainBarsHealthColorMode = CVar.GetCvar('jgphud_MainBarsHealthColorMode', CPlayer);
 		if (!c_MainBarsArmorColor)
 			c_MainBarsArmorColor = CVar.GetCvar('jgphud_MainBarsArmorColor', CPlayer);
-		if (!c_MainBarsHealthColor)
-			c_MainBarsHealthColor = CVar.GetCvar('jgphud_MainBarsHealthColor', CPlayer);
-
-		if (!c_MainbarsHealthRange_25)
-			c_MainbarsHealthRange_25 = CVar.GetCvar('jgphud_MainbarsHealthRange_25', CPlayer);
-		if (!c_MainbarsHealthRange_50)
-			c_MainbarsHealthRange_50 = CVar.GetCvar('jgphud_MainbarsHealthRange_50', CPlayer);
-		if (!c_MainbarsHealthRange_75)
-			c_MainbarsHealthRange_75 = CVar.GetCvar('jgphud_MainbarsHealthRange_75', CPlayer);
-		if (!c_MainbarsHealthRange_100)
-			c_MainbarsHealthRange_100 = CVar.GetCvar('jgphud_MainbarsHealthRange_100', CPlayer);
-		if (!c_MainbarsHealthRange_101)
-			c_MainbarsHealthRange_101 = CVar.GetCvar('jgphud_MainbarsHealthRange_101', CPlayer);
-
 		if (!c_MainbarsArmorRange_25)
 			c_MainbarsArmorRange_25 = CVar.GetCvar('jgphud_MainbarsArmorRange_25', CPlayer);
 		if (!c_MainbarsArmorRange_50)
@@ -576,19 +567,18 @@ class JGPUFH_HealthColorsThresholds : CustomIntCVar
 		cv.SetString(str);
 	}
 
-	static clearscope void ParseHealthGradients(out array<int> values, out array<Color> colors)
+	static clearscope void ParseHealthGradients(out array<int> values, out array<Color> colors, bool getDefaults = false)
 	{
-		CVar thresholds = CVar.FindCVar('jgphud_MainBarsHealthThresholds');
 		CVar colorList = CVar.FindCVar('jgphud_MainBarsHealthColors');
-		CVar currentStripColor = CVar.FindCVar('jgphud_MainBarsHealthStripColor');
 		
-		String workstring = colorList.GetString();
+		String workstring = getDefaults? colorlist.GetDefaultString() : colorList.GetString();
 		
 		// Do this recursively on the off chance that the
 		// CVar's value got messed up and needs to be reset
 		// and the reparsed:
 	
 		int iterations = 32;
+		Color cColor;
 		while (iterations > 0)
 		{
 			iterations--;
