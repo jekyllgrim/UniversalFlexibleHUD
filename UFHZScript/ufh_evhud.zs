@@ -1126,7 +1126,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	{
 		if (prevHealthColorList != c_MainBarsHealthColors.GetString())
 		{
-			JGPUFH_HealthColorsThresholds.ParseHealthGradients(healthValues, healthColors);
+			JGPUFH_CVarTools.ParseGradientColors(c_MainBarsHealthColors, healthValues, healthColors);
 			prevHealthColorList = c_MainBarsHealthColors.GetString();
 		}
 

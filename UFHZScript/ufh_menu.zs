@@ -616,7 +616,7 @@ class OptionMenuItemJGPUFHTextField : OptionMenuItemTextField
 	}
 }
 
-class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
+class OptionMenuItemJGPUFH_ColorizedValueRange : OptionMenuItem
 {
 	const MAXGRADIENTHEALTH = 200;
 	const COLORRANGESTEPS = 8.0;
@@ -639,17 +639,17 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 	CVar useGradients;
 	String prevColorListString;
 
-	void Init(/*name thresholdsCVar, name colorListCVar, name currentColorCVar, name useGradientsCVar*/)
+	void Init(name colorListCVar, name thresholdsCVar, name currentColorCVar, name useGradientsCVar)
 	{
 		Super.Init("", "");
-		thresholds = CVar.FindCVar('jgphud_MainBarsHealthThresholds');
-		colorList = CVar.FindCVar('jgphud_MainBarsHealthColors');
-		currentStripColor = CVar.FindCVar('jgphud_MainBarsHealthStripColor');
-		useGradients = CVar.FindCVar('jgphud_MainbarsHealthGradient');
+		colorList = CVar.FindCVar(colorListCVar);
+		thresholds = CVar.FindCVar(thresholdsCVar);
+		currentStripColor = CVar.FindCVar(currentColorCVar);
+		useGradients = CVar.FindCVar(useGradientsCVar);
 		colorSelected = false;
 		setupMode = SM_None;
 		ParseGradients();
-		JGPUFH_HealthColorsThresholds.ParseHealthGradients(defaultHealthValues, defaultHealthColors, true);
+		JGPUFH_CVarTools.ParseGradientColors(colorList, defaultHealthValues, defaultHealthColors, true);
 	}
 
 	override bool Activate()
@@ -689,14 +689,14 @@ class OptionMenuItemJGPUFH_HealthGradient : OptionMenuItem
 
 	void UpdateCVarFromArrays()
 	{
-		JGPUFH_HealthColorsThresholds.UpdateCVarFromArrays(healthValues, healthColors);
+		JGPUFH_CVarTools.SetGradientCVarFromArrays(colorlist, healthValues, healthColors);
 	}
 
 	void ParseGradients()
 	{
 		if (prevColorListString != colorList.GetString())
 		{
-			JGPUFH_HealthColorsThresholds.ParseHealthGradients(healthValues, healthcolors);
+			JGPUFH_CVarTools.ParseGradientColors(colorlist, healthValues, healthcolors);
 		}
 
 		// We need to make sure that every next health threshold
@@ -912,7 +912,7 @@ class JGPUFH_HealthGradientMenu : JGPUFH_OptionMenu
 			return Super.MenuEvent(mkey, fromcontroller);
 		}
 		// a different item is selected:
-		let g = OptionMenuItemJGPUFH_HealthGradient(mDesc.mItems[sel]);
+		let g = OptionMenuItemJGPUFH_ColorizedValueRange(mDesc.mItems[sel]);
 		if (!g)
 		{
 			return Super.MenuEvent(mkey, fromcontroller);
@@ -1007,12 +1007,12 @@ class JGPUFH_HealthGradientMenu : JGPUFH_OptionMenu
 class JGPUFH_HealthColorPickerMenu : ColorPickerMenu
 {
 	int gradientColorID;
-	OptionMenuItemJGPUFH_HealthGradient gradientMenuItem;
+	OptionMenuItemJGPUFH_ColorizedValueRange gradientMenuItem;
 
 	void Init(Menu parent,
 		String name,
 		OptionMenuDescriptor desc,
-		OptionMenuItemJGPUFH_HealthGradient item,
+		OptionMenuItemJGPUFH_ColorizedValueRange item,
 		int colorID,
 		CVar currentStripColor
 	)

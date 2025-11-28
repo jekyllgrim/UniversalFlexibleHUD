@@ -544,18 +544,10 @@ extend class JGPUFH_FlexibleHUD
 	}
 }
 
-class JGPUFH_HealthColorsThresholds : CustomIntCVar
+class JGPUFH_CVarTools
 {
-	override int ModifyValue(Name CVarName, int val)
+	static clearscope void SetGradientCVarFromArrays(CVar colorlist, array<int> values, array<Color> colors)
 	{
-		return clamp(val, 1, 10);
-	}
-
-	static clearscope void UpdateCVarFromArrays(array<int> values, array<Color> colors)
-	{
-		CVar cv = CVar.FindCVar('jgphud_MainBarsHealthColors');
-		if (!cv) return;
-		
 		String str;
 		for (int i = 0; i < values.Size(); i++)
 		{
@@ -564,13 +556,11 @@ class JGPUFH_HealthColorsThresholds : CustomIntCVar
 				colors[i],
 				i < values.Size() - 1? "|" : "");
 		}
-		cv.SetString(str);
+		colorlist.SetString(str);
 	}
 
-	static clearscope void ParseHealthGradients(out array<int> values, out array<Color> colors, bool getDefaults = false)
+	static clearscope void ParseGradientColors(CVar colorlist, out array<int> values, out array<Color> colors, bool getDefaults = false)
 	{
-		CVar colorList = CVar.FindCVar('jgphud_MainBarsHealthColors');
-		
 		String workstring = getDefaults? colorlist.GetDefaultString() : colorList.GetString();
 		
 		// Do this recursively on the off chance that the
@@ -617,5 +607,13 @@ class JGPUFH_HealthColorsThresholds : CustomIntCVar
 			}
 			break;
 		}
+	}
+}
+
+class JGPUFH_HealthColorsThresholds : CustomIntCVar
+{
+	override int ModifyValue(Name CVarName, int val)
+	{
+		return clamp(val, 1, 10);
 	}
 }

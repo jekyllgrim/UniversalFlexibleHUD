@@ -154,7 +154,7 @@ OptionMenu "JGPHUD_MainBars"
 	Slider "Number of thresholds", "jgphud_MainBarsHealthThresholds", 1, 10, 1, 0
 	Option "Color mode", "jgphud_MainbarsHealthGradient", "JGPHUD_HealthColorMode"
 	StaticText ""
-	JGPUFH_HealthGradient
+	JGPUFH_ColorizedValueRange "jgphud_MainBarsHealthColors", "jgphud_MainBarsHealthThresholds", "jgphud_MainBarsHealthStripColor", "jgphud_MainbarsHealthGradient"
 	StaticText ""
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "healthcolors"
 
@@ -179,23 +179,6 @@ OptionMenu "JGPHUD_MainBars"
 		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_100", "jgphud_MainbarsAbsorbRange_100"
 	JGPUFH_EndIf ""
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "armorcolors"
-}
-
-OptionMenu "JGPHUD_HealthGradient"
-{
-	Class "JGPUFH_HealthGradientMenu"
-	Title "$JGPHUD_SETTINGS_TITLE"
-	StaticText "Health gradient", yellow
-	StaticText ""
-
-	Slider "Number of thresholds", "jgphud_MainBarsHealthThresholds", 1, 10, 1, 0
-	Option "Color mode", "jgphud_MainbarsHealthGradient", "JGPHUD_HealthColorMode"
-	
-	StaticText ""
-	JGPUFH_HealthGradient
-	StaticText ""
-
-	SafeCommand "$OPTMNU_DEFAULTS", "resetcvar jgphud_MainBarsHealthThresholds; resetcvar jgphud_MainBarsHealthColors; resetcvar jgphud_MainbarsHealthGradient"
 }
 
 OptionValue "JGPHUD_HealthColorMode"
