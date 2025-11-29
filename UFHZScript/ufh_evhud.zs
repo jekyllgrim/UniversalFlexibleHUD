@@ -1757,6 +1757,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		else
 		{
 			int mode = c_MainBarsArmorMode.GetInt();
+			armTex = statusbar.GetInventoryIcon(barm, 0);
 			if ((mode == AD_ICON || mode == AD_BOTH) && armTex.IsValid())
 			{
 				statusbar.DrawTexture(armTex, iconPos, flags|StatusBarCore.DI_ITEM_CENTER, box:(armTexSize,armTexSize), scale:ScaleToBox(armTex, armTexSize));
