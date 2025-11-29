@@ -537,10 +537,14 @@ class JGPUFH_FlexibleHUD : EventHandler
 	{
 		Screen.EnableStencil(true);
 		Screen.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+		// mask:
 		statusbar.DrawString(fnt, str, pos, flags, Font.CR_White, alpha, wrapwidth, linespacing, scale);
 		Screen.SetStencil(1, SOP_Keep, SF_AllOn);
+		// actual string, in white:
 		statusbar.DrawString(fnt, str, pos, flags, Font.CR_White, alpha, wrapwidth, linespacing, scale);
+		// fill to colorize the string:
 		Screen.Dim(stringColor, 1.0, 0, 0, Screen.GetWidth(), Screen.GetHeight(), STYLE_Multiply);
+		Screen.Dim(stringColor, 0.15, 0, 0, Screen.GetWidth(), Screen.GetHeight(), STYLE_Add);
 		Screen.EnableStencil(false);
 		Screen.ClearStencil();
 	}
@@ -1012,7 +1016,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	// Draws a bar using Fill()
 	// If segments is above 0, will use multiple fills to create a segmented bar
-	ui void DrawFlatColorBar(Vector2 pos, double curValue, double maxValue, Color barColor, int valueColor = -1, double barwidth = 64, double barheight = 8, double indent = 0.6, Color backColor = Color(255, 0, 0, 0), double sparsity = 1, uint segments = 0, int flags = 0)
+	ui void DrawFlatColorBar(Vector2 pos, double curValue, double maxValue, Color barColor, int valueColor = -1, int barwidth = 64, int barheight = 8, Color backColor = Color(255, 0, 0, 0), uint segments = 0, int flags = 0)
 	{
 		Vector2 barpos = pos;
 		// This flag centers the bar vertically. I didn't add
@@ -1023,6 +1027,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			barpos.y -= barheight*0.5;
 		}
 
+		// set alpha to max if it wasn't specified:
 		if (barColor.a == 0)
 		{
 			barColor = color(255, barColor.r, barColor.g, barColor.b);
@@ -1031,47 +1036,87 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Background Color (fills whole width):
 		statusbar.Fill(backColor, barpos.x, barpos.y, barwidth, barheight, flags);
 		// The bar itself is indented against the background:
-		double innerBarWidth = barwidth - (indent * 2);
-		double innerBarHeight = barheight - (indent * 2);
+		int indent = (barwidth < 4 || barheight < 4)? 0 : 1;
+		int innerBarWidth = barwidth - (indent * 2);
+		int innerBarHeight = barheight - (indent * 2);
 		Vector2 innerBarPos = (barpos.x + indent, barpos.y + indent);
 		// Get the current bar size according to the provided values:
-		double curInnerBarWidth = LinearMap(curValue, 0, maxValue, 0, innerBarWidth, true);
-		
+		double curInnerBarWidth = clamp(double(innerBarWidth) * (curValue / maxValue), 0, innerBarWidth);
+
 		// Draw segmented bar:
-		if (sparsity > 0 && segments > 0)
+		if (segments > 0)
 		{
-			// Sparsity can't be too small, or it'll corrupt the
-			// rendering of the bar making segments invisible:
-			sparsity = Clamp(sparsity, 0, ceil(innerBarWidth / (segments * 4)));
-			// If sparsity is too small, we'll alternate
-			// segment Color every other segment instead:
-			bool sparsityTooSmall = sparsity <= 0.5;
-			bool altColor = true;
-			int r,g,b;
-			if (sparsityTooSmall)
+			Color altColor = Color(
+				barColor.a,
+				int(barColor.r * 0.5),
+				int(barColor.g * 0.5),
+				int(barColor.b * 0.5)
+			);
+
+			int segWidth, spacing, straypixels;
+			// if ideal width would be 2 pixels or less, disregard the
+			// segments argument and just make alternating 1px-wide
+			// segments to fill up the whole bar:
+			if (innerBarWidth / double(segments) <= 2.0)
 			{
-				sparsity = 0;
-				r = barcolor.r * 0.75;
-				g = barcolor.g * 0.75;
-				b = barcolor.b * 0.75;
+				segments = innerBarWidth * 2;
+				segWidth = 1;
+				spacing = 0;
+				strayPixels = 0;
 			}
-			// Calculate width of a single segment based
-			// on bar width and sparsity:
-			double singleSegWidth = (innerBarWidth - (segments - 1) * sparsity) / segments;
-			Vector2 segPos = innerBarPos;
-			// Draw the segments:
-			while (segPos.x < curInnerBarWidth + innerBarPos.x)
+			// otherwise calculate integer segment width, spacing (if enough
+			// pixels), and then get how many pixels would be left when
+			// diving width by segment+spacing:
+			else
 			{
-				Color col = barcolor;
-				if (sparsityTooSmall)
+				segWidth = innerBarWidth / segments;
+				spacing = segWidth >= 4? clamp(segWidth / 4, 1, 4) : 0;
+				// add 1 spacing at the end since we don't have spacing after
+				// the last segment:
+				straypixels = innerBarWidth - (segWidth + spacing)*segments + spacing;
+			}
+
+			// each segment's width will be pulled from this array:
+			array<int> perSegmentWidth;
+			for (uint i = 0; i < segments; i++)
+			{
+				perSegmentWidth.Push(segWidth);
+			}
+			// gradually fill elements of this array with stray pixels
+			// in steps of 4:
+			int step = 4;
+			// stray pixels can be both positive and negative:
+			int dir = (straypixels > 0 ? 1 : -1);
+			straypixels = abs(straypixels);
+			while (straypixels > 0)
+			{
+				for (uint offset = 0; offset < step && straypixels > 0; offset++)
 				{
-					if (altColor)
-						col = Color(barcolor.a, r,g,b);
-					altColor = !altColor;
-				}				
-				double segW = min(singleSegWidth, curInnerBarWidth - segPos.x + innerBarPos.x);
-				statusbar.Fill(col, segPos.x, segPos.y, segW, innerBarHeight, flags);
-				segPos.x += singleSegWidth + sparsity;
+					for (uint i = offset; i < segments && straypixels > 0; i += step)
+					{
+						// don't go below 1px:
+						if (dir < 0 && perSegmentWidth[i] <= 1) continue;
+						perSegmentWidth[i] += dir;
+						straypixels--;
+					}
+				}
+			}
+
+			Vector2 segPos = innerBarPos;
+			Color segcol;
+			for (uint i = 0; i < segments; i++)
+			{
+				if (segPos.x - innerBarPos.x >= curInnerBarWidth) break;
+
+				// if spacing is 0, alternate colors every other segment:
+				segcol = (spacing == 0 && (i % 2) != 0)? altColor : barColor;
+				segWidth = perSegmentWidth[i];
+				if (segwidth > 0)
+				{
+					statusbar.Fill(segcol, segPos.x, segPos.y, segWidth, innerBarHeight, flags);
+				}
+
+				segPos.x += segwidth + spacing;
 			}
 		}
 		else
