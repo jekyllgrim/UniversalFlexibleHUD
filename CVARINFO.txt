@@ -162,9 +162,9 @@ nosave int jgphud_MainBarsArmorMode = 2;
 nosave bool jgphud_MainBarsArmorColorIsAbsorb = true;
 nosave bool jgphud_MainbarsArmorGradient_Amount = true;
 nosave HandlerClass(JGPUFH_HealthColorsThresholds) int jgphud_MainBarsArmorThresholds_Amount = 6;
-nosave string jgphud_MainBarsArmorColors_Amount = "0:ff4040|25:ff7f40|60:ffff40|80:40ff40|140:40ff40|120:4040ff|130:4040ff|140:4040ff|150:4040ff|160:4040ff";
+nosave string jgphud_MainBarsArmorColors_Amount = "0:ff4040|25:ff7f40|60:ffff40|80:40ff40|100:40ff40|120:4040ff|130:4040ff|140:4040ff|150:4040ff|160:4040ff";
 nosave bool jgphud_MainbarsArmorGradient_Absorb = false;
-nosave HandlerClass(JGPUFH_HealthColorsThresholds) int jgphud_MainBarsArmorThresholds_Absorb = 4;
+nosave HandlerClass(JGPUFH_HealthColorsThresholds) int jgphud_MainBarsArmorThresholds_Absorb = 5;
 nosave string jgphud_MainBarsArmorColors_Absorb = "34:40ff40|50:4040ff|67:40ffff|80:ffff40|100:ff4040";
 nosave color jgphud_MainBarsArmorStripColor = "00 00 00"; //dummy CVar for the custom ColorPicker
 
