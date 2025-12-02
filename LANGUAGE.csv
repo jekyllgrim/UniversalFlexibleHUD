@@ -78,16 +78,21 @@ Remaining amount,JGPHUD_MAINBARS_NUMCOL_AMOUNT,"Option for ""What color reflects
 Nothing (always single color),JGPHUD_MAINBARS_NUMCOL_FIXED,"Option for ""What color reflects"": one fixed color",Ничего (всегда один цвет),Nada (uma cor),,,
 Single color,JGPHUD_MAINBARS_NUMCOL_FIXED_LABEL,"This appears is ""What color reflects"" is set to Nothing (always single color)",Один цвет,Uma cor,,,
 Choose colors:,JGPHUD_MAINBARS_NUMCOL_CHOOSE,Sub-title above color selectors,Выберите цвета:,Escolha as cores:,,,
-0-25% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_25,The color used when the AMOUNT is in this range,0-25% запаса,Cor para 0-25%,,,
-26-50% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_50,The color used when the AMOUNT is in this range,26-50% запаса,Cor para 26-50%,,,
-51-75% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_75,The color used when the AMOUNT is in this range,51-75% запаса,Cor para 51-75%,,,
-76-100% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_100,The color used when the AMOUNT is in this range,76-100% запаса,Cor para 76-100%,,,
-101+% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_101,The color used when the AMOUNT is in this range,101+% запаса,Cor para 101% ou mais,,,
-33% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_33,The color used when the ABSORPTION is in this range,33% поглощения урона,Cor para 33% de absorção,,,
-50% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_50,The color used when the ABSORPTION is in this range,50% поглощения урона,Cor para 50% de absorção,,,
-66% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_66,The color used when the ABSORPTION is in this range,66% поглощения урона,Cor para 66% de absorção,,,
-80% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_80,The color used when the ABSORPTION is in this range,80% поглощения урона,Cor para 80% de absorção,,,
-100% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_100,The color used when the ABSORPTION is in this range,100% поглощения урона,Cor para 100% de absorção,,,
+Number of ranges,JGPHUD_MAINBARS_GRADIENT_NOOFRANGES,"Element in the section for health and armor numbers. This element allows the user to modify how manu color ranges their health/armor numbers will have (for example, they can choose 2 ranges to only cover 0-25% and 25-200%, or 4 ranges for 0-25%, 26-50%, 51-75%, 76-200%, or more). Specifically, this determines the number of ranges displayed in the complex custom menu element that allows them to set this up.",Число диапазонов,,,,
+Color mode,JGPHUD_MAINBARS_GRADIENT_MODE,"Element in the section for health and armor numbers. Possible values: ""Flat colors"" or ""Gradients"". This lets the user decide if their health/armor bars/numbers will change their colors gradually or instantly when approaching certain values.",Режим расцветки,,,,
+Flat colors,JGPHUD_MAINBARS_GRADIENT_MODE_FLAT,"Option for ""Color mode"", in reference to health/armor numbers/bars colorization mode. This option means that the color of the numbers/bars will change immediately when entering a specific range.
+This can also be translated as ""fixed colors"". Basically, this means that the colors will change from one fixed color to another, not using gradients.",Фиксированные цвета,,,,
+Gradients,JGPHUD_MAINBARS_GRADIENT_MODE_GRADIENT,"Option for ""Color mode"", in reference to health/armor numbers/bars colorization mode. This option means that the color of the numbers/bars will change gradually as the value moves between the user-defined ranges.",Градиенты,,,,
+0-25% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_25,NO LONGER USED,0-25% запаса,Cor para 0-25%,,,
+26-50% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_50,NO LONGER USED,26-50% запаса,Cor para 26-50%,,,
+51-75% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_75,NO LONGER USED,51-75% запаса,Cor para 51-75%,,,
+76-100% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_100,NO LONGER USED,76-100% запаса,Cor para 76-100%,,,
+101+% amount color,JGPHUD_MAINBARS_NUMCOL_AMTRANGE_101,NO LONGER USED,101+% запаса,Cor para 101% ou mais,,,
+33% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_33,NO LONGER USED,33% поглощения урона,Cor para 33% de absorção,,,
+50% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_50,NO LONGER USED,50% поглощения урона,Cor para 50% de absorção,,,
+66% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_66,NO LONGER USED,66% поглощения урона,Cor para 66% de absorção,,,
+80% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_80,NO LONGER USED,80% поглощения урона,Cor para 80% de absorção,,,
+100% absorption color,JGPHUD_MAINBARS_NUMCOL_ABSRANGE_100,NO LONGER USED,100% поглощения урона,Cor para 100% de absorção,,,
 Mugshot,JGPHUD_MUGSHOT_TITLE,"Title of the submenu with mugshot settings
 Can also be translated as ""protagonist's face"" and similar",Лицо персонажа,Rosto,,,
 Mugshot display mode,JGPHUD_MUGSHOT_ENABLE,"Name for the option that controls how the mugshot is displayed. Possible options:
@@ -175,8 +180,8 @@ Background opacity,JGPHUD_MINIMAP_OPACITY,A 0.0-1.0 slider that determines the o
 Minimap/radar size,JGPHUD_MINIMAP_SIZE,A slider,Размер мини-карты/радара,Tamanho do minimapa e radar,Minikarten- und Radargrösse,Tamaño del mapa y radar,Taille de la mini-carte/radar
 Minimap/radar shape,JGPHUD_MINIMAP_SHAPE,Square or circle,Форма мини-карты/радара,Formato do minimapa e radar,Minikarten- und Radarform,Forma del mapa y radar,Forme de la mini-carte/radar
 Minimap/radar zoom,JGPHUD_MINIMAP_ZOOM,A slider for the zoom value,Приближение мини-карты/радара,Zoom do minimapa e radar,Minikarten- und Radarzoom,Zoom del mapa y radar,Zoom de la mini-carte/radar
-Built-in map markers,JGPHUD_MINIMAP_MAPMARKERS,"This option toggles generalized map markers that appear on GZDoom's automap if a MapMarker-class actor is placed on it. Vanilla games don't use them, but they may be used in mods and custom projects (e.g. Supplice).",Встроенные маркеры на карте,,,,
-Map markers' scale,JGPHUD_MINIMAP_MAPMARKERS_SCALE,A scale slider for the built-in map markers,Масштаб маркеров на карте,,,,
+Built-in map markers,JGPHUD_MINIMAP_MAPMARKERS,"This option toggles generalized map markers that appear on GZDoom's automap if a MapMarker-class actor is placed on it. Vanilla games don't use them, but they may be used in mods and custom projects (e.g. Supplice).",Встроенные маркеры на карте,Marcadores de mapa embutidos,,,
+Map markers' scale,JGPHUD_MINIMAP_MAPMARKERS_SCALE,A scale slider for the built-in map markers,Масштаб маркеров на карте,Escala dos marcadores de mapa,,,
 Minimap/radar color set,JGPHUD_MINIMAP_COLORSET,"General option for the minimap that determines which colors will be used. At 0 uses same colors as the automap, at 1 uses custom colors.",Цвета мини-карты/радара,Cores do minimapa e radar,,,
 Same as automap,JGPHUD_MINIMAP_DEFAULTCOLORS,"Option for ""Minimap/radar color set"". If this is set, the minimap will use the same colors as GZDoom's automap.","Те же, что в автокарте",As mesmas do automapa,,,
 Circle,JGPHUD_MINIMAP_SHAPE_CIRCLE,possible minimap shape,Круг,Círculo,Kreis,Circular,Cercle

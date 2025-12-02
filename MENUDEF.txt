@@ -150,8 +150,8 @@ OptionMenu "JGPHUD_MainBars"
 
 	StaticText ""
 	StaticText "$JGPHUD_MAINBARS_NUMCOL_HEALTH_TITLE", yellow
-	Slider "Number of ranges", "jgphud_MainBarsHealthThresholds", 1, 10, 1, 0
-	Option "Color mode", "jgphud_MainbarsHealthGradient", "JGPHUD_NumberColorMode"
+	Slider "$JGPHUD_MAINBARS_GRADIENT_NOOFRANGES", "jgphud_MainBarsHealthThresholds", 1, 10, 1, 0
+	Option "$JGPHUD_MAINBARS_GRADIENT_MODE", "jgphud_MainbarsHealthGradient", "JGPHUD_NumberColorMode"
 	StaticText ""
 	JGPUFH_ColorizedValueRange "jgphud_MainBarsHealthColors", "jgphud_MainBarsHealthThresholds", "jgphud_MainBarsHealthStripColor", "jgphud_MainbarsHealthGradient", 200
 	StaticText ""
@@ -163,14 +163,14 @@ OptionMenu "JGPHUD_MainBars"
 	Option "$JGPHUD_MAINBARS_NUMCOL", "jgphud_MainBarsArmorColorIsAbsorb", "ArmorColorizationMode"
 	// number reflects armor's remaining amount:
 	JGPUFH_CheckCVar "", sapphire, "jgphud_MainBarsArmorColorIsAbsorb", "0"
-		Slider "Number of ranges", "jgphud_MainBarsArmorThresholds_Amount", 1, 10, 1, 0
-		Option "Color mode", "jgphud_MainbarsArmorGradient_Amount", "JGPHUD_NumberColorMode"
+		Slider "$JGPHUD_MAINBARS_GRADIENT_NOOFRANGES", "jgphud_MainBarsArmorThresholds_Amount", 1, 10, 1, 0
+		Option "$JGPHUD_MAINBARS_GRADIENT_MODE", "jgphud_MainbarsArmorGradient_Amount", "JGPHUD_NumberColorMode"
 		StaticText ""
 		JGPUFH_ColorizedValueRange "jgphud_MainBarsArmorColors_Amount", "jgphud_MainBarsArmorThresholds_Amount", "jgphud_MainBarsArmorStripColor", "jgphud_MainbarsArmorGradient_Amount", 200
 	// number reflects armor's absorption:
 	JGPUFH_Else ""
-		Slider "Number of ranges", "jgphud_MainBarsArmorThresholds_Absorb", 1, 10, 1, 0
-		Option "Color mode", "jgphud_MainbarsArmorGradient_Absorb", "JGPHUD_NumberColorMode"
+		Slider "$JGPHUD_MAINBARS_GRADIENT_NOOFRANGES", "jgphud_MainBarsArmorThresholds_Absorb", 1, 10, 1, 0
+		Option "$JGPHUD_MAINBARS_GRADIENT_MODE", "jgphud_MainbarsArmorGradient_Absorb", "JGPHUD_NumberColorMode"
 		StaticText ""
 		JGPUFH_ColorizedValueRange "jgphud_MainBarsArmorColors_Absorb", "jgphud_MainBarsArmorThresholds_Absorb", "jgphud_MainBarsArmorStripColor", "jgphud_MainbarsArmorGradient_Absorb", 100
 	JGPUFH_EndIf ""
@@ -180,8 +180,8 @@ OptionMenu "JGPHUD_MainBars"
 
 OptionValue "JGPHUD_NumberColorMode"
 {
-	0, "Flat"
-	1, "Gradient"
+	0, "$JGPHUD_MAINBARS_GRADIENT_MODE_FLAT"
+	1, "$JGPHUD_MAINBARS_GRADIENT_MODE_GRADIENT"
 }
 
 OptionMenu "JGPHUD_Mugshot"
