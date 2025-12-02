@@ -146,42 +146,39 @@ OptionMenu "JGPHUD_MainBars"
 	Option "$JGPHUD_ELEMENT_POS", "jgphud_MainBarsPos", "ElementScreenPos", "jgphud_DrawMainbars"
 	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_MainBarsX", -160, 160, 2, 0, "jgphud_DrawMainbars"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_MainBarsY", -100, 100, 2, 0, "jgphud_DrawMainbars"
-	Option "$JPGHUD_MAINBARS_ARMDISPLAY", "jgphud_MainBarsArmorMode", "ArmorDisplayOptions", "jgphud_DrawMainbars"
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "mainbars"
 
 	StaticText ""
 	StaticText "$JGPHUD_MAINBARS_NUMCOL_HEALTH_TITLE", yellow
-	Slider "Number of thresholds", "jgphud_MainBarsHealthThresholds", 1, 10, 1, 0
-	Option "Color mode", "jgphud_MainbarsHealthGradient", "JGPHUD_HealthColorMode"
+	Slider "Number of ranges", "jgphud_MainBarsHealthThresholds", 1, 10, 1, 0
+	Option "Color mode", "jgphud_MainbarsHealthGradient", "JGPHUD_NumberColorMode"
 	StaticText ""
-	JGPUFH_ColorizedValueRange "jgphud_MainBarsHealthColors", "jgphud_MainBarsHealthThresholds", "jgphud_MainBarsHealthStripColor", "jgphud_MainbarsHealthGradient"
+	JGPUFH_ColorizedValueRange "jgphud_MainBarsHealthColors", "jgphud_MainBarsHealthThresholds", "jgphud_MainBarsHealthStripColor", "jgphud_MainbarsHealthGradient", 200
 	StaticText ""
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "healthcolors"
 
 	StaticText ""
 	StaticText "$JGPHUD_MAINBARS_NUMCOL_ARMOR_TITLE", yellow
-	Option "$JGPHUD_MAINBARS_NUMCOL", "jgphud_MainBarsArmorColorMode", "ArmorColorizationMode"
-	JGPUFH_CheckCVar "$JGPHUD_MAINBARS_NUMCOL_CHOOSE", sapphire, "jgphud_MainBarsArmorColorMode", "0"
-		ColorPicker "Single armor color", "jgphud_MainBarsArmorColor"
+	Option "$JPGHUD_MAINBARS_ARMDISPLAY", "jgphud_MainBarsArmorMode", "ArmorDisplayOptions"
+	Option "$JGPHUD_MAINBARS_NUMCOL", "jgphud_MainBarsArmorColorIsAbsorb", "ArmorColorizationMode"
+	// number reflects armor's remaining amount:
+	JGPUFH_CheckCVar "", sapphire, "jgphud_MainBarsArmorColorIsAbsorb", "0"
+		Slider "Number of ranges", "jgphud_MainBarsArmorThresholds_Amount", 1, 10, 1, 0
+		Option "Color mode", "jgphud_MainbarsArmorGradient_Amount", "JGPHUD_NumberColorMode"
+		StaticText ""
+		JGPUFH_ColorizedValueRange "jgphud_MainBarsArmorColors_Amount", "jgphud_MainBarsArmorThresholds_Amount", "jgphud_MainBarsArmorStripColor", "jgphud_MainbarsArmorGradient_Amount", 200
+	// number reflects armor's absorption:
+	JGPUFH_Else ""
+		Slider "Number of ranges", "jgphud_MainBarsArmorThresholds_Absorb", 1, 10, 1, 0
+		Option "Color mode", "jgphud_MainbarsArmorGradient_Absorb", "JGPHUD_NumberColorMode"
+		StaticText ""
+		JGPUFH_ColorizedValueRange "jgphud_MainBarsArmorColors_Absorb", "jgphud_MainBarsArmorThresholds_Absorb", "jgphud_MainBarsArmorStripColor", "jgphud_MainbarsArmorGradient_Absorb", 100
 	JGPUFH_EndIf ""
-	JGPUFH_CheckCVar "$JGPHUD_MAINBARS_NUMCOL_CHOOSE", sapphire, "jgphud_MainBarsArmorColorMode", "1"
-		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_25", "jgphud_MainbarsArmorRange_25"
-		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_50", "jgphud_MainbarsArmorRange_50"
-		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_75", "jgphud_MainbarsArmorRange_75"
-		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_100", "jgphud_MainbarsArmorRange_100"
-		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_AMTRANGE_101", "jgphud_MainbarsArmorRange_101"
-	JGPUFH_EndIf ""
-	JGPUFH_CheckCVar "$JGPHUD_MAINBARS_NUMCOL_CHOOSE", sapphire, "jgphud_MainBarsArmorColorMode", "2"
-		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_33", "jgphud_MainbarsAbsorbRange_33"
-		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_50", "jgphud_MainbarsAbsorbRange_50"
-		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_66", "jgphud_MainbarsAbsorbRange_66"
-		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_80", "jgphud_MainbarsAbsorbRange_80"
-		ColorPicker "$JGPHUD_MAINBARS_NUMCOL_ABSRANGE_100", "jgphud_MainbarsAbsorbRange_100"
-	JGPUFH_EndIf ""
+	StaticText ""
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "armorcolors"
 }
 
-OptionValue "JGPHUD_HealthColorMode"
+OptionValue "JGPHUD_NumberColorMode"
 {
 	0, "Flat"
 	1, "Gradient"
@@ -658,13 +655,6 @@ OptionValue "CleanTextColors"
 
 OptionValue "ArmorColorizationMode"
 {
-	0, "$JGPHUD_MAINBARS_NUMCOL_FIXED"
-	1, "$JGPHUD_MAINBARS_NUMCOL_AMOUNT"
-	2, "$JGPHUD_MAINBARS_NUMCOL_ABSORB"
-}
-
-OptionValue "HealthColorizationMode"
-{
-	0, "$JGPHUD_MAINBARS_NUMCOL_FIXED"
-	1, "$JGPHUD_MAINBARS_NUMCOL_AMOUNT"
+	0, "$JGPHUD_MAINBARS_NUMCOL_AMOUNT"
+	1, "$JGPHUD_MAINBARS_NUMCOL_ABSORB"
 }

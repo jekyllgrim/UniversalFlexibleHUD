@@ -156,22 +156,18 @@ extend class JGPUFH_FlexibleHUD
 
 	ui transient CVar c_MainBarsHealthThresholds;
 	ui transient CVar c_MainBarsHealthColors;
-	ui transient CVar c_MainBarsHealthStripColor;
 	ui transient CVar c_MainbarsHealthGradient;
+	ui transient CVar c_MainBarsHealthStripColor;
 
 	ui transient CVar c_MainBarsArmorMode;
-	ui transient CVar c_MainBarsArmorColorMode;
-	ui transient CVar c_MainBarsArmorColor;
-	ui transient CVar c_MainbarsArmorRange_25;
-	ui transient CVar c_MainbarsArmorRange_50;
-	ui transient CVar c_MainbarsArmorRange_75;
-	ui transient CVar c_MainbarsArmorRange_100;
-	ui transient CVar c_MainbarsArmorRange_101;
-	ui transient CVar c_MainbarsAbsorbRange_33;
-	ui transient CVar c_MainbarsAbsorbRange_50;
-	ui transient CVar c_MainbarsAbsorbRange_66;
-	ui transient CVar c_MainbarsAbsorbRange_80;
-	ui transient CVar c_MainbarsAbsorbRange_100;
+	ui transient CVar c_MainBarsArmorColorIsAbsorb;
+	ui transient CVar c_MainBarsArmorThresholds_Amount;
+	ui transient CVar c_MainBarsArmorColors_Amount;
+	ui transient CVar c_MainbarsArmorGradient_Amount;
+	ui transient CVar c_MainBarsArmorThresholds_Absorb;
+	ui transient CVar c_MainBarsArmorColors_Absorb;
+	ui transient CVar c_MainbarsArmorGradient_Absorb;
+	ui transient CVar c_MainBarsArmorStripColor;
 
 	// default map color cvars (not stored in FlexiHUD settings):
 	ui transient CVar c_am_colorset;
@@ -476,42 +472,33 @@ extend class JGPUFH_FlexibleHUD
 		if (!c_ReticleBarsScale)
 			c_ReticleBarsScale = CVar.GetCVar('jgphud_ReticleBarsScale', CPlayer);
 
+		if (!c_MainBarsHealthStripColor)
+			c_MainBarsHealthStripColor = CVar.GetCvar('jgphud_MainBarsHealthStripColor', CPlayer);
 		if (!c_MainBarsHealthThresholds)
 			c_MainBarsHealthThresholds = CVar.GetCvar('jgphud_MainBarsHealthThresholds', CPlayer);
 		if (!c_MainBarsHealthColors)
 			c_MainBarsHealthColors = CVar.GetCvar('jgphud_MainBarsHealthColors', CPlayer);
-		if (!c_MainBarsHealthStripColor)
-			c_MainBarsHealthStripColor = CVar.GetCvar('jgphud_MainBarsHealthStripColor', CPlayer);
 		if (!c_MainbarsHealthGradient)
 			c_MainbarsHealthGradient = CVar.GetCvar('jgphud_MainbarsHealthGradient', CPlayer);
 
 		if (!c_MainBarsArmorMode)
 			c_MainBarsArmorMode = CVar.GetCvar('jgphud_MainBarsArmorMode', CPlayer);
-		if (!c_MainBarsArmorColorMode)
-			c_MainBarsArmorColorMode = CVar.GetCvar('jgphud_MainBarsArmorColorMode', CPlayer);
-		if (!c_MainBarsArmorColor)
-			c_MainBarsArmorColor = CVar.GetCvar('jgphud_MainBarsArmorColor', CPlayer);
-		if (!c_MainbarsArmorRange_25)
-			c_MainbarsArmorRange_25 = CVar.GetCvar('jgphud_MainbarsArmorRange_25', CPlayer);
-		if (!c_MainbarsArmorRange_50)
-			c_MainbarsArmorRange_50 = CVar.GetCvar('jgphud_MainbarsArmorRange_50', CPlayer);
-		if (!c_MainbarsArmorRange_75)
-			c_MainbarsArmorRange_75 = CVar.GetCvar('jgphud_MainbarsArmorRange_75', CPlayer);
-		if (!c_MainbarsArmorRange_100)
-			c_MainbarsArmorRange_100 = CVar.GetCvar('jgphud_MainbarsArmorRange_100', CPlayer);
-		if (!c_MainbarsArmorRange_101)
-			c_MainbarsArmorRange_101 = CVar.GetCvar('jgphud_MainbarsArmorRange_101', CPlayer);
-
-		if (!c_MainbarsAbsorbRange_33)
-			c_MainbarsAbsorbRange_33 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_33', CPlayer);
-		if (!c_MainbarsAbsorbRange_50)
-			c_MainbarsAbsorbRange_50 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_50', CPlayer);
-		if (!c_MainbarsAbsorbRange_66)
-			c_MainbarsAbsorbRange_66 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_66', CPlayer);
-		if (!c_MainbarsAbsorbRange_80)
-			c_MainbarsAbsorbRange_80 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_80', CPlayer);
-		if (!c_MainbarsAbsorbRange_100)
-			c_MainbarsAbsorbRange_100 = CVar.GetCvar('jgphud_MainbarsAbsorbRange_100', CPlayer);
+		if (!c_MainBarsArmorColorIsAbsorb)
+			c_MainBarsArmorColorIsAbsorb = CVar.GetCvar('jgphud_MainBarsArmorColorIsAbsorb', CPlayer);
+		if (!c_MainBarsArmorStripColor)
+			c_MainBarsArmorStripColor = CVar.GetCvar('jgphud_MainBarsArmorStripColor', CPlayer);
+		if (!c_MainBarsArmorThresholds_Amount)
+			c_MainBarsArmorThresholds_Amount = CVar.GetCvar('jgphud_MainBarsArmorThresholds_Amount', CPlayer);
+		if (!c_MainBarsArmorColors_Amount)
+			c_MainBarsArmorColors_Amount = CVar.GetCvar('jgphud_MainBarsArmorColors_Amount', CPlayer);
+		if (!c_MainbarsArmorGradient_Amount)
+			c_MainbarsArmorGradient_Amount = CVar.GetCvar('jgphud_MainbarsArmorGradient_Amount', CPlayer);
+		if (!c_MainBarsArmorThresholds_Absorb)
+			c_MainBarsArmorThresholds_Absorb = CVar.GetCvar('jgphud_MainBarsArmorThresholds_Absorb', CPlayer);
+		if (!c_MainBarsArmorColors_Absorb)
+			c_MainBarsArmorColors_Absorb = CVar.GetCvar('jgphud_MainBarsArmorColors_Absorb', CPlayer);
+		if (!c_MainbarsArmorGradient_Absorb)
+			c_MainbarsArmorGradient_Absorb = CVar.GetCvar('jgphud_MainbarsArmorGradient_Absorb', CPlayer);
 		
 		// default map color cvars (not stored in FlexiHUD settings):
 		// which color set GZDoom uses (0 - custom, 1 - Doom, 2 - Strife, 3 - Raven):

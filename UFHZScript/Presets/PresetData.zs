@@ -210,17 +210,13 @@ extend class JGPUFH_PresetHandler
 		JGPUFH_PresetCVarData.Add('jgphud_MainbarsHealthGradient', cvarData, CVC_HealthColors);
 
 		JGPUFH_PresetCVarData.Add('jgphud_MainBarsArmorMode', cvarData, CVC_ArmorColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainBarsArmorColorMode', cvarData, CVC_ArmorColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainBarsArmorColor', cvarData, CVC_ArmorColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainbarsArmorRange_25', cvarData, CVC_ArmorColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainbarsArmorRange_50', cvarData, CVC_ArmorColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainbarsArmorRange_75', cvarData, CVC_ArmorColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainbarsArmorRange_100', cvarData, CVC_ArmorColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainbarsArmorRange_101', cvarData, CVC_ArmorColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainbarsAbsorbRange_33', cvarData, CVC_ArmorColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainbarsAbsorbRange_50', cvarData, CVC_ArmorColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainbarsAbsorbRange_66', cvarData, CVC_ArmorColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainbarsAbsorbRange_80', cvarData, CVC_ArmorColors);
-		JGPUFH_PresetCVarData.Add('jgphud_MainbarsAbsorbRange_100', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsArmorColorIsAbsorb', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsArmorStripColor', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsArmorGradient_Amount', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsArmorThresholds_Amount', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsArmorColors_Amount', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainbarsArmorGradient_Absorb', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsArmorThresholds_Absorb', cvarData, CVC_ArmorColors);
+		JGPUFH_PresetCVarData.Add('jgphud_MainBarsArmorColors_Absorb', cvarData, CVC_ArmorColors);
 	}
 }

@@ -121,21 +121,18 @@ class JGPUFH_FlexibleHUD : EventHandler
 		AD_ABSORB,
 		AD_BOTH,
 	}
-	enum ENumberDisplayModes
-	{
-		ND_FIXED,
-		ND_AMOUNT,
-		ND_ABSORB,
-	}
 	ui double healthAmount;
 	ui double healthMaxAmount;
-	ui double armAmount;
-	ui double armMaxamount;
+	ui double armorAmount;
+	ui double armorMaxAmount;
 	ui bool hasHexenArmor;
 	ui Color armorColor;
 	ui String prevHealthColorList;
 	ui array<int> healthValues;
 	ui array<Color> healthColors;
+	ui array<int> armorValues;
+	ui array<Color> armorColors;
+	ui String prevArmorColorList;
 
 	// Used by weapon slots, powerup list,
 	// and inventory bar:
@@ -1169,48 +1166,65 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	ui Color GetHealthColor(int health, int maxhealth)
 	{
-		if (prevHealthColorList != c_MainBarsHealthColors.GetString())
+		return GetValueRangeColor(health, maxhealth,
+			c_MainBarsHealthThresholds,
+			c_MainBarsHealthColors,
+			c_MainbarsHealthGradient,
+			healthvalues,
+			healthcolors,
+			prevHealthColorList
+		);
+	}
+
+	ui Color GetValueRangeColor(int curValue, int maxvalue,
+		CVar cv_thresholds,
+		CVar cv_colors,
+		CVar cv_useGradient,
+		out array<int> values, out array<Color> colors, out String prevColorList
+	)
+	{
+		if (prevColorList != cv_colors.GetString())
 		{
-			JGPUFH_CVarTools.ParseGradientColors(c_MainBarsHealthColors, healthValues, healthColors);
-			prevHealthColorList = c_MainBarsHealthColors.GetString();
+			JGPUFH_CVarTools.ParseGradientColors(cv_colors, values, colors);
+			prevColorList = cv_colors.GetString();
 		}
 
-		int lastvalue = min(c_MainBarsHealthThresholds.GetInt(), healthValues.Size(), healthColors.Size()) - 1;
-		// minimum health accounted for:
-		if (health < healthvalues[0])
+		int lastvalue = min(cv_thresholds.GetInt(), values.Size(), colors.Size()) - 1;
+		// minimum curValue accounted for:
+		if (curValue < values[0])
 		{
-			return healthcolors[0];
+			return colors[0];
 		}
-		// maximum health accounted for:
-		if (health >= healthvalues[lastvalue])
+		// maximum curValue accounted for:
+		if (curValue >= values[lastvalue])
 		{
-			return healthcolors[lastvalue];
+			return colors[lastvalue];
 		}
-		// intermediate health:
+		// intermediate curValue:
 		Color prevcolor, curcolor, finalcolor;
 		double colordist;
 		int prevval, curval;
 		for (int i = 1; i <= lastvalue; i++)
 		{
-			if (health > healthValues[i]) continue;
+			if (curValue > values[i]) continue;
 
-			curcolor = healthcolors[i];
-			prevcolor = healthcolors[i-1];
-			curval = healthvalues[i];
-			prevval = healthvalues[i-1];
+			curcolor = colors[i];
+			prevcolor = colors[i-1];
+			curval = values[i];
+			prevval = values[i-1];
 			if (prevcolor != curcolor)
 			{
-				colordist = LinearMap(health, prevval, curval, 0.0, 1.0);
+				colordist = LinearMap(curValue, prevval, curval, 0.0, 1.0);
 			}
 			break;
 		}
-		if (colordist > 0.0 && c_MainbarsHealthGradient.GetBool())
+		if (colordist > 0.0 && cv_useGradient.GetBool())
 		{
 			finalcolor = GetIntermediateColor(prevcolor, curcolor, colorDist);
 		}
 		else
 		{
-			finalcolor = health == curval? curcolor : prevcolor;
+			finalcolor = curValue == curval? curcolor : prevcolor;
 		}
 		return finalcolor;
 	}
@@ -1243,76 +1257,29 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// to common savepercent values (50, 80 and 33):
 	ui Color GetArmorColor(double savePercent)
 	{
-		int mode = c_MainBarsArmorColorMode.GetInt();
-		// single color:
-		if (mode == ND_FIXED)
+		if (c_MainBarsArmorColorIsAbsorb.GetBool())
 		{
-			return Color(c_MainBarsArmorColor.GetString());
+			if (savePercent < 1.0) savePercent *= 100;
+			return GetValueRangeColor(savePercent, 100,
+				c_MainBarsArmorThresholds_Absorb,
+				c_MainBarsArmorColors_Absorb,
+				c_MainbarsArmorGradient_Absorb,
+				armorValues,
+				armorColors,
+				prevArmorColorList
+			);
 		}
-		Color startcol, endcol;
-		double colorDist;
-		// amount-based color:
-		if (mode == ND_AMOUNT)
-		{
-			double ratio = armAmount / 100.0;
-			if (ratio <= 0.5)
-			{
-				startcol = Color(c_MainbarsArmorRange_25.GetString());
-				endcol = Color(c_MainbarsArmorRange_50.GetString());
-				colorDist = LinearMap(ratio, 0.25, 0.5, 0.0, 1.0);
-			}
-			else if (ratio <= 0.75)
-			{
-				startcol = Color(c_MainbarsArmorRange_50.GetString());
-				endcol = Color(c_MainbarsArmorRange_75.GetString());
-				colorDist = LinearMap(ratio, 0.5, 0.75, 0.0, 1.0);
-			}
-			else if (ratio <= 1.0)
-			{
-				startcol = Color(c_MainbarsArmorRange_75.GetString());
-				endcol = Color(c_MainbarsArmorRange_100.GetString());
-				colorDist = LinearMap(ratio, 0.75, 1.0, 0.0, 1.0);
-			}
-			else
-			{
-				startcol = Color(c_MainbarsArmorRange_100.GetString());
-				endcol = Color(c_MainbarsArmorRange_101.GetString());
-				colorDist = LinearMap(ratio, 1.0, 1.1, 0.0, 1.0);
-			}
-		}
-		// absorption-based color (the sane default):
 		else
 		{
-			if (savePercent <= 0.34)
-			{
-				return Color(c_MainbarsAbsorbRange_33.GetString());
-			}
-			if (savePercent <= 0.5)
-			{
-				startcol = Color(c_MainbarsAbsorbRange_33.GetString());
-				endcol = Color(c_MainbarsAbsorbRange_50.GetString());
-				colorDist = LinearMap(savePercent, 0, 0.33, 0.5, 1.0);
-			}
-			else if (savePercent <= 0.67)
-			{
-				startcol = Color(c_MainbarsAbsorbRange_50.GetString());
-				endcol = Color(c_MainbarsAbsorbRange_66.GetString());
-				colorDist = LinearMap(savePercent, 0, 0.5, 0.66, 1.0);
-			}
-			else if (savePercent <= 0.8)
-			{
-				startcol = Color(c_MainbarsAbsorbRange_66.GetString());
-				endcol = Color(c_MainbarsAbsorbRange_80.GetString());
-				colorDist = LinearMap(savePercent, 0, 0.66, 0.8, 1.0);
-			}
-			else
-			{
-				startcol = Color(c_MainbarsAbsorbRange_80.GetString());
-				endcol = Color(c_MainbarsAbsorbRange_100.GetString());
-				colorDist = LinearMap(savePercent, 0, 0.8, 1.0, 1.0);
-			}
+			return GetValueRangeColor(armorAmount, armorMaxAmount,
+				c_MainBarsArmorThresholds_Amount,
+				c_MainBarsArmorColors_Amount,
+				c_MainbarsArmorGradient_Amount,
+				armorValues,
+				armorColors,
+				prevArmorColorList
+			);
 		}
-		return GetIntermediateColor(startcol, endcol, colorDist);
 	}
 
 	clearscope int GetPercentageFontColor(int amount, int maxamount)
@@ -1488,17 +1455,17 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (healthIntr)
 			healthIntr.Update(CPlayer.mo.health);
 		if (armorIntr)
-			armorIntr.Update(armAmount);
+			armorIntr.Update(armorAmount);
 
 		if (!healthIntr && healthMaxAmount > 0)
 		{
 			healthIntr = LinearValueInterpolator.Create(healthMaxAmount, 1);
 			healthIntr.Reset(healthAmount);
 		}
-		if (!armorIntr && armMaxAmount > 0)
+		if (!armorIntr && armorMaxAmount > 0)
 		{
-			armorIntr = LinearValueInterpolator.Create(armMaxAmount, 1);
-			armorIntr.Reset(armAmount);
+			armorIntr = LinearValueInterpolator.Create(armorMaxAmount, 1);
+			armorIntr.Reset(armorAmount);
 		}
 	}
 
@@ -1533,12 +1500,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// Check if armor exists and is above 0
 		let barm = BasicArmor(CPlayer.mo.FindInventory("BasicArmor", true));
 		let hexarm = HexenArmor(CPlayer.mo.FindInventory("HexenArmor", true));
-		armMaxAmount = 0;
+		armorMaxAmount = 0;
 		hasHexenArmor = false;
 		if (barm)
 		{
-			armAmount = barm.amount;
-			armMaxAmount = barm.maxamount;
+			armorAmount = barm.amount;
+			armorMaxAmount = barm.maxamount;
 			armorColor = GetArmorColor(barm.savePercent);
 		}
 		if (hexArm)
@@ -1552,13 +1519,13 @@ class JGPUFH_FlexibleHUD : EventHandler
 			{
 				SetupHexenArmorIcons();
 				hasHexenArmor = true;
-				armAmount = hexArmAmount;
+				armorAmount = hexArmAmount;
 				for (int i = 0; i < hexarm.slotsIncrement.Size(); i++)
 				{
-					armMaxamount += hexarm.slotsIncrement[i];
+					armorMaxAmount += hexarm.slotsIncrement[i];
 				}
-				armMaxamount += hexarm.slots[4];
-				armorColor = GetArmorColor(armAmount / armMaxAmount);
+				armorMaxAmount += hexarm.slots[4];
+				armorColor = GetArmorColor(hexArm.Slots[0] + hexArm.Slots[1] + hexArm.Slots[2] + hexArm.Slots[3] + hexArm.Slots[4]);
 			}
 		}
 	}
@@ -1692,7 +1659,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		
 		// Draw armor bar:
 		// Check if armor exists and is above 0
-		if (armAmount <= 0)
+		if (armorAmount <= 0)
 		{
 			return;
 		}
@@ -1775,12 +1742,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		if (drawbars)
 		{
-			DrawFlatColorBar((barPosX, iconPos.y), GetArmorInterpolated(), armMaxamount, Color(200, 255, 255, 255), barwidth:barWidth, barheight: barheight*0.8, segments: barm.maxamount / 10, flags:barFlags);
-			DrawFlatColorBar((barPosX, iconPos.y), armAmount, armMaxamount, armorColor, valueColor: Font.CR_White, barwidth:barWidth, barheight*0.8, backColor: 0x00000000, segments: barm.maxamount / 10, flags:barFlags);
+			DrawFlatColorBar((barPosX, iconPos.y), GetArmorInterpolated(), armorMaxAmount, Color(200, 255, 255, 255), barwidth:barWidth, barheight: barheight*0.8, segments: barm.maxamount / 10, flags:barFlags);
+			DrawFlatColorBar((barPosX, iconPos.y), armorAmount, armorMaxAmount, armorColor, valueColor: Font.CR_White, barwidth:barWidth, barheight*0.8, backColor: 0x00000000, segments: barm.maxamount / 10, flags:barFlags);
 		}
 		else
 		{
-			DrawColorString(armorColor, fnt, String.Format("%3d", armAmount), (barPosX, iconPos.y - fy*0.5), flags, scale:fntScale);
+			DrawColorString(armorColor, fnt, String.Format("%3d", armorAmount), (barPosX, iconPos.y - fy*0.5), flags, scale:fntScale);
 		}
 	}
 
@@ -2689,10 +2656,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 			reticleMarkersDelay[RB_HEALTH] -= 1 * delta;
 		}
 
-		if (prevArmAmount != armAmount || prevArmMaxAmount != armMaxAmount)
+		if (prevArmAmount != armorAmount || prevArmMaxAmount != armorMaxAmount)
 		{
-			prevArmAmount = armAmount;
-			prevArmMaxAmount = armMaxAmount;
+			prevArmAmount = armorAmount;
+			prevArmMaxAmount = armorMaxAmount;
 			reticleMarkersDelay[RB_ARMOR] = MARKERSDELAY;
 		}
 		else
@@ -2932,18 +2899,18 @@ class JGPUFH_FlexibleHUD : EventHandler
 				DisableMask();
 			}
 			// Armor bar (outer):
-			int armAmount = armAmount;
-			int armMaxAmount = armMaxAmount;
+			int armorAmount = armorAmount;
+			int armorMaxAmount = armorMaxAmount;
 			if (CanDrawReticleBar(RB_ARMOR))
 			{
 				genRoundMask.SetTransform(genRoundMaskTransfOuter);
 				double fadeAlph = !autoHide ? alpha : LinearMap(reticleMarkersDelay[RB_ARMOR], 0, MARKERSDELAY*0.5, 0.0, alpha, true);
 				EnableMask(0, genRoundMask);
-				valueFrac = LinearMap(armAmount, 0, armMaxAmount, 1.0, 0.0, true);
+				valueFrac = LinearMap(armorAmount, 0, armorMaxAmount, 1.0, 0.0, true);
 				DrawCircleSegmentShape(Color(armorColor.a, armorcolor.r+32, armorcolor.g+32, armorcolor.b+32), screenCenter, secondarySize, steps, angle, coverAngle, valueFrac, fadeAlph);
 				if (drawBarText)
 				{
-					statusbar.DrawString(hfnt, String.Format("%d", armAmount), fntPosOut, fntFlagsOut, Font.CR_White, fadeAlph, scale: fntScale);
+					statusbar.DrawString(hfnt, String.Format("%d", armorAmount), fntPosOut, fntFlagsOut, Font.CR_White, fadeAlph, scale: fntScale);
 				}
 				DisableMask();
 			}

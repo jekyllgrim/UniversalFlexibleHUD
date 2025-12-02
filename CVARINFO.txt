@@ -159,18 +159,14 @@ nosave color jgphud_MainBarsHealthStripColor = "00 00 00"; //dummy CVar for the 
 nosave bool jgphud_MainbarsHealthGradient = true;
 
 nosave int jgphud_MainBarsArmorMode = 2;
-nosave int jgphud_MainBarsArmorColorMode = 2;
-nosave color jgphud_MainBarsArmorColor = "40 40 ff";
-nosave color jgphud_MainbarsAbsorbRange_33 = "40 ff 40";
-nosave color jgphud_MainbarsAbsorbRange_50 = "40 40 ff";
-nosave color jgphud_MainbarsAbsorbRange_66 = "ff ff 40";
-nosave color jgphud_MainbarsAbsorbRange_80 = "ff aa 40";
-nosave color jgphud_MainbarsAbsorbRange_100 = "ff 40 40";
-nosave color jgphud_MainbarsArmorRange_25 = "ff 40 40";
-nosave color jgphud_MainbarsArmorRange_50 = "ff aa 40";
-nosave color jgphud_MainbarsArmorRange_75 = "ff ff 40";
-nosave color jgphud_MainbarsArmorRange_100 = "40 ff 40";
-nosave color jgphud_MainbarsArmorRange_101 = "40 40 ff";
+nosave bool jgphud_MainBarsArmorColorIsAbsorb = true;
+nosave bool jgphud_MainbarsArmorGradient_Amount = true;
+nosave HandlerClass(JGPUFH_HealthColorsThresholds) int jgphud_MainBarsArmorThresholds_Amount = 6;
+nosave string jgphud_MainBarsArmorColors_Amount = "0:ff4040|25:ff7f40|60:ffff40|80:40ff40|140:40ff40|120:4040ff|130:4040ff|140:4040ff|150:4040ff|160:4040ff";
+nosave bool jgphud_MainbarsArmorGradient_Absorb = false;
+nosave HandlerClass(JGPUFH_HealthColorsThresholds) int jgphud_MainBarsArmorThresholds_Absorb = 4;
+nosave string jgphud_MainBarsArmorColors_Absorb = "34:40ff40|50:4040ff|67:40ffff|80:ffff40|100:ff4040";
+nosave color jgphud_MainBarsArmorStripColor = "00 00 00"; //dummy CVar for the custom ColorPicker
 
 // json strings:
 nosave 			 string __jgphud_user_presets_json = "{}";

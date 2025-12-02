@@ -618,7 +618,6 @@ class OptionMenuItemJGPUFHTextField : OptionMenuItemTextField
 
 class OptionMenuItemJGPUFH_ColorizedValueRange : OptionMenuItem
 {
-	const MAXGRADIENTHEALTH = 200;
 	const COLORRANGESTEPS = 8.0;
 	enum ESetupModes
 	{
@@ -627,6 +626,7 @@ class OptionMenuItemJGPUFH_ColorizedValueRange : OptionMenuItem
 		SM_Colors,
 	}
 	ESetupModes setupMode;
+	int lastRangeValue;
 	int selectedRange;
 	bool colorSelected;
 	array<int> healthValues;
@@ -639,13 +639,14 @@ class OptionMenuItemJGPUFH_ColorizedValueRange : OptionMenuItem
 	CVar useGradients;
 	String prevColorListString;
 
-	void Init(name colorListCVar, name thresholdsCVar, name currentColorCVar, name useGradientsCVar)
+	void Init(name colorListCVar, name thresholdsCVar, name currentColorCVar, name useGradientsCVar, int maxvalue)
 	{
 		Super.Init("", "");
 		colorList = CVar.FindCVar(colorListCVar);
 		thresholds = CVar.FindCVar(thresholdsCVar);
 		currentStripColor = CVar.FindCVar(currentColorCVar);
 		useGradients = CVar.FindCVar(useGradientsCVar);
+		lastRangeValue = maxvalue; 
 		colorSelected = false;
 		setupMode = SM_None;
 		ParseGradients();
@@ -700,22 +701,24 @@ class OptionMenuItemJGPUFH_ColorizedValueRange : OptionMenuItem
 		}
 
 		// We need to make sure that every next health threshold
-		// is higher than the previous one. Check if this isn't
-		// the case here, and, if necessary, update all values
-		// to their defaults (but without touching colors):
-		bool needResetValues = false;
-		for (int i = 0; i < GetMaxThresholds() - 1; i++)
+		// is in order. This is needed in case where the user first
+		// sets a specific threshold high, and then decides to
+		// increase the number of thresholds - this could cause overlap:
+
+		int lastIndex = GetMaxThresholds() - 1;
+		// prevent final value from exceeding maximum:
+		healthValues[lastIndex] = min(healthValues[lastINdex], lastRangeValue);
+		// go backward and make sure every value is at least 1 lower
+		// than the next value:
+		for (int i = lastIndex - 1; i >= 0; i--)
 		{
-			if (healthValues[i+1] <= healthvalues[i])
-			{
-				needResetValues = true;
-				break;
-			}
+			healthValues[i] = clamp(healthValues[i], 0, healthValues[i+1] - 1);
 		}
-		if (needResetValues)
+		// now go forward and make sure every value is at least 1 higher
+		// than the previous one:
+		for (int i = 1; i <= lastIndex; i++)
 		{
-			healthValues.Copy(defaultHealthValues);
-			UpdateCVarFromArrays();
+			healthValues[i] = max(healthValues[i], 0, healthValues[i-1] + 1);
 		}
 
 		prevColorListString = colorList.GetString();
@@ -727,9 +730,13 @@ class OptionMenuItemJGPUFH_ColorizedValueRange : OptionMenuItem
 		return min(thresholds.GetInt(), healthValues.Size(), healthcolors.Size());
 	}
 
-	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
+	override void Ticker()
 	{
 		ParseGradients();
+	}
+
+	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
+	{
 		int width = int(ceil(Screen.GetWidth() * 0.8));
 		int height = Menu.OptionHeight() * 2;
 		int x = indent - (width / 2);
@@ -738,7 +745,7 @@ class OptionMenuItemJGPUFH_ColorizedValueRange : OptionMenuItem
 		// was reduced:
 		selectedRange = min(selectedRange, steps-1);
 		// width of one color strip:
-		double widthstep = double(width) / MAXGRADIENTHEALTH;
+		double widthstep = double(width) / lastRangeValue;
 		// start with a black rectangle under the whole color gradient:
 		Screen.Dim(0x000000, 1.0, x, y, width, height);
 		int curVal, nextVal, stripwidth;
@@ -748,7 +755,7 @@ class OptionMenuItemJGPUFH_ColorizedValueRange : OptionMenuItem
 			// calculate current strip's width and position based
 			// on the current and next health values:
 			curVal = steps > 1? healthValues[i] : 0;
-			nextVal = i < steps - 1? healthValues[i+1] : MAXGRADIENTHEALTH;
+			nextVal = i < steps - 1? healthValues[i+1] : lastRangeValue;
 			stripwidth = int(ceil(widthstep * (nextval - curVal)));
 			int stripPos = int(ceil(curVal * widthstep));
 			// dim the alpha of the whole thing slightly while it's not
@@ -806,7 +813,7 @@ class OptionMenuItemJGPUFH_ColorizedValueRange : OptionMenuItem
 				Screen.DrawText(ConFont,
 					Font.CR_White,
 					pipposX + 5, pipposY,
-					""..curVal,
+					""..curVal.."\%",
 					DTA_CleanNoMove_1, true);
 			}
 			// color value next to the pip below the gradient:
@@ -850,16 +857,16 @@ class OptionMenuItemJGPUFH_ColorizedValueRange : OptionMenuItem
 			Screen.DrawText(ConFont,
 				Font.CR_White,
 				pip1x + 5, pipY,
-				""..0,
+				"0\%",
 				DTA_CleanNoMove_1, true);
 		}
-		if (healthValues[healthValues.Size()-1] < MAXGRADIENTHEALTH)
+		if (healthValues[healthValues.Size()-1] < lastRangeValue)
 		{
 			Screen.Dim(0xffffff, 1.0, pip2x, pipY, 4, height*2);
 			Screen.DrawText(ConFont,
 				Font.CR_White,
 				pip2x + 5, pipY,
-				""..MAXGRADIENTHEALTH,
+				String.Format("%d\%", lastRangeValue),
 				DTA_CleanNoMove_1, true);
 		}
 		// draw selection highlight (a simple edge highlight fluctuating
