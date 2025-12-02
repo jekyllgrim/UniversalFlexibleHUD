@@ -747,7 +747,7 @@ class OptionMenuItemJGPUFH_ColorizedValueRange : OptionMenuItem
 		// width of one color strip:
 		double widthstep = double(width) / lastRangeValue;
 		// start with a black rectangle under the whole color gradient:
-		Screen.Dim(0x000000, 1.0, x, y, width, height);
+		Screen.Dim(0x000000, 1.0, x, y - height / 2, width, height * 2);
 		int curVal, nextVal, stripwidth;
 		int selectedPosX, selectedPosY, selectedWidth, selectedHeight;
 		for (int i = 0; i < steps; i++)
