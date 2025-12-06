@@ -334,6 +334,10 @@ class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
 		case 'powerups':
 			mCVarCategory = JGPUFH_PresetHandler.CVC_Powerups;
 			break;
+			break;
+		case 'scoreboard':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_Scoreboard;
+			break;
 		case 'minimap':
 			mCVarCategory = JGPUFH_PresetHandler.CVC_Minimap;
 			break;

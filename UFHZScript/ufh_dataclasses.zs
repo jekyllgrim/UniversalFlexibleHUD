@@ -403,3 +403,25 @@ class JGPUFH_FontData ui
 		return true;
 	}
 }
+
+class JGPUFH_DeathmatchInfo
+{
+	uint teamnumber;
+	Color playercolor;
+	String playername;
+	uint playernumber;
+	uint fragcount;
+
+	static clearscope JGPUFH_DeathmatchInfo Create(uint playernumber)
+	{
+		PlayerInfo player = players[playernumber];
+		let dm = new('JGPUFH_DeathmatchInfo');
+		dm.playernumber = playernumber;
+		dm.playername = player.GetUserName();
+		dm.teamnumber = player.GetTeam();
+		dm.fragcount = player.fragcount;
+		dm.playercolor = teamplay && Team.IsValid(dm.teamnumber)? Teams[dm.teamnumber].GetPlayerColor() : player.GetColor();
+		
+		return dm;
+	}
+}

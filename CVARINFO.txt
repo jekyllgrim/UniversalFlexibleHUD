@@ -66,6 +66,12 @@ nosave int jgphud_PowerupsX = 2;
 nosave int jgphud_PowerupsY = 2;
 nosave int jgphud_PowerupsNumColor = 10;
 
+nosave int jgphud_DrawScoreboard = 1;
+nosave float jgphud_ScoreboardScale = 0.8;
+nosave int jgphud_ScoreboardPos = 2;
+nosave int jgphud_ScoreboardX = 2;
+nosave int jgphud_ScoreboardY = 24;
+
 nosave int jgphud_DrawMinimap = 3;
 nosave bool jgphud_CircularMinimap = false;
 nosave int jgphud_MinimapSize = 64;

@@ -53,6 +53,7 @@ extend class JGPUFH_PresetHandler
 		CVC_ArmorColors		= 1 << 19,
 		CVC_Scaling			= 1 << 20,
 		CVC_Visibility		= 1 << 21,
+		CVC_Scoreboard		= 1 << 22,
 	}
 
 	void InitalizeJGPHUDCvars()
@@ -117,6 +118,12 @@ extend class JGPUFH_PresetHandler
 		JGPUFH_PresetCVarData.Add('jgphud_PowerupsX', cvarData, CVC_Powerups);
 		JGPUFH_PresetCVarData.Add('jgphud_PowerupsY', cvarData, CVC_Powerups);
 		JGPUFH_PresetCVarData.Add('jgphud_PowerupsNumColor', cvarData, CVC_Powerups);
+
+		JGPUFH_PresetCVarData.Add('jgphud_DrawScoreboard', cvarData, CVC_Scoreboard);
+		JGPUFH_PresetCVarData.Add('jgphud_ScoreboardScale', cvarData, CVC_Scoreboard);
+		JGPUFH_PresetCVarData.Add('jgphud_ScoreboardPos', cvarData, CVC_Scoreboard);
+		JGPUFH_PresetCVarData.Add('jgphud_ScoreboardX', cvarData, CVC_Scoreboard);
+		JGPUFH_PresetCVarData.Add('jgphud_ScoreboardY', cvarData, CVC_Scoreboard);
 
 		JGPUFH_PresetCVarData.Add('jgphud_DrawMinimap', cvarData, CVC_Minimap|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_CircularMinimap', cvarData, CVC_Minimap);

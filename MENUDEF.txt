@@ -37,6 +37,7 @@ OptionMenu "JGPHUD_Settings"
 	SubMenu	"$JGPHUD_DMGMARKERS_TITLE",		"JGPHUD_DamageMarkers"
 	SubMenu	"$JGPHUD_CROSSHAIR_TITLE",		"JGPHUD_CrosshairOptions"
 	SubMenu	"$JGPHUD_MAPDATA_GEN_TITLE",	"JGPHUD_MapData"
+	SubMenu	"$JGPHUD_SCOREBOARD_TITLE",		"JGPHUD_Scoreboard"
 	SubMenu	"$JGPHUD_CustomItems_TITLE",	"JGPHUD_CustomItems"
 }
 
@@ -333,6 +334,30 @@ OptionMenu "JGPHUD_CustomItems"
 	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_CustomItemsY", -100, 100, 2, 0, "jgphud_drawCustomItems"
 	StaticText ""
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "customitems"
+}
+
+OptionMenu "JGPHUD_Scoreboard"
+{	
+	Class "JGPUFH_OptionMenu"
+	Title "$JGPHUD_SETTINGS_TITLE"
+	StaticText "$JGPHUD_SCOREBOARD_TITLE", yellow
+	StaticText ""
+
+	Option "$JGPHUD_SCOREBOARD_ENABLE", "jgphud_DrawScoreboard", "ScoreboardDisplayOptions"
+	Slider "$JGPHUD_ELEMENT_SCALE", "jgphud_ScoreboardScale", 0.0, 4.0, 0.1, 1, "jgphud_DrawScoreboard"
+	Option "$JGPHUD_ELEMENT_POS", "jgphud_ScoreboardPos", "ElementScreenPos", "jgphud_DrawScoreboard"
+	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_ScoreboardX", -160, 160, 2, 0, "jgphud_DrawScoreboard"
+	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_ScoreboardY", -100, 100, 2, 0, "jgphud_DrawScoreboard"
+	StaticText ""
+	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "scoreboard"
+}
+
+OptionValue "ScoreboardDisplayOptions"
+{
+	0, "$OPTVAL_OFF"
+	1, "$JGPHUD_SCOREBOARD_ENABLE_FULL"
+	2, "$JGPHUD_SCOREBOARD_ENABLE_TOP1"
+	3, "$JGPHUD_SCOREBOARD_ENABLE_YOU"
 }
 
 OptionMenu "JGPHUD_MapData"

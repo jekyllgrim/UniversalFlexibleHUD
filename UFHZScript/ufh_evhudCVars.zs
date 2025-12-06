@@ -73,6 +73,12 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_PowerupsY;
 	ui transient CVar c_PowerupsNumColor;
 
+	ui transient CVar c_DrawScoreboard;
+	ui transient CVar c_ScoreboardScale;
+	ui transient CVar c_ScoreboardPos;
+	ui transient CVar c_ScoreboardX;
+	ui transient CVar c_ScoreboardY;
+
 	ui transient CVar c_drawKeys;
 	ui transient CVar c_KeysPos;
 	ui transient CVar c_KeysX;
@@ -331,6 +337,17 @@ extend class JGPUFH_FlexibleHUD
 			c_PowerupsY = CVar.GetCvar('jgphud_PowerupsY', CPlayer);
 		if (!c_PowerupsNumColor)
 			c_PowerupsNumColor = CVar.GetCvar('jgphud_PowerupsNumColor', CPlayer);
+
+		if (!c_DrawScoreboard)
+			c_DrawScoreboard = CVar.GetCvar('jgphud_DrawScoreboard', CPlayer);
+		if (!c_ScoreboardScale)
+			c_ScoreboardScale = CVar.GetCvar('jgphud_ScoreboardScale', CPlayer);
+		if (!c_ScoreboardPos)
+			c_ScoreboardPos = CVar.GetCvar('jgphud_ScoreboardPos', CPlayer);
+		if (!c_ScoreboardX)
+			c_ScoreboardX = CVar.GetCvar('jgphud_ScoreboardX', CPlayer);
+		if (!c_ScoreboardY)
+			c_ScoreboardY = CVar.GetCvar('jgphud_ScoreboardY', CPlayer);
 
 		if (!c_drawKeys)
 			c_drawKeys = CVar.GetCvar('jgphud_DrawKeys', CPlayer);

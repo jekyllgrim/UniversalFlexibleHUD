@@ -52,42 +52,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		StatusBarCore.DI_SCREEN_RIGHT_BOTTOM
 	};
 
-	// RGB values for the default text colors from the Font struct
-	// Most of these are the 'flat' values as defined in TEXTCOLO,
-	// but a few are adjusted because visual inspection showed that
-	// in some cases flat values don't look right when transplanted
-	// onto a pure Color fill.
-	static const Color RealFontColors[] =
-	{
-		0xFFcc3333,	// CR_BRICK
-		0xFFd2b48c,	// CR_TAN
-		0xFFcccccc,	// CR_GREY = CR_GRAY
-		0xFF00cc00,	// CR_GREEN
-		0xFF996633,	// CR_BROWN
-		0xFFffcc00,	// CR_GOLD
-		0xFFff0000,	// CR_RED
-		0xFF0000FF,	// CR_BLUE
-		0xFFffaa00,	// CR_ORANGE
-		0xFFFFFFFF,	// CR_WHITE
-		0xFFeeee33,	// CR_YELLOW
-		-1,			// CR_UNTRANSLATED
-		0xFF000000,	// CR_BLACK
-		0xFFB4B4FF,	// CR_LIGHTBLUE
-		0xFFffcc99,	// CR_CREAM
-		0xFFd1d8a8,	// CR_OLIVE
-		0xFF008c00,	// CR_DARKGREEN
-		0xFF800000,	// CR_DARKRED
-		0xFF663333,	// CR_DARKBROWN
-		0xFFFF00FF,	// CR_PURPLE
-		0xFF808080,	// CR_DARKGRAY
-		0xFF00FFFF,	// CR_CYAN
-		0xFF343450,	// CR_ICE
-		0xFFd57604,	// CR_FIRE
-		0xFF506cfc,	// CR_SAPPHIRE
-		0xFF236773,	// CR_TEAL
-		-1
-	};
-
 	enum EFillDirections
 	{
 		FILLDIR_Up,
@@ -173,6 +137,16 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui uint lookTargetTimer;
 	ui Actor tracedLookTarget;
 	const TARGETDISPLAYTIME = TICRATE;
+
+	// DeathmatchInfo:
+	ui array<JGPUFH_DeathmatchInfo> dm_info;
+	enum EDMInfoDisplay
+	{
+		DMI_NONE,
+		DMI_FULL,
+		DMI_TOP1,
+		DMI_YOU,
+	}
 	
 	// Weapon slots
 	const WEAPONBARICONSIZE = 16;
@@ -563,6 +537,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			UpdateWeaponSlots();
 			UpdatePlayerAngle();
 			UpdateInterpolators();
+			UpdateDeathmatchInfo();
 		}
 	}
 
@@ -616,6 +591,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		DrawWeaponSlots();
 		DrawMinimap();
 		DrawInventoryBar();
+		DrawDeathmatchInfo();
 		DrawEnemyHitMarker();
 		DrawReticleBars();
 		DrawCustomItems();
@@ -1013,7 +989,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	// Draws a bar using Fill()
 	// If segments is above 0, will use multiple fills to create a segmented bar
-	ui void DrawFlatColorBar(Vector2 pos, double curValue, double maxValue, Color barColor, int valueColor = -1, int barwidth = 64, int barheight = 8, Color backColor = Color(255, 0, 0, 0), uint segments = 0, int flags = 0)
+	ui void DrawFlatColorBar(Vector2 pos, double curValue, double maxValue, Color barColor, int valueColor = -1, int barwidth = 64, int barheight = 8, Color backColor = Color(255, 0, 0, 0), int segments = 0, int flags = 0)
 	{
 		Vector2 barpos = pos;
 		// This flag centers the bar vertically. I didn't add
@@ -1075,7 +1051,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 			// each segment's width will be pulled from this array:
 			array<int> perSegmentWidth;
-			for (uint i = 0; i < segments; i++)
+			for (int i = 0; i < segments; i++)
 			{
 				perSegmentWidth.Push(segWidth);
 			}
@@ -1087,9 +1063,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 			straypixels = abs(straypixels);
 			while (straypixels > 0)
 			{
-				for (uint offset = 0; offset < step && straypixels > 0; offset++)
+				for (int offset = 0; offset < step && straypixels > 0; offset++)
 				{
-					for (uint i = offset; i < segments && straypixels > 0; i += step)
+					for (int i = offset; i < segments && straypixels > 0; i += step)
 					{
 						// don't go below 1px:
 						if (dir < 0 && perSegmentWidth[i] <= 1) continue;
@@ -1101,7 +1077,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 			Vector2 segPos = innerBarPos;
 			Color segcol;
-			for (uint i = 0; i < segments; i++)
+			for (int i = 0; i < segments; i++)
 			{
 				if (segPos.x - innerBarPos.x >= curInnerBarWidth) break;
 
@@ -1763,10 +1739,198 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	ui void DrawMugshotFace(Vector2 pos, int flags, double size)
 	{
-		BackgroundFill(pos.x, pos.y, size, size, flags);
+		if (deathmatch)
+		{
+			Color col = teamplay && Team.IsValid(CPlayer.GetTeam())? Teams[consoleplayer].GetPlayerColor() : CPlayer.GetColor();
+			statusbar.Fill(color(255, col.r, col.g, col.b), pos.x, pos.y, size, size, flags);
+		}
+		else
+		{
+			BackgroundFill(pos.x, pos.y, size, size, flags);
+		}
 		TextureID facetex = statusBar.GetMugShot(5);
 		statusbar.DrawTexture(facetex, (pos.x + size*0.5, pos.y + size*0.5), flags|StatusBarCore.DI_ITEM_CENTER, scale: ScaleToBox(facetex, size - 2));
 	}
+
+	ui void UpdateDeathMatchInfo() 
+	{
+		if (!deathmatch) return;
+
+		int mode = c_DrawScoreboard.GetInt();
+		if (mode <= DMI_NONE) return;
+
+		dm_info.Clear();
+
+		if (mode == DMI_YOU)
+		{
+			let dm = JGPUFH_DeathmatchInfo.Create(consoleplayer);
+			dm_info.Push(dm);
+			return;
+		}
+
+		uint globalTopFrag = 0;
+		Map<uint, uint> topFragList;
+		// In TOP1 mode we need to get the top fraggers from every team:
+		if (mode == DMI_TOP1)
+		{
+			for (uint pnum = 0; pnum < MAXPLAYERS; pnum++)
+			{
+				if (!PlayerInGame[pnum]) continue;
+
+				PlayerInfo player = players[pnum];
+				uint teamNum = player.GetTeam();
+				uint fragcount = player.fragcount;
+
+				globalTopFrag = max(globalTopFrag, fragcount);
+
+				// Update top frag for this team
+				let [defined, frags] = topFragList.CheckValue(teamNum);
+				if (!defined || fragcount > frags)
+				{
+					topFragList.Insert(teamNum, fragcount);
+				}
+			}
+		}
+
+		for (uint pnum = 0; pnum < MAXPLAYERS; pnum++)
+		{
+			if (!PlayerInGame[pnum]) continue;
+
+			let dm = JGPUFH_DeathmatchInfo.Create(pnum);
+			// in TOP1 mode, skip non-top-fraggers:
+			if (mode == DMI_TOP1)
+			{
+				uint requiredFragCount = globalTopFrag;
+				if (teamplay)
+				{
+					let [defined, frags] = topFragList.CheckValue(dm.teamnumber);
+					if (defined) requiredFragCount = frags;
+				}
+				if (dm.fragcount < requiredFragCount) continue;
+			}
+
+			bool inserted = false;
+			// Sort players by teams and fragcounts:
+			for (int i = 0; i < dm_info.Size(); i++)
+			{
+				int otherTeam = dm_info[i].teamnumber;
+				bool shouldInsert = false;
+
+				// Team deathmatch:
+				if (teamplay)
+				{
+					// Sort by teamNumber:
+					if (dm.teamNumber < otherTeam)
+					{
+						shouldInsert = true;
+					}
+					// Same teamNumber - sort by fragcount:
+					else if (dm.teamNumber == otherTeam)
+					{
+						shouldinsert = dm.fragCount >= dm_info[i].fragcount;
+					}
+				}
+				// Regular deathmatch:
+				else
+				{
+					shouldInsert = dm.fragCount >= dm_info[i].fragcount;
+				}
+
+				if (shouldInsert)
+				{
+					dm_info.Insert(i, dm);
+					inserted = true;
+					break;
+				}
+			}
+
+			// Only one player, or this player has fewest frags -
+			// add to the end:
+			if (!inserted)
+			{
+				dm_info.Push(dm);
+			}
+		}
+	}
+
+
+	ui void DrawDeathmatchInfo()
+	{
+		if (!deathmatch || c_DrawScoreboard.GetInt() == DMI_NONE) return;
+
+		int flags = SetScreenFlags(c_ScoreboardPos.GetInt());
+		double scale = GetElementScale(c_ScoreboardScale);
+		double indent = 1.0;
+		let [fnt, fntscale] = GetHUDFont(numHUDFont);
+		fntscale *= scale;
+		
+		double width = 100 * scale;
+		double ystep = GetFontHeight(numHUDFont, scale) + indent;
+		double height = ystep * (dm_info.Size()) + ystep*1.5;
+		Vector2 pos = AdjustElementPos((0, 0), flags, (width, height), (c_ScoreboardX.GetInt(), c_ScoreboardY.GetInt()));
+
+		statusbar.Fill(0x40808080, pos.x, pos.y, width, height, flags);
+
+		// Names will occupy 75% of the width, numbers - 25% of it:
+		Vector2 spos = (pos.x + width*0.75, pos.y);
+		double allowedNameWidth = spos.x - pos.x; //max width of the name
+
+		// "Name" and "Frags" headers first:
+		statusbar.DrawString(fnt,
+			StringTable.Localize("$SCORE_NAME"),
+			(spos.x - allowedNameWidth*0.5, spos.y),
+			flags: flags|StatusBarCore.DI_TEXT_ALIGN_CENTER,
+			translation: Font.CR_Red,
+			scale: fntscale);
+		statusbar.DrawString(fnt,
+			StringTable.Localize("$SCORE_FRAGS"),
+			(spos.x + width*0.25*0.5, spos.y),
+			flags: flags|StatusBarCore.DI_TEXT_ALIGN_CENTER,
+			translation: Font.CR_Red,
+			scale: fntscale);
+		spos.y += ystep*1.5; //slightly larger indent
+
+		int fntcol;
+		String plrname;
+		// Player names and frags:
+		bool thisIsMe;
+		for (uint i = 0; i < dm_info.Size(); i++)
+		{
+			// Colorize green for self:
+			thisIsMe = dm_info[i].playernumber == consoleplayer;
+			fntcol = thisIsMe? Font.CR_Green : Font.CR_White;
+			plrname = dm_info[i].playername;
+			// Truncate the names to make them fit:
+			while (fnt.mFont.StringWidth(plrname) * fntscale.x > allowedNameWidth)
+			{
+				plrname.DeleteLastCharacter();
+			}
+			Color col = dm_info[i].playercolor;
+			statusbar.Fill(Color(128, col.r, col.g, col.b), pos.x, spos.y, allowedNameWidth, ystep, flags);
+
+			/*if (thisIsMe)
+			{
+				statusbar.Fill(0xffffffff, pos.x+ystep, spos.y, allowedNameWidth-ystep, 1, flags);
+				statusbar.Fill(0xffffffff, pos.x+ystep, spos.y+ystep-1, allowedNameWidth-ystep, 1, flags);
+				statusbar.Fill(0xffffffff, pos.x+ystep, spos.y, 1, ystep, flags);
+				statusbar.Fill(0xffffffff, pos.x+ystep+allowedNameWidth-ystep-1, spos.y, 1, ystep, flags);
+			}*/
+			statusbar.DrawString(fnt,
+				plrname,
+				(spos.x - allowedNameWidth*0.5, spos.y),
+				flags: flags|StatusBarCore.DI_TEXT_ALIGN_CENTER,
+				translation: fntcol,
+				scale: fntscale);
+			statusbar.DrawString(fnt,
+				""..dm_info[i].fragcount,
+				(spos.x + width*0.25*0.5, spos.y),
+				flags: flags|StatusBarCore.DI_TEXT_ALIGN_CENTER,
+				translation: fntcol,
+				scale: fntscale);
+			spos.y += ystep;
+		}
+	}
+
 
 	clearscope Color GetAmmoColor(Ammo am)
 	{
