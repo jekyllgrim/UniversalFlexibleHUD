@@ -37,6 +37,7 @@ OptionMenu "JGPHUD_Settings"
 	SubMenu	"$JGPHUD_DMGMARKERS_TITLE",		"JGPHUD_DamageMarkers"
 	SubMenu	"$JGPHUD_CROSSHAIR_TITLE",		"JGPHUD_CrosshairOptions"
 	SubMenu	"$JGPHUD_MAPDATA_GEN_TITLE",	"JGPHUD_MapData"
+	SubMenu	"$JGPHUD_COMPASS_TITLE",		"JGPHUD_Compass"
 	SubMenu	"$JGPHUD_SCOREBOARD_TITLE",		"JGPHUD_Scoreboard"
 	SubMenu	"$JGPHUD_CustomItems_TITLE",	"JGPHUD_CustomItems"
 }
@@ -57,12 +58,14 @@ OptionMenu "JGPHUD_QuickVisibility"
 	Option "$JGPHUD_MAPDATA_ITEMS",			"jgphud_DrawItems",				"OnOff"
 	Option "$JGPHUD_MAPDATA_SECRETS",		"jgphud_DrawSecrets",			"OnOff"
 	Option "$JGPHUD_MAPDATA_TIME",			"jgphud_DrawTime",				"OnOff"
+	Option "$JGPHUD_COMPASS_ENABLE",		"jgphud_DrawCompass",			"OnOff"
 	Option "$JGPHUD_DMGMARKERS_ENABLE",		"jgphud_drawDamageMarkers",		"OnOff"
 	Option "$JGPHUD_KEYS_ENABLE",			"jgphud_DrawKeys",				"OnOff"
 	Option "$JGPHUD_CROSSHAIR_HITMARKERS",	"jgphud_DrawEnemyHitMarkers",	"OnOff"
 	Option "$JGPHUD_INVBAR_ENABLE",			"jgphud_DrawInvBar",			"OnOff"
 	Option "$JGPHUD_POWERUPS_ENABLE",		"jgphud_DrawPowerups",			"OnOff"
-	Option "$JGPHUD_CustomItems_ENABLE",	 "jgphud_DrawCustomItems",		"OnOff"
+	Option "$JGPHUD_CustomItems_ENABLE",	"jgphud_DrawCustomItems",		"OnOff"
+	Option "$JGPHUD_SCOREBOARD_ENABLE",		"jgphud_DrawScoreboard",		"OnOff"
 	
 	StaticText ""
 	JGPUFHResetALLCCMD "$JGPHUD_GENERAL_HIDEALL", 1, "visibility", 0, 1
@@ -461,6 +464,29 @@ OptionMenu "JGPHUD_MapData"
 	Option "$JGPHUD_MAPDATA_TIME", "jgphud_DrawTime", "OnOff"
 	StaticText ""
 	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "mapdata"
+}
+
+OptionMenu "JGPHUD_Compass"
+{	
+	Class "JGPUFH_OptionMenu"
+	Title "$JGPHUD_SETTINGS_TITLE"
+	StaticText "$JGPHUD_Compass_TITLE", yellow
+	StaticText ""
+
+	Option "$JGPHUD_Compass_ENABLE", "jgphud_DrawCompass", "OnOff"
+	Option "$JGPHUD_COMPASS_STYLE", "jgphud_CompassStyle", "CompassDrawStyles", "jgphud_DrawCompass"
+	Slider "$JGPHUD_ELEMENT_SCALE", "jgphud_CompassScale", 0.0, 4.0, 0.1, 1, "jgphud_DrawCompass"
+	Option "$JGPHUD_ELEMENT_POS", "jgphud_CompassPos", "ElementScreenPos", "jgphud_DrawCompass"
+	Slider "$JGPHUD_ELEMENT_OFSX", "jgphud_CompassPosX", -160, 160, 2, 0, "jgphud_DrawCompass"
+	Slider "$JGPHUD_ELEMENT_OFSY", "jgphud_CompassPosY", -100, 100, 2, 0, "jgphud_DrawCompass"
+	StaticText ""
+	JGPUFHResetALLCCMD "$OPTMNU_DEFAULTS", 1, "Compass"
+}
+
+OptionValue "CompassDrawStyles"
+{
+	0, "$JGPHUD_COMPASS_STYLE_BLACK"
+	1, "$JGPHUD_COMPASS_STYLE_TRANSPARENT"
 }
 
 OptionMenu "JGPHUD_CrosshairOptions"

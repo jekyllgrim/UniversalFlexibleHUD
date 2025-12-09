@@ -124,6 +124,13 @@ extend class JGPUFH_FlexibleHUD
 	ui transient CVar c_DrawSecrets;
 	ui transient CVar c_DrawTime;
 
+	ui transient CVar c_DrawCompass;
+	ui transient CVar c_CompassStyle;
+	ui transient CVar c_CompassScale;
+	ui transient CVar c_CompassPos;
+	ui transient CVar c_CompassPosX;
+	ui transient CVar c_CompassPosY;
+
 	ui transient CVar c_DrawEnemyHitMarkers;
 	ui transient CVar c_EnemyHitMarkersColor;
 	ui transient CVar c_EnemyHitMarkersSize;
@@ -435,6 +442,19 @@ extend class JGPUFH_FlexibleHUD
 			c_DrawSecrets = CVar.GetCvar('jgphud_DrawSecrets', CPlayer);
 		if (!c_DrawTime)
 			c_DrawTime = CVar.GetCvar('jgphud_DrawTime', CPlayer);
+
+		if (!c_DrawCompass)
+			c_DrawCompass = CVar.GetCvar('jgphud_DrawCompass', CPlayer);
+		if (!c_CompassStyle)
+			c_CompassStyle = CVar.GetCvar('jgphud_CompassStyle', CPlayer);
+		if (!c_CompassScale)
+			c_CompassScale = CVar.GetCvar('jgphud_CompassScale', CPlayer);
+		if (!c_CompassPos)
+			c_CompassPos = CVar.GetCvar('jgphud_CompassPos', CPlayer);
+		if (!c_CompassPosX)
+			c_CompassPosX = CVar.GetCvar('jgphud_CompassPosX', CPlayer);
+		if (!c_CompassPosY)
+			c_CompassPosY = CVar.GetCvar('jgphud_CompassPosY', CPlayer);
 
 		if (!c_DrawReticleBars)
 			c_DrawReticleBars = CVar.GetCvar('jgphud_DrawReticleBars', CPlayer);

@@ -156,6 +156,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 	ui int slotsDisplayTime;
 	ui Weapon prevReadyWeapon;
 
+	// Compass:
+	ui TextureID compassTexture;
+	ui Vector2 compassTextureSize;
+
 	// Minimap and monster radar:
 	const DEFAULTRADARSIZE = 64.0;
 	const MAPSCALEFACTOR = 8.;
@@ -575,6 +579,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		
 		DrawPowerups();
 		DrawDamageMarkers();
+		DrawLineCompass();
 
 		// Do not draw stuff if automap is open. This is,
 		// because, one, if the user is using one of the
@@ -1930,7 +1935,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 			spos.y += ystep;
 		}
 	}
-
 
 	clearscope Color GetAmmoColor(Ammo am)
 	{
@@ -4191,6 +4195,108 @@ class JGPUFH_FlexibleHUD : EventHandler
 			p.y -= charMid.x;
 			Screen.DrawText(fnt, fntColor, p.x, p.y, letter, DTA_ScaleX, letterScale, DTA_ScaleY, letterScale, DTA_MonoSpace, Mono_CellLeft);
 		}
+	}
+
+	ui void DrawLineCompass()
+	{
+		if (!c_DrawCompass.GetBool()) return;
+
+		if (!compassTexture.IsValid())
+		{
+			compassTexture = TexMan.CheckForTexture("JGPUFH_COMPASS");
+			if (!compassTexture.IsValid()) return;
+
+			Canvas c = TexMan.GetCanvas("JGPUFH_COMPASS");
+			if (!c) return;
+
+			[compassTextureSize.x, compassTextureSize.y] = TexMan.GetSize(compassTexture);
+			int w = compassTextureSize.x;
+			int h = compassTextureSize.y;
+			int angstep = w / 36;
+			int hpos = -1;
+			int ypos, yheight;
+			int fntcol;
+			int fntScaleX, fntScaleY, fntY;
+			for (int ang = 0; ang <= 360; ang += 10)
+			{
+				if (ang % 30 == 0)
+				{
+					ypos = 0;
+					fntY = 0;
+					yheight = h;
+					String s;
+					fntcol = Font.CR_Green;
+					fntScaleX = 1.0 * CleanXFac_1;
+					fntScaleY = 1.0 * CleanYFac_1;
+					switch (ang)
+					{
+						case 0:
+						case 360:
+							s = "E";
+							break;
+						case 90:
+							s = "S";
+							break;
+						case 180:
+							s = "W";
+							break;
+						case 270:
+							s = "N";
+							break;
+						default:
+							s = ""..ang;
+							fntScaleX = 0.75 * CleanXFac_1;
+							fntScaleY = 0.75 * CleanYFac_1;
+							fntcol = Font.CR_Gray;
+							fntY = h / 4;
+							break;
+					}
+					c.DrawText(newConsoleFont, fntcol,
+						hpos - newConsoleFont.StringWidth(s)*0.5*fntScaleX,
+						fntY,
+						s,
+						DTA_ScaleX, fntScaleX,
+						DTA_ScaleY, fntScaleY
+					);
+				}
+				else
+				{
+					ypos = h/4;
+					yheight = h/2;
+				}
+				c.Dim(0xffffff, (ang % 30 == 0)? 0.32 : 1.0, hpos, ypos, 2, yheight);
+				hpos += angstep;
+			}
+		}
+
+		double scale = 0.25 * c_CompassScale.GetFloat();
+		Vector2 size = compassTextureSize * scale;
+		int flags = SetScreenFlags(c_CompassPos.GetInt());
+		Vector2 pos = AdjustElementPos((0,0), flags, (size.x*0.5, size.y), (c_CompassPosX.GetInt(), c_CompassPosY.GetInt()));
+
+		double playerAngle = Actor.Normalize180(-(Lerp(prevPlayerAngle, CPlayer.mo.angle, fracTic)));
+		statusbar.SetClipRect(
+			pos.x,
+			pos.y,
+			size.x*0.5,
+			size.y,
+			flags
+		);
+		double horofs = size.x * (playerAngle / 360.0) - size.x*0.25;
+		ERenderStyle style = c_CompassStyle.GetInt() > 0? STYLE_Add : STYLE_Normal;
+		statusbar.DrawTexture(compassTexture,
+			(pos.x - horofs, pos.y),
+			flags|StatusBarCore.DI_ITEM_RIGHT_TOP,
+			scale:(scale, scale),
+			style: style
+		);
+		statusbar.DrawTexture(compassTexture,
+			(pos.x - horofs, pos.y),
+			flags|StatusBarCore.DI_ITEM_LEFT_TOP,
+			scale:(scale, scale),
+			style: style
+		);
+		statusbar.ClearClipRect();
 	}
 
 	clearscope Color GetLockColor(Line l)

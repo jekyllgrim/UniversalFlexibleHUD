@@ -55,7 +55,7 @@ nosave int jgphud_WeaponSlotsSize = 16;
 nosave int jgphud_WeaponSlotsAlign = 0;
 nosave int jgphud_WeaponSlotsPos = 1;
 nosave int jgphud_WeaponSlotsX = 0;
-nosave int jgphud_WeaponSlotsY = 2;
+nosave int jgphud_WeaponSlotsY = 6;
 nosave int jgphud_WeaponSlotsNumColor = 14;
 
 nosave int jgphud_DrawPowerups = 1;
@@ -107,6 +107,13 @@ nosave int jgphud_MinimapCardinalDirColor = 5;
 nosave float jgphud_MinimapOpacity = 1.0;
 
 nosave float jgphud_MapDataScale = 1.0;
+
+nosave bool jgphud_DrawCompass = false;
+nosave float jgphud_compassScale = 0.8;
+nosave int jgphud_CompassStyle = 0;
+nosave int jgphud_CompassPos = 1;
+nosave int jgphud_CompassPosX = 0;
+nosave int jgphud_CompassPosY = 0;
 
 nosave bool jgphud_DrawKills = true;
 nosave bool jgphud_DrawItems = true;

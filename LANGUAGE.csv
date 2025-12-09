@@ -222,6 +222,11 @@ Scoreboard display mode,JGPHUD_SCOREBOARD_ENABLE,"Menu element for setting up  h
 Full,JGPHUD_SCOREBOARD_ENABLE_FULL,Scoreboard display mode. Shows full scoreboard.,Полная,,,,
 Only top player,JGPHUD_SCOREBOARD_ENABLE_TOP1,"Scoreboard display mode. Shows only the player with the highest number of frags, and also you, if you're not the top player.",Только лучший игрок,,,,
 Only you,JGPHUD_SCOREBOARD_ENABLE_YOU,Scoreboard display mode. Shows only you and your frags.,Только вы,,,,
+Compass,JGPHUD_Compass_TITLE,Menu element for setting up a compass (which looks like a scrolling string with cardinal directions and degrees),Компас,,,,
+Compass display,JGPHUD_Compass_ENABLE,"Option for toggling compass. Possible values: On, Off",Отображение компаса,,,,
+Compass background,JGPHUD_COMPASS_STYLE,"Option for setting up the compass background. Possible values: Black, Translucent",Фон компаса,,,,
+Black,JGPHUD_COMPASS_STYLE_BLACK,One of the options for compass background,Чёрный,,,,
+Transparent,JGPHUD_COMPASS_STYLE_TRANSPARENT,One of the options for compass background,Прозрачный,,,,
 Crosshair options,JGPHUD_CROSSHAIR_TITLE,Title for a menu section containing various crosshair options,Настройки прицела,Opções de mira,Fadenkreuzoptionen,Opciones de la mirilla,Options des réticules
 Hit markers,JGPHUD_CROSSHAIR_HITMARKERS_TITLE,The title for the menu section. Hit markers are markers around the crosshair that appear when your attack hits an enemy.,Индикаторы попадания,Marcadores de dano,Treffermarker,Marcadores de daño,Marqueurs d'impact
 Draw enemy hit markers around crosshair,JGPHUD_CROSSHAIR_HITMARKERS,Small angled cross marker around the crosshair when a player's attack hits an enemy.,Индикаторы попадания по врагам вокруг прицела,Exibir marcadores de acerto em volta da mira,Trefferanzeige am Fadenkreuz,Mostrar marcadores de daño contra enemigos,Dessiner les marqueurs d'impact de l'ennemi autour du réticule

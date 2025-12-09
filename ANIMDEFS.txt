@@ -1,1 +1,2 @@
 CanvasTexture JGPUFH_DMGMARKER 2 18
+CanvasTexture JGPUFH_COMPASS 1440 30

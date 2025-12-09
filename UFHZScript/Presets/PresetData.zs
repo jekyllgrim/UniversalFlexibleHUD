@@ -54,6 +54,7 @@ extend class JGPUFH_PresetHandler
 		CVC_Scaling			= 1 << 20,
 		CVC_Visibility		= 1 << 21,
 		CVC_Scoreboard		= 1 << 22,
+		CVC_Compass			= 1 << 23,
 	}
 
 	void InitalizeJGPHUDCvars()
@@ -119,7 +120,7 @@ extend class JGPUFH_PresetHandler
 		JGPUFH_PresetCVarData.Add('jgphud_PowerupsY', cvarData, CVC_Powerups);
 		JGPUFH_PresetCVarData.Add('jgphud_PowerupsNumColor', cvarData, CVC_Powerups);
 
-		JGPUFH_PresetCVarData.Add('jgphud_DrawScoreboard', cvarData, CVC_Scoreboard);
+		JGPUFH_PresetCVarData.Add('jgphud_DrawScoreboard', cvarData, CVC_Scoreboard|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_ScoreboardScale', cvarData, CVC_Scoreboard);
 		JGPUFH_PresetCVarData.Add('jgphud_ScoreboardPos', cvarData, CVC_Scoreboard);
 		JGPUFH_PresetCVarData.Add('jgphud_ScoreboardX', cvarData, CVC_Scoreboard);
@@ -163,6 +164,13 @@ extend class JGPUFH_PresetHandler
 		JGPUFH_PresetCVarData.Add('jgphud_DrawItems', cvarData, CVC_Mapdata|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_DrawSecrets', cvarData, CVC_Mapdata|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_DrawTime', cvarData, CVC_Mapdata|CVC_Visibility);
+
+		JGPUFH_PresetCVarData.Add('jgphud_DrawCompass', cvarData, CVC_Compass|CVC_Visibility);
+		JGPUFH_PresetCVarData.Add('jgphud_CompassStyle', cvarData, CVC_Compass);
+		JGPUFH_PresetCVarData.Add('jgphud_CompassScale', cvarData, CVC_Compass);
+		JGPUFH_PresetCVarData.Add('jgphud_CompassPos', cvarData, CVC_Compass);
+		JGPUFH_PresetCVarData.Add('jgphud_CompassPosX', cvarData, CVC_Compass);
+		JGPUFH_PresetCVarData.Add('jgphud_CompassPosY', cvarData, CVC_Compass);
 
 		JGPUFH_PresetCVarData.Add('jgphud_DrawInvBar', cvarData, CVC_InvBar|CVC_Visibility);
 		JGPUFH_PresetCVarData.Add('jgphud_AlwaysShowInvBar', cvarData, CVC_InvBar);

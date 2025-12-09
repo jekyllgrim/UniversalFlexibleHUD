@@ -371,6 +371,9 @@ class OptionMenuItemJGPUFHResetALLCCMD : OptionMenuItemSubmenu
 		case 'visibility':
 			mCVarCategory = JGPUFH_PresetHandler.CVC_Visibility;
 			break;
+		case 'compass':
+			mCVarCategory = JGPUFH_PresetHandler.CVC_Compass;
+			break;
 		}
 		return self;
 	}
