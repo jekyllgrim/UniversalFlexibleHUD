@@ -20,10 +20,11 @@ OptionMenu "JGPUFH_BuiltInPresets"
 	JGPUFH_ConfirmCommand "$JGPHUD_Presets_BuiltInPreset_MinimapOnly", "LoadBuiltInPresetJSON", "MinimapOnly"
 	JGPUFH_ConfirmCommand "$JGPHUD_Presets_BuiltInPreset_DamageMarkersOnly", "LoadBuiltInPresetJSON", "DamageMarkersOnly"
 	JGPUFH_ConfirmCommand "$JGPHUD_Presets_BuiltInPreset_ExtraInfoOnly", "LoadBuiltInPresetJSON", "ExtraInfoOnly"
-	JGPUFH_ConfirmCommand "$JGPHUD_Presets_BuiltInPreset_OldOldSchool", "LoadBuiltInPresetJSON", "OldOldSchool"
+	JGPUFH_ConfirmCommand "$JGPHUD_Presets_BuiltInPreset_CrosshairInfoOnly", "LoadBuiltInPresetJSON", "ExtendedCrosshair"
+	JGPUFH_ConfirmCommand "$JGPHUD_Presets_BuiltInPreset_OldOldSchool", "LoadBuiltInPresetJSON", "OldSchool"
 	JGPUFH_ConfirmCommand "$JGPHUD_Presets_BuiltInPreset_Minimalist", "LoadBuiltInPresetJSON", "Minimalist"
 	JGPUFH_ConfirmCommand "$JGPHUD_Presets_BuiltInPreset_Arcade", "LoadBuiltInPresetJSON", "Arcade"
-	JGPUFH_ConfirmCommand "$ALTHUDMNU_TITLE", "LoadBuiltInPresetJSON", "Althud"
+	JGPUFH_ConfirmCommand "$JGPHUD_Presets_BuiltInPreset_Ashes", "LoadBuiltInPresetJSON", "Ashes"
 }
 
 OptionMenu "JGPUFH_UserPresets"
