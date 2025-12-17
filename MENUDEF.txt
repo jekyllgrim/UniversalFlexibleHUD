@@ -65,7 +65,7 @@ OptionMenu "JGPHUD_QuickVisibility"
 	Option "$JGPHUD_INVBAR_ENABLE",			"jgphud_DrawInvBar",			"OnOff"
 	Option "$JGPHUD_POWERUPS_ENABLE",		"jgphud_DrawPowerups",			"OnOff"
 	Option "$JGPHUD_CustomItems_ENABLE",	"jgphud_DrawCustomItems",		"OnOff"
-	Option "$JGPHUD_SCOREBOARD_ENABLE",		"jgphud_DrawScoreboard",		"OnOff"
+	Option "$JGPHUD_SCOREBOARD_ENABLE",		"jgphud_DrawScoreboard",		"ScoreboardDisplayOptions"
 	
 	StaticText ""
 	JGPUFHResetALLCCMD "$JGPHUD_GENERAL_HIDEALL", 1, "visibility", 0, 1
