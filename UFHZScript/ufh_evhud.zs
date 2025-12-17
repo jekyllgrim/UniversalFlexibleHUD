@@ -535,13 +535,13 @@ class JGPUFH_FlexibleHUD : EventHandler
 		UpdateEnemyRadar();
 		UpdateMinimapLines();
 		UpdateLooktargetData();
+		UpdateHealthArmor();
+		UpdateDeathmatchInfo();
 		if (!gamePaused)
 		{
-			UpdateHealthArmor();
 			UpdateWeaponSlots();
 			UpdatePlayerAngle();
 			UpdateInterpolators();
-			UpdateDeathmatchInfo();
 		}
 	}
 
