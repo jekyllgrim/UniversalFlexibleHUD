@@ -1240,7 +1240,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	{
 		if (c_MainBarsArmorColorIsAbsorb.GetBool())
 		{
-			if (savePercent < 1.0) savePercent *= 100;
+			if (savePercent <= 1.0) savePercent *= 100;
 			return GetValueRangeColor(savePercent, 100,
 				c_MainBarsArmorThresholds_Absorb,
 				c_MainBarsArmorColors_Absorb,
