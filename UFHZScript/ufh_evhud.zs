@@ -310,7 +310,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 	clearscope double RoundToDecimal(double val, int places = 1)
 	{
-		int i = places**10;
+		int i = int(places**10);
 		return round (val * i) / i;
 	}
 
@@ -418,7 +418,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// Modify player's red screen tint based on
 			// the value of the CVAR:
 			CVar fac = CVar.GetCvar('jgphud_ScreenReddenFactor', pmo.player);
-			pmo.player.damageCount *= fac.GetFloat();
+			pmo.player.damageCount = int(round( pmo.player.damageCount * fac.GetFloat() ));
 
 			// Damage came from an attacker:
 			int pn = pmo.PlayerNumber();
@@ -813,7 +813,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 	{
 		double alpha = Clamp(c_BackAlpha.GetFloat(), 0., 1.);
 
-		int a = 255 * alpha;
+		int a = int(255 * alpha);
 		Color c = c_BackColor.GetInt();
 		Color col = Color(a, c.r, c.g, c.b);
 
@@ -885,7 +885,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			box.x = box.y * texaspect;
 			// How many instances of the texture would fit WHOLLY
 			// in the specified box:
-			int steps = Clamp(width / box.x, 1, 1000);
+			int steps = int(ceil( clamp(width / box.x, 1, 1000) ));
 			// Modify width slightly so that the textures will fit
 			// in the box without clipping mid-texture:
 			box.x = width / steps;
@@ -903,7 +903,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			box.x = width;
 			box.y = box.x / texaspect;
-			int steps = Clamp(height / box.y, 1, 1000);
+			int steps = int(ceil( clamp(height / box.y, 1, 1000) ));
 			box.y = height / steps;
 			for (int i = 0; i < steps; i++)
 			{
@@ -927,7 +927,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			col1 = col2;
 			col2 = ogCol1;
 		case FILLDIR_Right:
-			steps = min(steps, size.x);
+			steps = min(steps, int(size.x));
 			segmentSize = (size.x / steps, size.y);
 			start = pos.x;
 			end = pos.x + size.x - segmentSize.x;
@@ -938,7 +938,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			col1 = col2;
 			col2 = ogCol1;
 		case FILLDIR_Down:
-			steps = min(steps, size.y);
+			steps = min(steps, int(size.y));
 			segmentSize = (size.x, size.y / steps);
 			start = pos.y;
 			end = pos.y + size.y - segmentSize.y;
@@ -1088,12 +1088,10 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 				// if spacing is 0, alternate colors every other segment:
 				segcol = (spacing == 0 && (i % 2) != 0)? altColor : barColor;
-				segWidth = perSegmentWidth[i];
-				if (segwidth > 0)
-				{
-					statusbar.Fill(segcol, segPos.x, segPos.y, segWidth, innerBarHeight, flags);
-				}
+				segWidth = min(perSegmentWidth[i], curInnerBarWidth - (segPos.x - innerBarPos.x));
+				if (segWidth <= 0) break;
 
+				statusbar.Fill(segcol, segPos.x, segPos.y, segWidth, innerBarHeight, flags);
 				segPos.x += segwidth + spacing;
 			}
 		}
@@ -1818,7 +1816,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			// Sort players by teams and fragcounts:
 			for (int i = 0; i < dm_info.Size(); i++)
 			{
-				int otherTeam = dm_info[i].teamnumber;
+				uint otherTeam = dm_info[i].teamnumber;
 				bool shouldInsert = false;
 
 				// Team deathmatch:
@@ -1899,7 +1897,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		String plrname;
 		// Player names and frags:
 		bool thisIsMe;
-		for (uint i = 0; i < dm_info.Size(); i++)
+		for (int i = 0; i < dm_info.Size(); i++)
 		{
 			// Colorize green for self:
 			thisIsMe = dm_info[i].playernumber == consoleplayer;
