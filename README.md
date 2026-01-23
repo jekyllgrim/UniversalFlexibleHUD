@@ -114,7 +114,7 @@ Agent_Ash aka Jekyll Grim Payne - idea, code, Russian localization
 
 RicardoLuis - the preset system
 
-generic name guy - Brazilian Portugese localization
+generic name guy, Jean Trindade Pereira - Brazilian Portuguese localization
 
 devloek - German localization
 
