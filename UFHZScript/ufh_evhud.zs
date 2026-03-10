@@ -4497,7 +4497,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return;
 		}
 
-		double scale = c_MapDataScale.GetFloat();
+		double scale = clamp(c_MapDataScale.GetFloat(), 0.1, 5.0);
 		Vector2 startpos = (0,0);
 		HUDFont hfnt; Vector2 fntscale;
 		[hfnt, fntscale] = GetHUDFont(smallHUDFont);
