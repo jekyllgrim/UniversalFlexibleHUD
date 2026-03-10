@@ -4501,14 +4501,56 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 
 		double scale = c_MapDataScale.GetFloat();
-		// For the purposes of adjustment the vertical size of this
-		// element is considered zero:
-		Vector2 size = (minimapDiameter, 0) * scale;
-		// The map data element is placed below the minimap if it's
-		// at the top or vertical center; if it's at the bottom, map data
-		// is placed above it. Thus, adjust its vertical position accordingly
-		// based on the vertical flags:
-		Vector2 startpos = (0, 0);
+		Vector2 startpos = (0,0);
+		HUDFont hfnt; Vector2 fntscale;
+		[hfnt, fntscale] = GetHUDFont(smallHUDFont);
+
+		// This element is anchored to the bottom or top center
+		// of the minimap. However, it can also be scaled individually,
+		// and if it becomes wider than the minimap, and the minimap is
+		// anchored to the left/right screen edge, the center of the
+		// element will need to move. Thus, we'll need to start by
+		// calculating the width of its left and right side.
+
+		// First, get the strings for the left side:
+		String s_kills, s_items, s_secrets, s_killcount, s_itemcount, s_secretcount;
+		s_kills = StringTable.Localize("$TXT_IMKILLS");
+		s_items = StringTable.Localize("$TXT_IMITEMS");
+		s_secrets = StringTable.Localize("$TXT_IMSECRETS");
+		// And the right side (following the "current/max" pattern):
+		s_killcount = String.Format("%d\/%d", (multiplayer? CPlayer.killcount : Level.killed_monsters), Level.total_monsters);
+		s_itemcount = String.Format("%d\/%d", (multiplayer? CPlayer.itemcount : Level.found_items), Level.total_items);
+		s_secretcount = String.Format("%d\/%d", (multiplayer? CPlayer.secretcount : Level.found_secrets), Level.total_secrets);
+		
+		// Move startpos.x only if this element is NOT at screen center.
+		// Due to how odd DI flags are set up, this has to be done explicitly like this,
+		// including checking RIGHT before LEFT (same as in AdjustElementPos):
+		if ((flags & StatusBarCore.DI_SCREEN_HCENTER) != StatusBarCore.DI_SCREEN_HCENTER)
+		{
+			double longestString;
+			bool rightside = (flags & StatusBarCore.DI_SCREEN_RIGHT) == StatusBarCore.DI_SCREEN_RIGHT;
+
+			if (shouldDrawKills)
+			{
+				longestString = max(longestString, hfnt.mFont.StringWidth(rightside ? s_killcount : s_kills));
+			}
+			if (shouldDrawItems)
+			{
+				longestString = max(longestString, hfnt.mFont.StringWidth(rightside? s_itemcount : s_items));
+			}
+			if (shouldDrawSecrets)
+			{
+				longestString = max(longestString, hfnt.mFont.StringWidth(rightside? s_secretcount : s_secrets));
+			}
+
+			// Move the center by either the length of the longest string,
+			// or half the width of the minimap - whichever is wider:
+			longestString = max(minimapDiameter*0.5, longestString * fntscale.x * scale * 0.5);
+			startpos.x += rightside? -longestString : longestString;
+		}
+
+		// Now offset vertical position based on the vertical position of the minimap:
+
 		// top:
 		if ((flags & StatusBarCore.DI_SCREEN_BOTTOM) == StatusBarCore.DI_SCREEN_BOTTOM)
 			startpos.y = -minimapDiameter;
@@ -4518,8 +4560,11 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// bottom:
 		else
 			startpos.y = minimapDiameter;
-		// And feed this with minimap's current offsets into adjustment function:
-		Vector2 pos = AdjustElementPos(startpos, flags, size, minimapOfs);
+
+		// Feed the calculated position with minimap's current offsets into adjustment function.
+		// Since we've manipulated starting position, we don't need to account for size,
+		// so we pass (0,0) as width/height:
+		Vector2 pos = AdjustElementPos(startpos, flags, (0,0), minimapOfs);
 		// Since this thing is anchored to the minimap, and the minimap,
 		// being drawn by Screen, ignores HUD aspect scaling, we
 		// need to make sure this bit's position also ignores
@@ -4533,8 +4578,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// so we'll start with 50%, which looks good as a default
 		// value for the default smallfont:
 		scale *= 0.5;
-		HUDFont hfnt; Vector2 fntscale;
-		[hfnt, fntscale] = GetHUDFont(smallHUDFont);
 		fntscale *= scale;
 		let fy = GetFontHeight(smallHUDFont, scale);
 		double indent = 1 * scale;
@@ -4556,43 +4599,42 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		if (shouldDrawKills)
 		{
-			DrawMapDataElement("$TXT_IMKILLS", 
+			DrawMapDataElement(s_kills, 
 				(multiplayer? CPlayer.killcount : Level.killed_monsters),
 				Level.total_monsters,
-				hfnt, pos, flags, size.x, fntscale);
+				hfnt, pos, flags, fntscale);
 			pos.y += fy + indent;
 		}
 
 		if (shouldDrawItems)
 		{
-			DrawMapDataElement("$TXT_IMITEMS", 
+			DrawMapDataElement(s_items, 
 				(multiplayer? CPlayer.itemcount : Level.found_items),
 				Level.total_items,
-				hfnt, pos, flags, size.x, fntscale);
+				hfnt, pos, flags, fntscale);
 			pos.y += fy + indent;
 		}
 
 		if (shouldDrawSecrets)
 		{
-			DrawMapDataElement("$TXT_IMSECRETS", 
+			DrawMapDataElement(s_secrets, 
 				(multiplayer? CPlayer.secretcount : Level.found_secrets),
 				Level.total_secrets,
-				hfnt, pos, flags, size.x, fntscale);
+				hfnt, pos, flags, fntscale);
 			pos.y += fy + indent;
 		}
 
 		if (shouldDrawTime)
 		{
 			let [h,m,s] = TicsToHours(Level.time);
-			DrawMapDataElement("", 0, 0, hfnt, pos, flags, size.x, fntscale, rightside: String.Format("\cQ%d:%02d:%02d", h, m, s));
+			DrawMapDataElement("", 0, 0, hfnt, pos, flags, fntscale, rightside: String.Format("\cQ%d:%02d:%02d", h, m, s));
 		}
 	}
 
 	// Draws the actual map data element, consisting of the label
 	// (left), a space, and the value (right):
-	ui void DrawMapDataElement(String label, int val1, int val2, HUDFont hfnt, Vector2 pos, int flags, double width, Vector2 fontscale = (1,1), String rightside = "")
+	ui void DrawMapDataElement(String label, int val1, int val2, HUDFont hfnt, Vector2 pos, int flags, Vector2 fontscale = (1,1), String rightside = "")
 	{
-		label = StringTable.Localize(label);
 		// If rightside isn't provided, construct it
 		// based on the val1 and val2 values, and colorize it:
 		if (!rightside)
@@ -4619,29 +4661,29 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 
 		Font fnt = hfnt.mFont;
-		double indent = width*0.025;
+		double indent = 2 * fontscale.x;
 		// has label and right side:
 		if (label)
 		{
 			statusbar.DrawString(hfnt,
 				label,
-				(pos.x + width*0.5 - indent, pos.y),
+				(pos.x - indent, pos.y),
 				flags|StatusBarCore.DI_TEXT_ALIGN_RIGHT,
-				scale: (fontscale.x * Clamp((width*0.5 - indent) / (fnt.StringWidth(label) * fontscale.x), 0.0, 1.0), fontscale.y));
+				scale: (fontscale.x * Clamp(fnt.StringWidth(label) * fontscale.x, 0.0, 1.0), fontscale.y));
 			statusbar.DrawString(hfnt,
 				rightside,
-				(pos.x + width*0.5 + indent, pos.y),
+				(pos.x + indent, pos.y),
 				flags|StatusBarCore.DI_TEXT_ALIGN_LEFT,
-				scale: (fontscale.x * Clamp((width*0.5 - indent) / (fnt.StringWidth(rightside) * fontscale.x), 0.0, 1.0), fontscale.y));
+				scale: (fontscale.x * Clamp(fnt.StringWidth(rightside) * fontscale.x, 0.0, 1.0), fontscale.y));
 		}
 		// has only right side (used by time) - draw at center:
 		else
 		{
 			statusbar.DrawString(hfnt,
 				rightside,
-				(pos.x + width*0.5 + indent, pos.y),
+				(pos.x + indent, pos.y),
 				flags|StatusBarCore.DI_TEXT_ALIGN_CENTER,
-				scale: (fontscale.x * Clamp(width / (fnt.StringWidth(rightside) * fontscale.x), 0.0, 1.0), fontscale.y));
+				scale: (fontscale.x * Clamp(fnt.StringWidth(rightside) * fontscale.x, 0.0, 1.0), fontscale.y));
 		}
 	}
 
