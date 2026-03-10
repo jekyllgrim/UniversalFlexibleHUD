@@ -163,9 +163,12 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// Minimap and monster radar:
 	const DEFAULTRADARSIZE = 64.0;
 	const MAPSCALEFACTOR = 8.;
-	ui double prevPlayerAngle;
-	ui Vector2 prevPlayerPos;
-	ui int prevLevelTime;
+	ui double playerAnglePrev;
+	ui double playerAngleCur;
+	ui double playerAngleIntr;
+	ui Vector2 playerPosPrev;
+	ui Vector2 playerPosCur;
+	ui Vector2 playerPosIntr;
 	ui double minimapSize;
 	ui transient array <Line> visibleMapLines;
 	ui transient array <Sector> visibleMapSectors;
@@ -540,7 +543,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!gamePaused)
 		{
 			UpdateWeaponSlots();
-			UpdatePlayerAngle();
+			UpdatePlayerAnglePos();
 			UpdateInterpolators();
 		}
 	}
@@ -563,6 +566,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 		hudscale = statusbar.GetHudScale();
 		gamePaused = menuactive == Menu.On || menuactive == Menu.WaitKey;
 		previewAlpha = SinePulse(TICRATE*2, 0.2, 0.5, inMenus:true);
+		playerAngleIntr = Lerp(playerAnglePrev, playerAngleCur, fracTic);
+		playerPosIntr.x = Lerp(playerPosPrev.x, playerPosCur.x, fracTic);
+		playerPosIntr.y = Lerp(playerPosPrev.y, playerPosCur.y, fracTic);
 
 		statusbar.BeginHUD();
 		CreateGenericShapes(); //used by the minimap and hitmarkers
@@ -2521,7 +2527,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		if (!dmgMarkerTransf)
 			dmgMarkerTransf = New("Shape2DTransform");
 		
-		double playerAngle = CPlayer.mo.angle;
 		// drawing in preview mode:
 		if (IsModMenuOpen())
 		{
@@ -2555,7 +2560,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 				double width = LinearMap(dm.damage, 0, 50, size*0.2, size, true);
 				dmgMarkerTransf.Clear();
 				dmgMarkerTransf.Scale((width, size) * hudscale.x);
-				dmgMarkerTransf.Rotate(dm.GetAngle(Lerp(prevPlayerAngle, playerAngle, fracTic)));
+				dmgMarkerTransf.Rotate(dm.GetAngle(playerAngleIntr));
 				dmgMarkerTransf.Translate((Screen.GetWidth() * 0.5, Screen.GetHeight() * 0.5));
 				dmgMarker.SetTransform(dmgMarkerTransf);
 				Screen.DrawShape(dmgMarkerTex, false, 
@@ -3613,18 +3618,13 @@ class JGPUFH_FlexibleHUD : EventHandler
 	// Update player position and angle with smooth
 	// interpolation between tics. Used by the
 	// minimap and damage markers:
-	ui void UpdatePlayerAngle()
+	ui void UpdatePlayerAnglePos()
 	{
-		int lt = Level.mapTime;
-		if (!prevLevelTime)
-			prevLevelTime = lt;
-		
-		if (lt > prevLevelTime)
-		{
-			prevPlayerAngle = CPlayer.mo.angle;
-			prevPlayerPos = CPlayer.mo.pos.xy;
-			prevLevelTime = lt;
-		}
+		playerAnglePrev = playerAngleCur;
+		playerAngleCur = CPlayer.mo.angle;
+
+		playerPosPrev = playerPosCur;
+		playerPosCur = CPlayer.mo.pos.xy;
 	}
 
 	// Checks if the minimap should be drawn. Has two returns:
@@ -3705,11 +3705,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// These are needed to position the lines on our
 		// minimap to the same relative positions they are
 		// in the world:
-		Vector2 ppos;
-		// Lerp pos and angle to smooth it with framerate:
-		ppos.x = Lerp(prevPlayerPos.x, CPlayer.mo.pos.x, fracTic);
-		ppos.y = Lerp(prevPlayerPos.y, CPlayer.mo.pos.y, fracTic);
-		double playerAngle = -(Lerp(prevPlayerAngle, CPlayer.mo.angle, fracTic) + 90);
+		Vector2 ppos = playerPosIntr;
+		double playerAngle = -(playerAngleIntr + 90);
 
 		Vector2 diff = Level.Vec2Diff((0,0), ppos);
 
@@ -4272,7 +4269,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		int flags = SetScreenFlags(c_CompassPos.GetInt());
 		Vector2 pos = AdjustElementPos((0,0), flags, (size.x*0.5, size.y), (c_CompassPosX.GetInt(), c_CompassPosY.GetInt()));
 
-		double playerAngle = Actor.Normalize180(-(Lerp(prevPlayerAngle, CPlayer.mo.angle, fracTic)));
+		double playerAngle = Actor.Normalize180(-playerAngleIntr);
 		statusbar.SetClipRect(
 			pos.x,
 			pos.y,
