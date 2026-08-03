@@ -61,8 +61,8 @@ class JGPUFH_FlexibleHUD : EventHandler
 	}
 
 	// Health/armor bars CVAR values:
-	ui LinearValueInterpolator healthIntr;
-	ui LinearValueInterpolator armorIntr;
+	ui JGPUFH_ValueInterpolator healthIntr;
+	ui JGPUFH_ValueInterpolator armorIntr;
 	const MAINBARS_BaseWidth = 120.0;
 	const MAINBARS_BaseHeight = 28.0;
 	const MUGSHOT_Size = MAINBARS_BaseHeight;
@@ -544,7 +544,6 @@ class JGPUFH_FlexibleHUD : EventHandler
 		{
 			UpdateWeaponSlots();
 			UpdatePlayerAnglePos();
-			UpdateInterpolators();
 		}
 	}
 
@@ -581,6 +580,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 			UpdateInventoryBar(deltaTime);
 			UpdateReticleBars(deltaTime);
 			UpdateEnemyHitMarker(deltaTime);
+			UpdateInterpolators(deltaTime);
 		}
 		
 		DrawPowerups();
@@ -1094,7 +1094,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 				// if spacing is 0, alternate colors every other segment:
 				segcol = (spacing == 0 && (i % 2) != 0)? altColor : barColor;
-				segWidth = min(perSegmentWidth[i], curInnerBarWidth - (segPos.x - innerBarPos.x));
+				segWidth = int(min(perSegmentWidth[i], curInnerBarWidth - (segPos.x - innerBarPos.x)));
 				if (segWidth <= 0) break;
 
 				statusbar.Fill(segcol, segPos.x, segPos.y, segWidth, innerBarHeight, flags);
@@ -1161,7 +1161,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		);
 	}
 
-	ui Color GetValueRangeColor(int curValue, int maxvalue,
+	ui Color GetValueRangeColor(double curValue, double maxvalue,
 		CVar cv_thresholds,
 		CVar cv_colors,
 		CVar cv_useGradient,
@@ -1435,21 +1435,21 @@ class JGPUFH_FlexibleHUD : EventHandler
 		}
 	}
 
-	ui void UpdateInterpolators()
+	ui void UpdateInterpolators(double delta)
 	{
 		if (healthIntr)
-			healthIntr.Update(CPlayer.mo.health);
+			healthIntr.Update(CPlayer.mo.health, delta);
 		if (armorIntr)
-			armorIntr.Update(armorAmount);
+			armorIntr.Update(armorAmount, delta);
 
 		if (!healthIntr && healthMaxAmount > 0)
 		{
-			healthIntr = LinearValueInterpolator.Create(healthMaxAmount, 1);
+			healthIntr = JGPUFH_ValueInterpolator.CreateLinear(healthMaxAmount, 1);
 			healthIntr.Reset(healthAmount);
 		}
 		if (!armorIntr && armorMaxAmount > 0)
 		{
-			armorIntr = LinearValueInterpolator.Create(armorMaxAmount, 1);
+			armorIntr = JGPUFH_ValueInterpolator.CreateLinear(armorMaxAmount, 1);
 			armorIntr.Reset(armorAmount);
 		}
 	}
@@ -1566,16 +1566,14 @@ class JGPUFH_FlexibleHUD : EventHandler
 			return;
 		}
 
-		double width = MAINBARS_BaseWidth;
-		double height = MAINBARS_BaseHeight;
 		double scale = GetElementScale(c_MainBarsScale);
-		height *= scale;
-		width *= scale;
+		double width = MAINBARS_BaseWidth * scale;
+		double height = MAINBARS_BaseHeight * scale;
 		if (drawThis < DB_DRAWBARS)
 		{
 			width *= 0.5;
 		}
-		double barheight = height * 0.4;
+		int barheight = int(ceil(height * 0.4));
 		int flags = SetScreenFlags(c_MainBarsPos.GetInt());
 		bool drawbars = drawThis >= DB_DRAWBARS;
 		Vector2 ofs = ( c_MainBarsX.GetInt(), c_MainBarsY.GetInt() );
@@ -1614,7 +1612,7 @@ class JGPUFH_FlexibleHUD : EventHandler
 		// bars background:
 		BackgroundFill(pos.x, pos.y, width, height, flags);
 		int barFlags = flags|StatusBarCore.DI_ITEM_CENTER;
-		int indent = 4 * scale;
+		int indent = int(round(4 * scale));
 		double iconSize = 8 * scale;
 		Vector2 iconPos = (pos.x + indent + iconsize * 0.5, pos.y + height*0.75);
 
@@ -1623,19 +1621,19 @@ class JGPUFH_FlexibleHUD : EventHandler
 		
 		// Calculate bar width (it should be indented deeper
 		// from the edges and offset from the icon):
-		int barWidth = width - iconSize - indent*3;
+		int barWidth = int(width - iconSize - indent*3);
 		double barPosX = iconPos.x + iconsize*0.5 + indent;
 		// Color/font data:
 		HUDFont fnt; Vector2 fntscale;
 		[fnt, fntscale] = GetHUDFont(mainHUDFont);
 		fntScale *= scale;
 		double fy = GetFontHeight(mainHUDFont, scale);
-		Color cColor = GetHealthColor(healthAmount, healthMaxAmount);
+		Color cColor = GetHealthColor(int(healthAmount), int(healthMaxAmount));
 		// Draw health bar or numbers:
 		if (drawbars)
 		{
-			DrawFlatColorBar((barPosX, iconPos.y), GetHealthInterpolated(), healthMaxAmount, Color(200, 255, 255, 255), barwidth:barWidth, barheight: barheight, flags:barFlags);
-			DrawFlatColorBar((barPosX, iconPos.y), healthAmount, healthMaxAmount, cColor, valueColor: Font.CR_White, barwidth:barWidth, barheight: barheight, backColor: 0x00000000, flags:barFlags);
+			DrawFlatColorBar((barPosX, iconPos.y), GetHealthInterpolated(), healthMaxAmount, Color(200, 255, 255, 255), barwidth: barWidth, barheight: barheight, flags: barFlags);
+			DrawFlatColorBar((barPosX, iconPos.y), healthAmount, healthMaxAmount, cColor, valueColor: Font.CR_White, barwidth: barWidth, barheight: barheight, backColor: 0x00000000, flags: barFlags);
 		}
 		else
 		{
@@ -1727,8 +1725,9 @@ class JGPUFH_FlexibleHUD : EventHandler
 
 		if (drawbars)
 		{
-			DrawFlatColorBar((barPosX, iconPos.y), GetArmorInterpolated(), armorMaxAmount, Color(200, 255, 255, 255), barwidth:barWidth, barheight: barheight*0.8, segments: barm.maxamount / 10, flags:barFlags);
-			DrawFlatColorBar((barPosX, iconPos.y), armorAmount, armorMaxAmount, armorColor, valueColor: Font.CR_White, barwidth:barWidth, barheight*0.8, backColor: 0x00000000, segments: barm.maxamount / 10, flags:barFlags);
+			barheight = int(barheight * 0.8);
+			DrawFlatColorBar((barPosX, iconPos.y), GetArmorInterpolated(), armorMaxAmount, Color(200, 255, 255, 255), barwidth:barWidth, barheight: barheight, segments: barm.maxamount / 10, flags:barFlags);
+			DrawFlatColorBar((barPosX, iconPos.y), armorAmount, armorMaxAmount, armorColor, valueColor: Font.CR_White, barwidth:barWidth, barheight, backColor: 0x00000000, segments: barm.maxamount / 10, flags:barFlags);
 		}
 		else
 		{

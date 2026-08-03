@@ -425,3 +425,97 @@ class JGPUFH_DeathmatchInfo
 		return dm;
 	}
 }
+
+class JGPUFH_ValueInterpolator : Object
+{
+	Vector3 v_current3D;
+	double v_current;
+	double v_minStep;
+	double v_maxStep;
+	double v_stepFactor;
+	bool v_isDynamic;
+
+	static JGPUFH_ValueInterpolator CreateLinear(double startval, double maxstep)
+	{
+		let v = new('JGPUFH_ValueInterpolator');
+		v.v_current = startval;
+		v.v_maxStep = maxstep;
+		v.v_isDynamic = false;
+		return v;
+	}
+
+	static JGPUFH_ValueInterpolator CreateDynamic(double startval, double stepFactor, double minstep, double maxstep)
+	{
+		let v = new('JGPUFH_ValueInterpolator');
+		v.v_current = startval;
+		v.v_stepFactor = stepFactor;
+		v.v_minStep = minstep;
+		v.v_maxStep = maxstep;
+		v.v_isDynamic = true;
+		return v;
+	}
+
+	static JGPUFH_ValueInterpolator Create3D(Vector3 startval, double stepFactor, double minstep, double maxstep, bool dynamic = false)
+	{
+		let v = new('JGPUFH_ValueInterpolator');
+		v.v_current3D = startval;
+		v.v_stepFactor = stepFactor;
+		v.v_minStep = minstep;
+		v.v_maxStep = maxstep;
+		v.v_isDynamic = dynamic;
+		return v;
+	}
+
+	void Reset(double value)
+	{
+		v_current = value;
+	}
+
+	void Reset3D(Vector3 value)
+	{
+		v_current3D = value;
+	}
+
+	void Update(double destvalue, double delta = 1.0)
+	{
+		double diff = v_isDynamic? clamp(abs(destvalue - v_current) * v_stepFactor, v_minStep, v_maxStep) : v_maxStep;
+		diff *= delta;
+		if (v_current > destvalue)
+		{
+			v_current = max(destvalue, v_current - diff);
+		}
+		else
+		{
+			v_current = min(destvalue, v_current + diff);
+		}
+	}
+
+	void Update3D(Vector3 destvalue, double delta = 1.0)
+	{
+		Vector3 diff;
+		if (v_isDynamic)
+		{
+			diff.x = clamp(abs(destvalue.x - v_current3D.x) * v_stepFactor, v_minStep, v_maxStep);
+			diff.y = clamp(abs(destvalue.y - v_current3D.y) * v_stepFactor, v_minStep, v_maxStep);
+			diff.z = clamp(abs(destvalue.z - v_current3D.z) * v_stepFactor, v_minStep, v_maxStep);
+		}
+		else
+		{
+			diff = (v_maxStep, v_maxStep, v_maxStep);
+		}
+		diff *= delta;
+		v_current3D.x = v_current3D.x > destvalue.x? max(destvalue.x, v_current3D.x - diff.x) : min(destvalue.x, v_current3D.x + diff.x);
+		v_current3D.y = v_current3D.y > destvalue.y? max(destvalue.y, v_current3D.y - diff.y) : min(destvalue.y, v_current3D.y + diff.y);
+		v_current3D.z = v_current3D.z > destvalue.z? max(destvalue.z, v_current3D.z - diff.z) : min(destvalue.z, v_current3D.z + diff.z);
+	}
+
+	double GetValue()
+	{
+		return v_current;
+	}
+
+	Vector3 GetValue3D()
+	{
+		return v_current3D;
+	}
+}
